@@ -194,7 +194,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         // ---- discreet SOS (full flow: nearest help + helplines + duress) ----
         SosButton(
-          label: t.emergencySosButton,
+          label: t.sosgapSosButtonLine,
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
         ),
