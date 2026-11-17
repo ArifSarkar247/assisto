@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
-import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/robo_id.dart';
 
@@ -47,11 +46,10 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             const Spacer(),
             // tl1: Semantics identifier = Android resource-id for Test Lab Robo.
             RoboId(id: 'tl_lang_continue',
-              child: DsButton(
-                expand: true,
+              child: FilledButton(
                 onPressed: () =>
                     context.read<AppState>().setLocale(Locale(_code)),
-                label: _code == 'bn' ? AppLocalizations.of(context).continueWord : 'Continue',
+                child: Text(_code == 'bn' ? AppLocalizations.of(context).continueWord : 'Continue'),
               ),
             ),
             const SizedBox(height: Gap.xs),
@@ -72,13 +70,20 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
     final scheme = Theme.of(context).colorScheme;
     final selected = _code == code;
     return RoboId(id: 'tl_lang_$code',
-      // design2: each language is an alive DS surface; the chosen one is the
-      // selected style (primary border on the soft tint)
-      child: DsSurface(
-        onTap: () => setState(() => _code = code),
+      child: InkWell(
+      borderRadius: BorderRadius.circular(Radii.md),
+      onTap: () => setState(() => _code = code),
+      child: AnimatedContainer(
+        duration: Motion.fast,
         padding: const EdgeInsets.all(Gap.lg),
-        color: selected ? scheme.ds.primarySoft : null,
-        borderColor: selected ? scheme.ds.primary : null,
+        decoration: BoxDecoration(
+          color: selected ? scheme.ds.primarySoft : scheme.ds.cardHighest,
+          borderRadius: BorderRadius.circular(Radii.md),
+          border: Border.all(
+            color: selected ? scheme.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
         child: Row(children: [
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -88,8 +93,9 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             ]),
           ),
           Icon(selected ? Icons.check_circle_rounded : Icons.circle_rounded,
-              color: selected ? scheme.ds.primaryInk : scheme.ds.muted),
+              color: selected ? scheme.primary : scheme.ds.muted),
         ]),
+      ),
       ),
     );
   }
