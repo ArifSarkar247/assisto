@@ -163,6 +163,8 @@ net_mode() {  # $1 = off|on
         done
         timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
         echo "$(date +%T) projection $f tapped=$tapped" >> "$OUT/projection.log"
+      done ) &
+
 # antitheft-e2e: generic host actions for the anti-theft E2E. The app prints
 # `REALITY_HOST <verb> <file>`; the host does it with adb and pushes the
 # command output as the ack file (the app reads it). Verbs:
