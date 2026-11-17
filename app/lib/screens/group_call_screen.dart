@@ -783,5 +783,7 @@ class _NoMedia implements GroupMedia {
   @override
   Future<void> setVideoKbps(int kbps) async {}
   @override
+  Future<Map<String, dynamic>> debugEvidence(int legId) async => const {};
+  @override
   Future<void> dispose() async {}
 }

@@ -9,6 +9,7 @@ import 'call_controller.dart' show MediaLinkState, MediaOpenException;
 import 'call_log.dart';
 import 'call_net_policy.dart' show CallNetPolicy, tuneOpusSdp;
 import 'group_call_controller.dart';
+import 'webrtc_media.dart' show offerNeedsRecvOnlyVideo; // gatefix rule
 
 /// group-calls: [GroupMedia] on flutter_webrtc — ONE microphone (+ camera)
 /// stream sent on one peer connection per person (mesh). Loaded with
@@ -191,7 +192,7 @@ class GroupMeshMedia implements GroupMedia, GroupVideoSurface {
   @override
   Future<Map<String, dynamic>> createOffer(int legId) async {
     final p = _peer(legId);
-    if (legOfferNeedsRecvOnlyVideo(
+    if (offerNeedsRecvOnlyVideo(
         videoCall: _video,
         hasLocalVideo: p.video != null,
         alreadyAdded: p.recvVideoAdded)) {
@@ -355,6 +356,62 @@ class GroupMeshMedia implements GroupMedia, GroupVideoSurface {
     } catch (e) {
       callLog('group_mesh#8', e);
     }
+  }
+
+  /// gatefix 25f02670 evidence, per leg: SDP offer/answer, transceivers and
+  /// the video / audio rtp counters.
+  @override
+  Future<Map<String, dynamic>> debugEvidence(int legId) async {
+    final p = _peers[legId];
+    if (p == null) return {'pc': null};
+    final pc = p.pc;
+    final out = <String, dynamic>{};
+    try {
+      out['local_sdp'] = (await pc.getLocalDescription())?.sdp;
+      out['remote_sdp'] = (await pc.getRemoteDescription())?.sdp;
+    } catch (e) {
+      out['sdp_error'] = '$e';
+    }
+    final tx = <Map<String, dynamic>>[];
+    try {
+      for (final t in await pc.getTransceivers()) {
+        String? dir, cur;
+        try {
+          dir = '${await t.getDirection()}';
+          cur = '${await t.getCurrentDirection()}';
+        } catch (_) {}
+        final st = t.sender.track, rt = t.receiver.track;
+        tx.add({
+          'mid': t.mid,
+          'direction': dir,
+          'current': cur,
+          'sender_track': st == null ? null : {'kind': st.kind, 'enabled': st.enabled},
+          'receiver_track': rt == null ? null : {'kind': rt.kind},
+        });
+      }
+    } catch (e) {
+      out['transceivers_error'] = '$e';
+    }
+    out['transceivers'] = tx;
+    final rtp = <Map<String, dynamic>>[];
+    try {
+      for (final r in await pc.getStats()) {
+        if (r.type != 'inbound-rtp' && r.type != 'outbound-rtp') continue;
+        final v = r.values;
+        rtp.add({
+          'type': r.type,
+          'kind': v['kind'] ?? v['mediaType'],
+          for (final k in const ['framesEncoded', 'packetsSent', 'framesDecoded',
+              'packetsReceived', 'bytesReceived', 'frameWidth', 'frameHeight'])
+            if (v[k] != null) k: v[k],
+        });
+      }
+    } catch (e) {
+      out['stats_error'] = '$e';
+    }
+    out['rtp'] = rtp;
+    out['recv_video_added'] = p.recvVideoAdded;
+    return out;
   }
 
   @override

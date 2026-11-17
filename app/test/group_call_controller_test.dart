@@ -40,11 +40,18 @@ void main() {
       expect(mediaFlowProven(const []), isFalse);
     });
 
-    test('media proof: video expected needs decoded frames', () {
+    test('media proof: video expected needs decoded AND growing frames',
+        () {
       final a = run([0, 50, 100, 150, 200, 250, 300]);
       expect(mediaFlowProven(a, expectVideo: true), isFalse);
+      // frames decoded once, then frozen -> not proven (gatefix bar)
       final b = run([0, 50, 100, 150, 200, 250, 300], v: 30);
-      expect(mediaFlowProven(b, expectVideo: true), isTrue);
+      expect(mediaFlowProven(b, expectVideo: true), isFalse);
+      final c = [
+        for (var i = 0; i < 7; i++)
+          (t0.add(Duration(seconds: i)), st(i * 50, v: i * 15))
+      ];
+      expect(mediaFlowProven(c, expectVideo: true), isTrue);
     });
 
     test('grid shape for 1..8 people', () {
@@ -54,25 +61,6 @@ void main() {
       expect(gridShape(4), (2, 2));
       expect(gridShape(5), (2, 3));
       expect(gridShape(8), (2, 4));
-    });
-
-    test('recv-only video m-line rule per leg (gatefix rule)', () {
-      expect(
-          legOfferNeedsRecvOnlyVideo(
-              videoCall: true, hasLocalVideo: false, alreadyAdded: false),
-          isTrue);
-      expect(
-          legOfferNeedsRecvOnlyVideo(
-              videoCall: true, hasLocalVideo: true, alreadyAdded: false),
-          isFalse);
-      expect(
-          legOfferNeedsRecvOnlyVideo(
-              videoCall: false, hasLocalVideo: false, alreadyAdded: false),
-          isFalse);
-      expect(
-          legOfferNeedsRecvOnlyVideo(
-              videoCall: true, hasLocalVideo: false, alreadyAdded: true),
-          isFalse);
     });
   });
 
@@ -113,6 +101,38 @@ void main() {
         expect(proof.length, 2);
         expect(proof.values.every((v) => v), isTrue, reason: '$proof');
       }
+      for (final p in [a, b, c]) {
+        p.dispose();
+      }
+    });
+
+    test('VIDEO, 3 people: decoded frames grow both ways for every pair '
+        '(gatefix 25f02670 bar)', () async {
+      final hub = Hub(kind: 'video');
+      final a = phoneFor(hub, 1, video: true);
+      await a.start(initial: hub.hostStart(1, [2, 3]));
+      final b = phoneFor(hub, 2, video: true);
+      await b.start();
+      await settle();
+      final c = phoneFor(hub, 3, video: true);
+      await c.start();
+      await settle();
+      for (final p in [a, b, c]) {
+        await p.refresh(); // every tile knows the others' cameras are on
+      }
+      expect(hub.camera.values.every((v) => v), isTrue);
+      await proveAll(hub, [a, b, c]);
+      for (final p in [a, b, c]) {
+        expect(p.mediaProof.length, 2);
+        expect(p.mediaProof.values.every((v) => v), isTrue,
+            reason: '${p.myId}: ${p.mediaProof}');
+        expect((await p.evidence()).length, 2);
+      }
+      // a camera that stops sending -> that pair is NOT proven any more
+      hub.camera[2] = false;
+      await a.refresh();
+      await proveAll(hub, [a]);
+      expect(a.mediaProof[2], isFalse);
       for (final p in [a, b, c]) {
         p.dispose();
       }

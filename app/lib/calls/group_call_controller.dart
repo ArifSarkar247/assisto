@@ -75,6 +75,10 @@ abstract class GroupMedia {
 
   /// Video send cap per leg (kbit/s) — low data on mobile / many people.
   Future<void> setVideoKbps(int kbps);
+
+  /// gatefix-style evidence for one leg (SDP, transceivers, rtp counters):
+  /// printed by the e2e proof when a pair fails. {} when not available.
+  Future<Map<String, dynamic>> debugEvidence(int legId);
   Future<void> dispose();
 }
 
@@ -213,20 +217,14 @@ bool mediaFlowProven(List<(DateTime, LegStats)> samples,
     if (prev != null && p <= prev) return false;
     prev = p;
   }
-  if (expectVideo && (last.$2.videoFramesDecoded ?? 0) <= 0) return false;
+  // video: frames decoded AND still growing (gatefix 25f02670 bar)
+  if (expectVideo) {
+    final lf = last.$2.videoFramesDecoded ?? 0;
+    final bf = base.$2.videoFramesDecoded ?? 0;
+    if (lf <= 0 || lf <= bf) return false;
+  }
   return true;
 }
-
-/// The SDP rule of the 1:1 release gate (gatefix d5d081db / a878e7e6
-/// offerNeedsRecvOnlyVideo), per leg: a VIDEO call's offer must carry a
-/// video m-line even when this phone has no camera track (busy / failed /
-/// camera off from the start) — then receive-only, so the other person's
-/// camera still reaches us. A voice call gets none. Never added twice.
-bool legOfferNeedsRecvOnlyVideo(
-        {required bool videoCall,
-        required bool hasLocalVideo,
-        required bool alreadyAdded}) =>
-    videoCall && !hasLocalVideo && !alreadyAdded;
 
 /// The grid shape for [n] tiles: (columns, rows). 1 -> 1x1, 2 -> 1x2,
 /// 3-4 -> 2x2, 5-6 -> 2x3, 7-8 -> 2x4.
@@ -359,6 +357,11 @@ class GroupCallController extends ChangeNotifier {
         for (final l in _legs.values)
           l.peerId: mediaFlowProven(l.samples,
               expectVideo: isVideo && (_tiles[l.peerId]?.camera ?? false))
+      };
+
+  /// Evidence for every leg (e2e logs; never sent anywhere).
+  Future<Map<int, Map<String, dynamic>>> evidence() async => {
+        for (final id in legIds) id: await media.debugEvidence(id)
       };
 
   /// Bytes this call used on this phone (all legs).

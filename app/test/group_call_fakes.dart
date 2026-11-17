@@ -288,6 +288,10 @@ class FakeGroupMedia implements GroupMedia {
   Future<void> setVideoKbps(int kbps) async {}
 
   @override
+  Future<Map<String, dynamic>> debugEvidence(int legId) async =>
+      {'leg': legId, 'up': peers[legId]?.up ?? false};
+
+  @override
   Future<void> dispose() async {
     disposed = true;
     peers.clear();
