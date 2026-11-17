@@ -106,8 +106,11 @@ class PerfFlowCtx {
   /// Time [trigger] → first frame of a NEW top route → ready. With
   /// [sameRoute] the screen does not change (e.g. a tap inside a screen):
   /// first frame = the frame after the trigger.
+  /// [allowBusy] (speedproof): a spinner that is not about this screen's own
+  /// data (e.g. waiting for a GPS fix the emulator never gets) does not hold
+  /// "ready" back — [ready] decides.
   Future<Map<String, dynamic>> openTimed(String label, FutureOr<void> Function() trigger,
-      {Finder? ready, bool sameRoute = false, double capSeconds = 10}) async {
+      {Finder? ready, bool sameRoute = false, double capSeconds = 10, bool allowBusy = false}) async {
     final before = topRoute();
     final win = FrameWindow()..start();
     final httpFrom = f.h.recorder.hits.length; // speedproof: the screen's API calls
@@ -125,7 +128,7 @@ class PerfFlowCtx {
       first ??= sw.elapsedMilliseconds;
       final anim = top is ModalRoute ? top.animation : null;
       final settled = anim == null || anim.status == AnimationStatus.completed;
-      final ok = settled && !_busy() && (ready == null || ready.evaluate().isNotEmpty);
+      final ok = settled && (allowBusy || !_busy()) && (ready == null || ready.evaluate().isNotEmpty);
       if (ok) {
         if (calmSince < 0) calmSince = sw.elapsedMilliseconds;
         // ready = the first moment it was calm, confirmed one poll later
@@ -167,12 +170,12 @@ class PerfFlowCtx {
   }
 
   Future<Map<String, dynamic>> pushTimed(String label, Widget screen,
-      {Finder? ready, double capSeconds = 10}) {
+      {Finder? ready, double capSeconds = 10, bool allowBusy = false}) {
     final nav = appNavigatorKey.currentState;
     if (nav == null) throw TestFailure('no navigator');
     return openTimed(label, () {
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => screen)));
-    }, ready: ready, capSeconds: capSeconds);
+    }, ready: ready, capSeconds: capSeconds, allowBusy: allowBusy);
   }
 
   /// The biggest vertical scrollable on screen.

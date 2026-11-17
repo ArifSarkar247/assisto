@@ -22,7 +22,7 @@ import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
-import 'package:assisto/screens/quran_screen.dart';
+import 'package:assisto/screens/quran_screen.dart' show QuranReaderScreen, QuranScreen;
 import 'package:assisto/widgets/ai_markdown.dart';
 
 import '../support/harness.dart';
@@ -75,20 +75,23 @@ Future<void> _push(PerfFlowCtx p, String label, Widget Function() screen, {Finde
 /// honest "needs the AI key" answer — the model's own time is not in it).
 Future<void> _askTimed(PerfFlowCtx p, String label, String q) async {
   final f = p.f;
-  // the CHAT's own box: the home's ask box (same hint) stays in the tree
-  // behind the pushed chat — run 44002942576 typed into that one
+  // the chat composer = the one TextField whose keyboard action is Send
+  // (runs 44002942576 / 44031239103: the Send tap went out with an empty
+  // box — no /agent call — so the text now goes in and is SUBMITTED the way
+  // the keyboard's Send key does it: onSubmitted -> _send)
   final box = find
-      .ancestor(of: find.text(f.t.inputHint), matching: find.byType(TextField))
+      .byWidgetPredicate((w) => w is TextField && w.textInputAction == TextInputAction.send)
       .hitTestable();
-  await f.waitFor(box, what: 'chat input');
-  await f.tester.tap(box.last, warnIfMissed: false);
-  await f.tester.pump();
-  await f.tester.enterText(box.last, q);
+  await f.waitFor(box, what: 'chat composer');
+  await f.tester.showKeyboard(box.first);
+  await f.tester.enterText(box.first, q);
   await f.pumpFor(const Duration(milliseconds: 300));
+  final typed = (f.tester.widget(box.first) as TextField).controller?.text ?? '?';
+  if (typed != q) p.notes.add('$label: composer holds "$typed"');
   final before = find.byType(AiMarkdown).evaluate().length;
   final httpFrom = f.h.recorder.hits.length;
   final sw = Stopwatch()..start();
-  await f.tester.tap(find.byTooltip(f.t.send).hitTestable().first, warnIfMissed: false);
+  await f.tester.testTextInput.receiveAction(TextInputAction.send);
   int? at;
   while (sw.elapsedMilliseconds < 30000) {
     await f.tester.pump(const Duration(milliseconds: 16));
@@ -96,6 +99,10 @@ Future<void> _askTimed(PerfFlowCtx p, String label, String q) async {
       at = sw.elapsedMilliseconds;
       break;
     }
+  }
+  if (at == null) {
+    p.notes.add('$label: no answer text in 30 s; requests: '
+        '${f.h.recorder.hits.skip(httpFrom).where((x) => !x.path.startsWith('/rt/')).map((x) => '${x.method} ${x.path} ${x.status}').take(6).join(', ')}');
   }
   p.opens[label] = {
     'first_frame_ms': at,
@@ -159,8 +166,12 @@ void registerSpeedproofFlows() {
     });
     // the Safe Journey hub (what the home tile opens), then the start form
     await _route(p, 'journey_start', 'journey');
-    await _push(p, 'journey_form', () => const JourneyStartScreen(),
-        ready: find.byKey(const ValueKey('j100_dest')));
+    // the emulator never gets a GPS fix: a location spinner may stay, so
+    // ready = the destination field is shown
+    await f.backToHome();
+    await _twice(p, 'journey_form',
+        (l) => p.pushTimed(l, const JourneyStartScreen(),
+            ready: find.byKey(const ValueKey('j100_dest')), allowBusy: true));
     int? jid;
     await f.net(() async {
       final r = await api.postJson('/journey/start', {
@@ -265,7 +276,12 @@ void registerSpeedproofFlows() {
   // ------------------------------------------------------------- Quran
   perfFlow('s15_quran', '১৩. কুরআন', 'Quran: list + ayah page (Al-Baqarah, 286 ayas)', (p) async {
     final f = p.f;
-    await _route(p, 'quran_list', 'quran', ready: find.byKey(const Key('quran-sura-1')));
+    // pushed directly: ChatNav 'quran' left the top route unchanged in run
+    // 44031239103 (no first frame); the screen is the same
+    await f.backToHome();
+    await _twice(p, 'quran_list',
+        (l) => p.pushTimed(l, const QuranScreen(), ready: find.byKey(const Key('quran-sura-1')),
+            capSeconds: 20));
     await _twice(p, 'quran_ayah', (l) async {
       final s = find.byKey(const Key('quran-sura-2'));
       await f.tester.ensureVisible(s);
