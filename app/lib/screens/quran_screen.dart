@@ -332,7 +332,7 @@ class _QuranScreenState extends State<QuranScreen> {
                 backgroundColor: _accent(context).withOpacity(0.12),
                 child: FittedBox(
                   child: Text(ld(context, i + 1),
-                      style: TextStyle(color: _accent(context), fontWeight: FontWeight.w600)),
+                      style: AType.labelLarge.copyWith(color: _accent(context), fontWeight: FontWeight.w600)),
                 ),
               ),
               title: Text(t.qrnJuzN(ld(context, i + 1))),
