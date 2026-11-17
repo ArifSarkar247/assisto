@@ -40,7 +40,7 @@ class PlanTests(unittest.TestCase):
 
     def test_deterministic(self):
         again = render.all_plans(CONTENT)
-        self.assertEqual([p["hash"] for p in again], [p["hash"] for p in self.plans])
+        self.assertEqual([p["hash"] for p in again], [p["hash"] for p in self.all])
 
     def test_last_part_has_final_check_time(self):
         by = {}
