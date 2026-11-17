@@ -41,11 +41,15 @@ else
   fi
 fi
 [ -n "$RID" ] && [ -n "$SHA" ] || stop "could not resolve the release build"
-gh api "repos/$R/actions/runs/$RID/artifacts?per_page=100" \
-  -q '.artifacts[] | select(.name=="assisto-apk-emu" and (.expired|not)) | .id' | grep -q . \
-  || stop "android.yml run $RID has no (unexpired) assisto-apk-emu artifact"
+# the x86_64 release APK (kept 2 days); an older build (e.g. the live production
+# one) only keeps its release AAB -> the smoke legs make a universal APK from it
+ARTS=$(gh api "repos/$R/actions/runs/$RID/artifacts?per_page=100" -q '.artifacts[] | select(.expired|not) | .name')
+if echo "$ARTS" | grep -qx assisto-apk-emu; then APK_ART=assisto-apk-emu
+elif echo "$ARTS" | grep -qx assisto-aab; then APK_ART=assisto-aab
+else stop "android.yml run $RID has neither assisto-apk-emu nor assisto-aab (expired?)"; fi
+out apk_artifact "$APK_ART"
 gh api -X POST "repos/$R/statuses/$SHA" -f state=pending -f context=release-gate \
   -f description="release gate running (build run $RID)" -f target_url="$RUN_URL" >/dev/null
 out go true; out sha "$SHA"; out run_id "$RID"; out why ok
-{ echo "### Release gate target"; echo "commit \`$SHA\` - release build android.yml run [$RID]($GITHUB_SERVER_URL/$R/actions/runs/$RID) (artifact assisto-apk-emu)"; } >> "$GITHUB_STEP_SUMMARY"
+{ echo "### Release gate target"; echo "commit \`$SHA\` - release build android.yml run [$RID]($GITHUB_SERVER_URL/$R/actions/runs/$RID) (artifact $APK_ART)"; } >> "$GITHUB_STEP_SUMMARY"
 echo "gating $SHA (android.yml run $RID)"

@@ -71,6 +71,7 @@ jobs:
       go: ${{ steps.r.outputs.go }}
       sha: ${{ steps.r.outputs.sha }}
       run_id: ${{ steps.r.outputs.run_id }}
+      apk_artifact: ${{ steps.r.outputs.apk_artifact }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,10 +106,24 @@ jobs:
       - name: Release APK of that exact build (android.yml artifact)
         uses: actions/download-artifact@v4
         with:
-          name: assisto-apk-emu
-          path: apk
+          name: ${{ needs.resolve.outputs.apk_artifact }}
+          path: ${{ needs.resolve.outputs.apk_artifact == 'assisto-aab' && 'aab' || 'apk' }}
           run-id: ${{ needs.resolve.outputs.run_id }}
           github-token: ${{ github.token }}
+      - name: Only the release AAB survives -> universal APK (bundletool, CI throw-away key)
+        if: needs.resolve.outputs.apk_artifact == 'assisto-aab'
+        run: |
+          # the AAB is arm/arm64 only: API 33 x86_64 Google-APIs images run it through
+          # ARM translation; API 28 images have none (the install says so)
+          set -euo pipefail
+          curl -fsSL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar
+          keytool -genkeypair -keystore ci.jks -storepass cigate -keypass cigate -alias ci \
+            -keyalg RSA -keysize 2048 -validity 30 -dname "CN=relgate CI" >/dev/null 2>&1
+          AAB=$(find aab -name '*.aab' | head -1); echo "aab: $AAB"
+          java -jar bundletool.jar build-apks --bundle="$AAB" --output=u.apks --mode=universal \
+            --ks=ci.jks --ks-pass=pass:cigate --ks-key-alias=ci --key-pass=pass:cigate
+          mkdir -p apk && unzip -o -q u.apks universal.apk -d apk && ls -la apk
+          echo "NOTE: universal APK built from the release AAB (re-signed with a CI key)" >> "$GITHUB_STEP_SUMMARY"
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -206,17 +221,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: _gate
-          sparse-checkout: |
-            tools/relgate
-            tools/reality/run_flows.sh
-            app/integration_test/support/harness.dart
-          sparse-checkout-cone-mode: false
-      - name: Flow-id filter (overlay only when the build commit predates relgate)
+          sparse-checkout: tools/relgate
+      - name: Flow-id filter (inserted in place when the build commit predates relgate)
         run: |
-          grep -q REALITY_FLOW_IDS app/integration_test/support/harness.dart \
-            || { cp _gate/app/integration_test/support/harness.dart app/integration_test/support/harness.dart; echo "harness overlaid"; }
-          grep -q REALITY_FLOW_IDS tools/reality/run_flows.sh \
-            || { cp _gate/tools/reality/run_flows.sh tools/reality/run_flows.sh; echo "run_flows overlaid"; }
+          python3 _gate/tools/relgate/overlay_filter.py
           git log -1 --format='gating %H %s'
       - name: Free runner disk (the emulator image needs ~8 GB)
         run: |
