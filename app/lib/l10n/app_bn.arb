@@ -25944,5 +25944,7 @@
   "lp2TrackTests": "অনুশীলন টেস্ট",
   "lp2TrackVocab": "নতুন শব্দ",
   "lp2TrackWeek": "সপ্তাহ {week}",
-  "lp2TrackWriteHere": "এখানে আপনার উত্তর লিখুন"
+  "lp2TrackWriteHere": "এখানে আপনার উত্তর লিখুন",
+  "d2LeadScoreA11y": "লিড স্কোর {score}",
+  "d2LeadScoreHint": "রঙিন নম্বরটি লিড স্কোর: যত বেশি, কেনার সম্ভাবনা তত বেশি।"
 }
