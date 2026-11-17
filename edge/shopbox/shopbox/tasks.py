@@ -30,7 +30,7 @@ from .config import AppConfig, CameraConfig, clean_source, split_rtsp_credential
 
 log = logging.getLogger(__name__)
 
-ACTIONS = ("check", "discover", "siren")
+ACTIONS = ("check", "discover", "siren", "play")
 POLL_EVERY_S = 60.0
 RETRY_DELAYS = (2.0, 5.0, 15.0)     # max 3 retries after the first attempt
 MAX_TASKS_PER_POLL = 10
@@ -76,6 +76,7 @@ class GatewayTasks:
                  check: Callable = compat.run_check,
                  discover: Callable = compat.run_discover,
                  siren: Callable = siren_mod.hikvision_siren,
+                 speaker=None,
                  poll_every_s: float = POLL_EVERY_S,
                  clock: Callable[[], float] = time.monotonic,
                  sleep: Callable[[float], None] = time.sleep,
@@ -87,6 +88,7 @@ class GatewayTasks:
         self.check = check
         self.discover = discover
         self.siren = siren
+        self.speaker = speaker      # gboxlinux: speaker.Speaker for "play" tasks
         self.poll_every_s = float(poll_every_s)
         self.clock = clock
         self.sleep = sleep
@@ -226,6 +228,12 @@ class GatewayTasks:
                                     self.store.get(user_key(cam)), secret,
                                     int(req.get("seconds") or 15),
                                     int(req.get("channel") or 1))
+            elif action == "play" and self.speaker is not None:
+                # gboxlinux (cctvact contract): siren / the owner's warning
+                # through THIS box's own speaker
+                out = self.speaker.play({"id": task.get("id"),
+                                         "request": task.get("request") or {}})
+                result = dict(out, steps=[])
             else:
                 result = {"ok": False, "steps": [], "code": "not_supported",
                           "detail": "unknown action"}

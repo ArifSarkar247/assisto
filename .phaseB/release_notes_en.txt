@@ -1,4 +1,3 @@
-- New website blog (managed by the owner).
-- Care Call: one-time calls now use the receiver's own day, also for family abroad.
-- New look for khata, Mess, CCTV, invoices and more screens.
-- Reliability fixes.
+- Email now really arrives: security alerts, password reset and account notices; clear messages and an SMS option if an email can't be sent.
+- City Service: more Dhaka bus and leguna routes with official BRTA fares; Chattogram started.
+- New look for CRM and more screens.

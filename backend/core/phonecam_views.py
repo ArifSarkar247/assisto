@@ -340,6 +340,49 @@ def _notify(site, cam, kind, health=None):
             pass
 
 
+# ---------------------------------------------------------------- gboxlinux
+def note_box_events(site, cam, raw, now):
+    """Heartbeat hook: a Guard Box (Linux / Raspberry Pi / Windows) reports
+    power-cut / internet-down events once it can reach us again. Each event
+    id is notified ONCE (cache, 8 days) to the owner + family viewers: an
+    in-app feed row and a push, in each person's language. Returns how many
+    events were taken (the box then forgets them). Never raises."""
+    from .logic import guardbox_events as GE
+    try:
+        evs = GE.clean(raw, now.timestamp())
+    except Exception:
+        log.exception("box events: bad input")
+        return 0
+    taken = 0
+    for ev in evs:
+        taken += 1
+        try:
+            if not cache.add("gbox:%d:%s" % (site.id, ev["id"]), 1, GE.MAX_AGE_S):
+                continue                        # already told (a retried heartbeat)
+            tbn, ten, bbn, ben = GE.text(ev, site.name, now_ts=now.timestamp())
+            meta = {"source": "guard_box", "kind": ev["kind"], "site_id": site.id,
+                    "camera_id": getattr(cam, "id", None), "from": ev["from"],
+                    "to": ev["to"], "queued_alerts": ev["queued_alerts"]}
+            for user in _recipients(site, cam):
+                try:
+                    from .models import NotifEvent
+                    NotifEvent.objects.create(
+                        user=user, type="business", title_bn=tbn[:200], title_en=ten[:200],
+                        body_bn=bbn, body_en=ben, route="business", meta=meta)
+                except Exception:
+                    pass
+                try:
+                    from . import push
+                    push.safe_push(user, "shop_alert", tbn, ten, bbn, ben,
+                                   data=dict(meta, route="watchman"),
+                                   high_priority=ev["kind"] == "power_cut")
+                except Exception:
+                    pass
+        except Exception:
+            log.exception("box event notify failed")
+    return taken
+
+
 class ShopBoxDownloadView(APIView):
     """GET shop/shopbox/download (no login) — cctvtoday: the PC program's
     download link + version + SHA-256 (GitHub release `shopbox-windows`) and

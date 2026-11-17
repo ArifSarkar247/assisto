@@ -8,5 +8,5 @@ plus at most one downscaled still snapshot to the Assisto server's
 listening ports: every network connection it makes is an outbound HTTPS request.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 APP_NAME = "AssistoShopBox"

@@ -1,0 +1,41 @@
+# gboxlinux — the Assisto Guard Box (Linux mini PC / Raspberry Pi).
+[Unit]
+Description=Assisto Guard Box (CCTV AI guard)
+Documentation=https://lifeassisto.com
+Wants=network-online.target time-sync.target
+After=network-online.target time-sync.target sound.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+User=assisto-guardbox
+Group=assisto-guardbox
+SupplementaryGroups=audio
+EnvironmentFile=-/etc/default/assisto-guardbox
+Environment=SHOPBOX_HOME=/var/lib/assisto-guardbox
+ExecStart=/opt/assisto-guardbox/assisto-guardbox --run
+# watchdog restart: the box pings every 20 s; silent for 2 min -> restart
+WatchdogSec=120
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=0
+TimeoutStopSec=30
+# fit a 2 GB Raspberry Pi next to the OS (the lite profile keeps it ~350 MB)
+MemoryHigh=700M
+MemoryMax=1G
+CPUWeight=60
+Nice=5
+OOMScoreAdjust=200
+# hardening: the box only reads its own data dir and talks out to the LAN + Assisto
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/assisto-guardbox
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
