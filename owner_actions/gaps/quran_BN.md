@@ -28,3 +28,16 @@ CI checks 44105287697: flutter-static + ৪টি flutter-test সবুজ; bac
 ২. খোঁজে "২:২৫৫" লিখুন → "… ২:২৫৫-এ যান" বোতাম → আয়াতুল কুরসি খোলে কি? "কাহফ" লিখলে সূরা ১৮ আসে কি?
 ৩. যেকোনো সূরা খুলুন (ইংরেজি অ্যাপ-ভাষাতেও) → প্রতিটি আয়াতের নিচে বাংলা ও ইংরেজি অর্থ, উপরে উৎস + সংস্করণ। Aa → "বাংলা অর্থ" বন্ধ করুন → আয়াত-পাতাতেও বন্ধ থাকে কি?
 ৪. সূরা ইখলাসের শেষে "পরের সূরা: আল-ফালাক" চাপুন।
+
+## QuranEnc লাইসেন্স যাচাই (লিডের প্রশ্ন, ১৭ Nov — আজ আবার পাতা খুলে পড়া)
+প্রশ্ন: বিনামূল্যের অ্যাপে (অন্য পাতায় বিজ্ঞাপন আছে, কুরআনের পাতায় নেই) বাংলা ও ইংরেজি অর্থ হুবহু, উৎসসহ দেখানো যায় কি?
+উৎস (১৭ Nov ২০২৬ খুলে পড়া, দুটো পাতায় একই লেখা):
+* https://quranenc.com/en/browse/bengali_zakaria
+* https://quranenc.com/en/browse/english_saheeh
+
+হুবহু শর্ত ("Terms and Policies"):
+> "Contents of the translations can be downloaded and re-published, with the following terms and conditions: 1. No modification, addition, or deletion of the content. 2. Clearly referring to the publisher and the source (QuranEnc.com). 3. Mentioning the version number when re-publishing the translation. 4. Keeping the transcript information inside the document. 5. Notifying the source (QuranEnc.com) of any note on the translation. 6. Updating the translation according to the latest version issued from the source (QuranEnc.com). 7. Inappropriate advertisements must not be included when displaying translations of the meanings of the Noble Quran."
+
+সিদ্ধান্ত: **লিখিত অনুমতি লাগে না** — শর্ত মানলেই আবার প্রকাশ করা যায়। তাই অর্থ দেখানো আলাদা সুইচের পেছনে রাখা হয়নি (আগের `quran` সুইচের ভেতরেই)।
+আমরা কীভাবে মানি: (১) লেখা হুবহু, টীকার চিহ্নসহ — কোনো বদল নেই; (২) পড়ার পাতার উপরে ও আয়াত-পাতার প্রতিটি ব্লকে প্রকাশক + QuranEnc.com; (৩) সংস্করণ নম্বর দেখানো; (৪) টীকা রাখা; (৬) সার্ভার প্রতিদিন সর্বশেষ সংস্করণ মিলিয়ে নেয় (`translations/updates`); (৭) কুরআন ও কুরআন শিখির কোনো পাতায় বিজ্ঞাপন নেই (`ad_rules.dart`-এ `quran` নিষেধ)। অ্যাপের অন্য পাতায় বিজ্ঞাপন থাকা শর্ত ৭-এর বাইরে — শর্তটা অর্থ দেখানোর জায়গার কথা বলে।
+বাকি (মালিকের কাজ নয়, পরের ধাপ): শর্ত ৫ — অনুবাদে কেউ ভুল জানালে সেটা QuranEnc-কে পাঠানো; এখন "ভুল জানান" নোট মালিকের কাছে আসে, QuranEnc-এ পাঠানোর কাজ মালিক/লিডের হাতে।
