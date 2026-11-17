@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -358,22 +359,22 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    Widget section(String title) => Padding(
-          padding: const EdgeInsets.fromLTRB(0, Gap.lg, 0, Gap.xs),
-          child: Text(title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700)),
+    // each settings group = a DS section header + one alive DS card
+    Widget section(String title) => DsSectionHeader(title);
+    Widget card(List<Widget> c) => DsCard(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: c),
         );
     return Scaffold(
       appBar: AppBar(title: Text(tr.vehSettingsTitle)),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          child: FilledButton(
+          child: DsButton(
             onPressed: _saving ? null : _save,
-            child: Text(tr.save),
+            busy: _saving,
+            label: tr.save,
+            expand: true,
           ),
         ),
       ),
@@ -381,13 +382,16 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
         padding: withNavBarInset(context, const EdgeInsets.symmetric(horizontal: Gap.md)),
         children: [
           const SizedBox(height: Gap.sm),
+          card([
           TextField(
             controller: _name,
             maxLength: 40,
             buildCounter: localCounter,
             decoration: InputDecoration(labelText: tr.vehNameLabel),
           ),
+          ]),
           section(tr.vehAlertsSection),
+          card([
           Text(_speed == 0
               ? tr.vehSpeedLimitOff
               : tr.vehSpeedLimitOn(vehNumStr(context, _speed))),
@@ -476,9 +480,11 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
                   onPressed: () => _pickQuiet(false),
                   child: Text(notifLocalizeDigits(context, tr.vehNightTo(_quietEnd)))),
             ]),
+          ]),
           section(tr.vehFencesSection),
+          card([
           if (_fences.isEmpty)
-            Text(tr.vehFencesEmpty, style: TextStyle(color: scheme.onSurfaceVariant)),
+            Text(tr.vehFencesEmpty, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           for (final f in _fences)
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -487,7 +493,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
                       ? Icons.pentagon_outlined
                       : Icons.radio_button_checked_rounded,
                   color: Brand.purple),
-              title: Text('${f['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text('${f['name'] ?? ''}'),
               subtitle: Text(_fenceSub(tr, f), maxLines: 2),
               trailing: IconButton(
                 tooltip: tr.delete,
@@ -510,7 +516,9 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
               label: Text(tr.v100FenceDraw),
             ),
           ]),
+          ]),
           section(tr.v100OdoSection),
+          card([
           TextField(
             key: const ValueKey('veh-odo'),
             controller: _odo,
@@ -520,7 +528,9 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             decoration: InputDecoration(
                 labelText: tr.v100OdoLabel, helperText: tr.v100OdoHelp, helperMaxLines: 3),
           ),
+          ]),
           section(tr.vehIntervalSection),
+          card([
           const SizedBox(height: Gap.sm),
           DropdownButtonFormField<int>(
             initialValue: [5, 10, 30, 60].contains(_moving) ? _moving : 5,
@@ -548,7 +558,9 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
             child: Text(tr.vehIntervalNote,
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ),
+          ]),
           section(tr.vehApprovalSection),
+          card([
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _approval,
@@ -572,14 +584,16 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
               onChanged: (v) => setState(() => _approver = v),
             ),
           if (_approval && _approver != null && _memberName(_approver).isEmpty)
-            Text(tr.vehNoCircleMembers, style: TextStyle(color: scheme.error)),
+            Text(tr.vehNoCircleMembers, style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
+          ]),
           section(tr.vehSharingSection),
-          Text(tr.vehSharingBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          card([
+          Text(tr.vehSharingBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           for (final g in _grants)
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(g['can_command'] == true ? Icons.admin_panel_settings_rounded : Icons.visibility_rounded),
-              title: Text('${g['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text('${g['name'] ?? ''}'),
               subtitle: Text(g['can_command'] == true ? tr.vehShareCanControl : tr.vehShareViewOnly),
               trailing: IconButton(
                 tooltip: tr.vehShareRevoke,
@@ -595,9 +609,13 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
               label: Text(tr.vehShareCta),
             ),
           ),
+          ]),
           const SizedBox(height: Gap.lg),
           OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
+            style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.ds.dangerInk,
+                side: BorderSide(color: scheme.ds.dangerInk),
+                minimumSize: const Size.fromHeight(48)),
             onPressed: _remove,
             icon: const Icon(Icons.link_off_rounded),
             label: Text(tr.vehRemoveTitle),

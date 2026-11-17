@@ -172,7 +172,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
           final name = (c['name'] ?? '').toString().isEmpty
               ? (c['phone'] ?? '').toString()
               : c['name'].toString();
-          return DsCard(
+          // long list: flat bordered rows (no per-row shadow — GPU-light)
+          return DsSurface(
+            flat: true,
+            borderColor: ds.border,
             onTap: () => _openHistory(c),
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.xs, Gap.md),
             child: Row(children: [

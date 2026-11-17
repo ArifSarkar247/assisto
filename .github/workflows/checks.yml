@@ -114,6 +114,9 @@ jobs:
       - name: lang gate
         working-directory: app
         run: python3 tool/lang_gate.py
+      - name: bn glossary gate (owner_actions/BANGLA_GLOSSARY_BN.md)
+        working-directory: app
+        run: python3 tool/bn_glossary_gate.py
 
   flutter-test:
     needs: changes

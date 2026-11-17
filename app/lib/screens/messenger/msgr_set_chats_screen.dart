@@ -122,8 +122,8 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.only(bottom: Gap.xxl)),
         children: [
-          MsgrSetSection(t.msgrSetChatsThemeSection),
-          // Theme + wallpaper picker (reused widget). Theme maps to the app's
+MsgrSetSection(t.msgrSetChatsThemeSection),
+// Theme + wallpaper picker (reused widget). Theme maps to the app's
           // ThemeMode so the whole app follows this choice.
           WallpaperThemePicker(
             wallpaperId: _wallpaperId,
@@ -131,35 +131,37 @@ class _MsgrSetChatsScreenState extends State<MsgrSetChatsScreen> {
             onWallpaper: _setWallpaper,
             onTheme: _setTheme,
           ),
-          // f6 (no showpieces): chat backup / restore / clear-history only
+// f6 (no showpieces): chat backup / restore / clear-history only
           // showed a "started"/"cleared" snackbar — nothing was sealed,
           // uploaded or deleted. Hidden until really wired (the real
           // encrypted backup lives in Settings -> Encrypted backup).
           if (kMsgrChatBackupWired) ...[
-          const Divider(),
-          MsgrSetSection(t.msgrSetChatsBackupSection),
-          MsgrSetRow(
+MsgrSetSection(t.msgrSetChatsBackupSection),
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.backup_rounded,
             title: t.msgrSetChatBackup,
             subtitle: t.msgrSetChatBackupSub,
             onTap: _openBackup,
           ),
-          MsgrSetRow(
+MsgrSetRow(
             icon: Icons.restore_rounded,
             title: t.msgrSetChatRestore,
             subtitle: t.msgrSetChatRestoreSub,
             onTap: _openRestore,
           ),
-          const Divider(),
-          MsgrSetSection(t.msgrSetChatsHistorySection),
-          MsgrSetRow(
+]),
+MsgrSetSection(t.msgrSetChatsHistorySection),
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.delete_sweep_rounded,
             title: t.msgrSetChatHistoryClear,
             subtitle: t.msgrSetChatHistoryClearSub,
             onTap: _clearHistory,
           ),
-          ],
-        ],
+]),
+],
+],
       ),
     );
   }

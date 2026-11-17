@@ -29,7 +29,9 @@ import '../../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
 import '../../widgets/local_counter.dart';
 import 'city_around_screen.dart';
 import 'city_directory_screen.dart';
-import '../../city/map/city_map_data.dart' show CityMapApi; // mapapp
+import '../../city/map/city_map_data.dart' show CityMapApi, GTransitRoute; // mapapp, adwire
+import '../../city/map/city_route_compare.dart' show CityRouteCompare; // adwire
+import '../../ads/ad_reward_gate.dart' show AdRewardGate, AdGateGrant; // adwire
 import 'city_journey.dart';
 import 'city_map_screen.dart'; // mapapp
 import 'city_metro_screen.dart';
@@ -89,6 +91,14 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   List<CityReport> _reports = const [];
   bool? _learnOn; // trip learning consent (null = unknown / offline)
   int _verifiedStops = 0; // mapapp: "You verified N stops"
+
+  // adwire: "More routes (Google)" on the results — one Google transit
+  // request behind one rewarded ad (Free; Premium / Plus no ad). Offered only
+  // when the server says the Google budget allows it (silent otherwise).
+  bool _gReady = false;
+  List<GTransitRoute> _google = const [];
+  bool _gLoading = false, _gTried = false;
+  int _gSel = 0;
 
   CityStore get _store => widget.store ?? CityStore.I;
   ApiClient get _api => context.read<AppState>().api;
@@ -176,6 +186,45 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     }
   }
 
+  /// adwire: ask our server whether one Google transit request may run.
+  Future<void> _peekGoogle(CityPlan plan) async {
+    if (!plan.ok || plan.offline) return;
+    final ok = await _api.mapsTransitReady();
+    if (!mounted || !identical(plan, _plan)) return;
+    setState(() => _gReady = ok);
+  }
+
+  /// adwire: the button — one rewarded ad at 'city_more_routes' for a Free
+  /// user (owner switch on), then ONE Google transit request. Premium /
+  /// Plus, switch off, no fill: the request runs with no ad (never a dead
+  /// end).
+  Future<void> _onMoreRoutes() async {
+    if (_gLoading || _gTried) return;
+    final t = AppLocalizations.of(context);
+    await AdRewardGate.run(context,
+        placement: 'city_more_routes',
+        grant: AdGateGrant.perUse,
+        what: t.adGateWhatRoutes,
+        action: _fetchGoogle);
+  }
+
+  Future<void> _fetchGoogle() async {
+    final o = _origin, d = _to, plan = _plan;
+    if (o == null || d == null || !mounted) return;
+    setState(() => _gLoading = true);
+    var got = const <GTransitRoute>[];
+    try {
+      got = GTransitRoute.listFrom(await _api.mapsTransit(o.lat, o.lon, d.lat, d.lng));
+    } catch (_) {} // silent: our own results stay (never a limit message)
+    if (!mounted || !identical(plan, _plan)) return;
+    setState(() {
+      _google = got;
+      _gSel = 0;
+      _gLoading = false;
+      _gTried = true;
+    });
+  }
+
   Future<void> _planNow() async {
     final o = _origin, d = _to;
     if (o == null || d == null) return;
@@ -183,6 +232,11 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       _planning = true;
       _planError = null;
       _rememberedAt = null;
+      _gReady = false; // adwire: a new trip asks Google afresh
+      _google = const [];
+      _gLoading = false;
+      _gTried = false;
+      _gSel = 0;
     });
     final key = CityStore.planKey(o.lat, o.lon, d.lat, d.lng);
     CityPlan? plan;
@@ -216,6 +270,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       }
     });
     if (plan != null && plan.ok && !plan.offline) unawaited(_loadReports());
+    if (plan != null) unawaited(_peekGoogle(plan)); // adwire
   }
 
   Future<void> _loadReports() async {
@@ -561,6 +616,23 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             Text(t.cityStartSafeJourneySub, style: AType.bodySmall),
           ]),
       ));
+      // adwire: More routes (Google) — only online results, budget allowing
+      if (_gReady && !p.offline && _origin != null)
+        out.add(Padding(
+          padding: const EdgeInsets.only(top: Gap.sm),
+          child: CityRouteCompare(
+            key: const ValueKey('city_google_more'),
+            plan: null,
+            googleView: true,
+            google: _google,
+            googleLoading: _gLoading,
+            googleTried: _gTried,
+            googleSelected: _gSel,
+            moreRoutesLabel: t.adwireMoreRoutesGoogle,
+            onMoreRoutes: _onMoreRoutes,
+            onPickGoogle: (i) => setState(() => _gSel = i),
+          ),
+        ));
     }
     if (p.otherWays.isNotEmpty) {
       out.add(CitySection(t.cityOtherWays, icon: Icons.alt_route_rounded));

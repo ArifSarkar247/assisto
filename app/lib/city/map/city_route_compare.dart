@@ -23,6 +23,10 @@ class CityRouteCompare extends StatelessWidget {
   final ValueChanged<CityOption>? onOpenOption;
   final VoidCallback? onSwitchToGoogle;
 
+  /// adwire: the button label on City Service results ("More routes
+  /// (Google)"); null = the map's own "More routes".
+  final String? moreRoutesLabel;
+
   const CityRouteCompare(
       {super.key,
       required this.plan,
@@ -35,7 +39,8 @@ class CityRouteCompare extends StatelessWidget {
       this.onMoreRoutes,
       this.onPickGoogle,
       this.onOpenOption,
-      this.onSwitchToGoogle});
+      this.onSwitchToGoogle,
+      this.moreRoutesLabel});
 
   bool get ourAnswer => plan != null && plan!.ok && plan!.options.isNotEmpty;
 
@@ -128,7 +133,7 @@ class CityRouteCompare extends StatelessWidget {
               style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
               onPressed: onMoreRoutes,
               icon: const Icon(Icons.alt_route_rounded),
-              label: Text(t.cityMapMoreRoutes),
+              label: Text(moreRoutesLabel ?? t.cityMapMoreRoutes),
             ),
           ]),
         ));

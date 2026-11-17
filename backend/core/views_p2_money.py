@@ -110,6 +110,17 @@ class RewardTicketView(APIView):
             return Response({"ok": False, "reason": "ads_not_configured",
                              "msg": pick(lang, "এখন কোনো বিজ্ঞাপন নেই — AdMob যুক্ত হলে চালু হবে।",
                                          "No ads available yet — this starts once AdMob is linked.")})
+        # adwire: a registered rewarded placement (the AI chat "Watch N ads
+        # for 1 answer" sheet = ai_chat_unlock) obeys the owner's live Ad
+        # control switch. Absent / "credits" = the earlier watch-to-earn path.
+        body = request.data if hasattr(request.data, "get") else {}
+        placement = str(body.get("placement") or "credits")[:40]
+        if placement != "credits":
+            from .admob_service import placement_on
+            if not placement_on(placement):
+                return Response({"ok": False, "reason": "placement_off",
+                                 "msg": pick(lang, "এখানে এখন কোনো বিজ্ঞাপন নেই।",
+                                             "No ads here right now.")})
         left, cap = _rewarded_cap_left(user)
         if left <= 0:
             return Response({"ok": False, "reason": "capped", "cap": cap,

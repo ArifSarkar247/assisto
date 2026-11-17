@@ -254,7 +254,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     final oos = stock <= 0 && (p['variants'] as List? ?? const []).isEmpty;
     return Opacity(
         opacity: oos ? 0.45 : 1,
-        child: DsCard(
+        // long grid: flat bordered surface (no per-tile shadow — GPU-light)
+        child: DsSurface(
+          flat: true,
+          borderColor: scheme.ds.border,
           onTap: oos ? null : () => _tapProduct(p),
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
