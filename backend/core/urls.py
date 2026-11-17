@@ -2121,3 +2121,18 @@ urlpatterns += [
     path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
 ]
 # ---- /messv2 ----
+# ---- ai-reply-core (owner 17 Nov): AI reply (My Circle modes + lane-2 notification suggestions) ----
+from . import views_ai_reply as aireply  # noqa: E402
+
+urlpatterns += [
+    path("ai/reply/suggest", aireply.AiReplySuggestView.as_view()),
+    path("ai/reply/auto", aireply.AiReplyAutoView.as_view()),
+    path("ai/reply/notif-state", aireply.AiReplyNotifStateView.as_view()),
+    path("ai/reply/notif-token", aireply.AiReplyNotifTokenView.as_view()),
+    path("ai/reply/settings/<str:kind>/<int:pk>", aireply.AiReplySettingsView.as_view()),
+    path("ai/reply/style", aireply.AiReplyStyleView.as_view()),
+    path("ai/reply/style/learn", aireply.AiReplyStyleLearnView.as_view()),
+    path("ai/reply/held", aireply.AiReplyHeldView.as_view()),
+    path("ai/reply/held/<int:pk>/seen", aireply.AiReplyHeldSeenView.as_view()),
+]
+# ---- /ai-reply-core ----

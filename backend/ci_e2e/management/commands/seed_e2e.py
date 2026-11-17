@@ -49,7 +49,7 @@ class Command(BaseCommand):
         from core import feature_flags as FF
         from core.models import FeatureFlag
         FF.ensure_seeded()
-        for key in ("care_call",):
+        for key in ("care_call", "ai_reply"):   # ai-reply-core: CI-only, the live flag stays OFF
             n = FeatureFlag.objects.filter(key=key).update(enabled_all=True, enabled_play=True,
                                                            rollout_pct=100)
             flags[key] = bool(n)

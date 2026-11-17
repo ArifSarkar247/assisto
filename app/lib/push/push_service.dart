@@ -58,6 +58,7 @@ import '../family_alerts_api.dart'; // family100
 import '../family_sos/sos_alarm_screen.dart'; // fcsos
 import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
+import '../messaging/ai_reply/ai_reply.dart' show AiReplyHttp; // ai-reply-core
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -565,7 +566,8 @@ class PushService {
       final h = MsgPushHandler(
           backend: HttpMsgBackend(tok, lang: p.lang),
           identity: loadStoredIdentity,
-          sink: FlnMsgSink());
+          sink: FlnMsgSink(),
+          ai: AiReplyHttp(tok, lang: p.lang)); // ai-reply-core
       unawaited(h.onPush(p).then((ok) {
         if (ok) {
           unawaited(MsgPushDone.mark(data));

@@ -1,0 +1,232 @@
+{
+  "_comment": "ai-reply-core (owner 17 Nov): My Circle AI reply sheet, chips, tag, held notice. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_ai-reply-core_arb.json",
+  "en": {
+    "aiReplyMenu": "AI reply",
+    "@aiReplyMenu": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyTitle": "AI reply for {name}",
+    "@aiReplyTitle": {
+      "description": "ai-reply-core: My Circle AI reply",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "aiReplyGroupTitle": "AI reply in this group",
+    "@aiReplyGroupTitle": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyIntro": "Assisto writes short replies in your style. It never answers about money, addresses, meeting in person, health emergencies, promises or big decisions — those wait for you.",
+    "@aiReplyIntro": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeOff": "Off",
+    "@aiReplyModeOff": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeOffSub": "No AI in this chat",
+    "@aiReplyModeOffSub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeSuggest": "Suggest, I send",
+    "@aiReplyModeSuggest": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeSuggestSub": "Short replies above the keyboard; one tap sends",
+    "@aiReplyModeSuggestSub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeBusy": "Busy mode",
+    "@aiReplyModeBusy": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeBusySub": "Short replies on its own while you are busy",
+    "@aiReplyModeBusySub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeAuto": "Full auto",
+    "@aiReplyModeAuto": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyModeAutoSub": "Keeps the conversation going in your style",
+    "@aiReplyModeAutoSub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyGroupOnly": "In groups AI only suggests — you always send.",
+    "@aiReplyGroupOnly": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyBusyFor": "Busy for how long?",
+    "@aiReplyBusyFor": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReply30m": "30 minutes",
+    "@aiReply30m": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReply1h": "1 hour",
+    "@aiReply1h": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReply2h": "2 hours",
+    "@aiReply2h": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyUntilOff": "Until I turn it off",
+    "@aiReplyUntilOff": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyBusyUntil": "AI replies for you until {time}",
+    "@aiReplyBusyUntil": {
+      "description": "ai-reply-core: My Circle AI reply",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "aiReplyBusyOn": "AI replies for you until you turn it off",
+    "@aiReplyBusyOn": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyOnAuto": "AI is replying for you in your style",
+    "@aiReplyOnAuto": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyLabel": "Show the “Assisto AI reply” tag",
+    "@aiReplyLabel": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyLabelSub": "They see a small tag under messages AI sends for you",
+    "@aiReplyLabelSub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyStyle": "Learn my writing style",
+    "@aiReplyStyle": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyStyleSub": "Only from messages you send in My Circle. Assisto keeps a small style summary, never your messages. Turn off to delete it.",
+    "@aiReplyStyleSub": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyCost": "Each AI reply uses {n} credit.",
+    "@aiReplyCost": {
+      "description": "ai-reply-core: My Circle AI reply",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "aiReplyFreeLeft": "You have enough for {n} replies now.",
+    "@aiReplyFreeLeft": {
+      "description": "ai-reply-core: My Circle AI reply",
+      "placeholders": {
+        "n": {
+          "type": "String"
+        }
+      }
+    },
+    "aiReplyWatchAd": "Watch an ad for replies",
+    "@aiReplyWatchAd": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyNoCredits": "No credits left for AI replies.",
+    "@aiReplyNoCredits": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyChild": "AI reply is not available for child accounts.",
+    "@aiReplyChild": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyError": "Couldn't change it. Check the internet and try again.",
+    "@aiReplyError": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyRetry": "Try again",
+    "@aiReplyRetry": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyDone": "Done",
+    "@aiReplyDone": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyTag": "Assisto AI reply",
+    "@aiReplyTag": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyNeedsYou": "This one needs you — AI doesn't answer money, address, meeting, health or promises.",
+    "@aiReplyNeedsYou": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyHeldHere": "AI held a message here — it needs your own answer.",
+    "@aiReplyHeldHere": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyHeldOk": "OK",
+    "@aiReplyHeldOk": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyChange": "Change",
+    "@aiReplyChange": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplySuggesting": "AI is writing replies…",
+    "@aiReplySuggesting": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyTapToSend": "Tap to send this reply",
+    "@aiReplyTapToSend": {
+      "description": "ai-reply-core: My Circle AI reply"
+    },
+    "aiReplyHide": "Hide suggestions",
+    "@aiReplyHide": {
+      "description": "ai-reply-core: My Circle AI reply"
+    }
+  },
+  "bn": {
+    "aiReplyMenu": "AI উত্তর",
+    "aiReplyTitle": "{name}-এর জন্য AI উত্তর",
+    "aiReplyGroupTitle": "এই গ্রুপে AI উত্তর",
+    "aiReplyIntro": "Assisto আপনার ঢঙে ছোট উত্তর লেখে। টাকা-পয়সা, ঠিকানা, দেখা করা, অসুস্থতা বা জরুরি অবস্থা, প্রতিশ্রুতি বা বড় সিদ্ধান্তের কথায় কখনো উত্তর দেয় না — সেগুলো আপনার জন্য অপেক্ষা করে।",
+    "aiReplyModeOff": "বন্ধ",
+    "aiReplyModeOffSub": "এই চ্যাটে কোনো AI নেই",
+    "aiReplyModeSuggest": "প্রস্তাব দিক, আমি পাঠাব",
+    "aiReplyModeSuggestSub": "কিবোর্ডের উপরে ছোট উত্তর; এক ট্যাপে পাঠান",
+    "aiReplyModeBusy": "ব্যস্ত মোড",
+    "aiReplyModeBusySub": "আপনি ব্যস্ত থাকলে নিজে থেকে ছোট উত্তর দেয়",
+    "aiReplyModeAuto": "পুরো অটো",
+    "aiReplyModeAutoSub": "আপনার ঢঙে কথা চালিয়ে যায়",
+    "aiReplyGroupOnly": "গ্রুপে AI শুধু প্রস্তাব দেয় — পাঠান সবসময় আপনি।",
+    "aiReplyBusyFor": "কতক্ষণ ব্যস্ত?",
+    "aiReply30m": "৩০ মিনিট",
+    "aiReply1h": "১ ঘণ্টা",
+    "aiReply2h": "২ ঘণ্টা",
+    "aiReplyUntilOff": "আমি বন্ধ না করা পর্যন্ত",
+    "aiReplyBusyUntil": "{time} পর্যন্ত AI আপনার হয়ে উত্তর দেবে",
+    "aiReplyBusyOn": "আপনি বন্ধ না করা পর্যন্ত AI আপনার হয়ে উত্তর দেবে",
+    "aiReplyOnAuto": "AI আপনার ঢঙে আপনার হয়ে উত্তর দিচ্ছে",
+    "aiReplyLabel": "“Assisto AI উত্তর” ট্যাগ দেখান",
+    "aiReplyLabelSub": "AI আপনার হয়ে যে মেসেজ পাঠায়, তার নিচে ওঁরা ছোট একটি ট্যাগ দেখবেন",
+    "aiReplyStyle": "আমার লেখার ঢঙ শিখুক",
+    "aiReplyStyleSub": "শুধু আমার সার্কেলে আপনার নিজের পাঠানো মেসেজ থেকে। Assisto রাখে শুধু ঢঙের ছোট সারাংশ, আপনার মেসেজ নয়। বন্ধ করলে মুছে যায়।",
+    "aiReplyCost": "প্রতিটি AI উত্তরে {n} ক্রেডিট লাগে।",
+    "aiReplyFreeLeft": "এখন {n}টি উত্তরের ক্রেডিট আছে।",
+    "aiReplyWatchAd": "বিজ্ঞাপন দেখে উত্তর নিন",
+    "aiReplyNoCredits": "AI উত্তরের জন্য ক্রেডিট শেষ।",
+    "aiReplyChild": "শিশু অ্যাকাউন্টে AI উত্তর চালু করা যায় না।",
+    "aiReplyError": "বদলানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "aiReplyRetry": "আবার চেষ্টা করুন",
+    "aiReplyDone": "ঠিক আছে",
+    "aiReplyTag": "Assisto AI উত্তর",
+    "aiReplyNeedsYou": "এটির উত্তর আপনাকেই দিতে হবে — টাকা, ঠিকানা, দেখা করা, অসুস্থতা বা প্রতিশ্রুতির কথায় AI উত্তর দেয় না।",
+    "aiReplyHeldHere": "AI এখানে একটি মেসেজ রেখে দিয়েছে — উত্তরটা আপনাকেই দিতে হবে।",
+    "aiReplyHeldOk": "বুঝেছি",
+    "aiReplyChange": "বদলান",
+    "aiReplySuggesting": "AI উত্তর লিখছে…",
+    "aiReplyTapToSend": "এই উত্তরটি পাঠাতে ট্যাপ করুন",
+    "aiReplyHide": "প্রস্তাব লুকান"
+  }
+}

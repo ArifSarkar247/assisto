@@ -333,6 +333,8 @@ import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/messaging/msg_widgets.dart';
+import 'package:assisto/messaging/ai_reply/ai_reply.dart'; // ai-reply-core
+import 'package:assisto/messaging/ai_reply/ai_reply_widgets.dart'; // ai-reply-core
 import 'package:assisto/messaging/media/video_limits_flow.dart' show VideoTrimScreen; // viewonce
 import 'package:assisto/messaging/view_once.dart' show ViewOnceViewer; // viewonce
 import 'package:assisto/photo_studio/ps_engines.dart' show ChannelSecureScreen; // viewonce
@@ -1182,6 +1184,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
     'finance': (build: (_) => const FinanceScreen(), mode: FakeMode.data, full: true),
     'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
+    // ai-reply-core: My Circle chat ⋮ → AI reply (person: 4 modes, Busy on;
+    // group: Off / Suggest only) + the Suggest chips above the composer
+    'ai_reply_sheet': (build: (l) => Scaffold(body: SafeArea(child: AiReplySheet(api: AiReplyApi(FakeApi()), chatId: 7, group: false, name: l == 'bn' ? 'বিলাল' : 'Bilal', initial: AiReplyState.fromJson(const {'enabled': true, 'mode': 'busy', 'allowed_modes': ['off', 'suggest', 'busy', 'auto'], 'busy_until': '2026-11-17T15:30:00', 'label_on': true, 'credits_per_reply': 1, 'free_left': 12, 'unlock': 'ad'})))), mode: FakeMode.data, full: true),
+    'ai_reply_group': (build: (l) => Scaffold(body: SafeArea(child: AiReplySheet(api: AiReplyApi(FakeApi()), chatId: 9, group: true, name: l == 'bn' ? 'পরিবার' : 'Family', initial: AiReplyState.fromJson(const {'enabled': true, 'mode': 'suggest', 'allowed_modes': ['off', 'suggest'], 'is_group': true, 'credits_per_reply': 1, 'free_left': 12, 'unlock': 'premium'})))), mode: FakeMode.data, full: true),
+    'ai_reply_chips': (build: (l) => Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Builder(builder: (ctx) => AiSuggestionStrip(suggestions: l == 'bn' ? const ['ভালো আছি, তুমি?', 'হ্যাঁ বলো', 'একটু পরে কথা বলি'] : const ['Good, and you?', 'Yes, tell me', 'Talk in a bit'], onTap: (s) => ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(s))), onClose: () => ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('-'))))))), mode: FakeMode.data, full: true),
     // adminsafe: Account status + appeal (blocked sign-in body / signed in)
     'acct_standing_suspended': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn')), mode: FakeMode.data, full: true),
     'acct_standing_banned': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn', banned: true)), mode: FakeMode.data, full: true),

@@ -226,6 +226,11 @@ _A = {
                 "নতুন হোম (মালিকের ডিজাইন v6): উইজেট টেস্ট + বাংলা/ইংরেজি/লাইট/ডার্ক/২০০% স্ক্রিনশট; এক সপ্তাহ পুরনো হোম বন্ধ-সুইচের বিকল্প; আসল ২ GB ফোনে সময় ও মালিকের ১০ মিনিটের পরীক্ষা বাকি।"),
     "money_notif_sms": ("?P???PP?F", "show", "Turn OFF if a Play reviewer objects: phones then ignore SMS-app notifications from bank/wallet senders (never read, never sent) within minutes of the next app open (rechecked every 3 h); wallet-app notifications keep working.",
                         "Play রিভিউয়ার আপত্তি করলে বন্ধ করুন: পরের বার অ্যাপ খুললেই (প্রতি ৩ ঘণ্টায়ও দেখে) ফোন ব্যাংক/ওয়ালেট SMS-এর নোটিফিকেশন আর পড়বে না, পাঠাবেও না; ওয়ালেট অ্যাপের নোটিফিকেশন চালু থাকবে।"),
+    # ---- ai-reply-core (owner 17 Nov)
+    "ai_reply": ("?P???P??F", "show", "New (17 Nov): server modes, safety hold, loop guard, rate limits and credits tested in CI; two-phone test pending.",
+                 "নতুন (১৭ নভেম্বর): সার্ভারের মোড, নিরাপত্তা-হোল্ড, লুপ গার্ড, সীমা ও ক্রেডিট CI-তে পরীক্ষিত; দুই ফোনের পরীক্ষা বাকি।"),
+    "ai_reply_notif": ("?????P??F", "show", "New (17 Nov): server API ready; the Android notification part (lane 2) and its Play declaration are pending.",
+                       "নতুন (১৭ নভেম্বর): সার্ভার API তৈরি; Android নোটিফিকেশন অংশ (লেন ২) ও Play ঘোষণা বাকি।"),
 }
 
 AUDIT = {

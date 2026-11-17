@@ -205,6 +205,14 @@ _ACTION_DEFAULTS = {
     # SMS automations use the "sms" row per SMS part; WhatsApp templates are
     # charged by Meta category through seller_agent.wa_cost_bdt (webhook).
     "retention_in_app":    {"provider_cost": 0.0,   "credits": 0},
+    # ai-reply-core (owner 17 Nov): ONE AI reply job — 2-3 short suggestions
+    # (My Circle Suggest mode / a notification) or one Busy / Full-auto reply.
+    # Cheap tier, inputs clipped (text 1,000 chars, 5 context lines), output
+    # capped at 220 tokens: ~2,300 in + 220 out on the dearest cheap model
+    # ≈ $0.003, booked at $0.004. NET floor = ceil(0.004*120/0.60) = 1 and
+    # the plan_book per-credit cap (৳0.669) = ceil(0.004*125/0.669) = 1.
+    "ai_reply_suggest":    {"provider_cost": 0.004, "credits": 1},
+    "ai_reply_auto":       {"provider_cost": 0.004, "credits": 1},
 }
 
 # retention1: retention-automation server maximums (admin-editable via

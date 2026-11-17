@@ -1107,6 +1107,10 @@ class CircleMessagesView(APIView):
         # my current key) rides next to the untouched original.
         from . import views_e2e_recover as E2R
         E2R.annotate_copies(out, msgs, request.user)
+        # ai-reply-core: "Assisto AI reply" tag (a server field, so the
+        # receiver's app shows it too) + the loop-guard marker.
+        from . import ai_reply as _AR
+        _AR.annotate(out, msgs)
         # mr1: the chat learns live when a message request is accepted
         edge = {"state": m.state, "direction": m.direction or "outgoing",
                 "request": _msgreq_info(m), **_connect_fields(m)}
@@ -1262,6 +1266,12 @@ class CircleMessagesView(APIView):
         if md1_blob is not None:   # md1: retention knows who must download
             from . import circle_blobs as CB
             CB.add_recipients(md1_blob, [m.peer_user_id])
+        # ai-reply-core: a Busy / Full-auto reply carries the single-use token
+        # from POST ai/reply/auto -> the message gets its AI mark (tag).
+        ai_mark = False
+        if env.get("ai_reply_token"):
+            from . import ai_reply as _AR
+            ai_mark = _AR.mark_sent(request.user, m, x, env.get("ai_reply_token"))
         # c3-msg: keep the quoted-reply link (it was dropped, so a reply lost
         # its quote after a reload). Only a message of THIS conversation.
         try:
@@ -1285,6 +1295,8 @@ class CircleMessagesView(APIView):
                 "notify": notify}
         if default_timer:
             body["default_timer_sec"] = default_timer
+        if ai_mark:
+            body["ai_reply"] = True
         return Response(body, status=status.HTTP_201_CREATED)
 
 

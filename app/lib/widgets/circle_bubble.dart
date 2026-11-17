@@ -16,6 +16,7 @@ import '../messaging/share/share_flow.dart' show shareBubbleBody; // mc-media2
 import '../messaging/share/share_payload.dart' show decodeShare, kShareKinds;
 import '../messaging/link_open.dart'; // circlea
 import '../messaging/link_preview_client.dart'; // circlea
+import '../messaging/ai_reply/ai_reply_widgets.dart' show AiReplyTag; // ai-reply-core
 
 /// One decrypted message in the circle chat. The plaintext here NEVER came from
 /// the server — it was decrypted on-device (see crypto/e2e.dart). The server
@@ -60,6 +61,10 @@ class CircleMessage {
   /// stands for a whole album (see messaging/media/album.dart); else empty.
   final List<CircleMessage> album;
 
+  /// ai-reply-core: Assisto AI sent this (Busy / Full auto) and its sender
+  /// keeps the "Assisto AI reply" tag on — a server field, both sides see it.
+  final bool aiLabel;
+
   const CircleMessage({
     required this.id,
     required this.text,
@@ -87,6 +92,7 @@ class CircleMessage {
     this.viewOnceOpenedAt, // viewonce
     this.viewOnceExpired = false,
     this.album = const [], // circlemedia
+    this.aiLabel = false, // ai-reply-core
   });
 
   CircleMessage copyWith({
@@ -129,6 +135,7 @@ class CircleMessage {
         viewOnceOpenedAt: viewOnceOpenedAt, // viewonce
         viewOnceExpired: viewOnceExpired,
         album: album ?? this.album, // circlemedia
+        aiLabel: aiLabel, // ai-reply-core
       );
 
   /// circlemedia: the album key of this message ('' = not in an album).
@@ -271,6 +278,9 @@ class CircleBubble extends StatelessWidget {
                         child: LinkPreviewCard(data: linkPreview!, fg: fg),
                       ),
                     _bodyText(context, t, fg, deleted),
+                    if (msg.aiLabel && !deleted) // ai-reply-core
+                      AiReplyTag(
+                          color: mine ? MsgPalette.outMeta(context) : scheme.onSurfaceVariant),
                     const SizedBox(height: Gap.xs),
                     _metaRow(context, mine, scheme),
                   ],

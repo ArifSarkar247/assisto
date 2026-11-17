@@ -9522,3 +9522,76 @@ class TrainPointLedger(models.Model):
     class Meta:
         indexes = [models.Index(fields=["user", "created_at"], name="core_trainpts_user_idx")]
 # ---- /train-engine ----
+
+
+# ---- ai-reply-core (owner order 17 Nov: AI reply) ----
+# PRIVACY: none of these rows ever holds message TEXT (ours or the peer's).
+# Other people's text is processed in memory only to build a reply.
+class AiReplySetting(models.Model):
+    """Per-person (1:1 edge) or per-group AI reply mode of `user`.
+    Server-enforced: a group is suggest/off only; a child pair is off."""
+    MODES = [("off", "off"), ("suggest", "suggest"), ("busy", "busy"), ("auto", "auto")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ai_reply_settings")
+    member = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="+")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.CASCADE, related_name="+")
+    mode = models.CharField(max_length=8, choices=MODES, default="off")
+    busy_until = models.DateTimeField(null=True, blank=True)  # null + busy = until off
+    label_on = models.BooleanField(default=True)   # "Assisto AI reply" tag (default ON)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "member"], name="aireply_user_member",
+                                    condition=models.Q(member__isnull=False)),
+            models.UniqueConstraint(fields=["user", "group"], name="aireply_user_group",
+                                    condition=models.Q(group__isnull=False)),
+        ]
+
+
+class AiReplyProfile(models.Model):
+    """The user's style consent + the COMPACT style profile (numbers and a few
+    short greeting phrases — never raw text) + the notification-token version
+    (bumped = every notif token issued before is revoked)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ai_reply_profile")
+    style_consent = models.BooleanField(default=False)
+    style = models.JSONField(default=dict, blank=True)
+    samples_seen = models.IntegerField(default=0)
+    notif_on = models.BooleanField(default=False)
+    notif_token_ver = models.IntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AiReplyMark(models.Model):
+    """A 1:1 message that Assisto AI sent for its sender (busy/auto). The
+    loop guard reads it; `label` = show the "Assisto AI reply" tag."""
+    message = models.OneToOneField(CircleMessage, on_delete=models.CASCADE,
+                                   related_name="ai_mark")
+    kind = models.CharField(max_length=8, default="auto")   # busy | auto
+    label = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AiReplyEvent(models.Model):
+    """One AI reply decision (suggest / auto / hold / refuse) — counters for
+    rate limits, held notices and money. NO text, ever."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ai_reply_events")
+    member = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="+")
+    group_id_ref = models.IntegerField(null=True, blank=True)
+    source = models.CharField(max_length=8, default="circle")   # circle | notif
+    kind = models.CharField(max_length=10)        # suggest | auto | busy | held | refused
+    category = models.CharField(max_length=20, blank=True, default="")
+    in_message_id = models.IntegerField(null=True, blank=True)
+    credits = models.IntegerField(default=0)
+    token_used = models.BooleanField(default=False)
+    seen = models.BooleanField(default=False)     # held notice dismissed
+    # "<user>:<message>" for auto decisions: one decision per incoming message
+    lock_key = models.CharField(max_length=40, null=True, blank=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "kind", "created_at"], name="aireply_evt_user_kind")]
+# ---- /ai-reply-core ----

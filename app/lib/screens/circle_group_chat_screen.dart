@@ -96,6 +96,9 @@ import '../widgets/mess_group_card.dart'; // messv2
 import '../messaging/outbox.dart'; // offline2
 import '../services/error_kind.dart'; // offline2
 import '../messaging/group_msg_actions.dart'; // gap-circle
+import '../messaging/ai_reply/ai_reply.dart'; // ai-reply-core
+import '../messaging/ai_reply/ai_reply_widgets.dart'; // ai-reply-core
+import '../feature_flags.dart'; // ai-reply-core
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -162,6 +165,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   final _scroll = ScrollController();
 
   List<Map<String, dynamic>> _messages = [];
+  // ai-reply-core: groups are Suggest-only (the server enforces it)
+  AiReplyState? _ai;
+  List<String> _aiChips = const [];
+  String _aiChipsFor = '';
+  bool _aiLoading = false;
+  String _aiNote = '';
+  bool _aiHidden = false;
   List<Map<String, dynamic>> _members = [];
   bool _loading = true;
   bool _loadFailed = false; // §21 honest load error + retry
@@ -227,7 +237,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) wireLiveLocation(_api);
     });
-    _load().then((_) => _markSeen());
+    _load().then((_) {
+      _markSeen();
+      unawaited(_aiLoad()); // ai-reply-core
+    });
     _poll = Timer.periodic(const Duration(seconds: 8), (_) => _pollMessages());
     // md1: media sends of this group (progress ring) + decrypted-file dir.
     MediaOutbox.instance.identity ??= () async => widget.identity;
@@ -660,6 +673,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
         });
         _foldControls(); // cde-chat
         _askMissing(); // e2e-groups
+        _aiOnNew(); // ai-reply-core
       }
       if (fresh || _seenPending) unawaited(_markSeen());
     } catch (_) {
@@ -1159,14 +1173,91 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // -------------------------------------------------------------------------
   bool? _bubbleOn; // bubbles: null = no bubbles on this phone
 
+  // ai-reply-core ---------------------------------------------------------
+  AiReplyApi get _aiApi => AiReplyApi(_api);
+
+  Future<void> _aiLoad() async {
+    if (_gid == 0 || !FeatureFlags.instance.isOn(kAiReplyFlag)) return;
+    try {
+      final s = await _aiApi.load(group: true, id: _gid);
+      if (!mounted) return;
+      setState(() => _ai = s);
+      _aiOnNew();
+    } catch (_) {}
+  }
+
+  Future<void> _aiOpenSheet() async {
+    if (_gid == 0) return;
+    await showAiReplySheet(context,
+        api: _aiApi,
+        chatId: _gid,
+        group: true,
+        name: '${widget.group['name'] ?? ''}',
+        initial: _ai);
+    if (!mounted) return;
+    setState(() {
+      _aiHidden = false;
+      _aiChipsFor = '';
+    });
+    await _aiLoad();
+  }
+
+  /// Suggest chips for the newest text from someone else (decrypted here).
+  void _aiOnNew() {
+    final s = _ai;
+    if (s == null || !s.enabled || !s.suggests || _messages.isEmpty) return;
+    final last = _messages.last;
+    final id = '${last['id']}';
+    final text = (last['mine'] == true ||
+            '${last['content_type'] ?? 'text'}' != 'text' ||
+            '${last['deleted'] ?? ''}'.isNotEmpty)
+        ? null
+        : _decryptForMe(last);
+    if (text == null || text.trim().isEmpty || isControlText(text)) {
+      if (_aiChips.isNotEmpty || _aiNote.isNotEmpty) {
+        setState(() {
+          _aiChips = const [];
+          _aiNote = '';
+        });
+      }
+      return;
+    }
+    if (_aiChipsFor == id) return;
+    _aiChipsFor = id;
+    final ctx = <Map<String, String>>[];
+    final from = (_messages.length - 5).clamp(0, _messages.length);
+    for (final m in _messages.sublist(from, _messages.length - 1)) {
+      if ('${m['content_type'] ?? 'text'}' != 'text') continue;
+      final t = _decryptForMe(m);
+      if (t == null || t.trim().isEmpty || isControlText(t)) continue;
+      ctx.add({'from': m['mine'] == true ? 'me' : 'them', 'text': t.trim()});
+    }
+    setState(() {
+      _aiLoading = true;
+      _aiChips = const [];
+      _aiNote = '';
+    });
+    unawaited(_aiApi.suggest(text: text, context: ctx, groupId: _gid).then((r) {
+      if (!mounted || _aiChipsFor != id) return;
+      setState(() {
+        _aiLoading = false;
+        _aiChips = r.suggestions;
+        _aiNote = r.needsYou ? 'blocked' : (r.noCredits ? 'no_credits' : '');
+      });
+    }));
+  }
+
   Future<void> _openMenu() async {
     final action =
         await showGroupMenuSheet(context,
             isFavourite: _isFavourite,
             bubbleOn: _bubbleOn,
-            locked: ChatLockStore.instance.isLockedSync(_chatKey));
+            locked: ChatLockStore.instance.isLockedSync(_chatKey),
+            aiReply: FeatureFlags.instance.isOn(kAiReplyFlag)); // ai-reply-core
     if (action == null || !mounted) return;
     switch (action) {
+      case GroupMenuAction.aiReply: // ai-reply-core
+        await _aiOpenSheet();
       case GroupMenuAction.bubble:
         final cur = _bubbleOn;
         if (cur == null) return;
@@ -3120,6 +3211,22 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     return SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
+      // ai-reply-core: Suggest chips (one tap sends; never automatic in groups)
+      if (!_aiHidden && _ai != null && _ai!.enabled && _ai!.suggests &&
+          _input.text.trim().isEmpty &&
+          (_aiLoading || _aiChips.isNotEmpty || _aiNote.isNotEmpty))
+        AiSuggestionStrip(
+          suggestions: _aiChips,
+          loading: _aiLoading,
+          needsYou: _aiNote == 'blocked',
+          noCredits: _aiNote == 'no_credits',
+          onUnlock: _ai?.unlock == 'ad' ? _aiOpenSheet : null,
+          onTap: (t) {
+            setState(() => _aiChips = const []);
+            unawaited(_send(resendText: t));
+          },
+          onClose: () => setState(() => _aiHidden = true),
+        ),
       // finish1: the link preview that will go (sealed per member) with the text
       if (_draftPreview != null)
         Padding(

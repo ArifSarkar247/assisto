@@ -879,6 +879,8 @@ class NotifyPullView(APIView):
             photo, photo_v = md.get("photo", ""), md.get("photo_v", "")
         cache = {}
         msgs = [envelope_for(request.user, x, ctx, cache) for x in window]
+        from . import ai_reply as _AR   # ai-reply-core: AI-sent marks (loop guard)
+        _AR.annotate(msgs, window)
         return Response({
             "chat": {"kind": kind, "id": int(d.get("chat_id")),
                      "title": title, "is_group": kind == "group",

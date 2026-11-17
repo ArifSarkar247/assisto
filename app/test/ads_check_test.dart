@@ -258,6 +258,9 @@ void main() {
         // lpapp (owner 10 Nov PART B): opt-in "watch an ad to earn credits" for an extra
         // mock section / AI score — never inside a timed mock (test/lp2_ads_test.dart)
         'lib/screens/lp2/lp_mock.dart', 'lib/screens/lp2/lp_score.dart',
+        // ai-reply-core (owner 17 Nov): opt-in "watch an ad for AI replies" in the
+        // AI reply sheet (Free only; never in an open chat, SOS or a call)
+        'lib/messaging/ai_reply/ai_reply_widgets.dart',
       };
       expect(rewarded.difference(allowed), isEmpty,
           reason: 'new rewarded entry point: ${rewarded.difference(allowed)}');
