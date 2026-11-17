@@ -75,7 +75,19 @@
    "description": "gap-cctv: Guard Box token refused by the server"
   },
   "gcvGbForget": "Forget this pairing",
-  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code."
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "gcvHowPriced": "{base} tk a month covers 2 cameras. A plan for more cameras adds {extra} tk a month per camera. Phone cameras count too. Without a bigger plan, a camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvHowPriced": {
+   "description": "gap-cctv D2: CCTV plan pricing line (plan size price vs per-camera credits)",
+   "placeholders": {
+    "base": {
+     "type": "String"
+    },
+    "extra": {
+     "type": "String"
+    }
+   }
+  }
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -108,6 +120,7 @@
   "gcvReportYesterday": "গতকাল",
   "gcvGbLost": "সংযোগ নেই — মালিক এই ক্যামেরা বা জোড়া সরিয়েছেন। আবার জোড়া লাগান।",
   "gcvGbForget": "এই জোড়া ভুলে যান",
-  "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।"
+  "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।",
+  "gcvHowPriced": "মাসে {base} টাকায় ২টি ক্যামেরা। বেশি ক্যামেরার প্ল্যানে প্রতি ক্যামেরায় মাসে {extra} টাকা যোগ হয়। ফোন-ক্যামেরাও ক্যামেরা হিসেবে গণ্য। বড় প্ল্যান না নিলে প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।"
  }
 }

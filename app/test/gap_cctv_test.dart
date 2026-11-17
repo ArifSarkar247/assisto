@@ -582,4 +582,10 @@ void main() {
     // the best-effort key delete gives up after 5 s (no secure storage here)
     await tester.pump(const Duration(seconds: 6));
   });
+
+  test('D2 the plan line speaks of a bigger PLAN, not a per-camera Taka charge', () {
+    expect(en.gcvHowPriced('500', '250'), contains('A plan for more cameras adds 250 tk'));
+    expect(en.gcvHowPriced('500', '250'), contains('uses credits'));
+    expect(en.gcvHowPriced('500', '250'), isNot(contains('Each extra camera is')));
+  });
 }
