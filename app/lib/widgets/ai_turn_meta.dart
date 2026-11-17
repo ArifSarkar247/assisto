@@ -64,7 +64,8 @@ class AiCreditLine extends StatelessWidget {
     final bal = _int(meta['balance']);
     String head;
     if (n > 0) {
-      head = t.aibarCreditsUsed(fmtInt(context, n));
+      // singular: '1 credit used', never '1 credits used'
+      head = n == 1 ? t.aibarCreditUsedOne : t.aibarCreditsUsed(fmtInt(context, n));
     } else if (meta['free_quota'] == true) {
       head = t.aibarFreeQuick;
     } else {

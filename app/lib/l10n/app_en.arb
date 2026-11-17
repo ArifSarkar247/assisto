@@ -52844,5 +52844,9 @@
     "description": "gap-cctv: Guard Box token refused by the server"
   },
   "gcvGbForget": "Forget this pairing",
-  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code."
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "aibarCreditUsedOne": "1 credit used",
+  "@aibarCreditUsedOne": {
+    "description": "AI answer footer when exactly one credit was used (singular of aibarCreditsUsed)"
+  }
 }
