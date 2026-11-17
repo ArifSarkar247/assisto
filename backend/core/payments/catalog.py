@@ -25,27 +25,13 @@ TIER = {"free": 0, "premium": 1, "family": 1, "annual": 1, "probashi": 1,
         "founder": 1, "business": 2}
 
 
-# speedproof: the dicts _cfg() handed out most recently. Every catalog helper
-# re-ran pricing.normalize() on the config it was GIVEN, and products() calls
-# describe/price/play_product per sku (each normalizing again): GET
-# payments/config took 1.5-2.3 s in CI (run 44002942576). An already
-# normalized dict passed back in is returned as is (normalize is a pure
-# projection: normalizing its own output changes nothing).
-_SEEN = []
-
-
 def _cfg(cfg=None):
+    # speedproof: a config that is already normalize()'s output is used as is
+    # (pricing._n) — products() used to re-normalize it per helper per sku
     if cfg is not None:
-        for d in _SEEN:
-            if d is cfg:
-                return cfg
-        out = pricing.normalize(cfg)
-    else:
-        from .. import billing
-        out = billing.cfg()
-    _SEEN.append(out)
-    del _SEEN[:-8]
-    return out
+        return pricing._n(cfg)
+    from .. import billing
+    return billing.cfg()
 
 
 def current_cfg():

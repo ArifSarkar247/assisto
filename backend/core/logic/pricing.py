@@ -249,7 +249,7 @@ def _norm_retention(raw, base):
 
 def retention_cfg(cfg):
     """The normalized retention-automation block of a pricing config."""
-    return normalize(cfg)["retention"]
+    return _n(cfg)["retention"]
 
 # p4-world: Unseen World knobs (admin-editable via /admin/pricing "world").
 _WORLD_DEFAULTS = {
@@ -281,7 +281,7 @@ def _norm_world(raw, base):
 
 def world_cfg(cfg):
     """The normalized Unseen World block of a pricing config."""
-    return normalize(cfg)["world"]
+    return _n(cfg)["world"]
 
 # Vehicle tracking knobs (admin-editable via /admin/pricing "vehicle" block).
 # (min, max) bounds keep a bad edit from ever making the tracker unsafe.
@@ -540,11 +540,11 @@ def _norm_email(raw, base):
 
 
 def sms_cfg(cfg):
-    return normalize(cfg)["sms"]
+    return _n(cfg)["sms"]
 
 
 def email_cfg(cfg):
-    return normalize(cfg)["email"]
+    return _n(cfg)["email"]
 
 
 def _norm_otp(raw, base):
@@ -557,7 +557,7 @@ def _norm_otp(raw, base):
 
 def otp_limits(cfg):
     """Normalized OTP limits dict."""
-    return normalize(cfg)["otp"]
+    return _n(cfg)["otp"]
 
 
 def DEFAULTS():
@@ -809,9 +809,33 @@ def _bool(v, fallback):
     return fallback
 
 
+# speedproof: every read helper below re-normalized the config it was given,
+# and callers pass the SAME normalized dict to dozens of helpers per request
+# (CI: one payments catalog listing = 1078 normalize() calls; GET
+# payments/config 1.5-2.3 s). _n() returns a dict normalize() itself produced
+# as is (re-normalizing its own output changes nothing); anything else is
+# normalized as before. normalize() itself always builds a fresh dict.
+_NORMALIZED = []
+
+
+def _n(cfg):
+    for d in _NORMALIZED:
+        if d is cfg:
+            return cfg
+    return normalize(cfg)
+
+
 def normalize(data):
     """Project an arbitrary stored dict onto the known config shape, filling
-    defaults for anything missing / malformed. Never mutates `data`. Pure."""
+    defaults for anything missing / malformed. Never mutates `data`. Pure.
+    (speedproof: the result is remembered by identity for the read helpers.)"""
+    out = _normalize(data)
+    _NORMALIZED.append(out)
+    del _NORMALIZED[:-16]
+    return out
+
+
+def _normalize(data):
     d = data or {}
     base = DEFAULTS()
 
@@ -958,7 +982,7 @@ def _norm_vehicle(raw, base):
 
 def vehicle_cfg(cfg):
     """The normalized vehicle-tracking knobs (bounded)."""
-    return normalize(cfg)["vehicle"]
+    return _n(cfg)["vehicle"]
 
 
 def _norm_shop(raw, base):
@@ -1060,17 +1084,17 @@ def _norm_referral(raw, base):
 
 def net_floor(cfg):
     """The admin-editable NET-margin floor (default 0.60)."""
-    return normalize(cfg)["guarantees"]["margin_net_floor"]
+    return _n(cfg)["guarantees"]["margin_net_floor"]
 
 
 def pool_cap(cfg):
     """The admin-editable included-pool cap as a share of NET revenue (0.60)."""
-    return normalize(cfg)["guarantees"]["pool_cap_pct_of_net"]
+    return _n(cfg)["guarantees"]["pool_cap_pct_of_net"]
 
 
 def limits(cfg):
     """The normalized business limits dict (trial, cameras)."""
-    return normalize(cfg)["limits"]
+    return _n(cfg)["limits"]
 
 
 # p2-money: (min, max) for every numeric ad knob. normalize() clamps into
@@ -1198,12 +1222,12 @@ def _norm_profit_guard(raw, base):
 
 def topup_packs(cfg):
     """The list of purchasable credit packs from config."""
-    return normalize(cfg)["topup_packs"]
+    return _n(cfg)["topup_packs"]
 
 
 def pack_by_id(pack_id, cfg):
     """One pack dict by id, or None."""
-    for p in normalize(cfg)["topup_packs"]:
+    for p in _n(cfg)["topup_packs"]:
         if p["id"] == pack_id:
             return p
     return None
@@ -1211,7 +1235,7 @@ def pack_by_id(pack_id, cfg):
 
 def storage_quota_bytes(plan_id, cfg):
     """Base storage quota (bytes) for a config-backed plan; 0 if unknown."""
-    row = normalize(cfg)["plans"].get(plan_id)
+    row = _n(cfg)["plans"].get(plan_id)
     return int(row["storage_bytes"]) if row else 0
 
 
@@ -1220,14 +1244,14 @@ def net_fraction(cfg):
     gateway fee and VAT. BD prices INCLUDE VAT (Google remits it; the fee is
     taken on the VAT-free amount), so: (1 - play_fee - gateway_fee) / (1 + vat).
     Owner 26 Oct: vat 0.15 -> ~0.72 (both fees counted: the worst route)."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     keep = (1.0 - cfg["play_fee"] - cfg["gateway_fee"]) / (1.0 + cfg["vat"])
     return max(0.0001, keep)
 
 
 def net_plan_revenue(plan_id, cfg):
     """NET ৳ a plan actually earns per month = price * net_fraction."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     row = cfg["plans"].get(plan_id)
     if not row:
         return 0.0
@@ -1239,7 +1263,7 @@ def action_credit_floor(action, cfg):
     credit ৳-value >= provider_cost ÷ MARGIN_NET_FLOOR (0.60), expressed in
     credits. provider_cost is USD; converted to ৳ via usd_bdt, divided by
     credit_bdt. Returns ceil(...) credits (0 for an unknown/free action)."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     row = cfg["action_costs"].get(action)
     if not row or row["provider_cost"] <= 0:
         return 0
@@ -1253,7 +1277,7 @@ def action_credit_floor(action, cfg):
 def credit_cost(action, cfg):
     """Credits charged for ONE unit of `action`. Unknown action -> 0 (never
     accidentally charge for something unpriced)."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     row = cfg["action_costs"].get(action)
     return int(row["credits"]) if row else 0
 
@@ -1272,7 +1296,7 @@ def recompute_from_provider_cost(action, cfg):
 
     We take the stricter (larger) of the two so an action can never break the
     60%-NET floor. Pure; >=1 for any priced action, 0 for an unknown one."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     row = cfg["action_costs"].get(action)
     if not row or row["provider_cost"] <= 0:
         return 0
@@ -1285,7 +1309,7 @@ def recompute_from_provider_cost(action, cfg):
 def recompute_all(cfg):
     """Return a NEW normalized cfg whose every action `credits` is recomputed
     from provider_cost to hold the margin. Used by auto-reprice mode."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     out = {k: (dict(v) if isinstance(v, dict) else v) for k, v in cfg.items()}
     out["plans"] = {k: dict(v) for k, v in cfg["plans"].items()}
     out["action_costs"] = {}
@@ -1476,7 +1500,7 @@ def margin_warnings(cfg):
 
 def annual_price_at(plan_id, cfg, disc):
     """Yearly price (whole ৳) of a plan at `disc` % off 12 months. Pure."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     row = cfg["plans"].get(plan_id)
     if not row:
         return 0
@@ -1486,7 +1510,7 @@ def annual_price_at(plan_id, cfg, disc):
 
 def _fixed_annual(plan_id, cfg):
     """The owner's explicit yearly price for a plan, or 0 (= derive)."""
-    row = normalize(cfg)["plans"].get(plan_id) or {}
+    row = _n(cfg)["plans"].get(plan_id) or {}
     return int(row.get("annual_price") or 0)
 
 
@@ -1495,7 +1519,7 @@ def stored_annual_price(plan_id, cfg):
     checks — may be unsafe; never what we sell). An explicit annual_price is
     the owner's own number and is checked as-is."""
     return _fixed_annual(plan_id, cfg) or annual_price_at(
-        plan_id, cfg, normalize(cfg)["annual_discount_pct"])
+        plan_id, cfg, _n(cfg)["annual_discount_pct"])
 
 
 def effective_annual_discount_pct(plan_id, cfg):
@@ -1503,7 +1527,7 @@ def effective_annual_discount_pct(plan_id, cfg):
     clamped to max_safe_annual_discount_pct. The stored value is never
     changed; Owner Admin shows the warning while it is above the safe max.
     With an explicit annual_price it is that price's real (floored) saving."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     fixed = _fixed_annual(plan_id, cfg)
     if fixed:
         full = cfg["plans"][plan_id]["price"] * 12
@@ -1550,7 +1574,7 @@ def _margin_row(plan_id, period, price, months, row, cfg):
 def max_safe_annual_discount_pct(plan_id, cfg):
     """Largest whole % annual discount at which `plan_id`'s yearly NET still
     passes both the pool cap and the cost cap. 0 when even 0% fails."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     if plan_id not in cfg["plans"]:
         return 0
     for disc in range(90, -1, -1):
@@ -1567,7 +1591,7 @@ def plan_margin_report(cfg):
     the POOL_CAP_PCT_OF_NET cap, and worst-case cost (pool at the
     MARGIN_NET_FLOOR cost ratio + full storage quota) vs MARGIN_NET_FLOOR of
     NET. Annual rows also carry max_safe_discount_pct. Pure."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     out = []
     for pid in PLAN_ORDER:
         row = cfg["plans"][pid]
@@ -1601,7 +1625,7 @@ def plan_benefits(pid, lang, cfg):
     taken from the live config (never a hardcoded "15 scans" that drifts from
     the real pool). Lines that state a number are rebuilt here; the rest come
     from _PLAN_META."""
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     s = cfg["plans"][pid]
     bn = lang == "bn"
     lines = list(_PLAN_META[pid]["benefits_" + ("bn" if bn else "en")])
@@ -1673,7 +1697,7 @@ def plan_public(lang, cfg):
     Free/Premium/Business entries in core/plans.py. probashi/founder are handled
     by core/plans.py (founder hidden; probashi appended there)."""
     from ..i18n import pick
-    cfg = normalize(cfg)
+    cfg = _n(cfg)
     out = []
     order = PLAN_ORDER + tuple(p for p in NEW_PLAN_ORDER if cfg["plans"][p]["price"] > 0)
     for pid in order:
