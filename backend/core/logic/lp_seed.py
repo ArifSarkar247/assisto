@@ -67,8 +67,9 @@ def _tts_of(script, lang):
         if lines else None
 
 
-def track_items(content_dir):
-    """Stage 2/3 syllabus, lesson and test files -> ITEMs (no audio paths)."""
+def track_items(content_dir, audio_index=None):
+    """Stage 2/3 syllabus, lesson and test files -> ITEMs; test listening
+    questions get their recorded audio when `audio_index` has it (lpaudio)."""
     items = []
     for lang in TRACK_LANGS:
         for p in sorted(glob.glob(os.path.join(content_dir, lang, "*.json"))):
@@ -102,6 +103,7 @@ def track_items(content_dir):
                             t = _tts_of(q.get("script"), lang)
                             if t:
                                 q["tts"] = t
+                AU.attach_track(data, d["bundle_id"], lang, d, audio_index)
                 items.append({"kind": "mock", "key": d["bundle_id"], "track": d["track"],
                               "level": LEVELS.get(d["track"], ""), "data": data})
     return items
@@ -113,4 +115,4 @@ def ielts_items(content_dir, audio_index=None):
 
 
 def all_items(content_dir, audio_index=None):
-    return ielts_items(content_dir, audio_index) + track_items(content_dir)
+    return ielts_items(content_dir, audio_index) + track_items(content_dir, audio_index)

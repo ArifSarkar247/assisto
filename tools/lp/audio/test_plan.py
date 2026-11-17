@@ -12,7 +12,8 @@ CONTENT = os.path.join(render.ROOT, "tools", "lp", "content")
 
 class PlanTests(unittest.TestCase):
     def setUp(self):
-        self.plans = render.all_plans(CONTENT)
+        self.all = render.all_plans(CONTENT)
+        self.plans = [p for p in self.all if p["bundle"].startswith("ielts-")]
 
     def test_every_mock_part_has_a_plan(self):
         self.assertGreaterEqual(len(self.plans), 12)
@@ -48,6 +49,16 @@ class PlanTests(unittest.TestCase):
         for ps in by.values():
             self.assertEqual(ps[-1]["check_sec"], A.FINAL_CHECK_SEC)
             self.assertIn("end of the listening test", ps[-1]["segments"][-1]["text"])
+
+    def test_track_questions_only_with_cleared_voices(self):
+        tr = [p for p in self.all if not p["bundle"].startswith("ielts-")]
+        self.assertTrue(tr)
+        self.assertEqual(len({p["file"] for p in tr}), len(tr))
+        for p in tr:
+            self.assertIn(p["lang"], ("ja", "zh", "fr"))
+            for s in p["segments"]:
+                self.assertIn(s["voice"].split("+")[0][:1], ("j", "z", "f"), p["file"])
+            self.assertGreaterEqual(p["plays"], 1)
 
     def test_speakable(self):
         self.assertEqual(A.speakable("B-R-E-N-N-I-C-K."), "B, R, E, N, N, I, C, K.")

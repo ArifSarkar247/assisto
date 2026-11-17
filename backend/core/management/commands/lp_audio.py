@@ -64,6 +64,14 @@ def current_plans(content):
                 d = json.load(fh)
             for pl in AU.bundle_plans(d):
                 out[(pl["bundle"], str(pl["part"]))] = pl
+    for lang in sorted(AU.TRACK_VOICES):
+        folder = os.path.join(content, lang)
+        for fn in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
+            if fn.endswith(".json"):
+                with open(os.path.join(folder, fn), encoding="utf-8") as fh:
+                    d = json.load(fh)
+                for pl in AU.track_plans(d, lang):
+                    out[(pl["bundle"], str(pl["part"]))] = pl
     return out
 
 
@@ -101,7 +109,7 @@ def build_index(manifest, plans, fetch, old=None):
 
 
 class Command(BaseCommand):
-    help = "Attach the CI-rendered IELTS listening audio (release lp-audio) and re-seed the IELTS mocks."
+    help = "Attach the CI-rendered listening audio (release lp-audio) and re-seed the IELTS mocks + track tests."
 
     def add_arguments(self, parser):
         parser.add_argument("--dir", default="", help="local folder with manifest.json + .m4a files")
@@ -135,7 +143,10 @@ class Command(BaseCommand):
         save_index(idx)
         known = LS.known_fingerprints()
         res = {"new": 0, "same": 0, "not_live": []}
-        for raw in SD.ielts_items(content, idx):
+        tracks = {b for b, _ in plans} - {r["key"] for r in SD.ielts_items(content)}
+        raws = SD.ielts_items(content, idx) + [r for r in SD.track_items(content, idx)
+                                               if r["kind"] == "mock" and r["key"] in tracks]
+        for raw in raws:
             for item, created in LS.import_item(raw, "ai", "lp-audio", known):
                 res["new" if created else "same"] += 1
                 if item.status not in ("ai_checked", "human_approved"):

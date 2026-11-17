@@ -47,7 +47,15 @@ def all_plans(content):
             d = json.load(fh)
         if d.get("format") == "assisto.lp.ielts/1":
             plans.extend(A.bundle_plans(d))
+    for lang in sorted(A.TRACK_VOICES):           # language-course test questions (ja, zh, fr)
+        for f in sorted(glob.glob(os.path.join(content, lang, "*.json"))):
+            with open(f, encoding="utf-8") as fh:
+                plans.extend(A.track_plans(json.load(fh), lang))
     return plans
+
+
+class LangUnavailable(Exception):
+    pass
 
 
 class Synth:
@@ -56,16 +64,38 @@ class Synth:
         self._kp = KPipeline
         self._pipes = {}
 
-    def say(self, voice, text):
+    def say(self, voice, text, speed):
         import numpy as np
-        lang = voice[0]
+        base, _, effect = voice.partition("+")
+        lang = base[0]                      # Kokoro: the voice prefix is the language code
         if lang not in self._pipes:
-            self._pipes[lang] = self._kp(lang_code=lang)
+            try:
+                self._pipes[lang] = self._kp(lang_code=lang)
+            except Exception as e:  # noqa: BLE001 — e.g. misaki[ja] not installable on the runner
+                self._pipes[lang] = e
+        if isinstance(self._pipes[lang], Exception):
+            raise LangUnavailable("%s: %s" % (lang, str(self._pipes[lang])[:200]))
         chunks = [np.asarray(a, dtype=np.float32).reshape(-1)
-                  for _, _, a in self._pipes[lang](text, voice=voice, speed=A.SPEED) if a is not None]
+                  for _, _, a in self._pipes[lang](text, voice=base, speed=speed) if a is not None]
         if not chunks:
             raise RuntimeError("no audio for %r" % text[:60])
-        return np.concatenate(chunks)
+        x = np.concatenate(chunks)
+        return lower_pitch(x) if effect == "low" else x
+
+
+def lower_pitch(x, factor=0.84):
+    """~3 semitones lower, same tempo (ffmpeg asetrate + atempo) — an effect on
+    the same synthetic voice for a second speaker, never cloning."""
+    import numpy as np
+    import soundfile as sf
+    sr = A.SAMPLE_RATE
+    with tempfile.TemporaryDirectory() as td:
+        a, b = os.path.join(td, "a.wav"), os.path.join(td, "b.wav")
+        sf.write(a, x, sr, subtype="PCM_16")
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", a, "-af",
+                        "asetrate=%d,aresample=%d,atempo=%.4f" % (int(sr * factor), sr, 1 / factor), b], check=True)
+        y, _ = sf.read(b, dtype="float32")
+    return np.asarray(y, dtype=np.float32).reshape(-1)
 
 
 def trim(x, thr=0.004):
@@ -81,10 +111,16 @@ def render(plan, synth, out_dir):
     import numpy as np
     import soundfile as sf
     sr = A.SAMPLE_RATE
-    pieces = [np.zeros(int(0.5 * sr), dtype=np.float32)]
+    one = []
     for s in plan["segments"]:
-        pieces.append(trim(synth.say(s["voice"], s["text"])))
-        pieces.append(np.zeros(int(float(s.get("gap") or 0) * sr), dtype=np.float32))
+        one.append(trim(synth.say(s["voice"], s["text"], plan.get("speed") or A.SPEED)))
+        one.append(np.zeros(int(float(s.get("gap") or 0) * sr), dtype=np.float32))
+    one = np.concatenate(one)
+    pieces = [np.zeros(int(0.5 * sr), dtype=np.float32)]
+    for i in range(int(plan.get("plays") or 1)):     # "you will hear it twice" = in the recording
+        if i:
+            pieces.append(np.zeros(int(float(plan.get("repeat_gap") or 3) * sr), dtype=np.float32))
+        pieces.append(one)
     x = np.concatenate(pieces)
     peak = float(np.max(np.abs(x))) or 1.0
     x = (x / peak * 0.89).astype(np.float32)
@@ -126,13 +162,17 @@ def main(argv=None):
         with open(a.have, encoding="utf-8") as fh:
             have = {e["file"]: e for e in (json.load(fh).get("parts") or [])}
     synth = None
-    parts, rendered = [], []
+    parts, rendered, skipped = [], [], []
     for pl in plans:
         if pl["file"] in have:
             parts.append(have[pl["file"]])
             continue
         synth = synth or Synth()
-        dur = render(pl, synth, a.out)
+        try:
+            dur = render(pl, synth, a.out)
+        except LangUnavailable as e:
+            skipped.append("%s (%s)" % (pl["file"], e))
+            continue
         e = entry(pl, os.path.join(a.out, pl["file"]), dur)
         parts.append(e)
         rendered.append(pl["file"])
@@ -147,7 +187,9 @@ def main(argv=None):
         json.dump(man, fh, ensure_ascii=False, indent=1)
     with open(os.path.join(a.out, "rendered.txt"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(rendered) + ("\n" if rendered else ""))
-    print("parts: %d, rendered now: %d" % (len(parts), len(rendered)))
+    for x in skipped[:5]:
+        print("SKIPPED (voice/G2P not available on this runner):", x)
+    print("parts: %d, rendered now: %d, skipped: %d" % (len(parts), len(rendered), len(skipped)))
     return 0
 
 

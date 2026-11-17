@@ -432,3 +432,102 @@ class _LpListenPanelState extends State<LpListenPanel> {
     );
   }
 }
+
+/// lpaudio: one recorded listening question of a language-course test (the
+/// "you will hear it twice" repeat is inside the recording). Exam mode: plays
+/// once, then locks; practice: replay. Used by LpTtsPlayer when the server
+/// sends `tts.audio_url` (then it sends no script lines at all).
+class LpRecordedClip extends StatefulWidget {
+  final String url;
+  final bool replay;
+  const LpRecordedClip({super.key, required this.url, this.replay = true});
+  @override
+  State<LpRecordedClip> createState() => _LpRecordedClipState();
+}
+
+class _LpRecordedClipState extends State<LpRecordedClip> {
+  LpAudioEngine? _e;
+  final List<StreamSubscription> _subs = [];
+  bool _playing = false, _loaded = false, _done = false;
+  Duration _pos = Duration.zero;
+
+  @override
+  void dispose() {
+    for (final s in _subs) {
+      s.cancel();
+    }
+    _e?.dispose();
+    super.dispose();
+  }
+
+  LpAudioEngine _engine() {
+    if (_e != null) return _e!;
+    final e = lpAudioEngine();
+    _subs.add(e.position.listen((d) {
+      if (mounted) setState(() => _pos = d);
+    }));
+    _subs.add(e.completed.listen((_) {
+      if (mounted) {
+        setState(() {
+          _playing = false;
+          _done = true;
+        });
+      }
+    }));
+    return _e = e;
+  }
+
+  Future<void> _tap() async {
+    final tr = AppLocalizations.of(context);
+    try {
+      if (_playing) {
+        if (!widget.replay) return; // exam: no pause
+        await _engine().pause();
+        setState(() => _playing = false);
+        return;
+      }
+      if (!_loaded) {
+        await _engine().load(widget.url);
+        _loaded = true;
+        await _engine().play();
+      } else if (_done) {
+        _done = false;
+        await _engine().restart();
+      } else {
+        await _engine().play();
+      }
+      if (mounted) setState(() => _playing = true);
+    } catch (_) {
+      if (mounted) lpToast(context, tr.lp2AudioFail);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final locked = _done && !widget.replay;
+    return DsSurface(
+      color: scheme.surfaceContainerHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
+        IconButton.filled(
+          key: const Key('lp2-clip-play'),
+          tooltip: _playing ? tr.lp2Pause : tr.lp2PlayAudio,
+          constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
+          onPressed: locked || (_playing && !widget.replay) ? null : _tap,
+          icon: Icon(_playing ? Icons.pause_rounded : (_done ? Icons.replay_rounded : Icons.play_arrow_rounded)),
+        ),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(locked ? tr.lp2AudioPlayedOnce : (_playing ? tr.lp2AudioPlaying : tr.lp2PlayAudio),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+            Text(tr.lp2ListenRecorded, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            if (_pos > Duration.zero) Text(ld(context, clock(_pos.inSeconds)), style: AType.bodySmall),
+          ]),
+        ),
+      ]),
+    );
+  }
+}

@@ -35,10 +35,15 @@ def _bundle(bid=BUNDLE):
         return json.load(fh)
 
 
-def _fake_release(folder, bid=BUNDLE, tamper=None, stale=None):
-    """manifest.json + fake .m4a bytes for every part of one bundle."""
+def _track(bid="fr-a1-001", lang="fr"):
+    with open(os.path.join(CONTENT, lang, bid + ".json"), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _fake_release(folder, bid=BUNDLE, tamper=None, stale=None, extra=()):
+    """manifest.json + fake .m4a bytes for every part of one bundle (+ extra plans)."""
     parts = []
-    for pl in AU.bundle_plans(_bundle(bid)):
+    for pl in list(AU.bundle_plans(_bundle(bid))) + list(extra):
         blob = ("fake-aac-%s" % pl["file"]).encode()
         with open(os.path.join(folder, pl["file"]), "wb") as fh:
             fh.write(blob)
@@ -189,3 +194,59 @@ class AttachTests(TestCase):
         self.assertTrue(all(p.get("turns") for p in it["data"]["listening"]["parts"]))  # server keeps the script
         sec = LS.live_item(BUNDLE + "-listening", "section")
         self.assertIn(sec.status, ("ai_checked", "human_approved"))
+
+
+@mock.patch("core.lp_service.flag_on", return_value=True)
+class TrackAudioTests(TestCase):
+    """French A1 test: recorded questions stream audio and send NO script lines."""
+    @classmethod
+    def setUpClass(cls):
+        cls._media = tempfile.mkdtemp(prefix="lpaudio-media2-")
+        cls._ov = override_settings(MEDIA_ROOT=cls._media)
+        cls._ov.enable()
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls._ov.disable()
+        shutil.rmtree(cls._media, ignore_errors=True)
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("lp_seed", stdout=io.StringIO())
+
+    def test_track_question_gets_audio_not_lines(self, _f):
+        d = _track()
+        plans = AU.track_plans(d, "fr")
+        self.assertTrue(plans)
+        self.assertTrue(all(p["plays"] == 2 for p in plans))       # "vous l'entendrez deux fois"
+        rel = tempfile.mkdtemp(prefix="lpaudio-rel2-")
+        self.addCleanup(shutil.rmtree, rel, True)
+        _fake_release(rel, extra=plans)
+        out = io.StringIO()
+        call_command("lp_audio", dir=rel, stdout=out)
+        self.assertEqual(json.loads(out.getvalue())["attached"], 4 + len(plans))
+        u = User.objects.create_user(name="Track Listener", phone="+8801711009978", password="pw12345!")
+        c = APIClient()
+        c.force_authenticate(u)
+        sec = next(s["id"] for s in d["sections"]
+                   if any(q.get("script") for p in s.get("parts") or [] for q in p.get("questions") or []))
+        with mock.patch.object(LS, "is_premium", return_value=True):
+            r = c.get(V + "/lp/mocks/fr-a1-001?section=%s" % sec)
+        self.assertEqual(r.status_code, 200, r.content[:200])
+        raw = r.content.decode()
+        self.assertNotIn('"lines"', raw)
+        self.assertNotIn('"script"', raw)
+        self.assertNotIn('"audio_meta"', raw)
+        qs = [q for s in r.json()["sections"] for p in s.get("parts") or [] for q in p["questions"] if q.get("tts")]
+        self.assertTrue(qs)
+        for q in qs:
+            self.assertTrue(q["tts"]["audio_url"])
+            self.assertEqual(q["tts"]["repeat"], 1)
+
+    def test_no_voice_language_keeps_phone_voice(self, _f):
+        # Korean has no licence-clean voice yet: no plan, the phone voice stays (honest gap)
+        with open(os.path.join(CONTENT, "ko", sorted(f for f in os.listdir(os.path.join(CONTENT, "ko"))
+                                                     if f.startswith("eps"))[0]), encoding="utf-8") as fh:
+            self.assertEqual(AU.track_plans(json.load(fh), "ko"), [])

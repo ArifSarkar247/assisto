@@ -417,13 +417,21 @@ def is_track(mock):
     return isinstance((mock.data or {}).get("sections"), list)
 
 
-_HIDDEN = ("answer", "explain_bn", "explain_en", "script", "skill")
+_HIDDEN = ("answer", "explain_bn", "explain_en", "script", "skill", "audio_meta")
+
+
+def _public_tts(t):
+    """lpaudio: a recorded question -> only its signed audio link (no lines)."""
+    if isinstance(t, dict) and t.get("audio"):
+        return {"audio_url": media_url(t["audio"]), "lang": t.get("lang"), "repeat": 1,
+                "duration_sec": (t.get("audio_meta") or {}).get("duration_sec")}
+    return _strip(t)
 
 
 def _strip(obj):
     """A stage-2 test without keys, explanations and TTS scripts."""
     if isinstance(obj, dict):
-        return {k: _strip(v) for k, v in obj.items() if k not in _HIDDEN}
+        return {k: (_public_tts(v) if k == "tts" else _strip(v)) for k, v in obj.items() if k not in _HIDDEN}
     if isinstance(obj, list):
         return [_strip(x) for x in obj]
     return obj

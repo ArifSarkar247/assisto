@@ -178,3 +178,100 @@ def attach(listening, d, index):
         p["audio_meta"] = {k: e[k] for k in ("duration_sec", "accents", "preview_sec", "check_sec",
                                              "plan_hash", "sha256", "bytes") if k in e}
     return listening
+
+
+# ------------------------------------------------- stage 2/3 language tracks
+# Test listening questions of the language courses (assisto.lp.test/1). Only
+# languages with a cleared Kokoro voice (tools/lp/tts/VOICES_TRACKS.json +
+# .phaseB/MODEL_LICENSES.md): Japanese, Chinese, French. Korean, German and
+# Arabic keep the phone's own voice until a licence-clean voice exists.
+TRACK_VOICES = {
+    "ja": {"F": ["jf_alpha", "jf_gongitsune", "jf_nezumi"], "M": ["jm_kumo"]},
+    "zh": {"F": ["zf_xiaoxiao", "zf_xiaoyi"], "M": ["zm_yunjian", "zm_yunxi"]},
+    # one French Kokoro voice: the male speaker is the same synthetic voice
+    # pitch-lowered (an audio effect, not cloning — MODEL_LICENSES.md stage 3)
+    "fr": {"F": ["ff_siwis"], "M": ["ff_siwis+low"]},
+}
+TRACK_SPEED = 0.9
+TRACK_REPEAT_GAP = 3.0
+
+
+def track_voices(lang, speakers):
+    pool = TRACK_VOICES.get(lang)
+    if not pool:
+        return None
+    used = {"F": 0, "M": 0}
+    out = {}
+    for sid, sp in sorted((speakers or {}).items()):
+        g = "M" if str((sp or {}).get("gender") or "F").upper().startswith("M") else "F"
+        cands = pool.get(g) or pool["F"]
+        out[sid] = cands[used[g] % len(cands)]
+        used[g] += 1
+    return out
+
+
+def track_job(bundle_id, job, lang, script):
+    """One scripted listening question -> plan (None = no cleared voice)."""
+    vmap = track_voices(lang, script.get("speakers") or {})
+    if vmap is None:
+        return None
+    segs = []
+    for t in script.get("turns") or []:
+        if not isinstance(t, dict):
+            continue
+        if "pause" in t:
+            if segs:
+                segs[-1]["gap"] = round(float(segs[-1].get("gap") or 0) + float(t["pause"]), 2)
+            continue
+        text = str(t.get("text") or "").strip()
+        if text:
+            first = next(iter(vmap.values()), None)
+            segs.append({"voice": vmap.get(t.get("spk")) or first, "text": text, "gap": 0.5})
+    if not segs or any(not s["voice"] for s in segs):
+        return None
+    plays = max(1, min(3, int(script.get("repeat") or 1)))
+    plan = {"bundle": bundle_id, "part": job, "engine": ENGINE, "speed": TRACK_SPEED, "lang": lang,
+            "plays": plays, "repeat_gap": TRACK_REPEAT_GAP, "segments": segs}
+    plan["hash"] = hashlib.sha256(json.dumps(
+        {k: plan[k] for k in ("bundle", "part", "engine", "speed", "lang", "plays", "segments")},
+        sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+    plan["voices"] = [{"spk": k, "voice": v, "accent": lang} for k, v in sorted(vmap.items())]
+    plan["accents"] = [lang]
+    plan["preview_sec"] = 0
+    plan["check_sec"] = 0
+    plan["file"] = "%s-%s-%s.m4a" % (bundle_id, job, plan["hash"][:12])
+    return plan
+
+
+def track_plans(d, lang):
+    """A stage-2/3 test file -> plans of its scripted listening questions."""
+    out = []
+    if d.get("format") != "assisto.lp.test/1":
+        return out
+    for s in d.get("sections") or []:
+        for p in (s.get("parts") or []) if isinstance(s, dict) else []:
+            for q in p.get("questions") or []:
+                if isinstance(q.get("script"), dict) and isinstance(q.get("n"), int):
+                    pl = track_job(d["bundle_id"], "q%d" % q["n"], lang, q["script"])
+                    if pl:
+                        out.append(pl)
+    return out
+
+
+def attach_track(data, bundle_id, lang, raw, index):
+    """lp_seed: a test's questions get tts.audio when the stored file's plan
+    hash is the CURRENT script's; the phone then streams it and gets no lines."""
+    got = (index or {}).get(bundle_id) or {}
+    if not got:
+        return data
+    now = {pl["part"]: pl["hash"] for pl in track_plans(raw, lang)}
+    for s in data.get("sections") or []:
+        for p in s.get("parts") or []:
+            for q in p.get("questions") or []:
+                job = "q%s" % q.get("n")
+                e = got.get(job)
+                if e and e.get("audio") and e.get("plan_hash") == now.get(job) and isinstance(q.get("tts"), dict):
+                    q["tts"]["audio"] = e["audio"]
+                    q["tts"]["audio_meta"] = {k: e[k] for k in ("duration_sec", "plan_hash", "sha256")
+                                              if k in e}
+    return data

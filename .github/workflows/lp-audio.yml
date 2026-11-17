@@ -8,7 +8,7 @@ name: lp-audio
 on:
   push:
     branches: ['ci/lpaudio**']
-    paths: ['tools/lp/audio/**', 'tools/lp/content/ielts/**', 'backend/core/logic/lp_audio.py',
+    paths: ['tools/lp/audio/**', 'tools/lp/content/**', 'backend/core/logic/lp_audio.py',
             '.github/workflows/lp-audio.yml']
   workflow_dispatch:
     inputs:
@@ -54,6 +54,11 @@ jobs:
           python -m pip install -q "numpy==1.26.4" "soundfile==0.12.1"
           python -m pip install -q --extra-index-url https://download.pytorch.org/whl/cpu \
             "torch==2.4.1" "kokoro==0.9.4" "misaki[en]==0.9.4"
+      - name: Japanese + Chinese G2P (best effort; a language that fails stays on the phone voice)
+        continue-on-error: true
+        run: |
+          python -m pip install -q "misaki[zh]==0.9.4" || echo "zh G2P not installed"
+          python -m pip install -q "misaki[ja]==0.9.4" && python -m unidic download || echo "ja G2P not installed"
       - name: Render (Kokoro-82M, CPU)
         run: python tools/lp/audio/render.py --out out/lp_audio --have prev/manifest.json
       - name: Verify files (duration, size, AAC)
@@ -62,10 +67,13 @@ jobs:
           import json, os, subprocess
           m = json.load(open("out/lp_audio/manifest.json"))
           new = [l.strip() for l in open("out/lp_audio/rendered.txt") if l.strip()]
-          assert len(m["parts"]) >= 12, "expected 3 mocks x 4 parts"
+          ielts = [e for e in m["parts"] if e["bundle"].startswith("ielts-")]
+          assert len(ielts) >= 12, "expected 3 mocks x 4 parts"
           for e in m["parts"]:
-              assert 60 < e["duration_sec"] < 1200, e
+              lo, hi = (60, 1200) if e in ielts else (1, 300)
+              assert lo < e["duration_sec"] < hi, e
               assert e["bytes"] < 8 * 1024 * 1024, e
+          print("track clips:", len(m["parts"]) - len(ielts))
           for f in new:
               p = os.path.join("out/lp_audio", f)
               r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_name,channels",
