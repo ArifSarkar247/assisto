@@ -882,8 +882,14 @@ def _text_path():
     p = getattr(settings, "QURAN_UTHMANI_PATH", "")
     if p:
         return p
-    return os.path.join(os.path.dirname(str(settings.BASE_DIR)), "app", "assets", "quran",
-                        "quran-uthmani.txt.gzip")
+    base = os.path.join(os.path.dirname(str(settings.BASE_DIR)), "app", "assets", "quran")
+    # gap-quranblood: the app asset was renamed .txt.gz -> .txt.gzip (Android
+    # drops *.gz assets). Accept both, so a server checkout from before or
+    # after the rename keeps working (same bytes either way).
+    for name in ("quran-uthmani.txt.gzip", "quran-uthmani.txt.gz"):
+        if os.path.exists(os.path.join(base, name)):
+            return os.path.join(base, name)
+    return os.path.join(base, "quran-uthmani.txt.gzip")
 
 
 @lru_cache(maxsize=1)

@@ -154,11 +154,19 @@ void main() {
   // P0 found by reality qb1 (run 44194087656): Android's asset packager
   // strips ".gz" files, so "assets/quran/*.txt.gz" did not exist in the APK
   // and the Quran screen showed "could not open" on every phone.
-  test('no bundled asset ends in .gz (Android drops them from the APK)', () {
-    final bad = [
-      for (final e in Directory('assets').listSync(recursive: true))
-        if (e is File && e.path.endsWith('.gz')) e.path
-    ];
+  // aapt's default ignore list also skips names starting with "." and
+  // directories starting with "_" (and "*~" backups).
+  test('no bundled asset the Android build would drop', () {
+    final bad = <String>[];
+    for (final e in Directory('assets').listSync(recursive: true)) {
+      final parts = e.path.split('/').skip(1).toList();
+      final name = parts.last;
+      final dirs = e is File ? parts.sublist(0, parts.length - 1) : parts;
+      if ((e is File && (name.endsWith('.gz') || name.startsWith('.') || name.endsWith('~'))) ||
+          dirs.any((d) => d.startsWith('_') || d.startsWith('.'))) {
+        bad.add(e.path);
+      }
+    }
     expect(bad, isEmpty);
   });
 
