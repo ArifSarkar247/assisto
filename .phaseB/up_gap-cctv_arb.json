@@ -42,6 +42,10 @@
   "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
   "@gcvThanaUnavailable": {
    "description": "gap-cctv: thana lookup failed (not 'none nearby')"
+  },
+  "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
+  "@gcvClipExpiredGone": {
+   "description": "gap-cctv: clip expired (24 h or the add-on's days)"
   }
  },
  "bn": {
@@ -63,6 +67,7 @@
   "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?",
   "gcvEvidenceMaking": "প্রমাণ-প্যাক তৈরি হচ্ছে… (ছবি, ক্লিপ, SHA-256 তালিকা, PDF)",
   "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।",
-  "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।"
+  "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।",
+  "gcvClipExpiredGone": "রাখার সময় শেষ হওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।"
  }
 }

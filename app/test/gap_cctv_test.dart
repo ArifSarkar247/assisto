@@ -332,4 +332,9 @@ void main() {
       expect(evidenceBuilding, isFalse);
     });
   });
+
+  test('G13 clip expiry text never claims a fixed 24 hours (add-on keeps 7/30 days)', () {
+    expect(en.gcvClipExpiredGone, isNot(contains('24')));
+    expect(bn.gcvClipExpiredGone, isNot(contains('২৪')));
+  });
 }

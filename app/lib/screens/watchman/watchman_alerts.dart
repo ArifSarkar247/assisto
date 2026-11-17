@@ -342,7 +342,7 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                   onPressed: () => _openClip(e),
                 )
               else
-                Text(clipSt == 'viewed' ? t.cgClipWatchedGone : t.cgClipExpiredGone,
+                Text(clipSt == 'viewed' ? t.cgClipWatchedGone : t.gcvClipExpiredGone, // gap-cctv: not always 24 h
                     style: Theme.of(context).textTheme.bodySmall),
             ],
             const SizedBox(height: 8),
