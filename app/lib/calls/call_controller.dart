@@ -106,7 +106,12 @@ class MediaStats {
       this.availableKbps,
       this.relayed = false,
       this.bytesSent,
-      this.bytesReceived});
+      this.bytesReceived,
+      this.audioPacketsIn,
+      this.audioBytesIn,
+      this.videoFramesDecoded,
+      this.videoFramesEncoded,
+      this.videoPacketsSent});
   final double? rttMs;
   final double? lossPct;
   final double? jitterMs;
@@ -119,6 +124,17 @@ class MediaStats {
   /// all media + RTCP) — "this call used ~X MB". null = not reported.
   final int? bytesSent;
   final int? bytesReceived;
+
+  /// gatefix: what actually ARRIVED from the other side (inbound-rtp,
+  /// cumulative): audio packets / payload bytes and decoded video frames.
+  /// Media flowing, not just ICE connected. null = not reported.
+  final int? audioPacketsIn;
+  final int? audioBytesIn;
+  final int? videoFramesDecoded;
+
+  /// gatefix: my OUTBOUND video (outbound-rtp): frames encoded, packets sent.
+  final int? videoFramesEncoded;
+  final int? videoPacketsSent;
 
   CallQuality get quality => qualityFor();
 

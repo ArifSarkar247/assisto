@@ -9,6 +9,7 @@ import '../ds/ds.dart';
 import '../theme.dart';
 import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/ladder_common.dart';
+import '../widgets/num_input.dart' show normalizeNumInput; // relgate: Bangla digits
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import 'money_trends_screen.dart';
@@ -604,11 +605,14 @@ class _TxnsTabState extends State<_TxnsTab> {
                         child: Text(t.save)),
                   ],
                 )));
-    if (ok == true && dbl(amount.text) > 0) {
+    // relgate: 85 in Bangla digits or '1,250' typed on a Bangla keyboard used to give 0 and
+    // the expense was silently dropped (save sweep SV_money_txn red).
+    final amt = normalizeNumInput(amount.text);
+    if (ok == true && dbl(amt) > 0) {
       final data = <String, dynamic>{
         'account': accId,
         'kind': kind,
-        'amount': amount.text.trim(),
+        'amount': amt,
         'category': cat.text.trim(),
         'note': note.text.trim(),
         'date': DateFormat('yyyy-MM-dd').format(date),
@@ -1002,7 +1006,9 @@ class _LoansSavingsTab extends StatelessWidget {
       await app.loans.add({
         'kind': kind,
         'person': person.text.trim(),
-        'amount': amount.text.trim(),
+        'amount': normalizeNumInput(amount.text).isEmpty
+            ? amount.text.trim()
+            : normalizeNumInput(amount.text), // relgate: Bangla digits
         'settled': false,
         'paid': '0',
         'repayments': <Map<String, dynamic>>[],
