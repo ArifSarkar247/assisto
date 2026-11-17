@@ -183,6 +183,30 @@ class Command(BaseCommand):
                                "path": "feature_flags", "status": 200, "ok": ff is not None})
         FF.invalidate()
 
+        # gap-cctv (lead, 17 Nov): user A runs a shop on the CCTV plan's free
+        # trial (a TEST purchase row on this throw-away CI DB, never Play) so
+        # flow 20 proves the real path past the plan screen: menu -> CCTV ->
+        # Shop tools -> Shop Box, then the old shop_box link.
+        try:
+            import hashlib
+            from core import cctv_plan_service as CPS
+            from core.logic import cctv_plan as CP
+            from core.models import PlayPurchase
+            tok = "reality-cctv-trial-%d" % users["a"].id
+            PlayPurchase.objects.update_or_create(
+                token_hash=hashlib.sha256(tok.encode()).hexdigest(),
+                defaults={"user": users["a"], "is_test": True, "purchase_token": tok,
+                          "kind": "sub", "product_id": CPS.cfg()["product_id"],
+                          "base_plan_id": CP.base_plan_id(2, "monthly"),
+                          "state": "SUBSCRIPTION_STATE_ACTIVE",
+                          "expires_at": now + timedelta(days=7),
+                          "raw": {"in_trial": True, "seed": "reality"}})
+            ok = CPS.plan_cameras(users["a"], now=now) > 0
+        except Exception:
+            ok = False
+        self.steps.append({"step": "CCTV plan trial for A (shop flows)", "method": "DB",
+                           "path": "play_purchases", "status": 200 if ok else 500, "ok": ok})
+
         # --- family + emergency card
         fam = []
         for name, rel, phone in (("Ammu", "mother", "01700000011"),
