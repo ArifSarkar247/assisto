@@ -231,12 +231,36 @@ def thana_for(site, lang="bn", refresh=False, now=None):
             "lat": loc["lat"], "lng": loc["lng"]}
 
 
-def act_actions(ev, role):
+def live_for_role(cam, site, role, user):
+    """gap-cctv: the Live tile only for someone the live start will admit —
+    the owner, or a viewer whose role covers this camera and whom the owner
+    allowed live (brand-cloud live stays owner-only). Never logs access."""
+    live = live_path(cam, site)
+    if role == "owner" or live.get("path") is None:
+        return live
+    hidden = {"path": None, "reason": "owner_only"}
+    if live.get("path") != "webrtc" or user is None or cam is None:
+        return hidden
+    try:
+        from . import cctv_team_views as CTV
+        from .logic import cctv_team as CT
+        r, scope = CTV.scope_for(site, user)
+        if r is None or r == "owner" or not CT.camera_allowed(scope, cam.id):
+            return hidden
+        if not CTV.viewer_live_ok(cam, CTV.viewer_of(site, user)):
+            return hidden
+    except Exception:
+        log.exception("cctvact live role check failed")
+        return hidden
+    return live
+
+
+def act_actions(ev, role, user=None):
     """Extra alert actions for actions_for() (cctvx). Never raises."""
     try:
         site, cam = ev.site, ev.camera
         lang = "bn"
-        out = {"site_id": site.id, "role": role, "live": live_path(cam, site)}
+        out = {"site_id": site.id, "role": role, "live": live_for_role(cam, site, role, user)}
         pend = [{"id": p["id"], "name": p.get("name") or ""}
                 for p in _auto(site).get("pending") or [] if p.get("event_id") == ev.id]
         if role == "owner" and pend:

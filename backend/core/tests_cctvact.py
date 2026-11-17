@@ -417,6 +417,25 @@ class ActApiTests(_X):
         self.assertLess(ShopEvent.objects.get(pk=r.data["event_id"]).confidence, 0.9)
         self.assertEqual([k for a, k in self.pushes if k.get("data", {}).get("event_id")], [])
 
+    def test_gapcctv_live_tile_only_for_people_live_start_admits(self):
+        # gap-cctv: a manager the alert was passed to (no live permission) must
+        # not get a Live tile that ends in "Not found"
+        self.guard(escalation=[self.mgr.id])
+        ev = self.ingest().data["event_id"]
+        self.tick(minutes=1)
+        self.tick(minutes=4)
+        own = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertEqual(own["live"]["path"], "webrtc")
+        d = self.m.get("/api/v1/shop/events/%d" % ev)
+        self.assertEqual((d.status_code, d.data["role"]), (200, "escalated"))
+        live = d.data["actions"]["act"]["live"]
+        self.assertIsNone(live["path"])
+        self.assertEqual(live["reason"], "owner_only")
+        # and indeed the live start refuses them
+        cam = own["live"]["camera_id"]
+        r = self.m.post("/api/v1/shop/live/start", {"camera": cam}, format="json")
+        self.assertIn(r.status_code, (403, 404))
+
     def test_live_thana_and_play_actions(self):
         from core.models import ShopGatewayTask
         ev = self.ingest().data["event_id"]

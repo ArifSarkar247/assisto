@@ -856,7 +856,7 @@ def mark_opened(ev, user, now=None):
     return ev.opened_at
 
 
-def actions_for(ev, role):
+def actions_for(ev, role, user=None):
     """What the phone may offer from this alert (honest per camera)."""
     site = ev.site
     s = settings_for(site)
@@ -886,13 +886,13 @@ def actions_for(ev, role):
             **_escalate_actions(ev, role),
             # cctvact (V3 D): live path, local thana, wrong-alert learning,
             # box / phone-camera play targets, automations that ran
-            **_act_actions(ev, role)}
+            **_act_actions(ev, role, user)}
 
 
-def _act_actions(ev, role):
+def _act_actions(ev, role, user=None):
     try:
         from . import cctv_act_views as ACTV
-        return ACTV.act_actions(ev, role)
+        return ACTV.act_actions(ev, role, user=user)
     except Exception:
         log.exception("cctvact actions failed")
         return {}
@@ -1080,7 +1080,7 @@ class EventDetailView(_OwnerBase):
         row = SV._event_row(ev, request)
         if role in ("escalated", "shared"):
             row.pop("signals", None)
-        actions = actions_for(ev, role)
+        actions = actions_for(ev, role, request.user)
         # cctvevidence (W7): the 10-s SD clip (video add-on) for the owner,
         # allowed viewers and the escalation chain — never a shared-clip guest
         if role in ("owner", "viewer", "escalated"):
