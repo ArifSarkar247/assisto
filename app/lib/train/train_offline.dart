@@ -554,11 +554,9 @@ class TrainOutbox extends ValueNotifier<int> {
 /// end); now the same rows come from the pack on the phone. [q] matches the
 /// number (Bangla digits too), either name or any stop, like the server.
 List<Map<String, dynamic>> trainOfflineSearch(TrainOfflinePack p, String q, {int limit = 60}) {
-  const bnDigits = '০১২৩৪৫৬৭৮৯';
-  final norm = q.trim().toLowerCase().split('').map((c) {
-    final i = bnDigits.indexOf(c);
-    return i >= 0 ? '$i' : c;
-  }).join();
+  // Bangla digits U+09E6..U+09EF -> ASCII (code points: no Bangla in Dart source)
+  final norm = String.fromCharCodes(q.trim().toLowerCase().runes.map(
+      (c) => c >= 0x09E6 && c <= 0x09EF ? 0x30 + c - 0x09E6 : c));
   String hm(int m) {
     final x = ((m % 1440) + 1440) % 1440;
     return '${(x ~/ 60).toString().padLeft(2, '0')}:${(x % 60).toString().padLeft(2, '0')}';
