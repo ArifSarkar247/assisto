@@ -198,6 +198,8 @@ void main() {
         _phone(tester, height: 900);
         await tester.pumpWidget(_screen(GapFakePlayback(), lang: lang, scale: 2.0, dark: dark));
         await _settle(tester);
+        await tester.ensureVisible(find.byKey(const ValueKey('gcv-pb-hour-10')));
+        await _settle(tester);
         await tester.tap(find.byKey(const ValueKey('gcv-pb-hour-10')));
         await _settle(tester, 12);
         expect(tester.takeException(), isNull);
