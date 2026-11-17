@@ -10,6 +10,7 @@ import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — become / edit a donor. The SEPARATE consent lives
 /// here (the Family card's blood group is never read): what others see, what
@@ -26,7 +27,8 @@ class BloodDonorSetupScreen extends StatefulWidget {
   State<BloodDonorSetupScreen> createState() => _BloodDonorSetupScreenState();
 }
 
-class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
+class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen>
+    with AdBlockedState<BloodDonorSetupScreen> {
   late String _group = '${widget.initial['blood_group'] ?? ''}';
   late String _sex = '${widget.initial['sex'] ?? ''}';
   late DateTime? _last = DateTime.tryParse('${widget.initial['last_donation'] ?? ''}');

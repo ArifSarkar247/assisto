@@ -18,6 +18,7 @@ import 'carecall_api.dart';
 import 'carecall_new_screen.dart';
 import 'carecall_plan.dart';
 import 'carecall_ui.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// carecall — the Care Call home (route `carecall`, flag `care_call`).
 /// SCREEN 3 lives at the top: the setter's updates — a normal card "Care
@@ -38,7 +39,8 @@ class CareCallScreen extends StatefulWidget {
   State<CareCallScreen> createState() => _CareCallScreenState();
 }
 
-class _CareCallScreenState extends State<CareCallScreen> {
+class _CareCallScreenState extends State<CareCallScreen>
+    with AdBlockedState<CareCallScreen> {
   Map<String, dynamic>? _m;
   bool _failed = false;
   bool _offline = false;

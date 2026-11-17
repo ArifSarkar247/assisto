@@ -15,6 +15,7 @@ import 'ma_common.dart';
 import 'missing_detail_screen.dart';
 import 'missing_optin_screen.dart';
 import 'missing_post_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// missing (owner 2 Nov) — Missing person alert hub (route `missing_alert`,
 /// flag `missing_alert`). One list, in this order:
@@ -31,7 +32,8 @@ class MissingHubScreen extends StatefulWidget {
   State<MissingHubScreen> createState() => _MissingHubScreenState();
 }
 
-class _MissingHubScreenState extends State<MissingHubScreen> {
+class _MissingHubScreenState extends State<MissingHubScreen>
+    with AdBlockedState<MissingHubScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

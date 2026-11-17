@@ -12,6 +12,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifAgo;
 import 'watchman_widgets.dart' show wmEventWhat;
 import 'cctvx_inbox.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// cctvescalate C3 — the CCTV ALARM CALL page. The server rang this phone
 /// with the SAME call push My Circle calls use (native full-screen ring,
@@ -31,7 +32,8 @@ class CctvAlarmCallScreen extends StatefulWidget {
   State<CctvAlarmCallScreen> createState() => _CctvAlarmCallScreenState();
 }
 
-class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
+class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen>
+    with AdBlockedState<CctvAlarmCallScreen> {
   // design2-b13: "2 min ago" stays true while the page is open
   Timer? _tick;
 

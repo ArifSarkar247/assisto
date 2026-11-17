@@ -24,6 +24,7 @@ import '../widgets/at_disclosure.dart'; // at100
 import '../widgets/permission_reason.dart';
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart' show SkeletonList;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -57,7 +58,7 @@ class LostStolenScreen extends StatefulWidget {
 }
 
 class _LostStolenScreenState extends State<LostStolenScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<LostStolenScreen>, WidgetsBindingObserver {
   static const _channel = MethodChannel('com.assisto/device_admin');
   static const _secure = FlutterSecureStorage();
 

@@ -23,6 +23,7 @@ import '../feature_flags.dart'; // famcare: probashi tab
 import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/action_feedback.dart'; // db1
 import '../family_alerts_api.dart'; // family100
 import '../widgets/family_push_banner.dart'; // family100
@@ -38,7 +39,8 @@ class FamilyScreen extends StatefulWidget {
   State<FamilyScreen> createState() => _FamilyScreenState();
 }
 
-class _FamilyScreenState extends State<FamilyScreen> {
+class _FamilyScreenState extends State<FamilyScreen>
+    with AdBlockedState<FamilyScreen> {
   List<Map<String, dynamic>> today = [];
   List<Map<String, dynamic>> meds = [];
   List<Map<String, dynamic>> members = [];

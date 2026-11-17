@@ -15,6 +15,7 @@ import '../widgets/journey_api.dart';
 import '../widgets/sos_location.dart'; // qjourney
 import '../widgets/sos_a11y.dart'; // a11ysweep
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
 ///
@@ -58,7 +59,8 @@ class JourneySosScreen extends StatefulWidget {
 
 enum _Phase { counting, fired, cancelled }
 
-class _JourneySosScreenState extends State<JourneySosScreen> {
+class _JourneySosScreenState extends State<JourneySosScreen>
+    with AdBlockedState<JourneySosScreen> {
   late int _remaining;
   Timer? _timer;
   bool _sr = false; // a11ysweep: screen reader on when the SOS opened

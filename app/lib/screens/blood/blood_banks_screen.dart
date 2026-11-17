@@ -11,6 +11,7 @@ import '../../theme.dart';
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Test seam: replaces the server call (gallery / widget tests).
 Future<Map<String, dynamic>> Function(Map<String, String> q)? bloodBanksLoaderOverride;
@@ -29,7 +30,8 @@ class BloodBanksScreen extends StatefulWidget {
   State<BloodBanksScreen> createState() => _BloodBanksScreenState();
 }
 
-class _BloodBanksScreenState extends State<BloodBanksScreen> {
+class _BloodBanksScreenState extends State<BloodBanksScreen>
+    with AdBlockedState<BloodBanksScreen> {
   bool _loading = true;
   bool _failed = false;
   Map<String, dynamic> _d = const {};

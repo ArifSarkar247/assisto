@@ -13,6 +13,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'always_on_protection_screen.dart';
 import 'fall_detect_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// sosat — "More ways to send SOS": the lock-screen SOS button, power button
 /// x5, and the EXPERIMENTAL fall detection. All three run inside the
@@ -30,7 +31,8 @@ class SosTriggersScreen extends StatefulWidget {
   State<SosTriggersScreen> createState() => _SosTriggersScreenState();
 }
 
-class _SosTriggersScreenState extends State<SosTriggersScreen> {
+class _SosTriggersScreenState extends State<SosTriggersScreen>
+    with AdBlockedState<SosTriggersScreen> {
   SosTriggerSettings? _s;
   bool _running = false;
   bool _recording = false;

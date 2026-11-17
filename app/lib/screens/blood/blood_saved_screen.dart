@@ -13,6 +13,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/money_circle_pick.dart' show CirclePickButton;
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// ownerfix (owner 3 Nov 02:55): "My saved donors" inside the ONE Blood donor
 /// panel. It replaces the old personal registry screen (removed): every donor
@@ -30,7 +31,8 @@ class BloodSavedScreen extends StatefulWidget {
   State<BloodSavedScreen> createState() => _BloodSavedScreenState();
 }
 
-class _BloodSavedScreenState extends State<BloodSavedScreen> {
+class _BloodSavedScreenState extends State<BloodSavedScreen>
+    with AdBlockedState<BloodSavedScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

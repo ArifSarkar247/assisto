@@ -26,9 +26,13 @@ import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
 import '../../maps/place_search.dart'; // jsearch
 import 'trip_recorder_screen.dart';
+<<<<<<< HEAD
 import '../../train/train_share_service.dart'; // train-app
 import 'train_v2_widgets.dart' show showTrainAlarmShareAsk, trainAlarmShareAsked,
     trainAlarmShareMarkAsked, TrainAlarmShareLink; // train-app
+=======
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
+>>>>>>> b329i
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
 /// Pick how you travel (city bus / long bus / train / Dhaka Metro / launch),
@@ -106,7 +110,8 @@ DestAlarmTexts destAlarmTexts(BuildContext context, AppLocalizations t, String t
   );
 }
 
-class _DestAlarmScreenState extends State<DestAlarmScreen> {
+class _DestAlarmScreenState extends State<DestAlarmScreen>
+    with AdBlockedState<DestAlarmScreen> {
   final _q = TextEditingController();
   List<DestStation> _stations = const [], _bus = const [], _saved = const [];
   List<MetroStation> _metro = const [];

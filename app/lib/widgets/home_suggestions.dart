@@ -20,6 +20,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase; // svcclean
 import 'chatnav.dart';
+import '../safety/ad_block_context.dart' show AdBlockGate;
 import 'home_quick_buttons.dart' show HomeQuickButtons; // svcclean
 import '../perf/disk_image.dart'; // faststart
 import '../services/action_feedback.dart'; // db1
@@ -1120,7 +1121,8 @@ class DiscoverAdCardV2 extends StatelessWidget {
       child: ClipRRect(
         key: const ValueKey('discover_v2_admob'),
         borderRadius: BorderRadius.circular(HV2.discoverRadius),
-        child: ad.view(),
+        // ads-guard: nothing while a call / safety screen / paid plan
+        child: AdBlockGate(child: ad.view()),
       ),
     );
   }
