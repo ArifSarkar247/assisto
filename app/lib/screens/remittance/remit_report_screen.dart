@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import 'remit_sheets.dart';
 import 'remit_source.dart';
@@ -97,11 +99,10 @@ class _RemitReportScreenState extends State<RemitReportScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.rmtReportTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _err != null
           ? rmErrorView(context, _err!, _load)
           : ListView(
@@ -137,29 +138,26 @@ class _RemitReportScreenState extends State<RemitReportScreen> {
                   ],
                 ),
                 const SizedBox(height: Gap.md),
-                Card(
-                  margin: EdgeInsets.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: SelectableText(_text, key: const ValueKey('rmt_report_text')),
-                  ),
+                DsCard(
+                  child: SelectableText(_text,
+                      key: const ValueKey('rmt_report_text'),
+                      style: AType.bodyMedium.copyWith(height: 1.55)),
                 ),
                 const SizedBox(height: Gap.md),
                 Text(t.rmtReportPrivacy, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: Gap.lg),
-                FilledButton.icon(
-                  key: const ValueKey('rmt_share'),
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                  onPressed: _sending || _text.isEmpty ? null : _share,
-                  icon: _sending
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.ios_share_rounded),
-                  label: Text(t.rmtShareInCircle),
+                DsButton(
+                  buttonKey: const ValueKey('rmt_share'),
+                  expand: true,
+                  onPressed: _text.isEmpty ? null : _share,
+                  busy: _sending,
+                  icon: Icons.ios_share_rounded,
+                  label: t.rmtShareInCircle,
                 ),
                 if (_sentTo != null)
                   Padding(
                     padding: const EdgeInsets.only(top: Gap.sm),
-                    child: Text(t.rmtShareSent(_sentTo!), style: TextStyle(color: scheme.primary)),
+                    child: Text(t.rmtShareSent(_sentTo!), style: AType.bodyMedium.copyWith(color: DsTokens.of(context).successInk, fontWeight: FontWeight.w600)),
                   ),
               ],
             ),

@@ -12,6 +12,7 @@ import '../widgets/rem_notes.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/fam_empty.dart' show FamEmptyState; // remnotes
 import '../widgets/rn_bits.dart';
+import '../ds/ds.dart';
 import '../services/bangla_calendar.dart' show asciiDigits; // remhbar
 
 /// Advanced Notes + To-Do (#22, SPEC v2.1 §21).
@@ -546,7 +547,7 @@ class _TodoTile extends StatelessWidget {
       title: Text((d['title'] ?? '').toString(),
           style: done
               // remnotes: struck through but readable (AA; was 3.6:1 dark)
-              ? TextStyle(
+              ? AType.bodyMedium.copyWith(
                   decoration: TextDecoration.lineThrough,
                   color: Theme.of(context).colorScheme.ds.muted)
               : null),
@@ -599,7 +600,8 @@ class _TodoTile extends StatelessWidget {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: tint),
         const SizedBox(width: Gap.xxs),
-        Text(label, style: AType.labelSmall.copyWith(color: tint)),
+        // design3 (2.0x): wraps instead of overflowing the tile
+        Flexible(child: Text(label, style: AType.labelSmall.copyWith(color: tint))),
       ]);
 }
 

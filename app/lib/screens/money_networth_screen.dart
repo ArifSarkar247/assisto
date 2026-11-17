@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Net worth: assets + receivables - liabilities, plus a net-worth-over-time
@@ -44,6 +45,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only

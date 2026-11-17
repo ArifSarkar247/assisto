@@ -28,10 +28,13 @@ class AdaptiveButtonPair extends StatelessWidget {
         children: [first, SizedBox(height: gap), second],
       );
     }
-    return Row(children: [
-      Expanded(child: first),
-      SizedBox(width: gap),
-      Expanded(child: second),
-    ]);
+    // design3: both buttons share the taller one's height (never uneven)
+    return IntrinsicHeight(
+      child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Expanded(child: first),
+        SizedBox(width: gap),
+        Expanded(child: second),
+      ]),
+    );
   }
 }

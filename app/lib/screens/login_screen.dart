@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ds/ds.dart';
+import '../theme.dart' show AType;
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../api.dart' show ApiException; // framebar
@@ -213,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       liveRegion: true,
                       child: Text(_error!,
                           key: const Key('login-error'),
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               color: Theme.of(context).colorScheme.error)),
                     ),
                   ],

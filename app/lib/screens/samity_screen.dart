@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
@@ -123,34 +124,29 @@ class _SamityScreenState extends State<SamityScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.error,
-                  title: t.samityLoadFailed,
-                  message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
-                  action: FilledButton.tonalIcon(
-                    onPressed: _load,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(t.retry),
+              ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                  DsEmptyState(
+                    icon: Icons.cloud_off_rounded,
+                    danger: true,
+                    title: t.samityLoadFailed,
+                    benefit: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
+                    actionLabel: t.retry,
+                    onAction: _load,
                   ),
-                )
+                ])
               : RefreshIndicator(onRefresh: _load, child: _body(t)),
     );
   }
 
   Widget _body(AppLocalizations t) {
     if (_groups.isEmpty) {
-      return ListView(children: [
-        const SizedBox(height: Gap.xxl),
-        StateMessage(
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
           icon: Icons.groups_2_rounded,
           title: t.samityEmptyTitle,
-          message: t.samityEmptyBody,
-          action: FilledButton.icon(
-            onPressed: () => _addOrEditGroup(),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(t.samityNew),
-          ),
+          benefit: t.samityEmptyBody,
+          actionLabel: t.samityNew,
+          onAction: () => _addOrEditGroup(),
         ),
       ]);
     }
@@ -451,16 +447,16 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.error,
-                  title: t.samityLoadFailed,
-                  message: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)),
-                )
+              ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                  DsEmptyState(
+                    icon: Icons.cloud_off_rounded,
+                    danger: true,
+                    title: t.samityLoadFailed,
+                    benefit: honestFailText(t, _failCause, otherwise: t.commonLoadFailedBody),
+                    actionLabel: t.retry,
+                    onAction: _load,
+                  ),
+                ])
               : RefreshIndicator(onRefresh: _load, child: _body(t)),
     );
   }
@@ -468,17 +464,13 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
   Widget _body(AppLocalizations t) {
     final active = samityActiveMembers(_members);
     if (active.length < 2) {
-      return ListView(children: [
-        const SizedBox(height: Gap.xxl),
-        StateMessage(
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
           icon: Icons.person_add_alt_1_rounded,
           title: t.samityNeedMembersTitle,
-          message: t.samityNeedMembersBody,
-          action: FilledButton.icon(
-            onPressed: _addMember,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(t.samityAddMember),
-          ),
+          benefit: t.samityNeedMembersBody,
+          actionLabel: t.samityAddMember,
+          onAction: _addMember,
         ),
       ]);
     }
@@ -523,13 +515,13 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
         if (nextTurn != null) ...[
           const SizedBox(height: Gap.sm),
           Text(t.samityNextTurn('${nextTurn['name'] ?? ''}'),
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
         ] else ...[
           const SizedBox(height: Gap.sm),
           Text(t.samityRoundComplete,
-              style: const TextStyle(
-                  color: Brand.success, fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.ds.successInk, fontWeight: FontWeight.w600)),
         ],
         const SizedBox(height: Gap.lg),
 
@@ -606,7 +598,7 @@ class _CyclePicker extends StatelessWidget {
           child: Text(
             t.samityCycleOf(fmtInt(context, cycle), fmtInt(context, total)),
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         IconButton(tooltip: MaterialLocalizations.of(context).nextPageTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right_rounded)),
@@ -626,41 +618,37 @@ class _CollectedHero extends StatelessWidget {
     final collected = status['collected_poisha'] as int;
     final pending = status['pending_poisha'] as int;
     final pct = expected > 0 ? collected / expected : 0.0;
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
+    final ds = DsTokens.of(context);
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.samityCollectedThisCycle,
-            style: AType.bodyMedium.copyWith(color: Colors.white70)),
+            style: AType.bodyMedium.copyWith(color: ds.muted)),
         const SizedBox(height: Gap.xs),
-        Text(taka(context, collected),
-            style: AType.displaySmall.copyWith(fontFeatures: AFonts.tabular, color: Colors.white, fontWeight: FontWeight.w800)),
+        DsNumber(taka(context, collected)),
         const SizedBox(height: Gap.sm),
         ClipRRect(
-          borderRadius: BorderRadius.circular(Radii.pill),
+          borderRadius: BorderRadius.circular(DsRadius.chip),
           child: LinearProgressIndicator(
             value: pct.clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: Colors.white24,
-            valueColor: const AlwaysStoppedAnimation(Colors.white),
+            backgroundColor: ds.primarySoft,
+            valueColor: AlwaysStoppedAnimation(ds.primary),
           ),
         ),
         const SizedBox(height: Gap.sm),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        // design3: wraps at a big font instead of squeezing side by side
+        Wrap(spacing: Gap.md, runSpacing: Gap.xxs, children: [
           Text(t.samityExpectedLabel(taka(context, expected)),
-              style: AType.bodySmall.copyWith(color: Colors.white70)),
+              style: AType.bodySmall.copyWith(color: ds.muted)),
           Text(t.samityPendingLabel(taka(context, pending)),
-              style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              style: AType.bodySmall.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
         ]),
         const SizedBox(height: Gap.xxs),
         Text(
           t.samityPaidCount(
               fmtInt(context, status['paid_count'] as int),
               fmtInt(context, status['member_count'] as int)),
-          style: AType.bodySmall.copyWith(color: Colors.white70),
+          style: AType.bodySmall.copyWith(color: ds.muted),
         ),
       ]),
     );
@@ -682,15 +670,11 @@ class _PayoutCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    return DsCard(
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
       child: Row(children: [
         Icon(Icons.redeem_rounded,
-            color: done ? Brand.success : scheme.secondary, size: 28),
+            color: done ? scheme.ds.success : scheme.ds.primary, size: 28),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -710,10 +694,13 @@ class _PayoutCard extends StatelessWidget {
               color: Brand.success,
               icon: Icons.check_circle_rounded)
         else
-          FilledButton.tonal(
-            onPressed: onRecord,
-            child: Text(t.samityRecordPayout),
+          Flexible(
+            child: DsButton(
+              onPressed: onRecord,
+              label: t.samityRecordPayout,
+            ),
           ),
+
       ]),
     );
   }
@@ -747,7 +734,7 @@ class _MemberRow extends StatelessWidget {
                 child: Text('${row['name'] ?? ''}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               ),
               if (isRecipient) ...[
                 const SizedBox(width: 6),
@@ -879,7 +866,7 @@ class _SamityEditSheetState extends State<_SamityEditSheet> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(t.samityFieldPeriod,
-              style: TextStyle(
+              style: AType.bodySmall.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
         ),
         const SizedBox(height: Gap.sm),
@@ -892,19 +879,18 @@ class _SamityEditSheetState extends State<_SamityEditSheet> {
             ),
         ]),
         const SizedBox(height: Gap.lg),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: valid
-                ? () => Navigator.pop(context, {
-                      'name': _name.text.trim(),
-                      'amount_poisha': per,
-                      'period': _period,
-                    })
-                : null,
-            child: Text(t.save),
-          ),
+        DsButton(
+          expand: true,
+          onPressed: valid
+              ? () => Navigator.pop(context, {
+                    'name': _name.text.trim(),
+                    'amount_poisha': per,
+                    'period': _period,
+                  })
+              : null,
+          label: t.save,
         ),
+
       ]),
     );
   }
@@ -923,7 +909,7 @@ class _OfflineBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off_rounded, size: 16, color: Brand.warning),
+        Icon(Icons.wifi_off_rounded, size: 16, color: Brand.warnInk(context)),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,

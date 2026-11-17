@@ -229,17 +229,13 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
         title: Text(t.paDelegateTitle),
         bottom: TabBar(
           controller: _tabs,
+          isScrollable: true, // design3: full labels at 2.0x, never cut
+          tabAlignment: TabAlignment.start,
           tabs: [
             Tab(
-                child: Text(t.paDelegateTabScopes,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis)),
+                child: Text(t.paDelegateTabScopes, softWrap: false)),
             Tab(
-                child: Text(t.paDelegateTabAudit,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis)),
+                child: Text(t.paDelegateTabAudit, softWrap: false)),
           ],
         ),
       ),

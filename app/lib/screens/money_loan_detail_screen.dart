@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../ds/ds.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -110,6 +111,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final principal = dbl(_data['amount']);

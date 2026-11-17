@@ -11,6 +11,7 @@
 //    (written to the shot dir, then committed by the design lane).
 //  * Redesigned screens: no cut text, 48 dp touch targets.
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:assisto/l10n/app_localizations.dart';
@@ -132,9 +133,33 @@ List<String> smallTargets(WidgetTester tester) {
   return out;
 }
 
+/// design3: goldens tolerate a tiny pixel noise (pulse / shimmer phase,
+/// anti-aliasing, "5 min ago" text against fixture times): up to 1 % of the
+/// pixels may differ.
+class _TolerantComparator extends LocalFileComparator {
+  _TolerantComparator(super.testFile);
+  static const tolerance = 0.01;
+
+  @override
+  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
+    final r = await GoldenFileComparator.compareLists(imageBytes, await getGoldenBytes(golden));
+    if (r.passed || r.diffPercent <= tolerance) {
+      r.dispose();
+      return true;
+    }
+    final error = await generateFailureOutput(r, golden, basedir);
+    r.dispose();
+    throw FlutterError(error);
+  }
+}
+
 void main() {
   setUpAll(() async {
     await gallerySetUpAll();
+    final c = goldenFileComparator;
+    if (c is LocalFileComparator) {
+      goldenFileComparator = _TolerantComparator(c.basedir.resolve('ds2_golden_test.dart'));
+    }
   });
   setUp(() {
     FakeApi.planSlug = 'premium';

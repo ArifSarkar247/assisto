@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/official_prices.dart'; // moneybar: TCB official prices
 
@@ -228,20 +229,14 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
 
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.priceManualNote,
                 style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _itemCard(BuildContext context, AppLocalizations tr, _RItem item,
@@ -249,8 +244,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       Future<void> Function(Map<String, dynamic>) onEdit,
       Future<void> Function(Map<String, dynamic>) onDelete) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -307,7 +301,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
                 leading: Icon(Icons.schedule_rounded,
                     size: 18, color: scheme.ds.muted),
                 title: Text(l.priceDisplay,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text(_logSubtitle(context, tr, l)),
                 trailing: PopupMenuButton<String>(
                   onSelected: (v) {
@@ -321,8 +315,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
                 ),
               )),
         ]),
-      ),
-    );
+      ),);
   }
 
   Widget _trendPill(BuildContext context, _RItem item) {
@@ -359,7 +352,7 @@ class _PriceRadarScreenState extends State<PriceRadarScreen> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(label,
             style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(value, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
       ]),
     );
   }

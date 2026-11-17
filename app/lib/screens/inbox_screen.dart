@@ -9,6 +9,7 @@ import '../widgets/inbox_item_card.dart';
 import '../widgets/inbox_filter_bar.dart';
 import '../widgets/inbox_reply_sheet.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../feature_gates.dart' show kShowKeySeams; // lifebar
 
@@ -360,7 +361,7 @@ class _SwipeBg extends StatelessWidget {
             const SizedBox(width: Gap.sm),
           ],
           Text(label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w700)),
           if (!lead) ...[
             const SizedBox(width: Gap.sm),
             Icon(icon, color: color),
@@ -441,26 +442,18 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(filtered ? Icons.filter_alt_off_rounded : Icons.inbox_rounded,
-              size: 56, color: scheme.ds.muted),
-          const SizedBox(height: Gap.md),
-          Text(filtered ? tr.inboxNoneInFilter
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsEmptyState(
+          icon: filtered ? Icons.filter_alt_off_rounded : Icons.inbox_rounded,
+          title: filtered ? tr.inboxNoneInFilter
               : (connected ? tr.inboxAllClear : tr.realityInboxNotConnectedTitle),
-              textAlign: TextAlign.center,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.sm),
-          Text(filtered ? tr.inboxTryAnotherFilter
+          benefit: filtered ? tr.inboxTryAnotherFilter
               : (connected
                   ? tr.inboxAllClearHint
                   : (kShowKeySeams ? tr.realityInboxNotConnectedHint : tr.lbWInboxNotLive)),
-              textAlign: TextAlign.center,
-              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-        ]),
+        ),
       ),
     );
   }
@@ -474,27 +467,17 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 56, color: scheme.error),
-          const SizedBox(height: Gap.md),
-          Text(tr.inboxLoadFailed,
-              textAlign: TextAlign.center,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.sm),
-          Text(honestFailText(tr, error, otherwise: tr.checkInternetRetry),
-              textAlign: TextAlign.center,
-              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-          const SizedBox(height: Gap.lg),
-          FilledButton.icon(
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-            onPressed: onRetry,
-          ),
-        ]),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: tr.inboxLoadFailed,
+          benefit: honestFailText(tr, error, otherwise: tr.checkInternetRetry),
+          actionLabel: tr.retry,
+          onAction: onRetry,
+        ),
       ),
     );
   }

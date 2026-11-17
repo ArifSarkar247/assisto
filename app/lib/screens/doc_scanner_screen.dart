@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -221,14 +222,10 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                   ),
                 ),
                 const SizedBox(height: Gap.lg),
-                OutlinedButton.icon(
-                  onPressed: () async {
+                DsButton.secondary(onPressed: () async {
                     final p = await _pickImage();
                     if (p != null) setM(() => imageRef = p);
-                  },
-                  icon: const Icon(Icons.add_a_photo_rounded, size: 18),
-                  label: Text(imageRef == null ? t.dsAddImage : t.dsChangeImage),
-                ),
+                  }, icon: Icons.add_a_photo_rounded, label: imageRef == null ? t.dsAddImage : t.dsChangeImage),
                 if (imageRef != null) ...[
                   const SizedBox(height: Gap.xs),
                   // lifebar: show the photo itself (it was never visible)
@@ -250,15 +247,11 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                 const SizedBox(height: Gap.lg),
                 Row(children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(t.cancel),
-                    ),
+                    child: DsButton.secondary(onPressed: () => Navigator.pop(ctx, false), label: t.cancel),
                   ),
                   const SizedBox(width: Gap.sm),
                   Expanded(
-                    child: FilledButton(
-                      onPressed: () {
+                    child: DsButton(onPressed: () {
                         if (title.text.trim().isEmpty) {
                           ScaffoldMessenger.of(ctx)
                             ..clearSnackBars()
@@ -267,9 +260,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                           return;
                         }
                         Navigator.pop(ctx, true);
-                      },
-                      child: Text(t.save),
-                    ),
+                      }, label: t.save),
                   ),
                 ]),
               ]),
@@ -341,10 +332,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.dsLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)),
+                  action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
                 )
               : _body(),
     );
@@ -405,11 +393,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
         icon: Icons.document_scanner_rounded,
         title: t.dsEmptyTitle,
         message: t.dsEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add_a_photo_rounded, size: 18),
-          label: Text(t.dsAddTitle),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(), icon: Icons.add_a_photo_rounded, label: t.dsAddTitle),
       );
     }
     if (vis.isEmpty) {
@@ -417,14 +401,10 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
         icon: Icons.search_off_rounded,
         title: t.dsNoMatchTitle,
         message: t.dsNoMatchBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => setState(() {
+        action: DsButton(onPressed: () => setState(() {
             _filter = 'all';
             _search.clear();
-          }),
-          icon: const Icon(Icons.filter_alt_off_rounded, size: 18),
-          label: Text(t.lbDClearFilters),
-        ),
+          }), icon: Icons.filter_alt_off_rounded, label: t.lbDClearFilters),
       );
     }
     return RefreshIndicator(
@@ -463,9 +443,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
     final notes = (d['notes'] ?? '').toString().trim();
     final imagePath = (d['image_ref'] ?? '').toString().trim();
     final hasImage = imagePath.isNotEmpty;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         onTap: () => _addOrEdit(d),
         // lifebar: a real thumbnail; tap it to see the whole photo
         leading: hasImage
@@ -493,13 +471,13 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
         title: Text((d['title'] ?? '').toString(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
                 Text(_typeLabel(t, type),
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 if (hasImage) ...[
                   const SizedBox(width: Gap.sm),
                   Icon(Icons.image_rounded,
@@ -517,8 +495,7 @@ class _DocScannerScreenState extends State<DocScannerScreen> {
           tooltip: t.delete,
           onPressed: () => _delete(d),
         ),
-      ),
-    );
+      )));
   }
 }
 
@@ -692,7 +669,7 @@ class _OcrSeamCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(ready ? t.dsOcrReadyTitle : t.dsOcrLockedTitle,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                    AType.titleSmall.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(ready ? t.dsOcrReadyBody : t.dsOcrLockedBody,
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted,
@@ -747,7 +724,7 @@ class DocScanPhoto extends StatelessWidget {
                 const SizedBox(height: Gap.xs),
                 Text(AppLocalizations.of(ctx).lbDDocPhotoMissing,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ]),
       ),
     );

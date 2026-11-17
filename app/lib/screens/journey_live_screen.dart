@@ -908,7 +908,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           first: OutlinedButton.icon(
               key: const ValueKey('j100_sms_any'),
               icon: const Icon(Icons.sms_rounded),
-              label: Text(t.j100SendSms),
+              // design3: short label so the pair stays one line at 1.0–1.3
+              label: Text(t.d3SendSmsShort),
               onPressed: _sms),
           second: OutlinedButton.icon(
               key: const ValueKey('j100_stop'),

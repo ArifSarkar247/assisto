@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// KID'S SCHOOL CORNER — ADVANCED (#27, SPEC v2.1 §21).
@@ -226,23 +227,16 @@ class _OverdueBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.dangerBg,
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(tone: DsTone.danger, padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.kidOverdueBanner(count),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: scheme.ds.dangerInk,
                     fontWeight: FontWeight.w600)),
           ),
-        ]),
-      ),
-    );
+        ])));
   }
 }
 
@@ -260,9 +254,7 @@ class _ChildCard extends StatelessWidget {
     final open = (row['open'] as int?) ?? 0;
     final next = row['next'] as Map<String, dynamic>?;
     final klass = (row['klass'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: InkWell(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: onOpen,
         child: Padding(
@@ -321,8 +313,7 @@ class _ChildCard extends StatelessWidget {
             ],
           ]),
         ),
-      ),
-    );
+      )));
   }
 
   Widget _pill(BuildContext context, String text, Color c) => Container(
@@ -409,7 +400,7 @@ class _ChildDetailScreenState extends State<_ChildDetailScreen> {
               children: [
                 if (klass.isNotEmpty)
                   Text(klass,
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.xl),
                 StateMessage(
                   icon: Icons.sticky_note_2_rounded,
@@ -572,11 +563,7 @@ class _NoticeCard extends StatelessWidget {
     final c = state == 'overdue'
         ? scheme.error
         : (state == 'due_today' ? scheme.primary : scheme.ds.muted);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(_typeIcon(type), color: done ? scheme.ds.muted : Brand.blue),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -584,7 +571,7 @@ class _NoticeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title.isEmpty ? _typeLabel(tr, type) : title,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                           decoration: done ? TextDecoration.lineThrough : null,
                           color: done ? scheme.ds.muted : scheme.ds.text),
@@ -598,7 +585,7 @@ class _NoticeCard extends StatelessWidget {
                         amount != null &&
                         amount.toString().trim().isNotEmpty) ...[
                       Text('  ·  ',
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                       Text('৳${amount.toString()}',
                           style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700,
                               color: scheme.ds.text)),
@@ -629,9 +616,7 @@ class _NoticeCard extends StatelessWidget {
               onPressed: onDelete,
             ),
           ]),
-        ]),
-      ),
-    );
+        ])));
   }
 }
 
@@ -878,11 +863,7 @@ Widget _reminderSeamNote(BuildContext context, String text) =>
 
 Widget _infoNote(BuildContext context, IconData icon, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
-      padding: const EdgeInsets.all(Gap.md),
-      child: Row(children: [
+  return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
         Icon(icon, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -890,9 +871,7 @@ Widget _infoNote(BuildContext context, IconData icon, String text) {
               style:
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
-      ]),
-    ),
-  );
+      ]));
 }
 
 // ===================================================================

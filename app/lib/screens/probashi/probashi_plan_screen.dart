@@ -151,19 +151,15 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
           if (_prices![p] != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  key: ValueKey('pbs-buy-$p'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
-                  onPressed: _busy ? null : () => _buy(p),
-                  child: Text(
-                    p == 'annual'
-                        ? t.pbsBuyAnnual(pbsNum(context, _prices![p]!))
-                        : t.pbsBuyMonthly(pbsNum(context, _prices![p]!)),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              child: DsButton(
+                buttonKey: ValueKey('pbs-buy-$p'),
+                // one glowing button: the annual plan; monthly is secondary
+                kind: p == 'annual' ? DsButtonKind.primary : DsButtonKind.secondary,
+                expand: true,
+                onPressed: _busy ? null : () => _buy(p),
+                label: p == 'annual'
+                    ? t.pbsBuyAnnual(pbsNum(context, _prices![p]!))
+                    : t.pbsBuyMonthly(pbsNum(context, _prices![p]!)),
               ),
             ),
     ]);
@@ -197,15 +193,13 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
       Text(t.pbsInviteBody),
       const SizedBox(height: 12),
       Wrap(spacing: 8, runSpacing: 8, children: [
-        FilledButton(
-          key: ValueKey('pbs-accept-${inv['id']}'),
-          style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+        DsButton(
+          buttonKey: ValueKey('pbs-accept-${inv['id']}'),
           onPressed: _busy ? null : () => _accept(inv),
-          child: Text(t.pbsAccept),
+          label: t.pbsAccept,
         ),
-        OutlinedButton(
-          key: ValueKey('pbs-decline-${inv['id']}'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
+        DsButton.secondary(
+          buttonKey: ValueKey('pbs-decline-${inv['id']}'),
           onPressed: _busy
               ? null
               : () async {
@@ -213,7 +207,7 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
                     await _run(() => _src.respond(inv['id'] as int, false, const {}));
                   }
                 },
-          child: Text(t.pbsDecline),
+          label: t.pbsDecline,
         ),
       ]),
     ]);
@@ -241,14 +235,11 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
               Text(t.pbsConsentBody),
               PbsConsentPicker(value: cur, onChanged: (v) => set(() => cur = v)),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  key: const ValueKey('pbs-consent-save'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
-                  onPressed: () => Navigator.pop(ctx, cur),
-                  child: Text(action),
-                ),
+              DsButton(
+                buttonKey: const ValueKey('pbs-consent-save'),
+                expand: true,
+                onPressed: () => Navigator.pop(ctx, cur),
+                label: action,
               ),
             ]),
           ),
@@ -267,17 +258,16 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
       if (!live)
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: Text(t.pbsPaused, style: TextStyle(color: DsTokens.of(context).dangerInk)),
+          child: Text(t.pbsPaused, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
         ),
       Text(t.pbsUsedOfCap(pbsNum(context, used), pbsNum(context, cap))),
       if (live) Text(t.pbsPoolLeftShort(pbsNum(context, m['pool_left'] ?? 0))),
       const SizedBox(height: 12),
       Wrap(spacing: 8, runSpacing: 8, children: [
-        OutlinedButton.icon(
-          key: const ValueKey('pbs-my-consent'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
-          icon: const Icon(Icons.visibility_rounded),
-          label: Text(t.pbsChangeSharing),
+        DsButton.secondary(
+          buttonKey: const ValueKey('pbs-my-consent'),
+          icon: Icons.visibility_rounded,
+          label: t.pbsChangeSharing,
           onPressed: _busy
               ? null
               : () async {
@@ -285,11 +275,11 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
                   if (c != null) await _run(() => _src.setConsent(m['id'] as int, c), ok: t.pbsSaved);
                 },
         ),
-        TextButton.icon(
-          key: const ValueKey('pbs-leave'),
-          style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
-          icon: const Icon(Icons.logout_rounded),
-          label: Text(t.pbsLeave),
+        DsButton(
+          kind: DsButtonKind.ghost,
+          buttonKey: const ValueKey('pbs-leave'),
+          icon: Icons.logout_rounded,
+          label: t.pbsLeave,
           onPressed: _busy
               ? null
               : () async {
@@ -307,14 +297,13 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
     final pool = (_d['pool'] as Map?)?.cast<String, dynamic>() ?? const {};
     return PbsCard(title: t.pbsPoolTitle, icon: Icons.savings_rounded, children: [
       Text(t.pbsPoolLeft(pbsNum(context, pool['left'] ?? 0), pbsNum(context, pool['total'] ?? 0)),
-          style: Theme.of(context).textTheme.titleLarge),
+          style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3)),
       Text(t.pbsCreditsNotCash, style: Theme.of(context).textTheme.bodySmall),
       const SizedBox(height: 8),
-      OutlinedButton.icon(
-        key: const ValueKey('pbs-open-pool'),
-        style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
-        icon: const Icon(Icons.receipt_long_rounded),
-        label: Text(t.pbsWhoSpent),
+      DsButton.secondary(
+        buttonKey: const ValueKey('pbs-open-pool'),
+        icon: Icons.receipt_long_rounded,
+        label: t.pbsWhoSpent,
         onPressed: () => Navigator.push(
             context, MaterialPageRoute(builder: (_) => ProbashiPoolScreen(source: _src))),
       ),
@@ -336,11 +325,10 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
           child: Text(t.pbsSlotFreeAt(pbsDate(context, freeAt))),
         ),
       const SizedBox(height: 8),
-      FilledButton.icon(
-        key: const ValueKey('pbs-invite'),
-        style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
-        icon: const Icon(Icons.person_add_alt_1_rounded),
-        label: Text(t.pbsInvite),
+      DsButton(
+        buttonKey: const ValueKey('pbs-invite'),
+        icon: Icons.person_add_alt_1_rounded,
+        label: t.pbsInvite,
         onPressed: (_busy || full) ? null : () => _pickAndInvite(t),
       ),
     ]);

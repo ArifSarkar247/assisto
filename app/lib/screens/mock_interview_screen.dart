@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
@@ -317,32 +318,26 @@ class _CategoryPicker extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(tr.miWelcomeBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.xl),
         ],
         // p2career: role-based practice with voice + feedback (flag career_plus)
         if (FeatureFlags.instance.isOn('career_plus')) ...[
-          Card(
-            color: scheme.ds.primarySoft,
-            margin: const EdgeInsets.only(bottom: Gap.lg),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.lg), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               leading: Icon(Icons.badge_rounded, color: scheme.ds.primaryInk),
               title: Text(tr.crrRoleEntry,
-                  style: TextStyle(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
-              subtitle: Text(tr.crrRoleEntrySub, style: TextStyle(color: scheme.ds.primaryInk)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
+              subtitle: Text(tr.crrRoleEntrySub, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
               trailing: Icon(Icons.chevron_right_rounded, color: scheme.ds.primaryInk),
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => const InterviewRoleScreen())),
-            ),
-          ),
+            ))),
         ],
         Text(tr.miPickCategory,
             style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.md),
         for (final c in _categoryKeys)
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: scheme.ds.primarySoft,
                 child: Icon(_catIcon(c), color: scheme.ds.primaryInk),
@@ -350,8 +345,7 @@ class _CategoryPicker extends StatelessWidget {
               title: Text(_catLabel(tr, c)),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => onPick(c),
-            ),
-          ),
+            ))),
       ],
     );
   }
@@ -381,11 +375,7 @@ class _ProgressHeader extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final p = _MiEngine.sessionProgress(category, asked);
-    return Card(
-      color: Brand.blue.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.flag_rounded, color: Brand.blue),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -393,7 +383,7 @@ class _ProgressHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(_catLabel(tr, category),
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.miProgressLabel(ld(context, p.done), ld(context, p.total)),
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -402,9 +392,7 @@ class _ProgressHeader extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Text(ld(context, '${p.percent}%'),
               style: AType.titleLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800, color: Brand.blue)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -417,10 +405,7 @@ class _QuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.miQuestionLabel.toUpperCase(),
               style: AType.labelSmall.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: scheme.primary)),
           const SizedBox(height: Gap.sm),
@@ -429,9 +414,7 @@ class _QuestionCard extends StatelessWidget {
                   .textTheme
                   .titleLarge
                   ?.copyWith(fontWeight: FontWeight.w600, height: 1.35)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -473,11 +456,7 @@ class _FeedbackCard extends StatelessWidget {
     final c = _levelColor(feedback.level);
     final bn = Localizations.localeOf(context).languageCode == 'bn';
     final kwBank = miParseKwBank(tr.lbWMiKwBank);
-    return Card(
-      color: c.withValues(alpha: 0.08),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // lifebar: wraps at 200% font instead of overflowing
           Wrap(
               spacing: Gap.sm,
@@ -486,7 +465,7 @@ class _FeedbackCard extends StatelessWidget {
               children: [
                 Icon(Icons.rate_review_rounded, color: c),
                 Text(tr.miFeedbackTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 _levelChip(context, feedback.level),
               ]),
           const SizedBox(height: Gap.sm),
@@ -565,9 +544,7 @@ class _FeedbackCard extends StatelessWidget {
               ),
             ]),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   String _tipText(AppLocalizations tr, String key) {
@@ -636,8 +613,7 @@ class _OutlineSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Column(children: [
+    return DsCard(padding: EdgeInsets.zero, child: Column(children: [
         ListTile(
           leading: Icon(Icons.lightbulb_outline_rounded, color: scheme.tertiary),
           title: Text(tr.miShowOutline),
@@ -651,17 +627,16 @@ class _OutlineSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.miOutlineTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: Gap.sm),
                   Text(_miOutlineText(tr, questionId),
-                      style: const TextStyle(height: 1.4)),
+                      style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   Text(tr.miOutlineNote,
                       style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
                 ]),
           ),
-      ]),
-    );
+      ]));
   }
 }
 
@@ -674,11 +649,7 @@ class _LiveSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -686,15 +657,13 @@ class _LiveSeamCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.miLiveSeamTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.miLiveSeamBody,
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
                 ]),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -717,12 +686,10 @@ class _HistorySection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           child: Text(tr.miNoHistory,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       for (final s in sorted.take(20))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             dense: true,
             leading: Icon(Icons.history_rounded, color: scheme.primary),
             title: Text(_catLabel(tr, s['category'] as String?)),
@@ -756,8 +723,7 @@ class _HistorySection extends StatelessWidget {
                 }
               },
             ),
-          ),
-        ),
+          ))),
     ]);
   }
 

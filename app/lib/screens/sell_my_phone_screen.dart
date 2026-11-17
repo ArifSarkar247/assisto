@@ -8,6 +8,8 @@ import '../l10n/app_localizations.dart';
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../widgets/ladder_common.dart' show taka, takaToPoisha, fmtInt;
 import 'registry_imei.dart';
 import 'report_stolen_screen.dart';
@@ -299,7 +301,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(t.upSellTitle)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonList(count: 5),
       );
     }
     return Scaffold(
@@ -307,12 +309,29 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Text(t.upSellIntro, style: const TextStyle(height: 1.35)),
-          const SizedBox(height: Gap.lg),
-          _sectionTitle(t.upSellStepsTitle,
-              trailing: t.upSellStepsProgress(
-                  fmtInt(context, _doneCount), fmtInt(context, _steps.length))),
-          const SizedBox(height: Gap.sm),
+          // design3: progress first — the soft hero with the steps count
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.upSellStepsTitle,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: Gap.xs),
+              DsNumber(t.upSellStepsProgress(
+                  fmtInt(context, _doneCount), fmtInt(context, _steps.length)), small: true),
+              const SizedBox(height: Gap.sm),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(DsRadius.chip),
+                child: LinearProgressIndicator(
+                  value: _steps.isEmpty ? 0.0 : _doneCount / _steps.length,
+                  minHeight: 6,
+                  backgroundColor: scheme.ds.primarySoft,
+                ),
+              ),
+              const SizedBox(height: Gap.sm),
+              Text(t.upSellIntro,
+                  style: AType.bodyMedium.copyWith(height: 1.35, color: scheme.ds.muted)),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
           for (final s in _steps) _stepCard(t, s),
           const SizedBox(height: Gap.xl),
           _sectionTitle(t.upReceiptTitle),
@@ -371,8 +390,10 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
   Widget _stepCard(AppLocalizations t, _SellStep s) {
     final scheme = Theme.of(context).colorScheme;
     final done = _done[s.id] == true;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsCard(
+      padding: EdgeInsets.zero,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
@@ -380,10 +401,10 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           collapsedShape: const Border(),
           leading: Icon(
             done ? Icons.check_circle_rounded : s.icon,
-            color: done ? Brand.success : scheme.ds.muted,
+            color: done ? scheme.ds.success : scheme.ds.muted,
           ),
           title: Text(s.title(t),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(s.why(t),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           childrenPadding:
@@ -396,8 +417,8 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${fmtInt(context, i + 1)}.  ',
-                          style: TextStyle(
-                              color: scheme.primary,
+                          style: AType.bodyMedium.copyWith(
+                              color: scheme.ds.primaryInk,
                               fontWeight: FontWeight.w700)),
                       Expanded(child: Text(s.how(t)[i])),
                     ]),
@@ -405,18 +426,18 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             if (s.link != null)
               Align(
                 alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: Text(t.upStepGoogleOpen),
+                child: DsButton.secondary(
+                  icon: Icons.open_in_new_rounded,
+                  label: t.upStepGoogleOpen,
                   onPressed: () => _openLink(s.link!),
                 ),
               ),
             if (s.disarm)
               Align(
                 alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.lock_open_rounded, size: 18),
-                  label: Text(t.upStepDisarmButton),
+                child: DsButton.secondary(
+                  icon: Icons.lock_open_rounded,
+                  label: t.upStepDisarmButton,
                   onPressed: () => _runDisarm(s.id),
                 ),
               ),
@@ -431,12 +452,12 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _receiptForm(AppLocalizations t) {
-    return Card(
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(children: [
           TextField(
@@ -490,35 +511,25 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                 prefixIcon: const Icon(Icons.badge_rounded)),
           ),
           const SizedBox(height: Gap.md),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: _creating
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.receipt_long_rounded),
-              label: Text(t.upReceiptCreate),
-              onPressed: _creating ? null : _createReceipt,
-            ),
+          DsButton(
+            icon: Icons.receipt_long_rounded,
+            label: t.upReceiptCreate,
+            busy: _creating,
+            expand: true,
+            onPressed: _createReceipt,
           ),
         ]),
-      ),
     );
   }
 
   Widget _tokenCard(AppLocalizations t, ColorScheme scheme) {
     final token = _token!;
-    return Card(
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
+    return DsHeroCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(t.upTokenTitle,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.sm),
             Text(t.upTokenHint, style: AType.bodySmall),
             const SizedBox(height: Gap.md),
@@ -529,7 +540,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                 padding: const EdgeInsets.all(Gap.md),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(Radii.md),
+                  borderRadius: BorderRadius.circular(DsRadius.card),
                 ),
                 child: QrImageView(
                   data: token,
@@ -542,7 +553,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             const SizedBox(height: Gap.md),
             SelectableText(token,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontFamily: 'monospace', fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.sm),
             if (_saleState != null && _saleState!.isNotEmpty)
@@ -550,9 +561,9 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
                   textAlign: TextAlign.center,
                   style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
             const SizedBox(height: Gap.sm),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.copy_rounded, size: 18),
-              label: Text(t.upTokenCopy),
+            DsButton.secondary(
+              icon: Icons.copy_rounded,
+              label: t.upTokenCopy,
               onPressed: () async {
                 await copyToClipboard(token);
                 _snack(t.upTokenCopied);
@@ -560,30 +571,23 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             ),
             const Divider(height: Gap.xl),
             Text(t.upAuthorizeTitle,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(t.upAuthorizeIntro, style: AType.bodySmall),
             const SizedBox(height: Gap.md),
-            FilledButton.icon(
-              icon: _authorizing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.verified_user_rounded),
-              label: Text(t.upAuthorizeButton),
-              onPressed: _authorizing ? null : _authorize,
+            DsButton.secondary(
+              icon: Icons.verified_user_rounded,
+              label: t.upAuthorizeButton,
+              busy: _authorizing,
+              onPressed: _authorize,
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buyerAccept(AppLocalizations t) {
-    return Card(
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(children: [
           TextField(
@@ -594,48 +598,44 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             ),
           ),
           const SizedBox(height: Gap.md),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: _accepting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.download_done_rounded),
-              label: Text(t.upBuyerAcceptButton),
-              onPressed: _accepting ? null : _accept,
-            ),
+          DsButton.secondary(
+            icon: Icons.download_done_rounded,
+            label: t.upBuyerAcceptButton,
+            busy: _accepting,
+            expand: true,
+            onPressed: _accept,
           ),
         ]),
-      ),
     );
   }
 
   Widget _receiptsList(AppLocalizations t, ColorScheme scheme) {
     if (_loadingReceipts && _asSeller.isEmpty && _asBuyer.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(Gap.md),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const Column(children: [
+        DsSkeleton(height: 56),
+        SizedBox(height: Gap.sm),
+        DsSkeleton(height: 56),
+      ]);
     }
     if (_asSeller.isEmpty && _asBuyer.isEmpty) {
-      return Card(
-        child: Padding(
+      return DsCard(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.upReceiptsEmpty,
-              style: TextStyle(color: scheme.ds.muted)),
-        ),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
     }
-    return Column(children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       if (_asSeller.isNotEmpty) ...[
         _subLabel(t.upReceiptsSelling),
-        for (final r in _asSeller) _receiptRow(t, r, seller: true),
+        DsGroup(margin: EdgeInsets.zero, children: [
+          for (final r in _asSeller) _receiptRow(t, r, seller: true),
+        ]),
       ],
       if (_asBuyer.isNotEmpty) ...[
         _subLabel(t.upReceiptsBuying),
-        for (final r in _asBuyer) _receiptRow(t, r, seller: false),
+        DsGroup(margin: EdgeInsets.zero, children: [
+          for (final r in _asBuyer) _receiptRow(t, r, seller: false),
+        ]),
       ],
     ]);
   }
@@ -655,16 +655,14 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
     final modelText = model.isEmpty ? t.upFieldModel : model;
     final priceText = taka(context, _priceToPoisha(r));
     final state = '${r['state'] ?? ''}';
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return ListTile(
         leading: Icon(seller ? Icons.sell_rounded : Icons.shopping_bag_rounded),
         title: Text(t.upReceiptRow(modelText, priceText)),
         subtitle: state.isEmpty
             ? null
             : Text(t.upStateLabel(_saleStateLabel(t, state))),
-      ),
     );
+
   }
 
   // ---- helpers -----------------------------------------------------------

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/plans_compare_table.dart';
 import '../widgets/plans_referral_section.dart';
@@ -333,10 +334,10 @@ class _PlansScreenState extends State<PlansScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: serverFailText(t, _failCause),
-                  action: FilledButton.tonalIcon(
+                  action: DsButton(
                       onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+                      icon: Icons.refresh_rounded,
+                      label: t.retry))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
   }
@@ -395,23 +396,23 @@ class _PlansScreenState extends State<PlansScreen> {
       _allowanceNote(t, scheme),
       const SizedBox(height: Gap.sm),
       // Entry to the Credits screen (balance / packs / usage / storage).
-      OutlinedButton.icon(
-        key: const Key('plans-open-credits'),
+      DsButton.secondary(
+        buttonKey: const Key('plans-open-credits'),
+        expand: true,
         onPressed: _openCredits,
-        icon: const Icon(Icons.bolt_rounded, size: 18),
-        label: Text(t.plansManageCredits),
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        icon: Icons.bolt_rounded,
+        label: t.plansManageCredits,
       ),
       // safeplans: Child / Safe Family / School Safe (switch default OFF)
       if (FeatureFlags.instance.isOn('safe_plans')) ...[
         const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-          key: const Key('plans-open-safe-plans'),
+        DsButton.secondary(
+          buttonKey: const Key('plans-open-safe-plans'),
+          expand: true,
           onPressed: () => Navigator.push(
               context, MaterialPageRoute(builder: (_) => const SafePlansScreen())),
-          icon: const Icon(Icons.family_restroom, size: 18),
-          label: Text(t.spTitle),
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          icon: Icons.family_restroom,
+          label: t.spTitle,
         ),
       ],
       const SizedBox(height: Gap.lg),
@@ -515,18 +516,18 @@ class _PlansScreenState extends State<PlansScreen> {
       if (_trialMsg != null)
         Text(_trialMsg!,
             key: const Key('pv2-plans-trial-msg'),
-            style: TextStyle(
-                color: Brand.onTint(context, Brand.success),
+            style: AType.bodyMedium.copyWith(
+                color: DsTokens.of(context).successInk,
                 fontWeight: FontWeight.w600))
       else ...[
-        FilledButton.icon(
-          key: const Key('pv2-plans-trial'),
-          onPressed: _trialBusy ? null : _startTrial,
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-          icon: const Icon(Icons.card_giftcard_rounded),
-          label: Text(
-              t.pv2TrialButton(fmtInt(context, _v2.trialDays), planName(t, _v2.trialPlan)),
-              textAlign: TextAlign.center),
+        DsButton(
+          buttonKey: const Key('pv2-plans-trial'),
+          expand: true,
+          onPressed: _startTrial,
+          busy: _trialBusy,
+          icon: Icons.card_giftcard_rounded,
+          label: t.pv2TrialButton(
+              fmtInt(context, _v2.trialDays), planName(t, _v2.trialPlan)),
         ),
         const SizedBox(height: Gap.xs),
         Text(t.pv2TrialNote(end),
@@ -599,21 +600,19 @@ class _PlansScreenState extends State<PlansScreen> {
     final trial = p['trial_active'] == true;
     // Ad-free plans (paid / trial) don't offer the rewarded-ad button.
     final showAds = p['ads'] == true;
-    return Container(
-      decoration: BoxDecoration(
-          gradient: Brand.gradient,
-          borderRadius: BorderRadius.circular(Radii.lg)),
-      padding: const EdgeInsets.all(Gap.xl),
+    final ds = DsTokens.of(context);
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.currentPlan,
-            style: AType.bodySmall.copyWith(color: Colors.white70)),
+            style: AType.bodySmall.copyWith(color: ds.muted)),
         Text(_planLabel(p),
-            style: AType.headlineMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+            style: AType.headlineMedium.copyWith(
+                color: ds.text, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
         if ((p['desc'] ?? '').toString().isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xxs),
             child: Text('${p['desc']}',
-                style: AType.bodySmall.copyWith(color: Colors.white70)),
+                style: AType.bodySmall.copyWith(color: ds.muted)),
           ),
         if (trial)
           Padding(
@@ -626,18 +625,20 @@ class _PlansScreenState extends State<PlansScreen> {
           ),
         const SizedBox(height: Gap.md),
         Row(children: [
-          const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
+          Icon(Icons.bolt_rounded, color: ds.primaryInk, size: 20),
           const SizedBox(width: 6),
-          Text(t.aiCreditsCount(fmtInt(context, _int(credits))),
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w600)),
+          Flexible(
+            child: Text(t.aiCreditsCount(fmtInt(context, _int(credits))),
+                style: AType.titleSmall.copyWith(
+                    color: ds.text, fontWeight: FontWeight.w700)),
+          ),
         ]),
         if (showAds) ...[
           const SizedBox(height: Gap.md),
-          FilledButton.tonalIcon(
+          DsButton.secondary(
             onPressed: _busy ? null : _rewarded,
-            icon: const Icon(Icons.ondemand_video_rounded, size: 18),
-            label: Text(t.watchAnAd1Credit),
+            icon: Icons.ondemand_video_rounded,
+            label: t.watchAnAd1Credit,
           ),
         ],
       ]),
@@ -718,13 +719,8 @@ class _PlansScreenState extends State<PlansScreen> {
     ];
   }
 
-  Widget _note(ColorScheme scheme, IconData icon, String text) => Container(
+  Widget _note(ColorScheme scheme, IconData icon, String text) => DsCard(
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
-        ),
         child: Row(children: [
           Icon(icon, size: 20, color: scheme.primary),
           const SizedBox(width: Gap.md),
@@ -735,29 +731,25 @@ class _PlansScreenState extends State<PlansScreen> {
   Widget _pill(String text) => Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
         decoration: BoxDecoration(
-            color: Colors.white24,
+            color: DsTokens.of(context).primarySoft,
             borderRadius: BorderRadius.circular(Radii.pill)),
         child: Text(text,
-            style: AType.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
+            style: AType.labelSmall.copyWith(
+                color: DsTokens.of(context).primaryInk, fontWeight: FontWeight.w600)),
       );
 
   /// "Nothing is unlimited" honesty line — paid plans ship a MONTHLY credit
   /// pool; when it runs out you buy credits (never a surprise cap).
   Widget _allowanceNote(AppLocalizations t, ColorScheme scheme) {
-    return Container(
+    return DsCard(
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.info_outline_rounded, color: scheme.primary, size: 20),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.plansNothingUnlimitedTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xxs),
             Text(t.plansNothingUnlimitedBody,
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
@@ -779,21 +771,18 @@ class _PlansScreenState extends State<PlansScreen> {
 
   /// Safety-stays-free promise — never cripple emergency / scam / medicine.
   Widget _safetyPromise(AppLocalizations t, ColorScheme scheme) {
-    return Container(
+    return DsCard(
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: Brand.success.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: Brand.success.withValues(alpha: 0.35)),
-      ),
+      tone: DsTone.success,
       child: Row(children: [
-        Icon(Icons.verified_user_rounded, color: Brand.success, size: 22),
+        Icon(Icons.verified_user_rounded,
+            color: DsTokens.of(context).successInk, size: 22),
         const SizedBox(width: Gap.md),
         Expanded(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.plansSafetyAlwaysFreeTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xxs),
             Text(t.plansSafetyAlwaysFreeBody,
                 style:
@@ -816,15 +805,8 @@ class _PlansScreenState extends State<PlansScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.md),
-      child: Container(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(
-            color: highlighted ? scheme.primary : scheme.outlineVariant,
-            width: highlighted ? 1.6 : 1,
-          ),
-        ),
+      child: DsSurface(
+        borderColor: highlighted ? DsTokens.of(context).primary : null,
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -910,17 +892,13 @@ class _PlansScreenState extends State<PlansScreen> {
               label: Text(t.retry),
             )
           else if (_canBuy(_skuFor(id)))
-            FilledButton.icon(
+            DsButton(
               key: ValueKey('plan-buy-$id'),
+              kind: highlighted ? DsButtonKind.primary : DsButtonKind.secondary,
+              expand: true,
               onPressed: _playPriced(id) ? () => _buy(_skuFor(id)) : null,
-              icon: const Icon(Icons.lock_open_rounded, size: 18),
-              style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44),
-                  backgroundColor:
-                      highlighted ? null : scheme.secondaryContainer,
-                  foregroundColor:
-                      highlighted ? null : scheme.onSecondaryContainer),
-              label: Text(t.plansChoose(_planLabel(p))),
+              icon: Icons.lock_open_rounded,
+              label: t.plansChoose(_planLabel(p)),
             ),
         ]),
       ),
@@ -1031,7 +1009,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                 style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.md),
             Text(t.referralRedeemDaysChosen(_days),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             Slider(
               value: _days.toDouble(),
               min: 1,
@@ -1043,12 +1021,10 @@ class _RedeemSheetState extends State<_RedeemSheet> {
             Text(t.referralRedeemCost(cost),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(_days),
-                child: Text(t.referralRedeemConfirm),
-              ),
+            DsButton(
+              expand: true,
+              onPressed: () => Navigator.of(context).pop(_days),
+              label: t.referralRedeemConfirm,
             ),
           ]),
     );

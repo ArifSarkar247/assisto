@@ -11,6 +11,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// ELECTRICITY & GAS PREPAID-METER TRACKER — ADVANCED (#193, SPEC v2.1 §20).
@@ -290,9 +291,7 @@ class _MeterCard extends StatelessWidget {
           tr.meterStateUnknown
         ),
     };
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Column(children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: EdgeInsets.zero, child: Column(children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.xs, Gap.sm),
           child: Row(children: [
@@ -361,13 +360,15 @@ class _MeterCard extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.bold)),
                   ]),
             ),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            // design3 (2.0x): the state column may shrink and wrap
+            Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(stateIcon, size: 16, color: stateColor),
                 const SizedBox(width: Gap.xs),
-                Text(stateLabel,
-                    style: TextStyle(
-                        color: stateColor, fontWeight: FontWeight.w600)),
+                Flexible(child: Text(stateLabel,
+                    textAlign: TextAlign.end,
+                    style: AType.bodyMedium.copyWith(
+                        color: stateColor, fontWeight: FontWeight.w600))),
               ]),
               const SizedBox(height: Gap.xxs),
               Text(
@@ -379,7 +380,7 @@ class _MeterCard extends StatelessWidget {
                             notifLocalizeDigits(context, '${row.daysLeft}'))),
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
-            ]),
+            ])),
           ]),
         ),
         // Detail chips
@@ -443,8 +444,7 @@ class _MeterCard extends StatelessWidget {
             label: Text(tr.mtrPayCta),
           ),
         ),
-      ]),
-    );
+      ])));
   }
 
   Widget _chip(BuildContext context, IconData icon, String label) {
@@ -458,8 +458,8 @@ class _MeterCard extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
-        Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+        Flexible(child: Text(label,
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
       ]),
     );
   }
@@ -470,12 +470,7 @@ class _TrackerNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -483,9 +478,7 @@ class _TrackerNote extends StatelessWidget {
                 style:
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -769,7 +762,7 @@ class _RechargeFormState extends State<_RechargeForm> {
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.xs),
           Text(widget.meterName,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           TextField(
@@ -901,7 +894,7 @@ class _RechargeHistorySheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(tr.meterNoRecharges,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             )
           else
             Flexible(
@@ -918,7 +911,7 @@ class _RechargeHistorySheet extends StatelessWidget {
                     title: Text(
                         notifLocalizeDigits(context,
                             _Meter.fmtPoisha(_Meter.toPoisha(r['amount']))),
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                     subtitle: Text([
                       notifLocalizeDigits(
                           context, (r['date'] ?? '').toString()),
@@ -1266,11 +1259,7 @@ class PayPathSheet extends StatelessWidget {
         );
 
     Widget wallet(String name, bool verified, String pkg, String ussd) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: Gap.md),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(
+      return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Semantics(
@@ -1308,9 +1297,7 @@ class PayPathSheet extends StatelessWidget {
                 ),
               ]),
             ],
-          ),
-        ),
-      );
+          )));
     }
 
     return SafeArea(
@@ -1337,15 +1324,9 @@ class PayPathSheet extends StatelessWidget {
                 style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             if (isGas)
-              Card(
-                color: scheme.ds.dangerBg,
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Text(tr.mtrGasWarning,
+              DsCard(tone: DsTone.danger, padding: const EdgeInsets.all(Gap.md), child: Text(tr.mtrGasWarning,
                       style: AType.bodyMedium
-                          .copyWith(color: scheme.ds.dangerInk)),
-                ),
-              )
+                          .copyWith(color: scheme.ds.dangerInk)))
             else if (u == null || u.id == 'other')
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.md),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
@@ -153,7 +154,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         title: Text(t.refRedeemSuccessTitle, textAlign: TextAlign.center),
         content: Text(t.referralRedeemedDays(fmtInt(context, days)),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.ds.muted)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         actions: [
           FilledButton(
               onPressed: () => Navigator.pop(ctx), child: Text(t.close)),
@@ -182,15 +183,16 @@ class _ReferralScreenState extends State<ReferralScreen> {
         body: _loading
             ? const SkeletonList()
             : _error
-                ? StateMessage(
-                    icon: Icons.cloud_off_rounded,
-                    tint: scheme.error,
-                    title: t.loadFailed,
-                    message: serverFailText(t, _failCause),
-                    action: FilledButton.tonalIcon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(t.retry)))
+                ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                    DsEmptyState(
+                        icon: Icons.cloud_off_rounded,
+                        danger: true,
+                        title: t.loadFailed,
+                        benefit: serverFailText(t, _failCause),
+                        actionLabel: t.retry,
+                        onAction: _load),
+                  ])
+
                 : TabBarView(children: [
                     _overviewTab(t, scheme),
                     _friendsTab(t, scheme),
@@ -217,22 +219,21 @@ class _ReferralScreenState extends State<ReferralScreen> {
         const SizedBox(height: Gap.lg),
         Row(children: [
           Expanded(
-            child: FilledButton.icon(
+            child: DsButton(
               onPressed: _invite,
-              icon: const Icon(Icons.person_add_alt_rounded, size: 18),
-              style:
-                  FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-              label: Text(t.referralInvite),
+              icon: Icons.person_add_alt_rounded,
+              expand: true,
+              label: t.referralInvite,
             ),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: FilledButton.tonalIcon(
-              onPressed: (_busy || !canRedeem) ? null : _redeem,
-              icon: const Icon(Icons.workspace_premium_rounded, size: 18),
-              style:
-                  FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-              label: Text(t.referralRedeem),
+            child: DsButton.secondary(
+              onPressed: canRedeem ? _redeem : null,
+              busy: _busy,
+              icon: Icons.workspace_premium_rounded,
+              expand: true,
+              label: t.referralRedeem,
             ),
           ),
         ]),
@@ -290,15 +291,11 @@ class _ReferralScreenState extends State<ReferralScreen> {
             style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         if (_history.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: Gap.xl),
-            child: Column(children: [
-              Icon(Icons.history_rounded, size: 48, color: scheme.ds.muted),
-              const SizedBox(height: Gap.sm),
-              Text(t.referralHistoryEmpty,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
-            ]),
+          DsEmptyState(
+            icon: Icons.history_rounded,
+            title: t.referralHistoryEmpty,
+            actionLabel: t.referralInvite,
+            onAction: _invite,
           )
         else
           for (final e in _history) ReferralHistoryTile(entry: e),
@@ -313,16 +310,10 @@ class _ReferralScreenState extends State<ReferralScreen> {
       (Icons.handshake_rounded, t.referralStep3),
       (Icons.workspace_premium_rounded, t.referralStep4),
     ];
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        color: scheme.ds.card,
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.ds.border),
-      ),
+    return DsCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.referralHowTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.md),
         for (final s in steps)
           Padding(
@@ -372,7 +363,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                 style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             Text(t.referralRedeemDaysChosen(fmtInt(context, _days)),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             Slider(
               value: _days.toDouble(),
               min: 1,
@@ -384,13 +375,12 @@ class _RedeemSheetState extends State<_RedeemSheet> {
             Text(t.referralRedeemCost(fmtInt(context, cost)),
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.lg),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(_days),
-                child: Text(t.referralRedeemConfirm),
-              ),
+            DsButton(
+              onPressed: () => Navigator.of(context).pop(_days),
+              expand: true,
+              label: t.referralRedeemConfirm,
             ),
+
           ]),
     );
   }

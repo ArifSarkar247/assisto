@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import 'probashi_source.dart';
 import 'probashi_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../ds/ds.dart';
 
 /// probashi-plan: monthly family reports (built by the server on the 1st;
 /// each member's section appears only with that member's consent).
@@ -54,8 +55,10 @@ class _ProbashiReportsScreenState extends State<ProbashiReportsScreen> {
                 if (_rows.isEmpty)
                   Padding(
                     key: const ValueKey('pbs-reports-empty'),
-                    padding: const EdgeInsets.all(24),
-                    child: Text(t.pbsReportsEmpty, textAlign: TextAlign.center),
+                    padding: const EdgeInsets.all(Gap.lg),
+                    child: DsEmptyState(
+                        icon: Icons.bar_chart_rounded,
+                        title: t.pbsReportsEmpty),
                   ),
                 for (final r in _rows)
                   ListTile(
@@ -103,7 +106,7 @@ class _ProbashiReportViewState extends State<ProbashiReportView> {
     final pool = (r['pool'] as Map?)?.cast<String, dynamic>();
     return Scaffold(
       appBar: AppBar(title: Text(t.pbsReportOf(pbsNum(context, '${r['month']}')))),
-      body: ListView(padding: withNavBarInset(context, const EdgeInsets.only(bottom: 24)), children: [
+      body: ListView(padding: withNavBarInset(context, const EdgeInsets.only(bottom: Gap.xl)), children: [
         if (sections.isEmpty)
           Padding(
             padding: const EdgeInsets.all(24),

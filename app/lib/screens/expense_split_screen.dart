@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -121,10 +122,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.splitLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -135,11 +133,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
           icon: Icons.group_add_rounded,
           title: tr.splitWelcomeTitle,
           message: tr.splitWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: _addPerson,
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-            label: Text(tr.splitAddPerson),
-          ),
+          action: DsButton(onPressed: _addPerson, icon: Icons.person_add_alt_1_rounded, label: tr.splitAddPerson),
         ),
       );
     }
@@ -198,9 +192,7 @@ class _ExpenseSplitScreenState extends State<ExpenseSplitScreen> {
             const SizedBox(height: Gap.lg),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx, c.text),
-                  child: Text(tr.save)),
+              child: DsButton(onPressed: () => Navigator.pop(ctx, c.text), label: tr.save),
             ),
           ]),
         );
@@ -255,16 +247,14 @@ class _PeopleTab extends StatelessWidget {
           itemBuilder: (_, i) {
             final p = people[i];
             final nm = (p['name'] ?? '').toString();
-            return Card(
-              margin: EdgeInsets.zero,
-              child: ListTile(
+            return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: scheme.primaryContainer,
                   child: Text(
                       nm.trim().isEmpty
                           ? '?'
                           : nm.characters.first.toUpperCase(),
-                      style: TextStyle(color: scheme.onPrimaryContainer)),
+                      style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                 ),
                 title: Text(nm, maxLines: 1, overflow: TextOverflow.ellipsis),
                 trailing: IconButton(
@@ -272,8 +262,7 @@ class _PeopleTab extends StatelessWidget {
                   tooltip: tr.delete,
                   onPressed: () => _confirmDelete(context, p),
                 ),
-              ),
-            );
+              )));
           },
         ),
       ),
@@ -295,11 +284,9 @@ class _PeopleTab extends StatelessWidget {
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(tr.cancel)),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: scheme.error, foregroundColor: scheme.onError),
+          DsButton.danger(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(tr.delete),
+            label: tr.delete,
           ),
         ],
       ),
@@ -340,11 +327,7 @@ class _ExpensesTab extends StatelessWidget {
               icon: Icons.receipt_long_rounded,
               title: tr.splitNoExpensesTitle,
               message: tr.splitNoExpensesBody,
-              action: FilledButton.icon(
-                onPressed: () => _addOrEdit(context),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.splitAddExpense),
-              ),
+              action: DsButton(onPressed: () => _addOrEdit(context), icon: Icons.add_rounded, label: tr.splitAddExpense),
             )
           : RefreshIndicator(
               onRefresh: onChanged,
@@ -356,9 +339,7 @@ class _ExpensesTab extends StatelessWidget {
                   final e = expenses[i];
                   final mode = (e['mode'] ?? _modeEqual).toString();
                   final total = _SplitMath.expenseTotal(e, people);
-                  return Card(
-                    margin: EdgeInsets.zero,
-                    child: ListTile(
+                  return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                       leading:
                           Icon(Icons.receipt_rounded, color: scheme.primary),
                       title: Text(
@@ -387,8 +368,7 @@ class _ExpensesTab extends StatelessWidget {
                         ),
                       ]),
                       onTap: () => _addOrEdit(context, existing: e),
-                    ),
-                  );
+                    )));
                 },
               ),
             ),
@@ -450,11 +430,9 @@ class _ExpensesTab extends StatelessWidget {
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(tr.cancel)),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: scheme.error, foregroundColor: scheme.onError),
+          DsButton.danger(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(tr.delete),
+            label: tr.delete,
           ),
         ],
       ),
@@ -487,9 +465,7 @@ class _SettleTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
       children: [
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
+        Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
               Icon(Icons.summarize_rounded, color: scheme.primary),
@@ -503,8 +479,7 @@ class _SettleTab extends StatelessWidget {
                       .titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold)),
             ]),
-          ),
-        ),
+          ))),
         const SizedBox(height: Gap.lg),
         Text(tr.splitBalances, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.sm),
@@ -524,18 +499,13 @@ class _SettleTab extends StatelessWidget {
               style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
         if (s.settlements.isEmpty)
-          Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               leading:
                   const Icon(Icons.check_circle_outline_rounded, color: Brand.success),
               title: Text(tr.splitAllSettled),
-            ),
-          ),
+            ))),
         for (final t in s.settlements)
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               leading: const Icon(Icons.east_rounded, color: Brand.blue),
               title: Text(
                 tr.splitPaysText(t.fromName, t.toName),
@@ -547,12 +517,9 @@ class _SettleTab extends StatelessWidget {
                       color: Brand.onTint(context, Brand.blue),
                       fontFeatures: AFonts.tabular,
                       fontWeight: FontWeight.bold)),
-            ),
-          ),
+            ))),
         const SizedBox(height: Gap.md),
-        Card(
-          color: scheme.surfaceContainerHighest,
-          child: Padding(
+        DsSurface(color: scheme.surfaceContainerHighest, padding: EdgeInsets.zero, child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Row(children: [
               Icon(s.reconciles ? Icons.verified_rounded : Icons.info_outline_rounded,
@@ -565,8 +532,7 @@ class _SettleTab extends StatelessWidget {
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ),
             ]),
-          ),
-        ),
+          )),
       ],
     );
   }
@@ -580,16 +546,14 @@ class _SettleTab extends StatelessWidget {
     final String badge = r.state == 'is_owed'
         ? tr.splitIsOwed
         : (r.state == 'owes' ? tr.splitOwes : tr.splitClear);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(r.name,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               const SizedBox(height: Gap.xxs),
@@ -605,13 +569,12 @@ class _SettleTab extends StatelessWidget {
           const SizedBox(width: Gap.sm),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(_SplitMath.fmtPoisha(r.net.abs()),
-                style: TextStyle(
+                style: AType.titleSmall.copyWith(
                     color: c, fontWeight: FontWeight.bold, fontFeatures: AFonts.tabular)),
             Text(badge, style: AType.labelSmall.copyWith(color: c)),
           ]),
         ]),
-      ),
-    );
+      )));
   }
 }
 
@@ -797,17 +760,11 @@ class _ExpenseFormState extends State<_ExpenseForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(tr.cancel)),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
-                  child: FilledButton(
-                    onPressed:
-                        _valid ? () => Navigator.pop(context, _result()) : null,
-                    child: Text(tr.save),
-                  ),
+                  child: DsButton(onPressed: _valid ? () => Navigator.pop(context, _result()) : null, label: tr.save),
                 ),
               ]),
             ]),

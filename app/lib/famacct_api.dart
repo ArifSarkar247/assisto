@@ -1,6 +1,7 @@
 import 'api.dart';
 import 'widgets/money_digits.dart'; // gap-familycare
 import 'widgets/num_input.dart'; // savesweep
+import 'widgets/money_digits.dart'; // design3
 
 /// FAMILY ACCOUNTING API surface (#61, SPEC v2.1 §21) — shared family money.
 ///
@@ -116,7 +117,7 @@ class FamAcctLocal {
     final taka = abs ~/ 100;
     final paisa = abs % 100;
     final body = '${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
-    // gap-familycare: Bangla digits while the UI is Bangla (syncMoneyDigits)
+    // design3: Bangla digits while the UI is Bangla (synced by the screen)
     return moneyDigits('${neg ? '-' : ''}\u09F3$body'); // \u09F3 = BDT taka sign (currency glyph, not copy)
   }
 

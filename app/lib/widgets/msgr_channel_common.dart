@@ -206,8 +206,8 @@ class MsgrFollowButton extends StatelessWidget {
         child: CircularProgressIndicator(strokeWidth: 2),
       );
     }
-    // channels: the BUTTON caps its own width and its one-line label
-    // ellipsizes at 200% text (Bangla labels are long) — no Row to overflow.
+    // channels: the BUTTON caps its own width (no Row to overflow); design3:
+    // its label wraps at 200% text instead of being cut.
     const cap = BoxConstraints(maxWidth: 132);
     if (following) {
       return ConstrainedBox(
@@ -218,7 +218,7 @@ class MsgrFollowButton extends StatelessWidget {
               minimumSize: const Size(48, 48),
               padding: const EdgeInsets.symmetric(horizontal: Gap.md)),
           child: Text(t.channelFollowing,
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+              textAlign: TextAlign.center),
         ),
       );
     }
@@ -230,7 +230,7 @@ class MsgrFollowButton extends StatelessWidget {
             minimumSize: const Size(48, 48),
             padding: const EdgeInsets.symmetric(horizontal: Gap.md)),
         child: Text(t.channelFollow,
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+            textAlign: TextAlign.center),
       ),
     );
   }

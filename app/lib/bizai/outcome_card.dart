@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -112,21 +113,31 @@ class _OutcomeCardState extends State<OutcomeCard> {
                         fmtInt(context, ((d['best_post'] as Map)['orders'] as num?)?.toInt() ?? 0),
                         bizaiTaka(context, (d['best_post'] as Map)['bdt'])),
                   ),
+                // design3 (2.0x font): a plain row — a ListTile's trailing has a
+                // fixed height and the two amount lines overflowed at big text.
                 for (final r in rows)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    minVerticalPadding: Gap.sm,
-                    leading: Icon(_icon('${r['key']}')),
-                    title: Text(_label(t, '${r['key']}')),
-                    subtitle: Text(bd(context, bn ? r['how_bn'] : r['how_en'])),
-                    trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(bizaiTaka(context, r['bdt']),
-                              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-                          Text(t.bizaiOutCount(fmtInt(context, (r['count'] as num?)?.toInt() ?? 0))),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: Gap.xxs),
+                        child: Icon(_icon('${r['key']}')),
+                      ),
+                      const SizedBox(width: Gap.md),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(_label(t, '${r['key']}'), style: AType.bodyLarge),
+                          Text(bd(context, bn ? r['how_bn'] : r['how_en']),
+                              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                         ]),
+                      ),
+                      const SizedBox(width: Gap.sm),
+                      Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                        Text(bizaiTaka(context, r['bdt']),
+                            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                        Text(t.bizaiOutCount(fmtInt(context, (r['count'] as num?)?.toInt() ?? 0))),
+                      ]),
+                    ]),
                   ),
               ]),
       ),

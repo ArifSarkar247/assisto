@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/task_manager_model.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -400,17 +401,8 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
   Widget _body() {
     if (_loading) return const SkeletonList(count: 5);
     if (_error) {
-      return StateMessage(
-        icon: Icons.cloud_off_rounded,
-        title: tmStr(context, 'tmLoadFailed'),
-        message: honestFailText(AppLocalizations.of(context), _failCause,
-            otherwise: tmStr(context, 'tmLoadFailedBody')),
-        action: FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(tmStr(context, 'tmRetry')),
-        ),
-      );
+      return ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, title: tmStr(context, 'tmLoadFailed'), benefit: honestFailText(AppLocalizations.of(context), _failCause,
+            otherwise: tmStr(context, 'tmLoadFailedBody')), actionLabel: tmStr(context, 'tmRetry'), onAction: _load)]);
     }
     if (_projects.isEmpty && _sharedLists.isEmpty) return _welcome();
     return RefreshIndicator(
@@ -422,10 +414,11 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
           if (_projects.isEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),
-              child: FilledButton.icon(
+              child: DsButton(
                 onPressed: _openProjectEditor,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tmStr(context, 'tmCreateFirstProject')),
+                icon: Icons.add_rounded,
+                expand: true,
+                label: tmStr(context, 'tmCreateFirstProject'),
               ),
             ),
           for (final p in _projects) ...[
@@ -480,54 +473,29 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        const Icon(Icons.wifi_off_rounded, size: 18, color: Brand.warning),
+        Icon(Icons.wifi_off_rounded, size: 18, color: Brand.warnInk(context)),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(tmStr(context, 'tmOffline'),
-                style: TextStyle(color: scheme.ds.text))),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text))),
       ]),
     );
   }
 
   Widget _welcome() {
-    final scheme = Theme.of(context).colorScheme;
     return ListView(
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        const SizedBox(height: Gap.xxxl),
-        Center(
-          child: Container(
-            height: 84,
-            width: 84,
-            decoration: const BoxDecoration(
-                gradient: Brand.gradient, shape: BoxShape.circle),
-            child: const Icon(Icons.dashboard_customize_rounded,
-                size: 40, color: Colors.white),
-          ),
-        ),
-        const SizedBox(height: Gap.lg),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
-          child: Column(children: [
-            Text(tmStr(context, 'tmWelcomeTitle'),
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: Gap.sm),
-            Text(tmStr(context, 'tmWelcomeBody'),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.ds.muted, height: 1.45)),
-            const SizedBox(height: Gap.xl),
-            FilledButton.icon(
-              onPressed: _openProjectEditor,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(tmStr(context, 'tmCreateFirstProject')),
-            ),
-          ]),
+        DsEmptyState(
+          icon: Icons.dashboard_customize_rounded,
+          title: tmStr(context, 'tmWelcomeTitle'),
+          benefit: tmStr(context, 'tmWelcomeBody'),
+          actionLabel: tmStr(context, 'tmCreateFirstProject'),
+          onAction: _openProjectEditor,
         ),
       ],
     );
+
   }
 
   // -------------------------------------------------- navigation
@@ -721,15 +689,7 @@ class _ProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.ds.cardHighest.withValues(alpha: 0.5),
-      borderRadius: BorderRadius.circular(Radii.lg),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), onTap: onOpen, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
                 child: Text(project.name,
@@ -769,7 +729,7 @@ class _ProjectCard extends StatelessWidget {
               Text(project.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             const SizedBox(height: Gap.md),
             Row(children: [
@@ -786,7 +746,7 @@ class _ProjectCard extends StatelessWidget {
               ),
               const SizedBox(width: Gap.md),
               Text(tmStrNum(context, 'tmPercentDone', summary.percentDone),
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ]),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -803,10 +763,7 @@ class _ProjectCard extends StatelessWidget {
                 _pill(context, Icons.group_outlined,
                     tmStrNum(context, 'tmSharedCount', project.sharedCount), null),
             ]),
-          ]),
-        ),
-      ),
-    );
+          ]));
   }
 
   Widget _pill(BuildContext c, IconData icon, String label, Color? tint) {
@@ -883,7 +840,6 @@ class _ProjectEditorState extends State<_ProjectEditor> {
             labelText: tmStr(context, 'tmProjectName'),
             hintText: tmStr(context, 'tmProjectNameHint'),
             errorText: _nameError,
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -894,7 +850,6 @@ class _ProjectEditorState extends State<_ProjectEditor> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             labelText: tmStr(context, 'tmProjectDesc'),
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -1010,14 +965,14 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
         ),
         const SizedBox(width: Gap.md),
         Text(tmStrNum(context, 'tmPercentDone', s.percentDone),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         if (s.overdue > 0) ...[
           const SizedBox(width: Gap.md),
           const Icon(Icons.warning_amber_rounded,
               size: 16, color: Brand.danger),
           const SizedBox(width: Gap.xs),
           Text(tmNum(context, s.overdue),
-              style: const TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: Brand.danger, fontWeight: FontWeight.w700)),
         ],
       ]),
@@ -1041,7 +996,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
         Expanded(
           child: Text(chips.join('  •  '),
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
         TextButton(
           onPressed: () => setState(() {
@@ -1107,29 +1062,12 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     );
   }
 
-  Widget _emptyTasks() => StateMessage(
-        icon: Icons.add_task_rounded,
-        title: tmStr(context, 'tmNoTasksYet'),
-        message: tmStr(context, 'tmNoTasksBody'),
-        action: FilledButton.icon(
-          onPressed: () => _openTaskEditor(),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tmStr(context, 'tmNewTask')),
-        ),
-      );
+  Widget _emptyTasks() => ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.add_task_rounded, title: tmStr(context, 'tmNoTasksYet'), benefit: tmStr(context, 'tmNoTasksBody'), actionLabel: tmStr(context, 'tmNewTask'), onAction: () => _openTaskEditor())]);
 
-  Widget _noMatch() => StateMessage(
-        icon: Icons.filter_alt_off_rounded,
-        title: tmStr(context, 'tmNoMatch'),
-        message: tmStr(context, 'tmNoMatchBody'),
-        action: TextButton(
-          onPressed: () => setState(() {
+  Widget _noMatch() => ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.filter_alt_off_rounded, title: tmStr(context, 'tmNoMatch'), benefit: tmStr(context, 'tmNoMatchBody'), actionLabel: tmStr(context, 'tmClearFilters'), onAction: () => setState(() {
             _statusFilter = null;
             _assigneeFilter = null;
-          }),
-          child: Text(tmStr(context, 'tmClearFilters')),
-        ),
-      );
+          }))]);
 
   Widget _content() => _board ? _boardView() : _listView();
 
@@ -1282,18 +1220,18 @@ class _BoardColumn extends StatelessWidget {
               child: Text(statusLabel(context, status),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
             const SizedBox(width: Gap.sm),
             Text(tmNum(context, tasks.length),
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ]),
         ),
         Expanded(
           child: tasks.isEmpty
               ? Center(
                   child: Text('—',
-                      style: TextStyle(color: scheme.ds.muted)))
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)))
               : ListView.separated(
                   padding: const EdgeInsets.all(Gap.xs),
                   itemCount: tasks.length,
@@ -1336,15 +1274,7 @@ class _TaskTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final overdue = isOverdue(task, now);
-    return Material(
-      color: scheme.surface,
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), onTap: onTap, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(priorityIcon(task.priority),
                   size: 16, color: priorityColor(context, task.priority)),
@@ -1353,7 +1283,7 @@ class _TaskTile extends StatelessWidget {
                 child: Text(task.title,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       decoration: task.status == kStatusDone
                           ? TextDecoration.lineThrough
@@ -1388,7 +1318,7 @@ class _TaskTile extends StatelessWidget {
               Text(task.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             if (task.status == kStatusDoing && task.progress > 0) ...[
               const SizedBox(height: Gap.sm),
@@ -1425,10 +1355,7 @@ class _TaskTile extends StatelessWidget {
                 _chip(context, Icons.timer_outlined,
                     tmStrNum(context, 'tmMinutes', task.estMin), null),
             ]),
-          ]),
-        ),
-      ),
-    );
+          ]));
   }
 
   String _dueLabel(BuildContext c) {
@@ -1622,7 +1549,6 @@ class _TaskEditorState extends State<_TaskEditor> {
               labelText: tmStr(context, 'tmTaskTitle'),
               hintText: tmStr(context, 'tmTaskTitleHint'),
               errorText: _titleError,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -1633,7 +1559,6 @@ class _TaskEditorState extends State<_TaskEditor> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               labelText: tmStr(context, 'tmTaskDesc'),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -1672,7 +1597,6 @@ class _TaskEditorState extends State<_TaskEditor> {
             decoration: InputDecoration(
               labelText: tmStr(context, 'tmAssignee'),
               hintText: tmStr(context, 'tmAssigneeHint'),
-              border: const OutlineInputBorder(),
             ),
           ),
           Align(
@@ -1768,7 +1692,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(_repeatError!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             ),
           const SizedBox(height: Gap.md),
           // p2plan: time needed (the daily planner uses it)
@@ -1797,7 +1721,7 @@ class _TaskEditorState extends State<_TaskEditor> {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(tmStr(context, 'tmStepsAfterSave'),
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               )
             else ...[
               for (final st in widget.stepsOf())
@@ -1806,7 +1730,7 @@ class _TaskEditorState extends State<_TaskEditor> {
                   controlAffinity: ListTileControlAffinity.leading,
                   value: st.status == kStatusDone,
                   title: Text(st.title,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           decoration: st.status == kStatusDone
                               ? TextDecoration.lineThrough
                               : null)),
@@ -1824,7 +1748,6 @@ class _TaskEditorState extends State<_TaskEditor> {
                     decoration: InputDecoration(
                       labelText: tmStr(context, 'tmAddStep'),
                       hintText: tmStr(context, 'tmAddStepHint'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
@@ -1867,7 +1790,7 @@ class _TaskEditorState extends State<_TaskEditor> {
         child: Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
           child: Text(text,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(c).colorScheme.onSurfaceVariant)),
         ),
@@ -1912,7 +1835,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(tmStr(context, 'tmQuickAddHelp'),
-              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _c,
@@ -1922,7 +1845,6 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: tmStr(context, 'tmQuickAddHint'),
-              border: const OutlineInputBorder(),
               suffixIcon: VoiceMicButton(voice: _voice, input: _c),
             ),
           ),

@@ -13,6 +13,7 @@ import '../ads/ad_spot_card.dart'; // adcontrol
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Monthly report — the data behind the PDF / Excel export. Shows the month's
@@ -79,6 +80,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only

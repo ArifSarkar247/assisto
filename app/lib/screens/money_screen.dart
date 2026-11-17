@@ -12,6 +12,7 @@ import '../widgets/ladder_common.dart';
 import '../widgets/num_input.dart' show normalizeNumInput; // relgate: Bangla digits
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'money_trends_screen.dart';
 import 'money_networth_screen.dart';
 import 'money_loan_detail_screen.dart';
@@ -94,6 +95,7 @@ class _MoneyScreenState extends State<MoneyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return DefaultTabController(
       length: 5,
@@ -173,6 +175,7 @@ class _OverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final ds = DsTokens.of(context);
     final app = context.watch<AppState>();
@@ -443,6 +446,7 @@ class _AccountsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
     final items = app.accounts.items;
@@ -633,6 +637,7 @@ class _TxnsTabState extends State<_TxnsTab> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
     final fmt = DateFormat('d MMM', appDateLocale(context));
@@ -775,6 +780,7 @@ class _BudgetsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
     final budgets =
@@ -866,6 +872,7 @@ class _LoansSavingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final app = context.watch<AppState>();
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [

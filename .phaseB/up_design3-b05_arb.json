@@ -1,0 +1,36 @@
+{
+ "en": {
+  "d3SendSmsShort": "Send SMS",
+  "@d3SendSmsShort": {
+   "description": "design3: short label of the Safe Journey live SMS button (fits one line beside Stop)"
+  },
+  "d3BizDaily": "Every day",
+  "@d3BizDaily": {
+   "description": "design3: My Business hub section header"
+  },
+  "d3BizCustomers": "Customers & selling",
+  "@d3BizCustomers": {
+   "description": "design3: My Business hub section header"
+  },
+  "d3BizMoney": "Money & reports",
+  "@d3BizMoney": {
+   "description": "design3: My Business hub section header"
+  },
+  "d3BizStock": "Stock & suppliers",
+  "@d3BizStock": {
+   "description": "design3: My Business hub section header"
+  },
+  "d3BizTeam": "Team & settings",
+  "@d3BizTeam": {
+   "description": "design3: My Business hub section header"
+  }
+ },
+ "bn": {
+  "d3SendSmsShort": "SMS পাঠান",
+  "d3BizDaily": "প্রতিদিনের কাজ",
+  "d3BizCustomers": "ক্রেতা ও বিক্রি",
+  "d3BizMoney": "টাকা ও রিপোর্ট",
+  "d3BizStock": "মাল ও সরবরাহকারী",
+  "d3BizTeam": "কর্মী ও সেটিং"
+ }
+}

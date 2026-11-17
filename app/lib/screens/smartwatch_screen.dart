@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart'; // db1
@@ -236,32 +237,30 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         _Phase.checking || _Phase.loading => const SkeletonList(),
         _Phase.unavailable => _unavailable(tr),
         _Phase.needsPermission => _needsPermission(tr),
-        _Phase.error => StateMessage(
-            icon: Icons.cloud_off_rounded,
-            tint: scheme.error,
-            title: tr.swErrorTitle,
-            message: tr.swErrorBody,
-            action: FilledButton.tonalIcon(
-              onPressed: _loadData,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry),
+        _Phase.error => ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+            DsEmptyState(
+              icon: Icons.cloud_off_rounded,
+              danger: true,
+              title: tr.swErrorTitle,
+              benefit: tr.swErrorBody,
+              actionLabel: tr.retry,
+              onAction: _loadData,
             ),
-          ),
+          ]),
         _Phase.ready => _ready(tr),
       },
     );
   }
 
   Widget _unavailable(AppLocalizations tr) => ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
-        StateMessage(
-          icon: Icons.watch_off_rounded,
-          tint: Brand.purple,
-          title: tr.swUnavailableTitle,
-          message: tr.swUnavailableBody2,
-          action: FilledButton.icon(
-            onPressed: _openSettings,
-            icon: const Icon(Icons.download_rounded),
-            label: Text(tr.swInstall),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
+          child: DsEmptyState(
+            icon: Icons.watch_off_rounded,
+            title: tr.swUnavailableTitle,
+            benefit: tr.swUnavailableBody2,
+            actionLabel: tr.swInstall,
+            onAction: _openSettings,
           ),
         ),
         const Padding(
@@ -271,15 +270,14 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
       ]);
 
   Widget _needsPermission(AppLocalizations tr) => ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
-        StateMessage(
-          icon: Icons.watch_rounded,
-          tint: Brand.blue,
-          title: tr.swConnectTitle,
-          message: tr.swConnectBody,
-          action: FilledButton.icon(
-            onPressed: _requestPermission,
-            icon: const Icon(Icons.link_rounded),
-            label: Text(tr.swConnect),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
+          child: DsEmptyState(
+            icon: Icons.watch_rounded,
+            title: tr.swConnectTitle,
+            benefit: tr.swConnectBody,
+            actionLabel: tr.swConnect,
+            onAction: _requestPermission,
           ),
         ),
         Padding(
@@ -307,11 +305,12 @@ class _SmartwatchScreenState extends State<SmartwatchScreen>
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xl)),
         children: [
           if (!hasAny)
-            StateMessage(
+            DsEmptyState(
               icon: Icons.favorite_outline_rounded,
-              tint: Brand.cyan,
               title: tr.swNoDataTitle,
-              message: tr.swNoDataBody,
+              benefit: tr.swNoDataBody,
+              actionLabel: tr.swOpenSettings,
+              onAction: _openSettings,
             )
           else ...[
             Text(tr.swToday,
@@ -410,11 +409,7 @@ class _Metric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(height: Gap.sm),
           // lifebar: Bangla digits; a big step count may wrap at 200% font
@@ -426,9 +421,7 @@ class _Metric extends StatelessWidget {
               style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -447,11 +440,7 @@ class _StepsWeekCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final series = summary.stepsByDay; // `window` entries, oldest → newest
     final maxVal = series.fold<int>(0, (m, e) => e.steps > m ? e.steps : m);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(tr.swSteps,
@@ -519,9 +508,7 @@ class _StepsWeekCard extends StatelessWidget {
               ],
             ),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   String _dayLetter(BuildContext context, DateTime d) {
@@ -575,12 +562,7 @@ class _SurfaceLinks extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.primarySoft.withValues(alpha: 0.35),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.insights_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -588,15 +570,14 @@ class _SurfaceLinks extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.swSurfaceTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
+
                   const SizedBox(height: Gap.xxs),
                   Text(tr.swSurfaceBody,
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -606,12 +587,7 @@ class _PrivacyNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.lock_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -619,9 +595,7 @@ class _PrivacyNote extends StatelessWidget {
                 style:
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 

@@ -191,7 +191,7 @@ void main() {
     // SHRINKING baseline (lead 10 Nov): the allow-list may only get smaller.
     // A new file or a higher total needs these ceilings raised in review —
     // lower them whenever a file is migrated (owner_actions/design/ds2_mark.py).
-    const maxFiles = 511, maxTextStyle = 2089, maxColor = 214; // design3-b01
+    const maxFiles = 430, maxTextStyle = 1697, maxColor = 212; // design3-b05
     final files = {...ts.keys, ...cs.keys}.length;
     final sumT = ts.values.fold<int>(0, (a, b) => a + b);
     final sumC = cs.values.fold<int>(0, (a, b) => a + b);
