@@ -16,9 +16,25 @@ class SosButton extends StatelessWidget {
     this.compact = false,
   });
 
+  /// gap-sos: the icon already reads "SOS" — a label that starts with "SOS"
+  /// would render "SOS SOS — ..." (seen on Safe Journey). The leading word
+  /// and its dash are dropped from the visible line; TalkBack still hears
+  /// "SOS" once, from the semantics label.
+  static String visibleLine(String label) {
+    final m = RegExp(r'^\s*SOS\s*[\u2014\u2013:-]?\s*', caseSensitive: false)
+        .firstMatch(label);
+    final rest = m == null ? label : label.substring(m.end);
+    return rest.trim().isEmpty ? label.trim() : rest.trim();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final line = visibleLine(label);
+    return Semantics(
+      button: true,
+      label: 'SOS. $line',
+      excludeSemantics: true,
+      child: SizedBox(
       width: double.infinity,
       child: FilledButton.icon(
         style: FilledButton.styleFrom(
@@ -28,10 +44,13 @@ class SosButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         icon: Icon(Icons.sos_rounded, size: compact ? 22 : 28),
-        label: Text(label,
+        label: Text(line,
+            key: const ValueKey('sos-button-line'),
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: compact ? 16 : 20, fontWeight: FontWeight.bold)),
       ),
+    ),
     );
   }
 }

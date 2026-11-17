@@ -52313,5 +52313,9 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+  },
+  "sosgapSosButtonLine": "Emergency — alert my family",
+  "@sosgapSosButtonLine": {
+    "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
   }
 }
