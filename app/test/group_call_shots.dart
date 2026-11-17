@@ -78,7 +78,7 @@ Widget _pick(String l) {
 
 Widget _joinBar(String l) => Scaffold(
       appBar: AppBar(title: Text(l == 'bn' ? 'পরিবার' : 'Family')),
-      body: Column(children: [
+      body: Builder(builder: (ctx) => Column(children: [
         GroupCallJoinBar(
           load: () async => {
             'room_id': 1,
@@ -88,10 +88,12 @@ Widget _joinBar(String l) => Scaffold(
             'my_state': 'declined'
           },
           every: const Duration(hours: 1),
-          onJoin: (_, __) {},
+          // the chat opens the group call screen; here: a visible echo
+          onJoin: (room, kind) => ScaffoldMessenger.of(ctx)
+              .showSnackBar(SnackBar(content: Text('$kind #$room'))),
         ),
         const Expanded(child: SizedBox()),
-      ]),
+      ])),
     );
 
 /// name -> builder(lang). Wired into screenshots_test.dart `specs`.
