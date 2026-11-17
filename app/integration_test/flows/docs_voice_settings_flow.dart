@@ -11,22 +11,29 @@ import '../support/harness.dart';
 final _tag = DateTime.now().millisecondsSinceEpoch % 100000;
 
 void registerDocsVoiceSettingsFlows() {
-  realityFlow('21_documents', 'Daily life', 'Documents vault: add a document record (server)', (f) async {
+  realityFlow('21_documents', 'Daily life',
+      'Documents vault: PIN, a document on the server, then the end-to-end lock seals the next one', (f) async {
     await f.home();
     final title = 'Reality NID d$_tag';
+    final sealedTitle = 'Reality sealed passport d$_tag';
+    const pin = '4826';
     await f.step('open the vault (set / enter its PIN first)', () async {
       final mark = f.httpMark;
       await f.openFeature(f.t.moduleVault, 'documents');
       await f.shot('vault');
-      // Current UI (rt1): Documents is PIN-locked — the first open asks to
-      // set a PIN, later opens ask for it. Nothing loads before that.
-      const pin = '4826';
-      if (await f.appears(find.text(f.t.vaultSetPinTitle), seconds: 4)) {
-        await f.enter(pin, label: f.t.vaultPinLengthHint);
-        await f.tap(find.widgetWithText(FilledButton, f.t.vaultSetButton), settleSeconds: 3);
-      } else if (await f.appears(find.text(f.t.vaultLockedTitle), seconds: 2)) {
-        await f.enter(pin, label: f.t.vaultEnterPinHint);
-        await f.tap(find.widgetWithText(FilledButton, f.t.vaultUnlockButton), settleSeconds: 3);
+      // Documents is PIN-locked: the first open asks to set a PIN (PIN +
+      // confirm, button "Set PIN"), later opens ask for it. flagproof: run
+      // 44007111431 looked for the old single-field "Set" button -> C.
+      final pinBox = find.byKey(const Key('vault_pin'));
+      await f.waitFor(pinBox, what: 'the vault PIN box');
+      final setting = find.byKey(const Key('vault_pin2')).evaluate().isNotEmpty;
+      await f.tester.enterText(pinBox, pin);
+      if (setting) await f.tester.enterText(find.byKey(const Key('vault_pin2')), pin);
+      await f.tester.pump(const Duration(milliseconds: 400));
+      await f.shot(setting ? 'set-pin' : 'enter-pin');
+      await f.tap(find.byKey(const Key('vault_pin_submit')), settleSeconds: 3);
+      if (!await f.appears(find.byType(FloatingActionButton), seconds: 15)) {
+        throw TestFailure('the vault did not open after the PIN');
       }
       await f.shot('unlocked');
       f.expectHttp('GET', '/documents', since: mark);
@@ -42,6 +49,59 @@ void registerDocsVoiceSettingsFlows() {
       await f.eventually('document on server', () async =>
           (await api.listDocuments()).any((d) => '${d['title']}' == title));
       f.note('attaching a photo/PDF uses the system picker — phone checklist');
+    });
+    // flagproof: the end-to-end lock (flag vault_e2e; the seed allow-lists
+    // demo user A only). Turn it on, keep the recovery code, then the next
+    // document is sealed ON THE PHONE: the server row has no plain title.
+    await f.step('turn on the end-to-end lock (warning, PIN, recovery code)', () async {
+      final card = find.byKey(const Key('vault_e2e_card'));
+      await f.waitFor(card, what: 'the end-to-end lock card (flag vault_e2e)');
+      await f.tap(card, settleSeconds: 3);
+      await f.tap(find.byKey(const Key('e2e_turn_on')), settleSeconds: 2);
+      await f.tap(find.byKey(const Key('e2e_understand')), settleSeconds: 1);
+      await f.shot('e2e-warning');
+      await f.tap(
+          find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(FilledButton, f.t.vaultE2eTurnOn)),
+          settleSeconds: 2);
+      await f.waitFor(find.byKey(const Key('e2e_pin')), what: 'the PIN prompt');
+      await f.tester.enterText(find.byKey(const Key('e2e_pin')), pin);
+      await f.tap(find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(FilledButton, f.t.ok)),
+          settleSeconds: 3);
+      // key derivation runs in an isolate — slow on the software emulator
+      await f.waitFor(find.byKey(const Key('vault_rc_value')), seconds: 90, what: 'the one-time recovery code');
+      await f.shot('recovery-code');
+      await f.tap(find.widgetWithText(FilledButton, f.t.vaultRecoveryCodeSaved), settleSeconds: 3);
+      // the e2e calls go through VaultE2EBackend's own http client (not the
+      // recorded app client), so the SERVER state below is the proof
+      final api = await f.h.backend();
+      await f.eventually('the server holds only the sealed recovery wrap', () async {
+        final st = await api.getJson('/vault/e2e/state');
+        return st['recovery_wrap'] == true && st['server_can_read_sealed'] == false;
+      });
+      await f.shot('e2e-on');
+      await f.tester.pageBack();
+      await f.pumpFor(const Duration(seconds: 3));
+    });
+    await f.step('the next document is sealed on the phone; the server cannot read it', () async {
+      await f.tap(find.byType(FloatingActionButton));
+      await f.waitFor(find.text(f.t.vaultAddDocument));
+      await f.enter(sealedTitle, label: f.t.vaultNameRequired);
+      final sw = find.byKey(const Key('vault_seal_switch'));
+      await f.waitFor(sw, what: 'the "lock end-to-end" switch in the add form');
+      final on = (f.tester.widget(sw) as SwitchListTile).value;
+      if (!on) throw TestFailure('the seal switch is not ON by default once the lock is open');
+      await f.shot('sealed-form');
+      await f.tap(find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(FilledButton, f.t.save)),
+          settleSeconds: 5);
+      final api = await f.h.backend();
+      await f.eventually('a sealed document on the server with NO plain title', () async {
+        final docs = await api.listDocuments();
+        final sealed = docs.where((d) => d['e2e'] == true).toList();
+        final leak = docs.any((d) => '${d['title']}' == sealedTitle || '${d['details']}'.contains(sealedTitle));
+        return sealed.isNotEmpty && sealed.every((d) => '${d['title'] ?? ''}'.isEmpty) && !leak;
+      }, seconds: 40);
+      await f.waitFor(find.text(sealedTitle), seconds: 20, what: 'the sealed document opened on the phone');
+      await f.shot('sealed-saved');
     });
   });
 
