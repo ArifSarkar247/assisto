@@ -322,6 +322,8 @@ def price_for(draft, catalog, business, agent):
         priced["unit"] = unit
         priced["subtotal"] = unit * priced["qty"]
         priced["delivery"] = BZ.delivery_charge(draft.get("area"), delivery, priced["subtotal"])
+        priced["delivery_unset"] = BZ.delivery_unset(draft.get("area"), delivery,
+                                                     priced["subtotal"])
         priced["total"] = priced["subtotal"] + priced["delivery"]
         priced["bundle"] = rule
     return priced
@@ -893,7 +895,9 @@ def quick_replies(thread, lang=None, catalog=None):
         out.append({"kind": "product", "product_id": p.get("id"), "name": p.get("name") or "",
                     "price": price, "in_stock": int(p.get("stock") or 0) > 0,
                     "mentioned": mentioned, "text": text})
-    dl = R.delivery_line(lang, S().delivery_for(biz))
+    _dl = S().delivery_for(biz)
+    dl = R.delivery_line(lang, _dl) if (BZ.delivery_set(_dl, "inside_dhaka")
+                                        or BZ.delivery_set(_dl, "outside_dhaka")) else ""
     if dl:
         out.append({"kind": "delivery", "text": dl})
     agent = S().agent_for(biz)

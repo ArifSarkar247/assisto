@@ -112,8 +112,12 @@ def delivery_for(business):
     pol = business.policies.first()
     if not pol:
         return {}
-    return {"inside_dhaka": str(pol.delivery_inside), "outside_dhaka": str(pol.delivery_outside),
-            "free_over": str(pol.free_delivery_over) if pol.free_delivery_over else ""}
+    # bizagent-guard: 0 = NOT SET (the model default) — sent as "" so no
+    # reply, fact or post-check ever treats it as a real ৳0 / free delivery
+    def _v(x):
+        return str(x) if x is not None and x > 0 else ""
+    return {"inside_dhaka": _v(pol.delivery_inside), "outside_dhaka": _v(pol.delivery_outside),
+            "free_over": _v(pol.free_delivery_over)}
 
 
 def policies_for(business, agent):
@@ -831,8 +835,24 @@ def _bargain(thread, text, lang, matched, intent):
         return None
     # an unset minimum (0) means NO discount: the floor is the list price
     floor = p["min_price"] if (BZ._dec(p["min_price"]) or 0) > 0 else p["price"]
-    neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
-                                "min_price": floor}, lang=lang)
+    # bizagent-guard: stepping the offer up cannot find the minimum — only
+    # the chat's FIRST offer may land on the real minimum, later ones need a
+    # hidden margin above it, and after 3 offers the owner decides
+    draft = dict(thread.order_draft or {}) if thread is not None else {}
+    mem = dict(draft.get("bargain") or {})
+    use_floor, st = BZ.bargain_guard(mem.get(str(p["id"])), offer, p["price"], floor)
+    if thread is not None and st != mem.get(str(p["id"])):
+        mem[str(p["id"])] = st
+        draft["bargain"] = mem
+        thread.order_draft = draft
+        thread.save(update_fields=["order_draft"])
+    if use_floor is None:
+        neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
+                                    "min_price": p["price"]}, lang=lang)
+        neg["bargain_limit"] = True
+    else:
+        neg = bai.negotiate(offer, {"name": p["name"], "price": p["price"],
+                                    "min_price": use_floor}, lang=lang)
     neg["offer_value"] = offer
     neg["product"] = p
     return neg
@@ -1198,6 +1218,9 @@ def _compose(business, agent, thread, text, lang, *, allow_order, post_id, G1S):
                                 extra=ai_guard.price_totals(matched, ctx.get("delivery")))
     # aieval guard: refund promises and "I am human" claims are the owner's
     # call / never true — they go to the seller like an unverified number.
+    # bizagent-guard: invented colour / size / delivery time / guarantee /
+    # free-delivery claims → the honest "the shop will confirm" line
+    problems += BZ.check_claims(reply, ctx)
     problems += [{"type": "refund_promise", "value": w} for w in ai_guard.refund_promises(reply)]
     problems += [{"type": "human_claim", "value": w} for w in ai_guard.human_claims(reply)]
     echo = BZ.offer_echo(reply, text, matched)
@@ -1942,7 +1965,9 @@ def confirm_order(thread, agent, lang):
         thread.customer_phone = draft["phone"]
     thread.save(update_fields=["order_draft", "customer_phone"])
     inv = BZ.invoice_text(lang, {"id": o.id, "items": [item], "delivery_charge": o.delivery_charge,
-                                 "total": o.total}, biz.shop_name)
+                                 "total": o.total,
+                                 "delivery_unset": bool(priced.get("delivery_unset"))},
+                          biz.shop_name)
     if o.payment_status == "pending_verification":
         inv += "\n" + bai.pick(lang, "আপনার পাঠানো পেমেন্ট স্ক্রিনশট দোকানের মালিক যাচাই করবেন; যাচাইয়ের আগে এটি পরিশোধিত ধরা হবে না।",
                                "The owner will verify the payment screenshot you sent; until then it is not treated as paid.")
