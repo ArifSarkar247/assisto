@@ -78,7 +78,7 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
     if (!auto) _autoTries = 0;
     // drop the failed copy from the image cache, then fetch again
     final p = _last;
-    if (p != null) unawaited(p.evict().then((_) {}, onError: (_) {}));
+    if (p != null) unawaited(p.evict()); // evict never throws for a cached key
     setState(() {
       _attempt++;
       _state = _SnapState.loading;
@@ -163,7 +163,7 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
             Text(t.caeSnapSlow,
                 key: const ValueKey('wm-snap-slow'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: cs.onSurfaceVariant)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
           ],
         ]),
       );
