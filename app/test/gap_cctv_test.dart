@@ -8,11 +8,24 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
 import 'package:assisto/theme.dart';
 
+import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
 import 'phonecam_shots.dart' show pcFakePair;
+
+/// start() waits until the test lets it answer.
+class _SlowVendorLive extends FakeVendorLive {
+  final gate = Completer<void>();
+  @override
+  Future<Map<String, dynamic>> start(int cameraId, {required bool hd}) async {
+    await gate.future;
+    return super.start(cameraId, hd: hd);
+  }
+}
 
 Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = false}) =>
     MaterialApp(
@@ -128,5 +141,30 @@ void main() {
         });
       }
     }
+  });
+
+  group('G5 live view never keeps streaming after the user leaves', () {
+    testWidgets('back while "starting" ends the server session, no player', (tester) async {
+      _phone(tester);
+      var players = 0;
+      final old = VideoCtls.networkFactory;
+      VideoCtls.networkFactory = (_) async {
+        players++;
+        return FakeNetCtl();
+      };
+      addTearDown(() => VideoCtls.networkFactory = old);
+      final api = _SlowVendorLive();
+      await tester.pumpWidget(
+          _app(VendorLiveScreen(cameraId: 7, cameraName: 'Gate', api: api)));
+      await _settle(tester, 2);
+      // the user backs out before the server answers
+      await tester.pumpWidget(_app(const SizedBox()));
+      api.gate.complete();
+      await _settle(tester, 4);
+      expect(api.calls.first, 'start:7:sd');
+      expect(api.calls.where((c) => c.startsWith('end:')).length, 1,
+          reason: 'the session is ended, so it never counts against the live limit');
+      expect(players, 0, reason: 'no player (no mobile data) after leaving');
+    });
   });
 }
