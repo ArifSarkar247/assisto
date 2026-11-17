@@ -6,6 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/crypto/e2e.dart';
+
 import '../support/harness.dart';
 
 const _said = 'ভাই ২০ হাজার টাকা পাঠাইছে বিকাশে';
@@ -71,6 +73,14 @@ void registerBudgetRemittanceFlows() {
       f.expectHttp('GET', '/remit/year');
     });
     await f.step('report: nothing sent until Share; then shared with user B', () async {
+      // flagproof: B's phone publishes its key first (as on a real phone) —
+      // run 44061342419: without it the report waited in the outbox, so no
+      // encrypted message reached the server.
+      final e2e = SoftwareE2E();
+      final idB = e2e.generateIdentity();
+      final apiB = await f.h.backend(userB: true);
+      await f.net(() => apiB.postJson('/circle/keys',
+          {'public_key': idB.publicKeyB64, 'key_id': idB.keyId, 'scheme': e2e.scheme}));
       final mark = f.httpMark;
       await f.tap(find.byKey(const ValueKey('rmt_report_btn')), settleSeconds: 3);
       await f.waitFor(find.byKey(const ValueKey('rmt_report_text')), what: 'report text');
