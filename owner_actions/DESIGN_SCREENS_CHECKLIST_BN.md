@@ -5,12 +5,12 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ২৮৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ৩২১ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
-- ⬜ — `screens/elderly_home_screen.dart`
-- ⬜ — `screens/home_screen.dart`
+- 🎨 রং শুধু — design3-b01 — `screens/elderly_home_screen.dart`
+- 🎨 রং শুধু — design3-b01 — `screens/home_screen.dart`
 - 🎨 রং শুধু — batch 1 — `screens/home_v2/all_services_screen.dart`
 - 🎨 রং শুধু — batch 1 — `screens/home_v2/assisto_chat_screen.dart`
 - 🎨 রং শুধু — batch 1 — `screens/home_v2/home_v2_screen.dart`
@@ -38,10 +38,10 @@
 - ✅ batch 4 (প্রতিটি অংশ আলাদা কার্ড, এক সারির বিরতি চিপ) — `family_v3/brain/fc_brain_settings_screen.dart`
 - ✅ batch 2 (সদস্য কার্ড) — `family_v3/family_v3_screen.dart`
 - ✅ batch 4 (সক্রিয় SOS = লাল কার্ড, স্কেলেটন, DS বোতাম) — `screens/family_alerts_screen.dart`
-- ⬜ — `screens/family_screen.dart`
+- ✅ batch design3-b01 (যত্নকারী অংশ নরম DS হিরো, AA স্ট্যাটাস রং, টাইপ স্কেল) — `screens/family_screen.dart`
 - ✅ batch 7 (পর্যালোচনা: DS খালি/ত্রুটি/লোডার, এক সারির ফিল্টার চিপ — নিয়ম মেনে চলে) — `screens/health_timeline_screen.dart`
 - ✅ batch 4 (এক সারির টপিক চিপ, জরুরি-চেক কার্ড, স্কেলেটন) — `screens/health_tips_screen.dart`
-- ⬜ — `screens/kids_watch/kids_watch_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন লোডার, টাইপ স্কেল) — `screens/kids_watch/kids_watch_screen.dart`
 - ✅ batch 4 (চালু = নীল কার্ডে সবুজ ডট, বড় বোতামে আভা) — `screens/kids_watch/school_mode_child_screen.dart`
 - ✅ batch 4 (টোকেন রং, কার্ড কোণ ১২) — `screens/medicine_db_screen.dart`
 - ✅ batch 4 (সামগ্রিক % = হিরো কার্ড, ওষুধ কার্ড) — `screens/medicine_history_screen.dart`
@@ -62,17 +62,17 @@
 ## ৫. নিরাপদ যাত্রা
 
 - ✅ batch 7 (আঁকা খালি অবস্থা, DS ত্রুটি, ইতিহাস এক কার্ডে) — `screens/guardian_journey_screen.dart`
-- ⬜ — `screens/journey_fake_call_screen.dart`
+- ✅ batch design3-b01 (কল স্টেজ কালো রাখা, টাইপ স্কেল) — `screens/journey_fake_call_screen.dart`
 - ⬜ — `screens/journey_live_screen.dart`
-- ⬜ — `screens/journey_map_pick_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, মানচিত্র অপরিবর্তিত) — `screens/journey_map_pick_screen.dart`
 - ✅ batch 7 (প্রতিটি অংশ আলাদা DS কার্ডে, স্কেলেটন) — `screens/journey_settings_screen.dart`
 - ⬜ — `screens/journey_start_screen.dart`
 - ✅ batch 5 (DS খালি অবস্থা (সুবিধা+কীভাবে+বড় বোতাম), স্কেলেটন) — `screens/journey_watch_screen.dart`
-- ⬜ — `screens/safe_journey/sj_child_school_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন, DS ত্রুটি কার্ড + এক রিট্রাই বোতাম) — `screens/safe_journey/sj_child_school_screen.dart`
 - ✅ batch 5 (চলমান যাত্রা সবার ওপরে, বাছাই করা মোড = নীল কার্ড, অ্যাকশন টাইল) — `screens/safe_journey/sj_hub_screen.dart`
 - ✅ batch 7 (গোপন নোট ও প্রশ্ন-কার্ড DS সারফেসে (AA)) — `screens/safe_journey/sj_private_ask_screen.dart`
 - ✅ batch 7 (কতক্ষণ/কাকে — দুই DS কার্ড, শুরু বোতাম শেষে) — `screens/safe_journey/sj_share_screen.dart`
-- ⬜ — `screens/train/journey_train_pick_screen.dart`
+- ✅ batch design3-b01 (যাচাই: DS টোকেন, কোনো কাঁচা রং নেই) — `screens/train/journey_train_pick_screen.dart`
 
 ## ৬. সিসিটিভি
 
@@ -100,28 +100,28 @@
 ## ৭. মাই সার্কেল চ্যাট
 
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `bizai/shop_chat_screen.dart`
-- ⬜ — `carecall/carecall_new_screen.dart`
-- ⬜ — `carecall/carecall_ring_screen.dart`
+- ✅ batch design3-b01 (সেভ = এক জ্বলজ্বলে DS বোতাম, স্কেলেটন) — `carecall/carecall_new_screen.dart`
+- ✅ batch design3-b01 (যাচাই: টোকেন রঙের নরম গ্রেডিয়েন্ট) — `carecall/carecall_ring_screen.dart`
 - ✅ batch 5 (DS খালি/ত্রুটি অবস্থা, স্কেলেটন, DS নতুন বোতাম) — `carecall/carecall_screen.dart`
-- ⬜ — `push/incoming_call_screen.dart`
+- ✅ batch design3-b01 (যাচাই: কল স্টেজ (গাঢ়) রাখা) — `push/incoming_call_screen.dart`
 - ✅ batch 3 (শুরু-কার্ড আগে, সাদা উত্তর-কার্ড) — `screens/ai_chat_screen.dart`
-- ⬜ — `screens/business/khata_chat_screen.dart`
+- ✅ batch design3-b01 (যাচাই: DS টোকেন, কাঁচা রং নেই) — `screens/business/khata_chat_screen.dart`
 - ✅ batch 5 (DS খালি অবস্থা + কীভাবে, DS ফিল্টার চিপ, স্কেলেটন) — `screens/circle_call_history_screen.dart`
-- ⬜ — `screens/circle_call_info_screen.dart`
-- ⬜ — `screens/circle_call_screen.dart`
-- ⬜ — `screens/circle_chat_screen.dart`
-- ⬜ — `screens/circle_extras_broadcast_screen.dart`
+- ✅ batch design3-b01 (যাচাই: DS টোকেন, কাঁচা রং নেই) — `screens/circle_call_info_screen.dart`
+- ✅ batch design3-b01 (কল স্টেজ রাখা, টাইপ স্কেল) — `screens/circle_call_screen.dart`
+- ✅ batch design3-b01 (চ্যাট খুলতে স্কেলেটন, টাইপ স্কেল) — `screens/circle_chat_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, টোকেন রং) — `screens/circle_extras_broadcast_screen.dart`
 - ✅ batch 5 (দুই টুল এক কার্ডে, আইকন-ব্যাজ) — `screens/circle_extras_hub_screen.dart`
-- ⬜ — `screens/circle_extras_scheduled_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন, টাইপ স্কেল) — `screens/circle_extras_scheduled_screen.dart`
 - ⬜ — `screens/circle_group_chat_screen.dart`
-- ⬜ — `screens/circle_group_info_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন, AA লাল লেখা, টাইপ স্কেল) — `screens/circle_group_info_screen.dart`
 - ✅ batch 5 (গ্রুপগুলো এক কার্ডে, খালি অবস্থায় গ্রুপ বানান বোতাম) — `screens/circle_group_list_screen.dart`
 - ✅ batch 5 (প্রতিটি অংশ আলাদা কার্ডে, DS ত্রুটি অবস্থা) — `screens/circle_privacy_screen.dart`
 - ✅ batch 5 (DS খালি অবস্থা (যোগ করুন/আবার চেষ্টা), স্কেলেটন, শিরোনাম) — `screens/circle_screen.dart`
 - ✅ batch 5 (DS অ্যাভাটার, আঁকা খোঁজ-ইঙ্গিত) — `screens/circle_search_screen.dart`
-- ⬜ — `screens/circle_status_composer_screen.dart`
-- ⬜ — `screens/circle_status_screen.dart`
-- ⬜ — `screens/circle_status_viewer_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল (স্ট্যাটাস রং ব্যবহারকারীর কনটেন্ট)) — `screens/circle_status_composer_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন, টাইপ স্কেল) — `screens/circle_status_screen.dart`
+- ✅ batch design3-b01 (কালো স্টেজ রাখা, টাইপ স্কেল) — `screens/circle_status_viewer_screen.dart`
 - ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/admin_moderation_screen.dart`
 - ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/admin_users_screen.dart`
 - ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/broadcast_lists_screen.dart`
@@ -160,11 +160,11 @@
 
 ## ৮. হিসাব ও ফাইন্যান্স
 
-- ⬜ — `billing/refund_screen.dart`
-- ⬜ — `safe_plans/safe_ad_unlock_screen.dart`
-- ⬜ — `safe_plans/safe_plans_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, টোকেন রং) — `billing/refund_screen.dart`
+- ✅ batch design3-b01 (যাচাই: DS টোকেন) — `safe_plans/safe_ad_unlock_screen.dart`
+- ✅ batch design3-b01 (প্ল্যান হেডার নরম DS হিরো, স্কেলেটন) — `safe_plans/safe_plans_screen.dart`
 - ✅ batch 6 (সাইন-ইন, ডিভাইস, হারালে — আলাদা কার্ড; DS ত্রুটি/স্কেলেটন) — `screens/account_security_screen.dart`
-- ⬜ — `screens/account_standing_screen.dart`
+- ✅ batch design3-b01 (স্কেলেটন, DS ত্রুটি অবস্থা) — `screens/account_standing_screen.dart`
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_audit_screen.dart`
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_close_screen.dart`
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_entry_screen.dart`
@@ -172,17 +172,17 @@
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_opening_screen.dart`
 - ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_reports_screen.dart`
 - ✅ batch d2-5 (সুপারিশকৃত প্ল্যান হালকা নীল কার্ডে, AA লেখা, শিরোনাম ভাঙে না) — `screens/business/business_plans_screen.dart`
-- ⬜ — `screens/day_planner_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, টোকেন রং) — `screens/day_planner_screen.dart`
 - ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/delete_account_screen.dart`
 - ✅ batch 6 (পেজ নিয়ম: টুলগুলোই আগে, গ্রুপ = এক কার্ড, লম্বা ব্যানার বাদ) — `screens/finance_screen.dart`
 - ✅ batch d2-5 (DS খালি অবস্থা: ছবি, এক বড় বোতাম, ধাপগুলো) — `screens/mess_accounting_screen.dart`
-- ⬜ — `screens/money_budget_screen.dart`
-- ⬜ — `screens/money_import_screen.dart`
-- ⬜ — `screens/money_loan_detail_screen.dart`
-- ⬜ — `screens/money_networth_screen.dart`
-- ⬜ — `screens/money_report_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, ট্যাবুলার সংখ্যা) — `screens/money_budget_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল) — `screens/money_import_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল) — `screens/money_loan_detail_screen.dart`
+- ✅ batch design3-b01 (নিট সম্পদ = DS হিরো + বড় সংখ্যা) — `screens/money_networth_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল) — `screens/money_report_screen.dart`
 - ✅ batch 3 (হিসাব সারাংশ) — `screens/money_screen.dart`
-- ⬜ — `screens/money_tax_screen.dart`
+- ✅ batch design3-b01 (টাইপ স্কেল, AA লাল লেখা) — `screens/money_tax_screen.dart`
 - ⬜ — `screens/money_trends_screen.dart`
 - ⬜ — `screens/money_voice_screen.dart`
 - ⬜ — `screens/money_wrapped_screen.dart`
