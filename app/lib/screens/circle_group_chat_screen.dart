@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'dart:convert';
 import 'dart:io';
 
@@ -1900,19 +1901,30 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ? _searchAppBar()
               : _normalAppBar(),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _loadFailed
               ? _errorRetry()
               : Column(
                   children: [
-                    // t1-ticks: min-version gate (never blocks sending).
-                    if (!_searching && _gid > 0)
-                      McVersionBanner(api: _api, kind: 'group', chatId: _gid),
-                    // messv2: the mess "Today" card (only on an active mess group)
-                    if (!_searching && !_selecting && _gid > 0)
-                      MessGroupCard(groupId: _gid),
-                    if (pinned.isNotEmpty && !_searching && !_selecting)
-                      _pinnedBar(pinned),
+                    // design3 (2.0x font): the banners above the messages get
+                    // at most a third of the screen and scroll inside it, so
+                    // at big text the composer is never pushed off.
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                          maxHeight: MediaQuery.sizeOf(context).height / 3),
+                      child: SingleChildScrollView(
+                        child: Column(mainAxisSize: MainAxisSize.min, children: [
+                          // t1-ticks: min-version gate (never blocks sending).
+                          if (!_searching && _gid > 0)
+                            McVersionBanner(api: _api, kind: 'group', chatId: _gid),
+                          // messv2: the mess "Today" card (only on an active mess group)
+                          if (!_searching && !_selecting && _gid > 0)
+                            MessGroupCard(groupId: _gid),
+                          if (pinned.isNotEmpty && !_searching && !_selecting)
+                            _pinnedBar(pinned),
+                        ]),
+                      ),
+                    ),
                     Expanded(
                       child: Stack(children: [
                         Positioned.fill(
@@ -1957,7 +1969,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             const SizedBox(height: Gap.md),
             Text(_t.msgLoadFailed,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.lg),
             FilledButton.icon(
               icon: const Icon(Icons.refresh_rounded),
@@ -1987,7 +1999,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(_t.grpSendFailed,
-                  style: TextStyle(color: scheme.onErrorContainer)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onErrorContainer)),
             ),
             TextButton(
               onPressed: _sending
@@ -2082,8 +2094,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             Text(
                 _searching ? _t.grpSearchNoResults : _t.circleGroupNoMessages,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ]),
         ),
       );
@@ -2556,8 +2567,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               else if (undecryptable)
                 Text(e2rWaitingText(_t, msg['mine'] == true ? '' : senderName),
                     key: const Key('e2-cant-decrypt'),
-                    style: TextStyle(
-                        fontStyle: FontStyle.italic,
+                    style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic,
                         color: Theme.of(context).colorScheme.onSurfaceVariant))
               else
                 // mc-media2: a location / contact card instead of raw text
@@ -2655,8 +2665,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       }
       spans.add(TextSpan(
         text: m.group(0),
-        style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+        style: AType.titleSmall.copyWith(color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600),
       ));
       last = m.end;
@@ -3109,8 +3118,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               const SizedBox(width: Gap.sm),
               Flexible(
                 child: Text(_t.circleGroupOnlyAdminsPost,
-                    style: TextStyle(
-                        color:
+                    style: AType.bodyMedium.copyWith(color:
                             Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
             ],

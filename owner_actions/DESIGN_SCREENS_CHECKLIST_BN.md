@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪১৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪২০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -113,7 +113,7 @@
 - ✅ batch design3-b01 (টাইপ স্কেল, টোকেন রং) — `screens/circle_extras_broadcast_screen.dart`
 - ✅ batch 5 (দুই টুল এক কার্ডে, আইকন-ব্যাজ) — `screens/circle_extras_hub_screen.dart`
 - ✅ batch design3-b01 (স্কেলেটন, টাইপ স্কেল) — `screens/circle_extras_scheduled_screen.dart`
-- ⬜ — `screens/circle_group_chat_screen.dart`
+- ✅ batch design3-b06 (উপরের ব্যানার স্ক্রিনের এক-তৃতীয়াংশে সীমিত (২× লেখাতেও লেখার ঘর দেখা যায়), স্কেলেটন, টাইপ স্কেল) — `screens/circle_group_chat_screen.dart`
 - ✅ batch design3-b01 (স্কেলেটন, AA লাল লেখা, টাইপ স্কেল) — `screens/circle_group_info_screen.dart`
 - ✅ batch 5 (গ্রুপগুলো এক কার্ডে, খালি অবস্থায় গ্রুপ বানান বোতাম) — `screens/circle_group_list_screen.dart`
 - ✅ batch 5 (প্রতিটি অংশ আলাদা কার্ডে, DS ত্রুটি অবস্থা) — `screens/circle_privacy_screen.dart`
