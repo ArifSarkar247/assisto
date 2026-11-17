@@ -77,14 +77,14 @@ class AiReplyRules {
 
   // Same patterns as AiReplyAllow.kt (OTP, money, SOS) — no suggestions at all.
   static final _otp = RegExp(
-      r'\botp\b|one[- ]time|verification|verify|passcode|password|\bpin\b|\bcode\b|ওটিপি|কোড|পিন|পাসওয়ার্ড|যাচাই',
+      '\\botp\\b|one[- ]time|verification|verify|passcode|password|\\bpin\\b|\\bcode\\b|\u0993\u099F\u09BF\u09AA\u09BF|\u0995\u09CB\u09A1|\u09AA\u09BF\u09A8|\u09AA\u09BE\u09B8\u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1|\u09AF\u09BE\u099A\u09BE\u0987',
       caseSensitive: false);
-  static final _codeDigits = RegExp(r'(?<![\d০-৯])[\d০-৯]{4,8}(?![\d০-৯])');
+  static final _codeDigits = RegExp('(?<![\\d\u09E6-\u09EF])[\\d\u09E6-\u09EF]{4,8}(?![\\d\u09E6-\u09EF])');
   static final _money = RegExp(
-      r'৳|\btk\b|\btaka\b|\bbdt\b|টাকা|bkash|bikash|nagad|rocket|upay|send ?money|cash ?out|cash ?in|payment|\bpay\b|\bpaid\b|transfer|loan|\bdue\b|account ?(no|number)|a/c|trx|txn|balance|বিকাশ|নগদ|রকেট|পেমেন্ট|ধার|লোন|ব্যালেন্স|পাঠাও টাকা|টাকা পাঠা',
+      '\u09F3|\\btk\\b|\\btaka\\b|\\bbdt\\b|\u099F\u09BE\u0995\u09BE|bkash|bikash|nagad|rocket|upay|send ?money|cash ?out|cash ?in|payment|\\bpay\\b|\\bpaid\\b|transfer|loan|\\bdue\\b|account ?(no|number)|a/c|trx|txn|balance|\u09AC\u09BF\u0995\u09BE\u09B6|\u09A8\u0997\u09A6|\u09B0\u0995\u09C7\u099F|\u09AA\u09C7\u09AE\u09C7\u09A8\u09CD\u099F|\u09A7\u09BE\u09B0|\u09B2\u09CB\u09A8|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8|\u09AA\u09BE\u09A0\u09BE\u0993 \u099F\u09BE\u0995\u09BE|\u099F\u09BE\u0995\u09BE \u09AA\u09BE\u09A0\u09BE',
       caseSensitive: false);
   static final _sos = RegExp(
-      r'\bsos\b|emergency|help me|save me|accident|hospital|ambulance|police|kidnap|জরুরি|বাঁচাও|বাচাও|সাহায্য কর|দুর্ঘটনা|হাসপাতাল|অ্যাম্বুলেন্স|পুলিশ|বিপদ',
+      '\\bsos\\b|emergency|help me|save me|accident|hospital|ambulance|police|kidnap|\u099C\u09B0\u09C1\u09B0\u09BF|\u09AC\u09BE\u0981\u099A\u09BE\u0993|\u09AC\u09BE\u099A\u09BE\u0993|\u09B8\u09BE\u09B9\u09BE\u09AF\u09CD\u09AF \u0995\u09B0|\u09A6\u09C1\u09B0\u09CD\u0998\u099F\u09A8\u09BE|\u09B9\u09BE\u09B8\u09AA\u09BE\u09A4\u09BE\u09B2|\u0985\u09CD\u09AF\u09BE\u09AE\u09CD\u09AC\u09C1\u09B2\u09C7\u09A8\u09CD\u09B8|\u09AA\u09C1\u09B2\u09BF\u09B6|\u09AC\u09BF\u09AA\u09A6',
       caseSensitive: false);
 
   /// 'otp' | 'money' | 'sos' | 'empty' when blocked, else null.
