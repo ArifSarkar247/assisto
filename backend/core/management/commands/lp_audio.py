@@ -63,6 +63,22 @@ def find_tag():
     return newest_draft(rows)
 
 
+def load_index():
+    try:
+        if default_storage.exists(INDEX):
+            with default_storage.open(INDEX, "rb") as fh:
+                return json.loads(fh.read().decode("utf-8"))
+    except Exception:  # noqa: BLE001 — a broken index = no audio, never a crash
+        pass
+    return {}
+
+
+def save_index(idx):
+    if default_storage.exists(INDEX):
+        default_storage.delete(INDEX)
+    default_storage.save(INDEX, ContentFile(json.dumps(idx, ensure_ascii=False, indent=1).encode("utf-8")))
+
+
 def current_plans(content):
     from core.logic import lp_audio as AU
     out = {}
