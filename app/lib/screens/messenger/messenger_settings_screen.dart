@@ -5,6 +5,8 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/msgr_set_tiles.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../settings_screen.dart' show SupportScreen;
 import 'messenger_profile_screen.dart';
@@ -114,98 +116,92 @@ class MessengerSettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.msgrSettingsTitle)),
       body: ListView(
         children: [
-          // ---- profile card (photo · name · bio · phone · edit) ----
+// ---- profile = the soft DS hero (photo · name · phone · edit) ----
           Padding(
-            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: Gap.md, vertical: Gap.sm),
-                leading: MsgrAvatar(
-                    name: name, photoUrl: u?.photoUrl ?? '', radius: 28),
-                title: Text(name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 16),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
+            child: DsHeroCard(
+              onTap: () => _open(context, const MessengerProfileScreen()),
+              child: Row(children: [
+                MsgrAvatar(name: name, photoUrl: u?.photoUrl ?? '', radius: 28),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    // the name wraps (never "…")
+                    Text(name,
+                        style: AType.titleLarge.copyWith(
+                            color: scheme.ds.text, fontWeight: FontWeight.w800)),
                     Text(phone.isEmpty ? t.msgrSetProfileHint : phone,
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     // f1-founders: Founding Member badge on My Circle profile.
                     if (u?.isFounder == true) ...[
                       const SizedBox(height: 6),
                       const FounderBadge(dense: true),
                     ],
-                  ],
+                  ]),
                 ),
-                trailing:
-                    Icon(Icons.edit_rounded, color: scheme.ds.muted),
-                onTap: () => _open(context, const MessengerProfileScreen()),
-              ),
+                Icon(Icons.edit_rounded, color: scheme.ds.muted),
+              ]),
             ),
           ),
-          const Divider(),
-          // ---- rows ----
-          ListTile(
-            leading: const Icon(Icons.key_rounded),
-            title: Text(t.msgrSetAccount),
-            subtitle: Text(t.msgrSetAccountSub),
+MsgrSetGroup([
+          MsgrSetRow(
+            icon: Icons.key_rounded,
+            title: t.msgrSetAccount,
+            subtitle: t.msgrSetAccountSub,
             onTap: () => _open(context, const MsgrSetAccountScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.lock_outline_rounded),
-            title: Text(t.msgrSetPrivacy),
-            subtitle: Text(t.msgrSetPrivacySub),
+MsgrSetRow(
+            icon: Icons.lock_outline_rounded,
+            title: t.msgrSetPrivacy,
+            subtitle: t.msgrSetPrivacySub,
             onTap: () => _open(context, const MsgrSetPrivacyScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.chat_rounded),
-            title: Text(t.msgrSetChats),
-            subtitle: Text(t.msgrSetChatsSub),
+MsgrSetRow(
+            icon: Icons.chat_rounded,
+            title: t.msgrSetChats,
+            subtitle: t.msgrSetChatsSub,
             onTap: () => _open(context, const MsgrSetChatsScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.notifications_rounded),
-            title: Text(t.msgrSetNotifications),
-            subtitle: Text(t.msgrSetNotificationsSub),
+MsgrSetRow(
+            icon: Icons.notifications_rounded,
+            title: t.msgrSetNotifications,
+            subtitle: t.msgrSetNotificationsSub,
             onTap: () => _open(context, const MsgrSetNotificationsScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.call_rounded),
-            title: Text(t.msgrSetCalls),
-            subtitle: Text(t.msgrSetCallsSub),
+MsgrSetRow(
+            icon: Icons.call_rounded,
+            title: t.msgrSetCalls,
+            subtitle: t.msgrSetCallsSub,
             onTap: () => _open(context, const MsgrSetCallsScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.data_usage_rounded),
-            title: Text(t.msgrSetStorage),
-            subtitle: Text(t.msgrSetStorageSub),
+MsgrSetRow(
+            icon: Icons.data_usage_rounded,
+            title: t.msgrSetStorage,
+            subtitle: t.msgrSetStorageSub,
             onTap: () => _open(context, const MsgrSetStorageScreen()),
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.language_rounded),
-            title: Text(t.msgrSetLanguage),
-            subtitle: Text(lang),
+]),
+MsgrSetGroup([
+MsgrSetRow(
+            icon: Icons.language_rounded,
+            title: t.msgrSetLanguage,
+            subtitle: lang,
             onTap: () => _pickLanguage(context),
           ),
-          ListTile(
-            leading: const Icon(Icons.help_outline_rounded),
-            title: Text(t.msgrSetHelp),
-            subtitle: Text(t.msgrSetHelpSub),
+MsgrSetRow(
+            icon: Icons.help_outline_rounded,
+            title: t.msgrSetHelp,
+            subtitle: t.msgrSetHelpSub,
             onTap: () => _open(context, const SupportScreen()),
           ),
-          ListTile(
-            leading: const Icon(Icons.card_giftcard_rounded),
-            title: Text(t.msgrSetInvite),
-            subtitle: Text(t.msgrSetInviteSub),
+MsgrSetRow(
+            icon: Icons.card_giftcard_rounded,
+            title: t.msgrSetInvite,
+            subtitle: t.msgrSetInviteSub,
             onTap: () => _invite(context),
           ),
-        ],
+]),
+],
       ),
     );
   }

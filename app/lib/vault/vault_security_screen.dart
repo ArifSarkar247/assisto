@@ -2,6 +2,7 @@
 // methods (recovery code on this phone + what the account can verify with),
 // PIN change, fingerprint, and the offline copies' storage use.
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 
@@ -170,7 +171,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
 
   Widget _check(bool ok, String label, String? hint) => ListTile(
         leading: Icon(ok ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-            color: ok ? Colors.green.shade700 : Theme.of(context).colorScheme.ds.muted),
+            color: ok ? Theme.of(context).colorScheme.ds.successInk : Theme.of(context).colorScheme.ds.muted),
         title: Text(label),
         subtitle: hint == null ? null : Text(hint),
       );
@@ -182,7 +183,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.vaultSecurityTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : ListView(padding: const EdgeInsets.only(bottom: Gap.xl), children: [
               if (!_hasCode && !anyAccount)
                 Container(
@@ -270,12 +271,7 @@ class _VaultSecurityScreenState extends State<VaultSecurityScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
                   child: SizedBox(
                     height: 48,
-                    child: OutlinedButton.icon(
-                      key: const Key('vault_offline_remove_all'),
-                      onPressed: _removeAll,
-                      icon: const Icon(Icons.delete_sweep_rounded),
-                      label: Text(t.vaultOfflineRemoveAll),
-                    ),
+                    child: DsButton.secondary(buttonKey: const Key('vault_offline_remove_all'), onPressed: _removeAll, icon: Icons.delete_sweep_rounded, label: t.vaultOfflineRemoveAll),
                   ),
                 ),
             ]),

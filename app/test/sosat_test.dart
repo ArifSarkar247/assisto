@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
+import 'package:assisto/family_sos/sos_retry.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/fall_detect_screen.dart';
@@ -185,6 +186,7 @@ void main() {
       final sms = tester.widget<ButtonStyleButton>(find.byKey(const ValueKey('sosat-sms')));
       expect(sms, isA<FilledButton>());
       expect(sms.onPressed, isNotNull);
+      SosRetry.stop(); // gap-sos: the offline SOS keeps retrying app-wide
     });
   });
 

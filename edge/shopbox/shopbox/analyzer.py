@@ -77,6 +77,66 @@ def _measured():
 MEASURED = _measured()
 
 
+def _vehicle_cfg():
+    """cctvdet3: vehicle thresholds / second look from the shared file
+    ("vehicle": {"default", "score": {coco id: thr}, "zoom", "zoom_max_area"})."""
+    import json
+    import os
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "cctv_thresholds.json"),
+                  encoding="utf-8") as f:
+            v = json.load(f).get("vehicle") or {}
+        return v if isinstance(v, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+_VCFG = _vehicle_cfg()
+VEH_SCORE = float(_VCFG.get("default", 0.35))
+VEH_ZOOM = bool(_VCFG.get("zoom", False))           # second look on a parking zone crop
+VEH_ZOOM_MAX_AREA = float(_VCFG.get("zoom_max_area", 0.35))
+VEH_UNION = bool(_VCFG.get("union", False))         # + the person model's COCO vehicles
+VEH_COCO_SCORE = float(_VCFG.get("coco_score", 0.35))
+VEH_TINY_SCORE = float(_VCFG.get("tiny_default", 0.35))   # YOLOX-Tiny until the BD model is out
+
+
+def veh_thr(det) -> float:
+    """cctvdet3: the vehicle score for this model (each measured on its own)."""
+    name = getattr(det, "name", "")
+    if name == "assisto_vehicle_bd":
+        return VEH_SCORE
+    if name == "yolox_tiny":
+        return VEH_TINY_SCORE
+    return VEH_COCO_SCORE
+# a "vehicle" box that is mostly a person box (a walker the vehicle model,
+# which never learnt people, calls a cycle) is dropped; 1.0 = off
+VEH_PERSON_IOU = float(_VCFG.get("person_iou", 1.0))
+
+
+def _iou(a, b) -> float:
+    ix = max(0.0, min(a.x2, b.x2) - max(a.x1, b.x1))
+    iy = max(0.0, min(a.y2, b.y2) - max(a.y1, b.y1))
+    i = ix * iy
+    u = (a.x2 - a.x1) * (a.y2 - a.y1) + (b.x2 - b.x1) * (b.y2 - b.y1) - i
+    return i / u if u > 0 else 0.0
+
+
+def merge_vehicles(primary, extra):
+    """cctvdet3: the vehicle model's boxes plus any other box it did not
+    already cover (IoU <= 0.5) — a COCO car the local model missed."""
+    out = list(primary or [])
+    for v in extra or []:
+        if all(_iou(v, p) <= 0.5 for p in out):
+            out.append(v)
+    return out
+try:
+    from . import person as _person
+    _person.VEHICLE_SCORES.update({int(k): float(v)
+                                   for k, v in (_VCFG.get("score") or {}).items()})
+except Exception:                     # never let a bad file stop the box
+    pass
+
+
 @dataclass
 class Trigger:
     type: str
@@ -137,6 +197,7 @@ class CameraAnalyzer:
         self._frame_thr = None
         self.on_refs_changed: Optional[Callable[[dict], None]] = None
         self.plates = None               # cctvdet: plates.PlateReader (engine sets it)
+        self.vehicle_detector = None     # cctvdet3: YOLOX-Tiny vehicles (engine sets it)
         self.reconfigure()
 
     def reconfigure(self, cam: Optional[CameraConfig] = None,
@@ -205,12 +266,28 @@ class CameraAnalyzer:
         # cctvdet stage 2: a post zone counts as manned on a weaker box
         # (POST_PRESENCE_SCORE) and parking / entry-line zones need vehicles
         # from the SAME model pass (COCO classes; no second model)
-        low = min(thr, DR.POST_PRESENCE_SCORE) if self.zrules.has_post else thr
+        low = self.zrules.weak_floor(thr)       # cctvdet3: post / dwell / crowd floors
         self._frame_thr = thr
         self._frame_veh = None
         try:
-            if self.zrules.wants_vehicles and hasattr(self.detector, "detect_all"):
-                dets, self._frame_veh = self.detector.detect_all(img, score_thr=low)
+            vdet = self.vehicle_detector
+            if self.zrules.wants_vehicles and vdet is not None:
+                # cctvdet3: the vehicle model sees vehicles, nano sees people
+                # (and, with VEH_UNION, nano's own COCO vehicles are added)
+                coco = []
+                if VEH_UNION and hasattr(self.detector, "detect_all"):
+                    dets, coco = self.detector.detect_all(img, score_thr=low,
+                                                          vehicle_thr=VEH_COCO_SCORE)
+                else:
+                    dets = self.detector.detect(img, score_thr=low)
+                try:
+                    self._frame_veh = merge_vehicles(
+                        vdet.detect_vehicles(img, vehicle_thr=veh_thr(vdet)), coco)
+                except Exception:
+                    self._frame_veh = coco or None
+            elif self.zrules.wants_vehicles and hasattr(self.detector, "detect_all"):
+                dets, self._frame_veh = self.detector.detect_all(img, score_thr=low,
+                                                                 vehicle_thr=VEH_COCO_SCORE)
             else:
                 dets = self.detector.detect(img, score_thr=low)
         except TypeError:                # a detector without the override
@@ -219,6 +296,10 @@ class CameraAnalyzer:
         # row; post: minutes of absence) — they take the boxes BEFORE the
         # 2-s night confirm, which would otherwise hide a still guard at a
         # post checked every 30 s and raise a false "post empty"
+        if self._frame_veh and VEH_PERSON_IOU < 1.0:
+            ppl = [d for d in dets if d.score >= thr]
+            self._frame_veh = [v for v in self._frame_veh
+                               if all(_iou(v, p) < VEH_PERSON_IOU for p in ppl)]
         self._frame_raw = [d for d in dets if d.score >= low]
         dets = [d for d in dets if d.score >= thr]
         now = self._now if self._now is not None else self.clock()
@@ -302,6 +383,44 @@ class CameraAnalyzer:
                             x1 + d.x2 * (x2 - x1), y1 + d.y2 * (y2 - y1), d.score])
         return out
 
+    @property
+    def wants_vehicle_model(self) -> bool:
+        return self.zrules.wants_vehicles
+
+    def _zoom_vehicles(self, frame, vehicles):
+        """cctvdet3 (recall): a parking / no-parking zone with NO vehicle box
+        gets a second look on its own crop, so a far or half-hidden vehicle
+        is still seen. Boxes come back in full-frame coordinates."""
+        if not VEH_ZOOM:
+            return []
+        det = self.vehicle_detector or self.detector
+        if not hasattr(det, "detect_vehicles"):
+            return []
+        out = []
+        h, w = frame.shape[:2]
+        for z in self.zrules.zones:
+            if z["type"] not in ("parking", "no_parking"):
+                continue
+            if any(DR.box_in_zone(v, z["points"]) for v in vehicles):
+                continue
+            x1, y1, x2, y2 = DR.poly_bbox(z["points"])
+            if (x2 - x1) * (y2 - y1) > VEH_ZOOM_MAX_AREA:
+                continue
+            px, py = (x2 - x1) * 0.15, (y2 - y1) * 0.15
+            x1, y1 = max(0.0, x1 - px), max(0.0, y1 - py)
+            x2, y2 = min(1.0, x2 + px), min(1.0, y2 + py)
+            crop = frame[int(y1 * h):max(int(y1 * h) + 2, int(y2 * h)),
+                         int(x1 * w):max(int(x1 * w) + 2, int(x2 * w))]
+            try:
+                img, _night = model_input(crop)
+                vs = det.detect_vehicles(img, vehicle_thr=veh_thr(det))
+            except Exception:
+                continue
+            for v in vs:
+                out.append([x1 + v.x1 * (x2 - x1), y1 + v.y1 * (y2 - y1),
+                            x1 + v.x2 * (x2 - x1), y1 + v.y2 * (y2 - y1), v.score, v.cls])
+        return out
+
     def _small_gray(self, frame):
         import cv2
 
@@ -342,6 +461,7 @@ class CameraAnalyzer:
             boxes += self._zoom_boxes(frame, boxes)
             if self._frame_veh is not None:
                 vehicles = [[v.x1, v.y1, v.x2, v.y2, v.score, v.cls] for v in self._frame_veh]
+                vehicles += self._zoom_vehicles(frame, vehicles)
             self._last_pcheck = now
         patches = None
         gates = self.zrules.gate_zones()

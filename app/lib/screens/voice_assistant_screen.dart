@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
@@ -366,7 +367,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
           onPressed: _close,
         ),
         title: Text(t.vaTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         actions: [
           // Voice language is AUTOMATIC (owner order); the manual override
           // lives only in Settings > Voice. No BN/EN chip here.
@@ -433,10 +434,9 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.lg),
       children: [
         Center(
-          child: ShaderMask(
-            shaderCallback: (r) => Brand.gradient.createShader(r),
-            child: const Icon(Icons.graphic_eq_rounded, size: 56, color: Colors.white),
-          ),
+          // plain primary icon (no shader mask: GPU-light on low-end phones)
+          child: Icon(Icons.graphic_eq_rounded, size: 56,
+              color: Theme.of(context).colorScheme.ds.primaryInk),
         ),
         const SizedBox(height: Gap.md),
         Text(t.vaWelcome,
@@ -548,7 +548,7 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
           ),
         Text(status,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 color: listening ? scheme.primary : scheme.ds.muted,
                 fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.md),
@@ -749,7 +749,7 @@ class _ResultCardState extends State<_ResultCard> {
                               style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                         if (o.subtitle != null)
                           Text(o.subtitle!,
-                              style: TextStyle(color: scheme.ds.muted)),
+                              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                       ],
                     ]),
               ),

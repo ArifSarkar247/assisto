@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -155,7 +156,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                       size: 18, color: Brand.danger),
                   const SizedBox(width: Gap.sm),
                   Text(t.memClearAll,
-                      style: const TextStyle(color: Brand.danger)),
+                      style: AType.bodyMedium.copyWith(color: Brand.danger)),
                 ]),
               ),
             ],
@@ -247,11 +248,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         tint: Brand.danger,
         title: t.memErrorTitle,
         message: t.memErrorBody,
-        action: FilledButton.icon(
-          onPressed: () => app.sync(),
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.retry),
-        ),
+        action: DsButton(onPressed: () => app.sync(), icon: Icons.refresh_rounded, label: t.retry),
       );
     }
 
@@ -263,11 +260,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
         icon: Icons.psychology_rounded,
         title: t.memoryEmptyTitle,
         message: t.memoryEmptyHint,
-        action: FilledButton.icon(
-          onPressed: () => _edit(context),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(t.memAddFirst),
-        ),
+        action: DsButton(onPressed: () => _edit(context), icon: Icons.add_rounded, label: t.memAddFirst),
       );
     }
 
@@ -415,7 +408,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                         label: Text(memCatLabel(t, c)),
                         selected: cat == c,
                         selectedColor: MemCategories.color(c),
-                        labelStyle: TextStyle(
+                        labelStyle: AType.bodyMedium.copyWith(
                             color: cat == c ? Colors.white : null,
                             fontWeight: FontWeight.w600),
                         onSelected: (_) => setSheet(() => cat = c),
@@ -451,7 +444,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                     ),
                     MemSwitchRow(
                       icon: Icons.lock_outline_rounded,
-                      color: Colors.blueGrey,
+                      color: Theme.of(context).colorScheme.ds.muted,
                       title: t.memPrivacyPrivate,
                       subtitle: t.memPrivacyPrivateHint,
                       value: flags.private,
@@ -463,10 +456,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                 const SizedBox(height: Gap.md),
                 Row(children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(t.cancel),
-                    ),
+                    child: DsButton.secondary(onPressed: () => Navigator.pop(ctx, false), label: t.cancel),
                   ),
                   const SizedBox(width: Gap.md),
                   Expanded(
@@ -525,7 +515,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                   style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: Gap.xs),
               Text(m.title,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.md),
               MemSwitchRow(
@@ -552,7 +542,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               ),
               MemSwitchRow(
                 icon: Icons.lock_outline_rounded,
-                color: Colors.blueGrey,
+                color: Theme.of(context).colorScheme.ds.muted,
                 title: t.memPrivacyPrivate,
                 subtitle: t.memPrivacyPrivateHint,
                 value: flags.private,
@@ -625,7 +615,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
           child: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(t.memExportCopied,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.md),
               Container(

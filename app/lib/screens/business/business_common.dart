@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../widgets/num_input.dart' show takaToPoishaInput;
 
 /// Shared helpers for the Business v2 screens.
 ///
@@ -36,15 +37,11 @@ String _bnMoneyDigits(BuildContext context, String s) {
 /// separators and currency sign) to integer poisha. Returns null if nothing
 /// parseable.
 int? takaToPoisha(String input) {
-  final cleaned = _normalizeDigits(input)
-      .replaceAll(',', '')
-      .replaceAll('৳', '')
-      .replaceAll(RegExp(r'[^0-9.]'), '')
-      .trim();
-  if (cleaned.isEmpty) return null;
-  final taka = double.tryParse(cleaned);
-  if (taka == null) return null;
-  return (taka * 100).round();
+  // gap-money: "Tk. 500" used to become ".500" = 50 poisha and "-500" became
+  // +500. Now the app's one strict parser: half-up, junk and minus refused.
+  final p = takaToPoishaInput(input);
+  if (p == null || p < 0) return null;
+  return p;
 }
 
 /// Plain-taka display for amounts the server did NOT pre-format (e.g. a value
@@ -53,22 +50,6 @@ String poishaToTaka(int poisha) {
   final taka = poisha / 100;
   final whole = taka == taka.truncateToDouble();
   return '৳${whole ? taka.toStringAsFixed(0) : taka.toStringAsFixed(2)}';
-}
-
-String _normalizeDigits(String s) {
-  // Bangla-Bengali digits occupy the contiguous block U+09E6 (zero) .. U+09EF
-  // (nine); map each to its Latin digit. Built from code points so no Bangla
-  // literal lives in source (keeps the language gate strict).
-  const bnZero = 0x09E6;
-  final b = StringBuffer();
-  for (final ch in s.runes) {
-    if (ch >= bnZero && ch <= bnZero + 9) {
-      b.write(ch - bnZero);
-    } else {
-      b.write(String.fromCharCode(ch));
-    }
-  }
-  return b.toString();
 }
 
 /// A soft header band at the top of the hub / section screens.

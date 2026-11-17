@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/fade_chip_row.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
@@ -300,10 +302,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVisLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr, scheme)
@@ -316,11 +315,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         icon: Icons.how_to_reg_rounded,
         title: tr.paVisWelcomeTitle,
         message: tr.paVisWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.person_add_alt_1_rounded),
-          label: Text(tr.paVisAddRequest),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.person_add_alt_1_rounded, label: tr.paVisAddRequest),
       );
 
   Widget _queue(AppLocalizations tr, ColorScheme scheme) {
@@ -379,20 +374,11 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
       );
 
   Widget _filterBar(AppLocalizations tr, ColorScheme scheme) {
-    Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
-          padding: const EdgeInsets.only(right: Gap.sm),
-          child: FilterChip(
-            label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-            selected: selected,
-            onSelected: (_) => onTap(),
-          ),
-        );
-    return SizedBox(
-      height: 52,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        children: [
+    Widget chip(String label, bool selected, VoidCallback onTap) =>
+        DsChip(label: label, selected: selected, onSelected: (_) => onTap());
+    return FadeChipRow(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+      children: [
           chip(tr.paVisFilterAll, _fStatus == null && _fPriority == null, () {
             setState(() {
               _fStatus = null;
@@ -412,7 +398,6 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           chip(_statusLabel(tr, _stExpired), _fStatus == _stExpired,
               () => setState(() => _fStatus = _fStatus == _stExpired ? null : _stExpired)),
         ],
-      ),
     );
   }
 
@@ -458,11 +443,9 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
     final actionable = status == _stPending || status == _stExpired;
     final fmt = DateFormat('EEE d MMM, h:mm a', tr.localeName);
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             if (isVip) ...[
               Icon(Icons.star_rounded, size: 18, color: Brand.warning),
@@ -479,7 +462,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           if ((r['reason'] ?? '').toString().trim().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text((r['reason']).toString(),
-                style: TextStyle(color: scheme.ds.muted, height: 1.3),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -497,8 +480,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
             TextButton.icon(
               onPressed: () => _setPriority(r, isVip ? _prNormal : _prVip, tr),
               icon: Icon(isVip ? Icons.star_rounded : Icons.star_border_rounded, size: 18),
-              label: Text(isVip ? tr.paVisPriorityNormal : tr.paVisMarkVip,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              label: Text(isVip ? tr.paVisPriorityNormal : tr.paVisMarkVip),
             ),
             const Spacer(),
             PopupMenuButton<String>(
@@ -519,29 +501,20 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _triage(r, 'decline', tr),
                   icon: const Icon(Icons.close_rounded, size: 18),
-                  label: Text(tr.paVisDecline, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  label: Text(tr.paVisDecline),
                   style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
                 ),
               ),
               const SizedBox(width: Gap.sm),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _triage(r, 'suggest', tr),
-                  icon: const Icon(Icons.schedule_rounded, size: 18),
-                  label: Text(tr.paVisSuggest, maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
+                child: DsButton.secondary(onPressed: () => _triage(r, 'suggest', tr), icon: Icons.schedule_rounded, label: tr.paVisSuggest),
               ),
               const SizedBox(width: Gap.sm),
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: () => _triage(r, 'approve', tr),
-                  icon: const Icon(Icons.check_rounded, size: 18),
-                  label: Text(tr.paVisApprove, maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
+                child: DsButton.secondary(onPressed: () => _triage(r, 'approve', tr), icon: Icons.check_rounded, label: tr.paVisApprove),
               ),
             ]),
         ]),
-      ),
     );
   }
 
@@ -633,7 +606,7 @@ class _VisitorFormState extends State<_VisitorForm> {
             onChanged: (_) => setState(() {}),
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-                labelText: tr.paVisVisitorName, border: const OutlineInputBorder()),
+                labelText: tr.paVisVisitorName),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -641,7 +614,7 @@ class _VisitorFormState extends State<_VisitorForm> {
             onChanged: (_) => setState(() {}),
             maxLines: 3,
             decoration: InputDecoration(
-                labelText: tr.paVisReason, border: const OutlineInputBorder()),
+                labelText: tr.paVisReason),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -650,12 +623,10 @@ class _VisitorFormState extends State<_VisitorForm> {
             decoration: InputDecoration(
                 labelText: tr.paVisContactOptional,
                 helperText: tr.paVisContactPrivacyNote,
-                helperMaxLines: 2,
-                border: const OutlineInputBorder()),
+                helperMaxLines: 2),
           ),
           const SizedBox(height: Gap.md),
-          OutlinedButton.icon(
-            onPressed: () async {
+          DsButton.secondary(onPressed: () async {
               final base = _when ?? DateTime.now().add(const Duration(days: 1));
               final d = await showDatePicker(
                 context: context,
@@ -668,11 +639,7 @@ class _VisitorFormState extends State<_VisitorForm> {
                   context: context, initialTime: TimeOfDay.fromDateTime(base));
               if (t == null) return;
               setState(() => _when = DateTime(d.year, d.month, d.day, t.hour, t.minute));
-            },
-            icon: const Icon(Icons.event_rounded),
-            label: Text(_when == null ? tr.paVisPickTime : fmt.format(_when!),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
+            }, icon: Icons.event_rounded, label: _when == null ? tr.paVisPickTime : fmt.format(_when!)),
           const SizedBox(height: Gap.md),
           SegmentedButton<String>(
             segments: [
@@ -685,10 +652,7 @@ class _VisitorFormState extends State<_VisitorForm> {
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

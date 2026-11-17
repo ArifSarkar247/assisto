@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -123,7 +125,7 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -153,11 +155,11 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
 
   Widget _header(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: scheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(text,
+              style: AType.titleSmall.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
+        ),
       );
 
   Widget _groupCard(
@@ -203,37 +205,21 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: scheme.tertiary),
+        Icon(icon, size: 14, color: scheme.ds.primaryInk),
         const SizedBox(width: 4),
         Text(label,
-            style: TextStyle(
-                color: scheme.tertiary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600)),
+            style: AType.labelMedium.copyWith(
+                color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
       ],
     );
   }
 
   Widget _emptyState(ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          children: [
-            const SizedBox(height: Gap.xxl),
-            Icon(Icons.diversity_3_rounded,
-                size: 56, color: scheme.primary.withValues(alpha: 0.7)),
-            const SizedBox(height: Gap.md),
-            Text(_t.communityEmptyTitle,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center),
-            const SizedBox(height: Gap.xs),
-            Text(
-              _backendReady
-                  ? _t.communityEmptyBody
-                  : _t.communityBackendPending,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4),
-            ),
-          ],
+        padding: const EdgeInsets.only(top: Gap.xl),
+        child: MsgrEmptyState(
+          icon: Icons.diversity_3_rounded,
+          title: _t.communityEmptyTitle,
+          body: _backendReady ? _t.communityEmptyBody : _t.communityBackendPending,
         ),
       );
 }

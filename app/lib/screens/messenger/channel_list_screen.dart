@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -180,7 +182,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         label: Text(t.channelCreate),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : RefreshIndicator(
               onRefresh: _load,
               child: _body(t),
@@ -197,12 +199,15 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      // looks like the one DS input (fill + border), opens the directory
       child: Material(
-        color: scheme.ds.cardHighest,
-        borderRadius: BorderRadius.circular(Radii.lg),
+        color: scheme.ds.inputFill,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DsRadius.card),
+            side: BorderSide(color: scheme.ds.border)),
         child: InkWell(
           key: const Key('chx-search-entry'),
-          borderRadius: BorderRadius.circular(Radii.lg),
+          borderRadius: BorderRadius.circular(DsRadius.card),
           onTap: _openDirectory,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 52),
@@ -214,7 +219,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Text(t.chxSearchHint,
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyLarge.copyWith(color: scheme.ds.muted)),
                 ),
               ]),
             ),
@@ -236,11 +241,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             icon: Icons.cloud_off_rounded,
             title: t.channelLoadError,
             body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
-            action: FilledButton.icon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry),
-            ),
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
           ),
         ],
       );
@@ -255,17 +256,19 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             title: t.channelsEmptyTitle,
             body: _backendReady ? t.chxEmptyBody : t.checkInternetRetry,
             action: Column(mainAxisSize: MainAxisSize.min, children: [
-              FilledButton.icon(
-                key: const Key('chx-empty-find'),
+              DsButton(
+                buttonKey: const Key('chx-empty-find'),
                 onPressed: _openDirectory,
-                icon: const Icon(Icons.search_rounded),
-                label: Text(t.chxFindChannels),
+                icon: Icons.search_rounded,
+                label: t.chxFindChannels,
+                expand: true,
               ),
               const SizedBox(height: Gap.sm),
-              OutlinedButton.icon(
+              DsButton.secondary(
                 onPressed: _create,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.channelCreate),
+                icon: Icons.add_rounded,
+                label: t.channelCreate,
+                expand: true,
               ),
             ]),
           ),
@@ -278,6 +281,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         _searchEntry(t),
         if (_owned.isNotEmpty) ...[
           _sectionHeader(t.chxMyChannels),
+          DsGroup(children: [
           for (final ch in _owned)
             MsgrChannelTile(
               channel: ch,
@@ -294,9 +298,11 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 ),
               ),
             ),
+          ]),
         ],
         if (_following.isNotEmpty) ...[
           _sectionHeader(t.channelFollowingSection),
+          DsGroup(children: [
           for (final ch in _following)
             MsgrChannelTile(
               channel: ch,
@@ -307,9 +313,11 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 onPressed: () => _toggleFollow(ch),
               ),
             ),
+          ]),
         ],
         if (_suggested.isNotEmpty) ...[
           _sectionHeader(t.channelSuggestedSection),
+          DsGroup(children: [
           for (final ch in _suggested)
             MsgrChannelTile(
               channel: ch,
@@ -320,6 +328,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 onPressed: () => _toggleFollow(ch),
               ),
             ),
+          ]),
           Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Text(
@@ -335,11 +344,12 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
 
   Widget _sectionHeader(String label) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
-        child: Text(label,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(label,
+              style: AType.titleSmall.copyWith(
+                  color: Theme.of(context).colorScheme.ds.muted, fontWeight: FontWeight.w700)),
+        ),
       );
 }
 

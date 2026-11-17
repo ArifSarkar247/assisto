@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -564,8 +565,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
           const SizedBox(height: Gap.sm),
           Text(_t.msgrInviteSmsNote,
-              style: TextStyle(
-                  fontSize: 12,
+              style: AType.bodySmall.copyWith(
                   color: Theme.of(ctx).colorScheme.ds.muted)),
         ]),
         actions: [
@@ -712,9 +712,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
     final local = PhoneCanon.localForm(canon);
     if (r['found'] == true && r['user'] is Map) {
       final u = (r['user'] as Map).cast<String, dynamic>();
-      return Card(
+      return Padding(
         key: const Key('c1-search-found'),
-        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+        child: DsSurface(
+        padding: EdgeInsets.zero,
         child: C1AssistoUserRow(
           user: u,
           busy: _busy.contains('${u['id']}'),
@@ -723,35 +725,31 @@ class _ContactsScreenState extends State<ContactsScreen> {
           onMessage: () => _message(u),
           onCall: () => _call(u),
         ),
-      );
+      ));
     }
     final self = r['is_self'] == true;
-    return Card(
-      key: const Key('c1-search-notfound'),
-      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
-      child: Padding(
+    return Padding(key: const Key('c1-search-notfound'), padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(self ? t.c1SearchSelf : t.c1SearchNotFound(local),
-              style: TextStyle(color: scheme.ds.text, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
           if (!self) ...[
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-              FilledButton.tonalIcon(
+              DsButton(
                 onPressed: () => _inviteSms(canon),
-                icon: const Icon(Icons.sms_rounded, size: 18),
-                label: Text(t.c1Invite),
+                icon: Icons.sms_rounded,
+                label: t.c1Invite,
               ),
-              OutlinedButton.icon(
+              DsButton.secondary(
                 onPressed: _shareInvite,
-                icon: const Icon(Icons.share_rounded, size: 18),
-                label: Text(cmLabel(context, 'cmShareCard')),
+                icon: Icons.share_rounded,
+                label: cmLabel(context, 'cmShareCard'),
               ),
             ]),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _foundRow(Map<String, dynamic> f) {
@@ -793,10 +791,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (_source.available && !_cantRead && !_synced)
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
-          child: OutlinedButton.icon(
+          child: DsButton.secondary(
             onPressed: () => setState(() => _stage = CmStage.disclosure),
-            icon: const Icon(Icons.contacts_rounded),
-            label: Text(t.msgrContactsAllow),
+            icon: Icons.contacts_rounded,
+            label: t.msgrContactsAllow,
+            expand: true,
           ),
         ),
       if (_synced) ...[
@@ -808,9 +807,13 @@ class _ContactsScreenState extends State<ContactsScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: Text(t.c1NoneOnAssisto,
-                style: TextStyle(color: scheme.ds.muted)),
-          ),
-        for (final f in found) _foundRow(f),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+          )
+        else
+          // the people already on Assisto: one DS group card
+          DsGroup(
+              margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.sm),
+              children: [for (final f in found) _foundRow(f)]),
         C1SectionHeader(t.c1InviteTitle,
             key: const Key('c1-section-invite'),
             color: scheme.ds.muted),
@@ -838,7 +841,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           child: Text(
             '${t.c1CheckedCount(cmNum(context, _phonebook.length))} '
             '${t.c1PullToRefresh}',
-            style: TextStyle(color: scheme.ds.muted, fontSize: 12),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, ),
           ),
         ),
       const SizedBox(height: Gap.xl),

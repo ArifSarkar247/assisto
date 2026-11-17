@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
@@ -160,10 +161,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
   }
@@ -191,11 +189,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
           _photoBlock(t, scheme, photo),
         if (widget.hubId == 'students') ...[
           const SizedBox(height: Gap.md),
-          FilledButton.icon(
-            onPressed: () => _open(WorldMcqScreen(api: api)),
-            icon: const Icon(Icons.quiz_rounded),
-            label: Text(t.uwMcqStart),
-          ),
+          DsButton(onPressed: () => _open(WorldMcqScreen(api: api)), icon: Icons.quiz_rounded, label: t.uwMcqStart),
         ],
         for (final s in sections) ...[
           UwHeader('${s['title']}'),
@@ -241,11 +235,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
       if (m == null || !FeatureFlags.instance.isOn(id)) continue;
       out.add(Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
-        child: OutlinedButton.icon(
-          onPressed: () => _open(m.$2()),
-          icon: const Icon(Icons.arrow_forward_rounded),
-          label: Text(m.$1),
-        ),
+        child: DsButton.secondary(onPressed: () => _open(m.$2()), icon: Icons.arrow_forward_rounded, label: m.$1),
       ));
     }
     if (out.isNotEmpty) out.insert(0, UwHeader(t.uwMoreTools));
@@ -256,13 +246,9 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     final crop = purpose == 'crop';
     return Padding(
       padding: const EdgeInsets.only(top: Gap.md),
-      child: Card(
-        margin: EdgeInsets.zero,
-        color: scheme.ds.primarySoft,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      child: DsSurface(color: scheme.ds.primarySoft,
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(crop ? Icons.eco_rounded : Icons.receipt_long_rounded,
                   color: scheme.ds.primaryInk),
@@ -283,7 +269,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
             const SizedBox(height: Gap.xs),
             Text(crop ? t.uwCropBody : t.uwRxBody,
                 style:
-                    TextStyle(color: scheme.ds.primaryInk, height: 1.4)),
+                    AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.4)),
             for (final p in _photos)
               ChatPhotoTurn(
                 key: ObjectKey(p),
@@ -293,7 +279,6 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                         purpose: purpose),
               ),
           ]),
-        ),
       ),
     );
   }
@@ -304,7 +289,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       UwHeader(forms ? t.uwFormHelpTitle : t.uwAiHelpTitle),
       Text(forms ? t.uwFormHelpBody : t.uwAiHelpBody,
-          style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.sm),
       Row(children: [
         VoiceMicButton(voice: _voice, input: _q),
@@ -317,7 +302,6 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
             decoration: InputDecoration(
               hintText: forms ? t.uwFormHelpHint : t.uwAiHelpHint,
               counterText: '',
-              border: const OutlineInputBorder(),
               isDense: true,
             ),
           ),
@@ -344,16 +328,14 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
               .bodySmall
               ?.copyWith(color: scheme.ds.muted)),
       if (r != null)
-        Card(
-          margin: const EdgeInsets.only(top: Gap.md),
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(top: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
             padding: const EdgeInsets.all(Gap.lg),
             child: ok
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                         SelectableText('${r['answer'] ?? ''}',
-                            style: const TextStyle(height: 1.5)),
+                            style: AType.bodyMedium.copyWith(height: 1.5)),
                         const SizedBox(height: Gap.sm),
                         UwNote(text: '${r['note'] ?? ''}', warn: true),
                         Row(children: [
@@ -368,8 +350,7 @@ class _WorldGuideHubScreenState extends State<WorldGuideHubScreen> {
                 : Text('${r['message'] ?? ''}'.isNotEmpty
                     ? '${r['message']}'
                     : (worldStatus(r) == 0 ? t.uwOffline : t.uwAskFailed)),
-          ),
-        ),
+          )),
     ]);
   }
 }
@@ -405,12 +386,12 @@ class _ItemCard extends StatelessWidget {
         leading: Icon(call ? Icons.call_rounded : Icons.article_rounded,
             color: scheme.primary),
         title: Text('${item['title']}',
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if ('${item['body'] ?? ''}'.isNotEmpty)
-            Text('${item['body']}', style: const TextStyle(height: 1.45)),
+            Text('${item['body']}', style: AType.bodyMedium.copyWith(height: 1.45)),
           if (steps.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Text(t.uwSteps, style: Theme.of(context).textTheme.labelLarge),
@@ -421,12 +402,12 @@ class _ItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${uwDigits(context, i + 1)}. ',
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               color: scheme.primary,
                               fontWeight: FontWeight.w700)),
                       Expanded(
                           child: Text(steps[i],
-                              style: const TextStyle(height: 1.4))),
+                              style: AType.bodyMedium.copyWith(height: 1.4))),
                     ]),
               ),
           ],
@@ -460,7 +441,7 @@ class _ItemCard extends StatelessWidget {
                     Text(t.uwFee,
                         style: Theme.of(context).textTheme.labelLarge),
                     const SizedBox(height: Gap.xs),
-                    Text(fee, style: const TextStyle(height: 1.4)),
+                    Text(fee, style: AType.bodyMedium.copyWith(height: 1.4)),
                     if ('${item['fee_source'] ?? ''}'.isNotEmpty)
                       UwSourceLine(
                           source: Uri.tryParse('${item['fee_source']}')
@@ -491,7 +472,7 @@ class _ItemCard extends StatelessWidget {
                           size: 18, color: scheme.tertiary),
                       const SizedBox(width: Gap.sm),
                       Expanded(
-                          child: Text(x, style: const TextStyle(height: 1.4))),
+                          child: Text(x, style: AType.bodyMedium.copyWith(height: 1.4))),
                     ]),
               ),
           ],

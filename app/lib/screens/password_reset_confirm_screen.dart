@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../api.dart';
@@ -113,11 +114,9 @@ class _PasswordResetConfirmScreenState
         children: [
           if (_done) ...[
             // ---- success ----
-            Card(
-              color: scheme.ds.primarySoft,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(children: [
+            DsSurface(color: scheme.ds.primarySoft,
+              padding: const EdgeInsets.all(14),
+              child: Row(children: [
                   Icon(Icons.check_circle_outline_rounded,
                       color: scheme.ds.primaryInk),
                   const SizedBox(width: 10),
@@ -127,11 +126,10 @@ class _PasswordResetConfirmScreenState
                           ? t.resetDoneSignedOut
                           : t.resetDoneMessage,
                       style:
-                          TextStyle(color: scheme.ds.primaryInk),
+                          AType.bodyMedium.copyWith(color: scheme.ds.primaryInk),
                     ),
                   ),
                 ]),
-              ),
             ),
             const SizedBox(height: Gap.lg),
             SizedBox(
@@ -144,21 +142,18 @@ class _PasswordResetConfirmScreenState
             ),
           ] else if (_expired) ...[
             // ---- expired / invalid / used (collapsed) ----
-            Card(
-              color: scheme.ds.dangerBg,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(children: [
+            DsCard(tone: DsTone.danger,
+              padding: const EdgeInsets.all(14),
+              child: Row(children: [
                   Icon(Icons.link_off_rounded,
                       color: scheme.ds.dangerInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(t.resetLinkInvalid,
                         style:
-                            TextStyle(color: scheme.ds.dangerInk)),
+                            AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
                   ),
                 ]),
-              ),
             ),
             const SizedBox(height: Gap.lg),
             SizedBox(
@@ -184,7 +179,6 @@ class _PasswordResetConfirmScreenState
               decoration: InputDecoration(
                 labelText: t.resetCodeLabel,
                 helperText: t.resetCodeHelper,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.vpn_key_rounded),
               ),
             ),
@@ -196,7 +190,6 @@ class _PasswordResetConfirmScreenState
               autofillHints: const [AutofillHints.newPassword],
               decoration: InputDecoration(
                 labelText: t.resetNewPassword,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
                 suffixIcon: IconButton(
                   tooltip: _obscure ? t.resetShow : t.resetHide,
@@ -218,7 +211,6 @@ class _PasswordResetConfirmScreenState
               autofillHints: const [AutofillHints.newPassword],
               decoration: InputDecoration(
                 labelText: t.resetConfirmPassword,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
               ),
             ),
@@ -231,7 +223,7 @@ class _PasswordResetConfirmScreenState
             ),
             if (_fieldError != null) ...[
               const SizedBox(height: 10),
-              Text(_fieldError!, style: TextStyle(color: scheme.error)),
+              Text(_fieldError!, style: AType.bodyMedium.copyWith(color: scheme.error)),
             ],
             const SizedBox(height: Gap.lg),
             SizedBox(

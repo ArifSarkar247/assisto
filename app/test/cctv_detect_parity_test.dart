@@ -60,6 +60,16 @@ void main() {
       'track_max_jump': kTrackMaxJump,
       'moved_shape_sim': kMovedShapeSim,
       'moved_shape_keep': kMovedShapeKeep,
+      // cctvdet3
+      'track_jump_cap': kTrackJumpCap,
+      'track_coast_s': kTrackCoastS,
+      'cross_margin': kCrossMargin,
+      'dwell_keep_score': kDwellKeepScore,
+      'crowd_score': kCrowdScore,
+      'crowd_keep_s': kCrowdKeepS,
+      'post_weak_hits': kPostWeakHits,
+      'veh_start_score': kVehStartScore,
+      'veh_present_frac': kVehPresentFrac,
     };
     expect(mine.keys.toSet(), d.keys.toSet());
     for (final e in mine.entries) {

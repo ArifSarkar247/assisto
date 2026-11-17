@@ -66,7 +66,7 @@ class WakeDisclosureScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(Radii.md),
                   ),
                   child: Text(t.vaWkDiscLead,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           color: scheme.ds.primaryInk,
                           fontWeight: FontWeight.w600,
                           height: 1.35)),
@@ -82,7 +82,7 @@ class WakeDisclosureScreen extends StatelessWidget {
                           const SizedBox(width: Gap.md),
                           Expanded(
                               child: Text(p.$2,
-                                  style: const TextStyle(height: 1.35))),
+                                  style: AType.bodyMedium.copyWith(height: 1.35))),
                         ]),
                   ),
                 Align(

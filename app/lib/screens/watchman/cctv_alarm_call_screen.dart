@@ -9,6 +9,8 @@ import '../../l10n/app_localizations.dart';
 import '../../push/push_notifier.dart';
 import '../../push/push_payload.dart';
 import '../../widgets/app_sheet.dart';
+import '../../widgets/notif_models.dart' show notifAgo;
+import 'watchman_widgets.dart' show wmEventWhat;
 import 'cctvx_inbox.dart';
 
 /// cctvescalate C3 — the CCTV ALARM CALL page. The server rang this phone
@@ -30,6 +32,23 @@ class CctvAlarmCallScreen extends StatefulWidget {
 }
 
 class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
+  // design2-b13: "2 min ago" stays true while the page is open
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
   void _stopRing() {
     final id = widget.payload.callId;
     unawaited(PushNotifier.cancelCall(id).catchError((_) {}));
@@ -68,6 +87,11 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
     final place = (p.data['site_name'] ?? '').trim();
     final cam = (p.data['camera_name'] ?? '').trim();
     final ds = scheme.ds;
+    final evType = (p.data['event_type'] ?? '').trim();
+    final whenWhat = [
+      notifAgo(context, p.data['event_at']),
+      if (evType.isNotEmpty) wmEventWhat(t, evType),
+    ].where((x) => x.isNotEmpty).join(' · ');
     return Scaffold(
       backgroundColor: ds.bg,
       body: SafeArea(
@@ -94,14 +118,24 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
                   style: AType.headlineSmall.copyWith(
                       color: ds.onDangerHero, fontWeight: FontWeight.w800),
                 ),
+                // when + what triggered it (from the alert itself)
+                if (whenWhat.isNotEmpty) ...[
+                  const SizedBox(height: Gap.xxs),
+                  Text(whenWhat,
+                      key: const Key('cesc-when-what'),
+                      style: AType.titleSmall.copyWith(
+                          color: ds.onDangerHero, fontWeight: FontWeight.w700)),
+                ],
                 const SizedBox(height: Gap.xs),
                 Text(t.cescCallWhy,
                     style: AType.bodyMedium.copyWith(color: ds.onDangerHeroSoft)),
               ]),
             ),
             const SizedBox(height: Gap.md),
+            // no picture: a half-height box, so the two buttons sit higher
+            // (thumb reach)
             AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: photo.isEmpty ? 8 / 3 : 4 / 3,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(DsRadius.card),
                 child: Container(

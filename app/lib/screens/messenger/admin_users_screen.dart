@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -166,7 +167,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.md),
                 Text(t.msgrModUserPlan('').trim(),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Wrap(spacing: Gap.sm, children: [
                   ChoiceChip(
@@ -319,8 +320,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
-                  action: FilledButton.tonal(
-                      onPressed: _load, child: Text(t.msgrModRetry)),
+                  action: DsButton(
+                      onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrModRetry),
                 ),
               _Status.ok => visible.isEmpty
                   ? RefreshIndicator(
@@ -350,11 +351,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             return Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: Gap.sm),
-                                child: OutlinedButton.icon(
+                                child: DsButton.secondary(
                                   onPressed: () =>
                                       setState(() => _shown += _pageSize),
-                                  icon: const Icon(Icons.expand_more_rounded),
-                                  label: Text(t.msgrModShowMore),
+                                  icon: Icons.expand_more_rounded,
+                                  label: t.msgrModShowMore,
                                 ),
                               ),
                             );
@@ -526,7 +527,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             ),
             if (_busy) ...[
               const SizedBox(height: Gap.md),
-              const Center(child: CircularProgressIndicator()),
+              const LinearProgressIndicator(),
             ],
             const SizedBox(height: Gap.xl),
 
@@ -537,7 +538,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(t.msgrModUserPublicHint,
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
             const SizedBox(height: Gap.sm),
             if (_publicLoading)
               const SkeletonList(count: 3)
@@ -545,14 +546,14 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
               Row(children: [
                 Expanded(
                   child: Text(t.msgrModErrorBody,
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 ),
                 TextButton(
                     onPressed: _loadPublic, child: Text(t.msgrModRetry)),
               ])
             else if (_channels.isEmpty && _communities.isEmpty)
               Text(t.msgrModUserNoPublic,
-                  style: TextStyle(color: scheme.ds.muted))
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
             else ...[
               for (final c in _channels)
                 _PublicRow(
@@ -635,17 +636,15 @@ class _UserCard extends StatelessWidget {
     final appVersion = (user['app_version'] ?? '').toString();
     final pill = _statusPill(t, status, scheme);
 
-    final card = Container(
+    // a flat bordered DS surface (long admin lists stay GPU-light);
+    // reported users keep the amber edge
+    final card = DsSurface(
+      flat: true,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.card,
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(
-          color: reports > 0 && dense
-              ? Brand.warning.withValues(alpha: 0.4)
-              : scheme.ds.border,
-        ),
-      ),
+      borderColor: reports > 0 && dense
+          ? Brand.warning.withValues(alpha: 0.4)
+          : scheme.ds.border,
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -658,7 +657,7 @@ class _UserCard extends StatelessWidget {
                 child: photo.isEmpty
                     ? Text(
                         name.isNotEmpty ? name.characters.first : '?',
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: scheme.ds.primaryInk,
                             fontWeight: FontWeight.w800),
                       )
@@ -671,14 +670,12 @@ class _UserCard extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? t.msgrModUserNoName : name,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 15),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      style: AType.titleMedium.copyWith(
+                          fontWeight: FontWeight.w800, ),
                     ),
                     if (phone.isNotEmpty)
                       Text(_digits(phone, loc),
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   ],
                 ),
               ),
@@ -717,15 +714,7 @@ class _UserCard extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: onTap,
-        child: card,
-      ),
-    );
+    return card;
   }
 
   Widget _meta(ColorScheme scheme, IconData icon, String text) {
@@ -735,7 +724,7 @@ class _UserCard extends StatelessWidget {
         Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 4),
         Text(text,
-            style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
       ],
     );
   }
@@ -758,9 +747,7 @@ class _PublicRow extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(name,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ),
         if (status.isNotEmpty && status != 'visible')
           MsgrModStatusPill(

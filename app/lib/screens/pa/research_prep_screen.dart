@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -119,10 +120,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paResearchLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -140,11 +138,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
               tint: Brand.blue,
               title: t.paResearchWelcomeTitle,
               message: t.paResearchWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _openTopicEditor(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.paResearchNewTopic),
-              ),
+              action: DsButton(onPressed: () => _openTopicEditor(), icon: Icons.add_rounded, label: t.paResearchNewTopic),
             )
           : RefreshIndicator(
               onRefresh: _load,
@@ -154,9 +148,9 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
                   const _AiSeamCard(),
                   const SizedBox(height: Gap.sm),
                   for (final tp in topics)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                        padding: EdgeInsets.zero,
+                        child: ListTile(
                         onTap: () async {
                           await Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => _TopicDetailScreen(topic: tp),
@@ -168,8 +162,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
                           child: Icon(Icons.topic_rounded,
                               color: scheme.onPrimaryContainer),
                         ),
-                        title: Text('${tp['title'] ?? ''}',
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text('${tp['title'] ?? ''}'),
                         subtitle: '${tp['goal'] ?? ''}'.trim().isEmpty
                             ? null
                             : Text('${tp['goal']}',
@@ -179,7 +172,7 @@ class _ResearchPrepScreenState extends State<ResearchPrepScreen> {
                             tooltip: t.edit,
                             onPressed: () => _openTopicEditor(tp)),
                       ),
-                    ),
+                      )),
                 ],
               ),
             ),
@@ -195,24 +188,21 @@ class _AiSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paResearchAiSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(t.paResearchAiSeamBody,
                   style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -380,8 +370,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.topic['title'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${widget.topic['title'] ?? ''}'),
       ),
       body: _loading
           ? const SkeletonList()
@@ -438,9 +427,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                     _EmptyLine(t.paResearchNoSections)
                   else
                     for (final s in _sections)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: Gap.sm),
-                        child: Padding(
+                      Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
                           padding: const EdgeInsets.all(Gap.md),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,7 +435,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                                 Row(children: [
                                   Expanded(
                                     child: Text('${s['heading'] ?? ''}',
-                                        style: const TextStyle(
+                                        style: AType.bodyMedium.copyWith(
                                             fontWeight: FontWeight.w800)),
                                   ),
                                   PopupMenuButton<String>(
@@ -469,19 +456,15 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                                     padding:
                                         const EdgeInsets.only(left: Gap.sm),
                                     child: Text('• $b',
-                                        style: TextStyle(
+                                        style: AType.bodyMedium.copyWith(
                                             color: scheme.onSurfaceVariant)),
                                   ),
                               ]),
-                        ),
-                      ),
+                        )),
                   const SizedBox(height: Gap.xl),
 
                   // ---- export ----
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.file_download_rounded),
-                    label: Text(t.paResearchExportButton),
-                    onPressed: () => showAppSheet(
+                  DsButton.secondary(onPressed: () => showAppSheet(
                       context: context,
                       isScrollControlled: true,
                       showDragHandle: true,
@@ -489,8 +472,7 @@ class _TopicDetailScreenState extends State<_TopicDetailScreen> {
                         buildText: _buildExport,
                         hasSources: _sources.isNotEmpty,
                       ),
-                    ),
-                  ),
+                    ), icon: Icons.file_download_rounded, label: t.paResearchExportButton),
                 ],
               ),
             ),
@@ -542,7 +524,7 @@ class _ExportSheetState extends State<_ExportSheet> {
               padding: const EdgeInsets.all(Gap.lg),
               child: SelectableText(
                 text.isEmpty ? t.paResearchExportEmpty : text,
-                style: const TextStyle(fontFamily: 'monospace', height: 1.4),
+                style: AType.bodyMedium.copyWith(fontFamily: 'monospace', height: 1.4),
               ),
             ),
           ),
@@ -550,10 +532,7 @@ class _ExportSheetState extends State<_ExportSheet> {
             padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
             child: SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
-                icon: const Icon(Icons.copy_rounded),
-                label: Text(t.paResearchCopy),
-                onPressed: text.isEmpty
+              child: DsButton(onPressed: text.isEmpty
                     ? null
                     : () async {
                         await Clipboard.setData(ClipboardData(text: text));
@@ -561,8 +540,7 @@ class _ExportSheetState extends State<_ExportSheet> {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(t.paResearchCopied)));
                         }
-                      },
-              ),
+                      }, icon: Icons.copy_rounded, label: t.paResearchCopy, expand: true),
             ),
           ),
         ],
@@ -626,7 +604,7 @@ class _ItemTile extends StatelessWidget {
       title: Text(title, maxLines: 3, overflow: TextOverflow.ellipsis),
       subtitle: subtitle.trim().isEmpty
           ? null
-          : Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+          : Text(subtitle),
       trailing: IconButton(
           icon: const Icon(Icons.close_rounded, size: 18),
           tooltip: t.delete,
@@ -686,15 +664,13 @@ class _TopicEditorState extends State<_TopicEditor> {
               controller: _title,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paResearchTopicTitleLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paResearchTopicTitleLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _goal,
               maxLines: 2,
               decoration: InputDecoration(
-                  labelText: t.paResearchGoalLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paResearchGoalLabel)),
           const SizedBox(height: Gap.lg),
           SizedBox(
               width: double.infinity,
@@ -767,16 +743,14 @@ class _ItemEditorState extends State<_ItemEditor> {
               decoration: InputDecoration(
                   labelText: _isSource
                       ? t.paResearchSourceTitleLabel
-                      : t.paResearchNoteTextLabel,
-                  border: const OutlineInputBorder())),
+                      : t.paResearchNoteTextLabel)),
           if (_isSource) ...[
             const SizedBox(height: Gap.md),
             TextField(
                 controller: _ref,
                 decoration: InputDecoration(
                     labelText: t.paResearchSourceRefLabel,
-                    helperText: t.paResearchSourceRefHelper,
-                    border: const OutlineInputBorder())),
+                    helperText: t.paResearchSourceRefHelper)),
           ],
           const SizedBox(height: Gap.lg),
           SizedBox(
@@ -843,23 +817,20 @@ class _SectionEditorState extends State<_SectionEditor> {
               controller: _heading,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paResearchSectionHeadingLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paResearchSectionHeadingLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _order,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                  labelText: t.paResearchSectionOrderLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paResearchSectionOrderLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _bullets,
               maxLines: 5,
               decoration: InputDecoration(
                   labelText: t.paResearchSectionBulletsLabel,
-                  helperText: t.paResearchSectionBulletsHelper,
-                  border: const OutlineInputBorder())),
+                  helperText: t.paResearchSectionBulletsHelper)),
           const SizedBox(height: Gap.lg),
           SizedBox(
               width: double.infinity,

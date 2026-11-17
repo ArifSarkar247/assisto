@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -241,15 +242,15 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
                 children: [
                   const OfflineBanner(),
                   if (_approvals > 0)
-                    Card(
-                      color: Theme.of(context).colorScheme.ds.successBg,
+                    DsCard(tone: DsTone.success,
+                      padding: EdgeInsets.zero,
                       child: ListTile(
                         key: const ValueKey('ac_approvals_banner'),
                         minVerticalPadding: Gap.md,
                         leading: Icon(Icons.front_hand_rounded,
                             color: Theme.of(context).colorScheme.ds.successInk),
                         title: Text(t.acApprovalsWaiting(acNum(context, _approvals)),
-                            style: TextStyle(
+                            style: AType.bodyMedium.copyWith(
                                 color: Theme.of(context).colorScheme.ds.successInk,
                                 fontWeight: FontWeight.w600)),
                         trailing: Icon(Icons.chevron_right_rounded,
@@ -282,20 +283,20 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     switch (_phase) {
       case AcPhase.compose:
         return [
-          Text(t.acIntro, style: TextStyle(color: s.ds.muted, height: 1.4)),
+          Text(t.acIntro, style: AType.bodyMedium.copyWith(color: s.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.lg),
           // bizops: the shop owner's morning card (flag business; hidden when off)
           if (FeatureFlags.instance.isOn('business')) ...[
-            Card(
-              color: s.ds.primarySoft,
+            DsSurface(color: s.ds.primarySoft,
+              padding: EdgeInsets.zero,
               child: ListTile(
                 key: const ValueKey('ac_open_biz_brief'),
                 minVerticalPadding: Gap.md,
                 leading: Icon(Icons.storefront_rounded, color: s.ds.primaryInk),
                 title: Text(t.boEntry,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: s.ds.primaryInk, fontWeight: FontWeight.w600)),
-                subtitle: Text(t.boEntryBody, style: TextStyle(color: s.ds.primaryInk)),
+                subtitle: Text(t.boEntryBody, style: AType.bodyMedium.copyWith(color: s.ds.primaryInk)),
                 trailing: Icon(Icons.chevron_right_rounded, color: s.ds.primaryInk),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => const BizBriefScreen())),
@@ -315,18 +316,11 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
             decoration: InputDecoration(
               labelText: t.acGoalLabel,
               hintText: t.acGoalHint,
-              border: const OutlineInputBorder(),
               suffixIcon: VoiceMicButton(voice: _voice, input: _input),
             ),
           ),
           const SizedBox(height: Gap.md),
-          FilledButton.icon(
-            key: const ValueKey('ac_check_cost'),
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-            onPressed: _input.text.trim().isEmpty ? null : _toConfirm,
-            icon: const Icon(Icons.toll_rounded),
-            label: Text(t.acCheckCost),
-          ),
+          DsButton(buttonKey: const ValueKey('ac_check_cost'), onPressed: _input.text.trim().isEmpty ? null : _toConfirm, icon: Icons.toll_rounded, label: t.acCheckCost),
         ];
       case AcPhase.confirm:
         return [_goalCard(context), const SizedBox(height: Gap.md), _estimate(context)];
@@ -358,15 +352,12 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.acOfflineQueued,
-                      style: TextStyle(color: s.ds.successInk, height: 1.4))),
+                      style: AType.bodyMedium.copyWith(color: s.ds.successInk, height: 1.4))),
             ]),
           ),
           const SizedBox(height: Gap.md),
           Wrap(alignment: WrapAlignment.end, spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: _newTask,
-                child: Text(t.acDiscard)),
+            DsButton.secondary(onPressed: _newTask, label: t.acDiscard),
             FilledButton(
                 key: const ValueKey('ac_send_now'),
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -416,7 +407,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(_goal,
-                style: TextStyle(color: s.ds.text, fontWeight: FontWeight.w600))),
+                style: AType.bodyMedium.copyWith(color: s.ds.text, fontWeight: FontWeight.w600))),
       ]),
     );
   }
@@ -470,23 +461,12 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
           if (_sendError != null) ...[
             const SizedBox(height: Gap.sm),
             Text(_sendError!,
-                key: const ValueKey('ac_send_error'), style: TextStyle(color: s.error)),
+                key: const ValueKey('ac_send_error'), style: AType.bodyMedium.copyWith(color: s.error)),
           ],
           const SizedBox(height: Gap.lg),
           Wrap(alignment: WrapAlignment.end, spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            OutlinedButton(
-              key: const ValueKey('ac_edit'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: () => setState(() => _phase = AcPhase.compose),
-              child: Text(t.acEdit),
-            ),
-            FilledButton.icon(
-              key: const ValueKey('ac_run'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: capped ? null : _confirmRun,
-              icon: const Icon(Icons.play_arrow_rounded),
-              label: Text(t.acRunConfirm(acNum(context, e.typicalCredits))),
-            ),
+            DsButton.secondary(buttonKey: const ValueKey('ac_edit'), onPressed: () => setState(() => _phase = AcPhase.compose), label: t.acEdit),
+            DsButton(buttonKey: const ValueKey('ac_run'), onPressed: capped ? null : _confirmRun, icon: Icons.play_arrow_rounded, label: t.acRunConfirm(acNum(context, e.typicalCredits))),
           ]),
         ]),
       ),
@@ -500,7 +480,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 20, color: danger ? s.error : s.ds.muted),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(text, style: TextStyle(color: danger ? s.error : null, height: 1.35))),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: danger ? s.error : null, height: 1.35))),
       ]),
     );
   }

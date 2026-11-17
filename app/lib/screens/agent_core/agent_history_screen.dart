@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -56,7 +57,7 @@ class _AgentHistoryScreenState extends State<AgentHistoryScreen> {
     final runs = _runs;
     Widget body;
     if (runs == null && _error == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (runs == null) {
       body = Center(
           child: AcMessage(

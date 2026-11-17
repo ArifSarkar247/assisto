@@ -100,13 +100,13 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
       body: ListView(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xxl),
         children: [
-          Text(t.vaOemIntro, style: TextStyle(color: scheme.ds.muted)),
+          Text(t.vaOemIntro, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           if (_maker.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(t.vaOemYourPhone(_maker),
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           Card(
             elevation: 0,
@@ -122,7 +122,7 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
                   const SizedBox(height: Gap.sm),
                   _row(scheme, Icons.battery_charging_full_rounded, t.vaOemBattery),
                   const SizedBox(height: Gap.md),
-                  Text(steps[fam]!, style: const TextStyle(height: 1.4)),
+                  Text(steps[fam]!, style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.md),
                   if (_batteryOk == true)
                     Padding(
@@ -155,11 +155,11 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),
               child: Text(steps[f]!,
-                  style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             ),
           const SizedBox(height: Gap.sm),
           Text(t.vaOemHonest,
-              style: TextStyle(color: scheme.ds.muted, fontSize: 13)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
         ],
       ),
     );
@@ -170,6 +170,6 @@ class _WakeOemGuideScreenState extends State<WakeOemGuideScreen>
         Icon(icon, size: 20, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600))),
+            child: Text(text, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
       ]);
 }

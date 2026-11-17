@@ -7,6 +7,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -194,25 +195,16 @@ class _VaultShareSheetState extends State<VaultShareSheet> {
             const SizedBox(height: Gap.xs),
             SelectableText(link, key: const Key('share_link'), style: AType.bodySmall),
             Wrap(spacing: Gap.sm, children: [
-              FilledButton.icon(
-                key: const Key('share_send'),
-                onPressed: () => Share.share(t.vaultShareText(link)),
-                icon: const Icon(Icons.send_rounded),
-                label: Text(t.vaultShareSend),
-              ),
-              OutlinedButton.icon(
-                onPressed: () {
+              DsButton(buttonKey: const Key('share_send'), onPressed: () => Share.share(t.vaultShareText(link)), icon: Icons.send_rounded, label: t.vaultShareSend),
+              DsButton.secondary(onPressed: () {
                   Clipboard.setData(ClipboardData(text: link));
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.vaultShareCopied)));
-                },
-                icon: const Icon(Icons.copy_rounded),
-                label: Text(t.vaultShareCopy),
-              ),
+                }, icon: Icons.copy_rounded, label: t.vaultShareCopy),
             ]),
           ],
           if (_error != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ],
           if (_links.isNotEmpty) ...[
             const SizedBox(height: Gap.lg),

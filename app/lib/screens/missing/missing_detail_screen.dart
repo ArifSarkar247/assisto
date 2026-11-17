@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -222,7 +224,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               TextField(
                 key: const ValueKey('ma-renew-gd'),
                 controller: gd,
-                decoration: InputDecoration(labelText: t.maGdNumberV2, border: const OutlineInputBorder()),
+                decoration: InputDecoration(labelText: t.maGdNumberV2),
               ),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
@@ -355,7 +357,6 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               buildCounter: localCounter,
               decoration: InputDecoration(
                 labelText: t.maTipHint,
-                border: const OutlineInputBorder(),
               ),
             ),
             SwitchListTile(
@@ -448,7 +449,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               controller: note,
               maxLength: 300,
               buildCounter: localCounter,
-              decoration: InputDecoration(labelText: t.maReportNote, border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: t.maReportNote),
             ),
             const SizedBox(height: Gap.md),
             ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
@@ -473,7 +474,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.maDetailTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? Center(child: MaError(onRetry: _load))
               : ListView(
@@ -500,7 +501,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Text(maStateLabel(t, _state, safeSaid: _a['safe_said'] == true),
-            style: TextStyle(color: maStateColor(s, _state), fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(color: maStateColor(s, _state), fontWeight: FontWeight.w700)),
       ),
       const SizedBox(height: Gap.md),
       if (photo != null && photo.isNotEmpty) ...[
@@ -514,7 +515,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       if (_a['is_child'] == true)
         Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
-          child: Text(t.maChildBadge, style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+          child: Text(t.maChildBadge, style: AType.bodyMedium.copyWith(color: s.error, fontWeight: FontWeight.w600)),
         ),
       const SizedBox(height: Gap.sm),
       _row(context, Icons.schedule_rounded, t.maLastSeen(maWhen(context, _a['last_seen_at'] as String?))),
@@ -527,22 +528,19 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       ],
       if (gd != null) ...[
         const SizedBox(height: Gap.md),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(maD(context, t.maGdLineV2('${gd['thana'] ?? ''}', '${gd['number'] ?? ''}',
                   maWhen(context, gd['date'] as String?).split(',').first))),
               const SizedBox(height: Gap.xs),
               Text(t.maGdUnverifiedV2, key: const ValueKey('ma-gd-unverified'),
-                  style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(color: s.error, fontWeight: FontWeight.w600)),
             ]),
-          ),
         ),
       ] else if (live && _a['is_child'] != true) ...[
         const SizedBox(height: Gap.md),
-        Text(t.maGdUnverifiedV2, style: TextStyle(color: s.error)),
+        Text(t.maGdUnverifiedV2, style: AType.bodyMedium.copyWith(color: s.error)),
       ],
       const SizedBox(height: Gap.lg),
       ..._actions(context, live),
@@ -570,11 +568,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
           final asked = (_a['cosign_asked'] is Map) ? '${(_a['cosign_asked'] as Map)['name'] ?? ''}' : '';
           out.add(Text(asked.isEmpty ? t.maPendingNoCosignerV2 : t.maPendingCosignerV2(asked)));
           out.add(const SizedBox(height: Gap.sm));
-          out.add(big(FilledButton.icon(
-              key: const ValueKey('ma-add-gd'),
-              onPressed: _busy ? null : _addGd,
-              icon: const Icon(Icons.local_police_rounded),
-              label: Text(t.maAddGdV2))));
+          out.add(big(DsButton(buttonKey: const ValueKey('ma-add-gd'), onPressed: _busy ? null : _addGd, icon: Icons.local_police_rounded, label: t.maAddGdV2)));
         }
         if (_state == 'active' || _state == 'hidden') {
           out.add(Text(maD(context, t.maReach(_a['pushed'] as int? ?? 0, _a['listed'] as int? ?? 0,
@@ -582,12 +576,8 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
           if (_state == 'hidden') out.add(Text(t.maHiddenFamily));
           if (_a['safe_said'] == true) out.add(Text(t.maChildSaidSafeFamily));
           out.add(const SizedBox(height: Gap.sm));
-          out.add(big(FilledButton.tonalIcon(
-              key: const ValueKey('ma-tips'),
-              onPressed: _tips,
-              icon: const Icon(Icons.forum_rounded),
-              label: Text(maD(context, t.maTipsButton(_a['tips'] as int? ?? 0,
-                  _a['tips_unread'] as int? ?? 0))))));
+          out.add(big(DsButton.secondary(buttonKey: const ValueKey('ma-tips'), onPressed: _tips, icon: Icons.forum_rounded, label: maD(context, t.maTipsButton(_a['tips'] as int? ?? 0,
+                  _a['tips_unread'] as int? ?? 0)))));
         }
         if (live) {
           out.add(big(FilledButton.icon(
@@ -597,28 +587,16 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               icon: const Icon(Icons.check_circle_rounded),
               label: Text(t.maFound))));
           if (_a['can_renew'] == true) {
-            out.add(big(OutlinedButton.icon(
-                key: const ValueKey('ma-renew'),
-                onPressed: _busy ? null : _renew,
-                icon: const Icon(Icons.update_rounded),
-                label: Text(t.maRenew))));
+            out.add(big(DsButton.secondary(buttonKey: const ValueKey('ma-renew'), onPressed: _busy ? null : _renew, icon: Icons.update_rounded, label: t.maRenew)));
           } else if (_state == 'active') {
             out.add(Text(maD(context, t.maExpires(maWhen(context, _a['expires_at'] as String?))),
                 style: text.bodySmall));
             out.add(const SizedBox(height: Gap.sm));
           }
-          out.add(big(OutlinedButton.icon(
-              key: const ValueKey('ma-close'),
-              onPressed: _busy ? null : _close,
-              icon: const Icon(Icons.close_rounded),
-              label: Text(t.maClose))));
+          out.add(big(DsButton.secondary(buttonKey: const ValueKey('ma-close'), onPressed: _busy ? null : _close, icon: Icons.close_rounded, label: t.maClose)));
         }
         if (_state == 'found' && _a['share_agreed'] == true) {
-          out.add(big(FilledButton.tonalIcon(
-              key: const ValueKey('ma-share-thanks'),
-              onPressed: _openShare,
-              icon: const Icon(Icons.favorite_rounded),
-              label: Text(t.maShareThanks))));
+          out.add(big(DsButton.secondary(buttonKey: const ValueKey('ma-share-thanks'), onPressed: _openShare, icon: Icons.favorite_rounded, label: t.maShareThanks)));
         }
         if (_state == 'safe') out.add(Text(t.maSafeFamilyLine));
         out.add(const Ma999Button());
@@ -642,23 +620,14 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
               key: const ValueKey('ma-cosign-yes'),
               onPressed: _busy ? null : () => _act('cosign', {'confirm': true}, t.maCosignDone),
               child: Text(t.maCosignYes))));
-          out.add(big(OutlinedButton(
-              onPressed: _busy ? null : () => _act('cosign', {'confirm': false}, t.maCosignDeclined),
-              child: Text(t.maCosignNo))));
+          out.add(big(DsButton.secondary(onPressed: _busy ? null : () => _act('cosign', {'confirm': false}, t.maCosignDeclined), label: t.maCosignNo)));
         }
         break;
       default: // recipient
         if (_state == 'active') {
-          out.add(big(FilledButton.icon(
-              key: const ValueKey('ma-tip'),
-              onPressed: _busy ? null : _tip,
-              icon: const Icon(Icons.lock_rounded),
-              label: Text(t.maTipCta))));
+          out.add(big(DsButton(buttonKey: const ValueKey('ma-tip'), onPressed: _busy ? null : _tip, icon: Icons.lock_rounded, label: t.maTipCta)));
           if (_a['my_tip_thread'] is int) {
-            out.add(big(OutlinedButton.icon(
-                onPressed: () => _openThread(_a['my_tip_thread'] as int),
-                icon: const Icon(Icons.forum_rounded),
-                label: Text(t.maMyTips))));
+            out.add(big(DsButton.secondary(onPressed: () => _openThread(_a['my_tip_thread'] as int), icon: Icons.forum_rounded, label: t.maMyTips)));
           }
           out.add(const Ma999Button());
           out.add(const SizedBox(height: Gap.sm));
@@ -711,26 +680,22 @@ class _GdSheetState extends State<_GdSheet> {
         const SizedBox(height: Gap.md),
         TextField(
           controller: _num,
-          decoration: InputDecoration(labelText: t.maGdNumberV2, errorText: _err, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: t.maGdNumberV2, errorText: _err),
         ),
         const SizedBox(height: Gap.sm),
         TextField(
           controller: _thana,
-          decoration: InputDecoration(labelText: t.maGdThana, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: t.maGdThana),
         ),
         const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-          onPressed: () async {
+        DsButton.secondary(onPressed: () async {
             final d = await showDatePicker(
                 context: context,
                 initialDate: _date,
                 firstDate: DateTime.now().subtract(const Duration(days: 60)),
                 lastDate: DateTime.now());
             if (d != null) setState(() => _date = d);
-          },
-          icon: const Icon(Icons.event_rounded),
-          label: Text(maD(context, t.maGdDateV2(loc.formatMediumDate(_date)))),
-        ),
+          }, icon: Icons.event_rounded, label: maD(context, t.maGdDateV2(loc.formatMediumDate(_date)))),
         const SizedBox(height: Gap.md),
         ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
           child: FilledButton(
