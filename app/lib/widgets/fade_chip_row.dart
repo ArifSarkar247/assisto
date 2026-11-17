@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import '../ds/ds.dart';
 
 /// One scrolling DS chip row whose end fades into the page, so a chip cut
