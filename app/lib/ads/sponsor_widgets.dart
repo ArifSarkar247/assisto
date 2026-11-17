@@ -388,11 +388,15 @@ class SponsoredPostCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
+            // design3 (2.0x): the "for you" tag shrinks/wraps, never overflows
             if (c.matchesYou)
-              Padding(
-                padding: const EdgeInsets.only(right: Gap.xs),
-                child: Text(t.p2OffersForYou,
-                    style: TextStyle(fontSize: 12, color: scheme.primary)),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: Gap.xs),
+                  child: Text(t.p2OffersForYou,
+                      textAlign: TextAlign.end,
+                      style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
+                ),
               ),
             IconButton(
               tooltip: t.p2WhyAd,

@@ -48,7 +48,6 @@ jobs:
         run: flutter test --no-pub test/ds2_golden_test.dart
       - name: 2.0x font sweep, every gallery screen, bn + en (design3)
         if: always()
-        continue-on-error: true
         working-directory: app
         env:
           DS2_XL: '1'
