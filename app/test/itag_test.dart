@@ -31,7 +31,7 @@ class FakeItag implements ItagPlatform {
   bool connectOk = true;
   int? batt = 87;
   final rings = <int>[];
-  final linkLoss = <int>[];
+  final linkLosses = <int>[];
   final disconnects = <String>[];
   int connects = 0;
   int settings = 0;
@@ -57,7 +57,7 @@ class FakeItag implements ItagPlatform {
 
   @override
   Future<bool> linkLoss(String address, int level) async {
-    linkLoss.add(level);
+    linkLosses.add(level);
     return true;
   }
 
@@ -128,7 +128,7 @@ void main() {
       await tester.pump();
       expect(c.tags.single.name, 'Keys');
       expect(c.connected, contains(_a));
-      expect(p.linkLoss, [kItagAlertOff]);
+      expect(p.linkLosses, [kItagAlertOff]);
       expect(c.tags.single.battery, 87);
       final saved = await ItagStore().load();
       expect(saved.single.address, _a);
@@ -172,7 +172,7 @@ void main() {
       await c.load();
       await c.pair(_found, 'Bag');
       await c.setWatching(true);
-      expect(p.linkLoss.last, kItagAlertHigh); // the tag beeps too
+      expect(p.linkLosses.last, kItagAlertHigh); // the tag beeps too
       p.connectOk = false; // walked away: reconnects fail
       p.emit(ItagEventType.disconnected);
       await tester.pump();

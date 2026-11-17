@@ -78,7 +78,7 @@ class _ItagAlertScreenState extends State<ItagAlertScreen> {
     }
     try {
       await Notifications.cancelId(kItagNotifId);
-    } catch (_) {}
+    } catch (_) {} // best-effort: clearing a notification; the alarm is already stopped
     if (mounted) Navigator.of(context).maybePop();
   }
 

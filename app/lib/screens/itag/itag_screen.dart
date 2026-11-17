@@ -393,7 +393,7 @@ class _ItagScreenState extends State<ItagScreen> {
 Future<void> openAppSettingsSafe() async {
   try {
     await Geolocator.openAppSettings();
-  } catch (_) {}
+  } catch (_) {} // best-effort: Settings could not open; the toast already says what to do
 }
 
 /// Scan sheet: likely iTags first (strongest signal first), then other

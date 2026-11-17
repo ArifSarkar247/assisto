@@ -92,6 +92,7 @@ ROUTE_KEYS = (
     "blood_panel",     # blood: Blood donor panel (flag blood_donors)
     "blood_donor",     # ownerfix: old links -> the same one panel
     "train_tracker", "dest_alarm",  # train: tracker + destination alarm
+    "itag_tags",       # flag-itag: Bluetooth iTag tag (flag itag_tags)
     "kid_audio",       # kidaudio: Child emergency audio (flag child_emergency_audio)
     "books",           # ledger: Business Accounting books (flag accounting_v2)
     "acct",            # acctui: accounting home (flag accounting_v2)
