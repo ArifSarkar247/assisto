@@ -25,7 +25,7 @@ permissions:
 jobs:
   goldens:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +46,21 @@ jobs:
       - name: check the baselines pass
         working-directory: app
         run: flutter test --no-pub test/ds2_golden_test.dart
+      - name: 2.0x font sweep, every gallery screen, bn + en (design3)
+        if: always()
+        continue-on-error: true
+        working-directory: app
+        env:
+          DS2_XL: '1'
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub test/ds2_xl_sweep_test.dart
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ds2-xl-sweep
+          path: ${{ runner.temp }}/shots/xl_sweep
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:
