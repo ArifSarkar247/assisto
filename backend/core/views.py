@@ -1784,7 +1784,7 @@ class AgentView(APIView):
                     ai_meta = {k: rmeta[k] for k in (
                         "credits", "balance", "money_grounding", "free_quota", "level",
                         "refunded", "hint_better", "actions", "ai_generated", "pro_topic",
-                        "safe_mode", "text_cut", "cut", "follow",
+                        "safe_mode", "text_cut", "cut", "follow", "continue_free",
                         "spend_ref") if k in rmeta}   # aileft: spend_ref stays server-side
                     ai_meta["credits"] = int(rmeta.get("credits") or 0)
                 else:
@@ -1843,7 +1843,7 @@ class AgentView(APIView):
         for k in ("balance", "money_grounding", "ai_unavailable", "text_cut", "free_quota",
                   # aifinal round 2: level / refund / hint / actions / label
                   "level", "refunded", "hint_better", "actions", "ai_generated",
-                  "pro_topic", "safe_mode", "cut", "follow"):
+                  "pro_topic", "safe_mode", "cut", "follow", "continue_free"):
             if k in ai_meta:
                 out[k] = ai_meta[k]
         session_id, message_id = _persist_home_turn(

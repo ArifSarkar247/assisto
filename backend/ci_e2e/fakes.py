@@ -64,6 +64,11 @@ def _local_due(minutes):
     return d.strftime("%Y-%m-%dT%H:%M")
 
 
+# gap-aichat: the e2e "cut -> Continue" flow
+LONG_PLAN = re.compile(r"পুরো পরিকল্পনা|full plan", re.I)
+CONT = re.compile(r"Continue EXACTLY|ঠিক সেখান থেকে চালিয়ে যাও")
+
+
 def answer_for(user, prompt, history, system):
     """The fake model's reply for one chat turn (deterministic)."""
     bn = bool(BN.search(user))
@@ -76,6 +81,17 @@ def answer_for(user, prompt, history, system):
     photo = any(k in ctx for k in ("[Photo attached earlier", "[Photo shared earlier",
                                    "লাল বৃত্ত", "red circle"))
     tag = " (CI)"
+    # gap-aichat: a long plan is cut at the length limit (mid-word); the
+    # Continue turn (the chat's Continue note in the system block) finishes it
+    if CONT.search((system or "") + " " + (prompt or "")):
+        return ("২. সরঞ্জাম কিনুন: চুলা, কেটলি ও কাপ। পরের ধাপ: আজই তিনটি জায়গা দেখে আসুন।"
+                if bn or "চালিয়ে" in user else
+                "2. Buy the kit: stove, kettle and cups. Next step: visit three spots today.") + tag
+    if LONG_PLAN.search(user):
+        return ("ছোট চায়ের দোকান শুরু করতে প্রথম মাসে মোটামুটি ৩০,০০০ টাকা লাগে।\n"
+                "১. জায়গা বাছাই: অফিস বা স্কুলের কাছে ভাড়া নিন।\n২. সরঞ্জাম কি") if bn else (
+                "A small tea stall needs about 30,000 taka in the first month.\n"
+                "1. Pick the spot: rent near an office or a school.\n2. Buy the ki")
     # reminder ("৩ মিনিট পরে ওষুধ খাওয়ার কথা মনে করিয়ে দাও")
     if tools and re.search(r"মনে করিয়ে|রিমাইন্ডার|remind", low):
         m = re.search(r"([0-9০-৯]+)\s*(মিনিট|min)", user)
@@ -116,10 +132,13 @@ def fake_call_anthropic(key, model, system, prompt, max_tokens, history=None):
         # helper calls (titles, levels, summaries): short, same language
         user = ""
         text = "ঠিক আছে (CI)" if BN.search(prompt or "") else "OK (CI)"
+    cont = bool(CONT.search((system or "") + " " + (prompt or "")))
+    cut = bool(user) and bool(LONG_PLAN.search(user)) and not cont
     record("ai", model=model, q=user[:200], a=text[:300], bn_q=bool(BN.search(user)),
-           bn_a=bool(BN.search(text)), history=len(history or []))
+           bn_a=bool(BN.search(text)), history=len(history or []),
+           cut=cut, cont=cont)
     itok = (len(system or "") + len(prompt or "")) // 4 + 1
-    return text, itok, len(text) // 4 + 1, {"model": model}
+    return text, itok, len(text) // 4 + 1, {"model": model, "truncated": cut}
 
 
 def fake_vision(cfg, *, image_bytes, mime, system, question, opts=None):

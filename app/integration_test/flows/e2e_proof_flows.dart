@@ -30,6 +30,7 @@ import 'package:assisto/notifications.dart';
 import 'package:assisto/push/push_service.dart' show appNavigatorKey;
 import 'package:assisto/reminders/alarm_plan.dart';
 import 'package:assisto/reminders/reminder_alarms.dart';
+import 'package:assisto/screens/ai_chat_screen.dart'; // gap-aichat
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/otp/otp_verify_screen.dart';
@@ -244,6 +245,41 @@ void registerE2eProofFlows() {
       f.note('model turns ${chat.length}, vision calls ${vis.length} (CI fake providers)');
     });
   }, timeout: const Duration(minutes: 6));
+
+  // gap-aichat: Assisto AI — a long answer cut at its limit ends at a full
+  // sentence + honest hint + Continue; Continue finishes from the cut point,
+  // free (the server got the Continue note; no credits on the second turn).
+  realityFlow('e2e2c_ai_continue', 'E2E proof',
+      'Assisto AI: long plan cut -> full sentence + hint + Continue -> rest from the cut point, free',
+      (f) async {
+    await f.home();
+    final api = _apiA(f);
+    final since = await f.net(() => _now(api));
+    await f.step('ask a long plan in Assisto AI -> cut answer + hint + Continue', () async {
+      await f.pushScreen(const AiChatScreen());
+      await f.enter('চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও', label: f.t.aichatInputHint);
+      await f.tapTooltip(f.t.aichatSend, settleSeconds: 6);
+      await f.waitFor(_sees('ভাড়া নিন।'), seconds: 40, what: 'cut answer up to a full sentence');
+      if (_sees('সরঞ্জাম কি').evaluate().isNotEmpty) {
+        throw TestFailure('the cut answer still ends mid-word');
+      }
+      await f.waitFor(find.byKey(const ValueKey('aichat_continue')), what: 'Continue button');
+      await f.waitFor(find.byKey(const ValueKey('aichat_cut_hint')), what: 'cut hint');
+      await f.shot('cut-answer');
+    });
+    await f.step('Continue -> the rest from the cut point, free', () async {
+      await f.tap(find.byKey(const ValueKey('aichat_continue')), settleSeconds: 6);
+      await f.waitFor(_sees('সরঞ্জাম কিনুন'), seconds: 40, what: 'continuation');
+      await f.waitFor(_sees(f.t.aibarFreeAnswer), what: 'free credit line');
+      await f.shot('continued');
+    });
+    await f.step('server: the second model turn carried the Continue note', () async {
+      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
+      if (!ai.any((r) => r['cut'] == true)) throw TestFailure('no cut turn: $ai');
+      if (!ai.any((r) => r['cont'] == true)) throw TestFailure('no Continue turn: $ai');
+      f.note('model turns ${ai.length} (CI fake providers)');
+    });
+  }, timeout: const Duration(minutes: 5));
 
   // ------------------------------------------------------------ 3 My Circle
   realityFlow('e2e3_circle_media', 'E2E proof',
