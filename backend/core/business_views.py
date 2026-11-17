@@ -165,7 +165,7 @@ def _plan_gate(request, prof=None, cap="ledger_ai_addons", read_ok=False):
         "plan_required": "business",
         "current_plan": plans.effective_plan(request.user),
         "detail": pick(lang,
-                       "এই এআই ফিচারটি ব্যবহার করতে বিজনেস প্ল্যান দরকার।",
+                       "এই AI ফিচারটি ব্যবহার করতে বিজনেস প্ল্যান দরকার।",
                        "This AI feature needs the Business plan."),
         "upgrade": True,
     }, status=402)

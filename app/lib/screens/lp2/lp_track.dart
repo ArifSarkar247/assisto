@@ -31,6 +31,7 @@ import '../../widgets/skeleton.dart';
 import '../language_pack_screen.dart' show speakPackLine;
 import 'lp_data.dart';
 import 'lp_life.dart' show LpLifeListScreen;
+import 'lp_listen.dart' show LpRecordedClip;
 import 'lp_mock.dart' show lpGateSheet;
 import 'lp_ui.dart';
 
@@ -157,6 +158,9 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    // lpaudio: a recorded question (the server then sends no script lines)
+    final rec = '${widget.tts['audio_url'] ?? ''}';
+    if (rec.isNotEmpty) return LpRecordedClip(url: rec, replay: widget.replay);
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final pieces = _pieces;

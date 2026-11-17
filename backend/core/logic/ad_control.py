@@ -31,8 +31,8 @@ APP_OPEN = ("app_open",)
 # group id -> (Bangla, English) — Owner Admin section titles, in this order
 GROUPS = (
     ("home", "হোম, ডিসকভার ও সব সেবা", "Home, Discover & All services"),
-    ("circle", "মাই সার্কেল ও কল", "My Circle & calls"),
-    ("ai", "এআই চ্যাট", "AI chat"),
+    ("circle", "আমার সার্কেল ও কল", "My Circle & calls"),
+    ("ai", "AI চ্যাট", "AI chat"),
     ("photo", "ফটো স্টুডিও", "Photo Studio"),
     ("lp", "ল্যাঙ্গুয়েজ পার্টনার", "Language Partner"),
     ("exam", "পরীক্ষা ও ছাত্র কর্নার", "Exams & Student corner"),
@@ -63,10 +63,10 @@ PLACEMENTS = (
     _p("app_open", "home", APP_OPEN, True, "app_open", "অ্যাপ খোলার বিজ্ঞাপন", "App open ad",
        rule="only if preloaded; never delays start; never first launch / after login / after a notification"),
     _p("all_services", "home", INLINE, True, "native", "সব সেবা — নেটিভ", "All Services native"),
-    _p("circle_list", "circle", INLINE, True, "banner", "মাই সার্কেল চ্যাট তালিকা — ব্যানার (আগের মতো)", "My Circle chat list banner (existing)"),
+    _p("circle_list", "circle", INLINE, True, "banner", "আমার সার্কেল চ্যাট তালিকা — ব্যানার (আগের মতো)", "My Circle chat list banner (existing)"),
     _p("after_call_review", "circle", INLINE, True, "native", "কল শেষের রিভিউ কার্ড — নেটিভ", "After-call review card native",
        rule="never after SOS, emergency or Care Call calls, calls under 10 s or missed calls"),
-    _p("ai_chat_unlock", "ai", REWARD, True, "rewarded", "এআই চ্যাট — বিজ্ঞাপন দেখে উত্তর খুলুন", "AI chat: rewarded to unlock answers",
+    _p("ai_chat_unlock", "ai", REWARD, True, "rewarded", "AI চ্যাট — বিজ্ঞাপন দেখে উত্তর খুলুন", "AI chat: rewarded to unlock answers",
        rule="ads per answer = dynamic (aimoney); the open chat itself never carries an ad"),
     _p("photo_studio", "photo", REWARD, True, "rewarded", "ফটো স্টুডিও — বিজ্ঞাপন দেখে খুলুন", "Photo Studio rewarded unlock"),
     _p("photo_after_save", "photo", MOMENT, True, "interstitial", "ফটো সেভের পর — পূর্ণ পর্দা", "Photo Studio interstitial after save"),
@@ -130,7 +130,7 @@ PLACEMENTS = (
     _p("quick_tool_exit", "work", MOMENT, True, "interstitial", "কুইক টুল ব্যবহারের পর (দিনে ১ বার)", "Quick tool exit (once a day)"),
     # ---------------- C: default OFF — emergency, safety and trust screens
     _p("sos", "safety", INLINE + MOMENT, False, "banner", "SOS ও জরুরি", "SOS and Emergency", safety=True),
-    _p("safe_journey_active", "safety", INLINE + MOMENT, False, "banner", "চলমান সেফ জার্নি ও এর সতর্কতা", "Active Safe Journey and its alerts", safety=True),
+    _p("safe_journey_active", "safety", INLINE + MOMENT, False, "banner", "চলমান নিরাপদ যাত্রা ও এর সতর্কতা", "Active Safe Journey and its alerts", safety=True),
     _p("family_care", "safety", INLINE + MOMENT, False, "banner", "ফ্যামিলি কেয়ার (বয়স্কদের সহজ হোমসহ)", "Family Care incl. elder simple home", safety=True),
     _p("blood_donor", "safety", INLINE + MOMENT, False, "banner", "রক্তদাতা (সব পাতা)", "Blood donor (every screen)", safety=True),
     _p("care_call", "safety", INLINE + MOMENT, False, "banner", "কেয়ার কল", "Care Call", safety=True),
@@ -144,7 +144,7 @@ PLACEMENTS = (
     _p("timed_test", "safety", INLINE + MOMENT, False, "banner", "সময় ধরা পরীক্ষা, লিসেনিং অডিও, স্পিকিং রেকর্ডিং চলাকালে", "During a timed exam, listening audio or speaking recording", safety=True),
     _p("certificates", "safety", INLINE + MOMENT, False, "banner", "সার্টিফিকেট", "Certificates", safety=True),
     _p("finance_forms", "safety", INLINE + MOMENT, False, "banner", "হিসাব/খাতায় এন্ট্রি যোগ বা সম্পাদনার ফর্ম", "Add / edit entry forms in Account & Finance or khata", safety=True),
-    _p("ai_chat_open", "safety", INLINE, False, "banner", "খোলা এআই চ্যাট (কথোপকথনের ভেতরে)", "Inside an open AI chat conversation", safety=True),
+    _p("ai_chat_open", "safety", INLINE, False, "banner", "খোলা AI চ্যাট (কথোপকথনের ভেতরে)", "Inside an open AI chat conversation", safety=True),
     _p("city_navigation", "safety", INLINE + MOMENT, False, "banner", "সিটি সার্ভিস নেভিগেশন ও গন্তব্য অ্যালার্ম", "City Service navigation and destination alarm", safety=True),
     _p("train_family_watch", "safety", INLINE + REWARD, False, "banner", "আত্মীয়ের চলমান ট্রেন যাত্রা দেখা", "A family member watching a relative's active train journey", safety=True),
 )

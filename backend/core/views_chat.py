@@ -316,6 +316,11 @@ _FAILED_TASK = re.compile(
     re.I)
 
 
+# gap-aichat: a free Continue is a short ask; one paid answer gets at most
+# this many free continuations in a row (then a Continue is a normal turn).
+FOLLOW_TEXT_MAX = 120
+MAX_FREE_CONTINUES = 5
+
 _INCOMPLETE = re.compile(
     r"\b(incomplete|cut off|got cut|didn'?t finish|not finished|continue|go on|finish (?:it|the answer)|"
     r"baki ?ta|shesh koro|puro ?ta (?:bolo|likho))\b|অসম্পূর্ণ|শেষ হয়নি|বাকিটা|পুরোটা|চালিয়ে যাও|শেষ করো",
@@ -461,10 +466,38 @@ def follow_kind(request, text, session):
     if f not in ("continue", "more"):
         f = "continue" if _INCOMPLETE.search(text or "") and len(text or "") < 80 else ""
     free = False
-    if f == "continue" and session is not None:
+    if (f == "continue" and session is not None
+            and len((text or "").strip()) <= FOLLOW_TEXT_MAX):
+        # gap-aichat: free only for a short "Continue" ask (a new question
+        # sent with follow=continue is a normal, paid turn) and for at most
+        # MAX_FREE_CONTINUES continuations of one paid answer in a row.
         last = session.messages.filter(role="assistant").order_by("-created_at", "-id").first()
-        free = bool(last and (last.meta or {}).get("cut"))
+        if last is not None and (last.meta or {}).get("cut"):
+            free = free_chain(session) < MAX_FREE_CONTINUES
     return f, free
+
+
+def free_chain(session):
+    """How many FREE continuations in a row end this chat (newest first); a
+    paid Continue or any other answer ends the chain."""
+    if session is None:
+        return 0
+    rows = session.messages.filter(role="assistant").order_by(
+        "-created_at", "-id")[:MAX_FREE_CONTINUES + 1]
+    chain = 0
+    for m in rows:
+        mm = m.meta or {}
+        if mm.get("follow") != "continue" or int(mm.get("credits") or 0) > 0:
+            break
+        chain += 1
+    return chain
+
+
+def next_continue_free(session, follow, follow_free):
+    """For a cut answer: will its Continue be free? (shown before the tap)"""
+    if not (follow == "continue" and follow_free):
+        return True                       # this answer starts a new chain
+    return 1 + free_chain(session) < MAX_FREE_CONTINUES
 
 
 _INTERNAL = re.compile(
@@ -717,6 +750,9 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 meta["spend_ref"] = str(meta_out["spend_ref"])   # aileft: Stop refunds the same lots
             if cut:
                 meta["cut"] = True
+                # gap-aichat: the app says "no credits" under Continue only
+                # when that Continue really is free
+                meta["continue_free"] = next_continue_free(session, follow, follow_free)
             if meta_out.get("ad_funded"):
                 meta["ad"] = True       # aimoney: its free Continue stays at Normal
             if follow:
@@ -916,7 +952,14 @@ class ChatStopView(APIView):
 # meta keys the app may read on a reply (never cost_usd internals beyond these)
 _PUBLIC_META = ("source", "model", "credits", "balance", "free_quota", "text_cut",
                 "money_grounding", "ai_unavailable", "level", "crisis",
-                "stopped", "refunded")   # aileft: Stop result
+                "stopped", "refunded",   # aileft: Stop result
+                # gap-aichat: the streamed answer carries what the app shows
+                # under it (Continue after a cut, "free" continuation, the
+                # Better hint, action buttons, AI label, safe mode, web note);
+                # before, only /send and a reload had these, so a streamed cut
+                # answer in Assisto AI had no Continue.
+                "cut", "follow", "hint_better", "actions", "ai_generated",
+                "pro_topic", "safe_mode", "web", "ad", "continue_free")
 
 # ---------------------------------------------------------------------------
 # GET /chat/status — aivoice: is keyed AI usable right now? (honest no-key state)
@@ -1215,12 +1258,20 @@ class ChatRegenerateView(APIView):
                 s.derive_title(edit)
 
         history = _history_for(s, upto_id=last_user.id)
+        # gap-aichat: regenerating a Continue turn continues again (the model
+        # gets the Continue note, not the bare word "Continue"); it is a new
+        # version the user asked for, so it is a normal (paid) turn.
+        old_asst = s.messages.filter(role="assistant", id__gt=last_user.id).order_by("id").first()
+        regen_follow = str(((old_asst.meta or {}).get("follow") if old_asst else "") or "")
+        if regen_follow not in ("continue", "more") or edit is not None:
+            regen_follow = ""
         try:
             reply, meta, cards = _produce_reply(u, s, last_user.text, lang, history,
                                             credout=credits_out.supported(request),
                                             mode=_chat_mode(request),
                                             photo=_photo_context(request),
-                                            level=_chat_level(request))
+                                            level=_chat_level(request),
+                                            follow=regen_follow)
         except credits_out.CreditsOut as e:
             # credout: the old reply stays (it is only dropped after a new
             # reply exists) and an edit is undone.

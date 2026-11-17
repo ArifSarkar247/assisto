@@ -53,6 +53,7 @@ import 'city_shots.dart'; // cityapp
 import 'city_map_shots.dart'; // mapapp
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
+import 'gap_aichat_shots.dart'; // gap-aichat
 import 'callsbar_shots.dart'; // callsbar
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
@@ -1508,6 +1509,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again
     for (final e in aibarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // gap-aichat: Assisto AI cut answer -> full sentence + hint + Continue
+    for (final e in gapAichatShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // callsbar: weak-network video call, rating, honest group call, low data
     for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
@@ -1642,6 +1645,11 @@ void main() {
     // Real elevation shadows (flutter_test draws them as solid black outlines
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
+    // designv2: review shots show the FULL design look (phones with a real
+    // GPU), not the lite look emulators / tests get. Fixed pumps only; the
+    // _menu shots settle, so they stay lite (a looping pulse never settles).
+    if (!name.endsWith('_menu')) DsPerf.debugLite = false;
+    addTearDown(() => DsPerf.debugLite = null);
     final key = GlobalKey();
     await galleryPump(tester, name, lang, brightness, screen, mode,
         key: key, textScale: _textScale);

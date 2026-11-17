@@ -1634,8 +1634,12 @@ class ApiClient {
   /// Pass [edit] to resend an edited version of the last user message.
   Future<Map<String, dynamic>> chatRegenerate(String sessionId,
           {String? edit}) async =>
-      flattenChatReply(await postJson('/chat/sessions/$sessionId/regenerate',
-          {if (edit != null && edit.isNotEmpty) 'edit': edit}));
+      flattenChatReply(await postJson('/chat/sessions/$sessionId/regenerate', {
+        // gap-aichat: the picked level (and photo context) go with a
+        // regenerate too — before, Better silently came back as Normal
+        ...chatExtra,
+        if (edit != null && edit.isNotEmpty) 'edit': edit
+      }));
 
   /// aivoice: the server answers send / regenerate as
   /// `{message: {id, text, meta}, cards, ai_used}`, but the chat screen reads a

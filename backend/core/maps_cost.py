@@ -566,6 +566,33 @@ def _transit_parse(r):
     return out[:5]
 
 
+def can_spend(api, user, now=None):
+    """adwire: READ-ONLY budget peek — would one more paid `api` call for
+    this user pass the key / user / plan / global limits right now? Counts
+    nothing. The City Service "More routes (Google)" button (a rewarded ad
+    for Free users) is offered only when this is True, so nobody watches an
+    ad for a request the budget would refuse (silent none, never a limit
+    message)."""
+    from .models import MapsUsage
+    try:
+        if not ready():
+            return False
+        c = config()["apis"][api]
+        day = timezone.localdate(now or timezone.now())
+        uid = _uid(user)
+        if uid:
+            mine = MapsUsage.objects.filter(day=day, api=api, user_id=uid) \
+                .values_list("count", flat=True).first() or 0
+            if mine >= int(c["user_day"]):
+                return False
+            if not _plan_allowed(user):
+                return False
+        total = MapsUsage.objects.filter(day=day, api=api).aggregate(s=Sum("count"))["s"] or 0
+        return total < int(c["global_day"])
+    except Exception:
+        return False
+
+
 def transit(user, o_lat, o_lng, d_lat, d_lng, lang="bn"):
     """Live Google transit options for the Google view. -> {state, routes,
     attribution, gmaps_url}. Never cached, never stored."""

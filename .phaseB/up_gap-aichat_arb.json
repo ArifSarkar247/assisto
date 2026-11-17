@@ -1,0 +1,12 @@
+{
+  "en": {
+    "gapAichatCutHint": "This answer was long, so it paused here. Tap Continue for the rest — no credits are used.",
+    "@gapAichatCutHint": {"description": "gap-aichat: under an AI answer cut at its length limit; the Continue is free"},
+    "gapAichatCutHintPaid": "This answer was long, so it paused here. Tap Continue for the rest.",
+    "@gapAichatCutHintPaid": {"description": "gap-aichat: under a cut AI answer after the free Continue limit (the next Continue is a normal answer)"}
+  },
+  "bn": {
+    "gapAichatCutHint": "উত্তরটি লম্বা, তাই এখানে থেমেছে। বাকিটা পেতে “চালিয়ে যাও” চাপুন — কোনো ক্রেডিট লাগবে না।",
+    "gapAichatCutHintPaid": "উত্তরটি লম্বা, তাই এখানে থেমেছে। বাকিটা পেতে “চালিয়ে যাও” চাপুন।"
+  }
+}

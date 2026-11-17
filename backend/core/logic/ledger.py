@@ -68,7 +68,7 @@ CHART = (
     ("2110", LIABILITY, "current", "প্রদেয় সম্পূরক শুল্ক", "Supplementary duty payable", False),
     ("2200", LIABILITY, "current", "বকেয়া খরচ", "Accrued expenses", False),
     ("2300", LIABILITY, "long_term", "ঋণ", "Loans payable", False),
-    ("2900", LIABILITY, "current", "অশ্রেণীকৃত নগদ (যাচাই বাকি)", "Suspense — unclassified cash", False),
+    ("2900", LIABILITY, "current", "অশ্রেণিকৃত নগদ (যাচাই বাকি)", "Suspense — unclassified cash", False),
     ("3010", EQUITY, "equity", "মালিকের মূলধন", "Owner's capital", False),
     ("3020", EQUITY, "equity", "মালিকের উত্তোলন", "Owner's drawings", True),
     ("3030", EQUITY, "equity", "শুরুর ব্যালান্স মূলধন", "Opening balance equity", False),
@@ -762,7 +762,7 @@ def post_reclass(c, code):
         lines = [line(code, debit=amt), line(SUSPENSE, credit=amt)]
     name = ACC[code]["name"]
     return make_entry("reclass:%s" % c["id"], c["date"], lines,
-                      _m("ক্যাশবক্সের টাকা শ্রেণীকরণ → %s" % name["bn"],
+                      _m("ক্যাশবক্সের টাকা শ্রেণিকরণ → %s" % name["bn"],
                          "Cashbox row classified → %s" % name["en"]))
 
 

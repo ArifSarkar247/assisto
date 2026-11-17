@@ -916,6 +916,7 @@ class MessRemindView(APIView):
                         "Close a month first, then you can send due reminders.", 409)
         target = (request.data or {}).get("member_id")
         by_id = {m.id: m for m in _member_rows(mess)}
+        paid = paid_since_close(mess, mon)
         sent = 0
         for r in mon.summary.get("members", []):
             if r.get("state") != "will_pay" or (target and r["id"] != target):
@@ -923,14 +924,29 @@ class MessRemindView(APIView):
             m = by_id.get(r["id"])
             if m is None or m.user is None:
                 continue
+            # gap-money: money given to the manager AFTER the close first
+            # clears the old due — never remind someone who already paid.
+            left = int(r.get("due") or 0) - paid.get(r["id"], 0)
+            if left <= 0:
+                continue
+            shown = fmt_poisha(left)
             _push(m.user, "%s: বকেয়া মনে করিয়ে দেওয়া" % mess.name, "%s: due reminder" % mess.name,
                   "%s মাসের বকেয়া %s। ম্যানেজারকে দিন।" % (M.to_bn_digits(mon.key),
-                                                          M.to_bn_digits(r.get("due_display", ""))),
-                  "Your %s due is %s. Please pay the manager." % (mon.key, r.get("due_display", "")),
+                                                          M.to_bn_digits(shown)),
+                  "Your %s due is %s. Please pay the manager." % (mon.key, shown),
                   mess)
             sent += 1
         _log(mess, request.user, "due.remind", after={"month": mon.key, "sent": sent})
         return Response({"ok": True, "sent": sent})
+
+
+def paid_since_close(mess, mon):
+    """{member_id: poisha} deposited after the closed month `mon` ended."""
+    out = {}
+    for mid, amt in MessEntry.objects.filter(mess=mess, kind="deposit", deleted=False,
+                                             date__gt=mon.end).values_list("member_id", "amount"):
+        out[mid] = out.get(mid, 0) + int(amt or 0)
+    return out
 
 
 class MessHistoryView(APIView):
@@ -977,48 +993,80 @@ class MessReportView(APIView):
         # NB: not `?format=` — DRF reserves it for renderer negotiation (404)
         if request.query_params.get("pdf") != "1":
             return Response({"month": key, "text": text})
-        pdf = _pdf(mess, key, s, lang)
+        pdf = _pdf(mess, key, s, lang, closed=mon is not None)
         resp = HttpResponse(pdf, content_type="application/pdf")
         resp["Content-Disposition"] = 'attachment; filename="mess-%s.pdf"' % key
         return resp
 
 
-def _pdf(mess, key, s, lang):
-    from reportlab.lib.pagesizes import A4
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.pdfgen import canvas
-    font = "Helvetica"
-    try:
-        from .views import _NOTO_BN_TTF
-        if "NotoBn" not in pdfmetrics.getRegisteredFontNames():
-            pdfmetrics.registerFont(TTFont("NotoBn", _NOTO_BN_TTF))
-        font = "NotoBn"
-    except Exception:  # noqa: BLE001 — Latin fallback, never a 500
-        font = "Helvetica"
-    if font == "Helvetica":
-        lang = "en"
-    lines = M.report_text(mess.name, key, s, lang).split("\n")
-    buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    c.setTitle("%s %s" % (mess.name, key))
-    c.setAuthor("Assisto")
-    w, h = A4
-    y = h - 60
-    c.setFont(font, 16)
-    c.drawString(48, y, lines[0][:90])
-    c.setFont(font, 11)
-    y -= 28
-    for ln in lines[1:]:
-        if y < 60:
-            c.showPage()
-            c.setFont(font, 11)
-            y = h - 60
-        c.drawString(48, y, ln[:110])
-        y -= 18
-    c.showPage()
-    c.save()
-    return buf.getvalue()
+def _pdf(mess, key, s, lang, closed=False):
+    """gap-money: the month report PDF through pdf_bn (HarfBuzz-shaped Bangla,
+    lakh grouping, Bangla digits) as a real table — the old raw reportlab
+    drawString broke every Bangla conjunct and vowel sign (মি, ক্ষ, ে)."""
+    from decimal import Decimal
+
+    from . import pdf_bn as P
+    bn = lang != "en"
+    lg = "bn" if bn else "en"
+
+    def tk(p):
+        return P.taka(Decimal(int(round(p or 0))) / Decimal(100), lg)
+
+    def L(b, e):
+        return b if bn else e
+
+    d = P.Doc("%s %s" % (mess.name, key), lg)
+    d.title(L("%s — %s মাসের হিসাব", "%s — %s month report") % (mess.name, P.digits(key, lg)))
+    if mess.address:
+        d.meta(mess.address)
+    if closed:
+        d.meta(L("মাস বন্ধ — এই হিসাব আর বদলাবে না।", "Month closed — these numbers are final."))
+    elif s.get("counted_until"):
+        d.meta(L("চলতি মাস — %s পর্যন্ত গোনা", "Open month — counted until %s")
+               % P.digits(s["counted_until"], lg))
+    d.heading(L("মোট হিসাব", "Totals"))
+    d.row(L("মোট বাজার", "Total bazar"), tk(s.get("bazar_total")))
+    d.row(L("মোট মিল", "Total meals"), P.digits(M.fmt_meals(s.get("meals_total_milli") or 0), lg))
+    d.row(L("মিল রেট (বাজার ÷ মিল)", "Meal rate (bazar ÷ meals)"), tk(s.get("meal_rate") or 0))
+    d.row(L("সার্ভিস চার্জ (মিল রেটের বাইরে)", "Service charges (not in the meal rate)"),
+          tk(s.get("charges_total")))
+    d.row(L("মোট জমা", "Total deposits"), tk(s.get("deposits_total")))
+    rows = s.get("members") or []
+    carry = any(int(r.get("carry_in") or 0) for r in rows)
+    head = [L("সদস্য", "Member"), L("মিল", "Meals"), L("মিলের খরচ", "Meal cost"),
+            L("সার্ভিস", "Service"), L("জমা", "Deposits")]
+    widths = [0.22, 0.10, 0.15, 0.14, 0.14]
+    if carry:
+        head.append(L("আগের মাস", "Last month"))
+        widths.append(0.12)
+    head.append(L("ফল", "Result"))
+    widths.append(1.0 - sum(widths))
+    body = []
+    for r in rows:
+        due = int(r.get("due") or 0)
+        if due > 0:
+            res = L("দেবেন %s", "Will pay %s") % tk(due)
+        elif due < 0:
+            res = L("ফেরত পাবেন %s", "Gets back %s") % tk(-due)
+        else:
+            res = L("হিসাব সমান", "All clear")
+        line = [r.get("name") or "", P.digits(M.fmt_meals(r.get("meals_milli") or 0), lg),
+                tk(r.get("meal_cost")), tk(r.get("service")), tk(r.get("deposits"))]
+        if carry:
+            # carry_in + = credit from last month, − = still owed
+            line.append(tk(r.get("carry_in")))
+        line.append(res)
+        body.append(line)
+    d.heading(L("প্রত্যেকের হিসাব", "Each member"))
+    d.table(head, body, widths, align=["left"] + ["right"] * (len(head) - 1))
+    d.meta(L("হিসাব: মিল × মিল রেট + সার্ভিস চার্জ − জমা − আগের মাসের জমা = দেবেন / ফেরত পাবেন।",
+             "Formula: meals × meal rate + service charges − deposits − last month's credit "
+             "= will pay / gets back."))
+    if s.get("reconciles"):
+        d.meta(L("মিলের খরচ মিলিয়ে ঠিক মোট বাজার, সার্ভিসের ভাগ মিলিয়ে ঠিক মোট বিল — এক পয়সাও এদিক-ওদিক নেই।",
+                 "Meal costs add up exactly to the bazar and service shares exactly to the bills — "
+                 "not one poisha off."))
+    return d.pdf()
 
 
 class MessCloseMessView(APIView):
