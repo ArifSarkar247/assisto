@@ -84,6 +84,9 @@ const _allowed = <String, String>{
   'lib/calls/webrtc_media.dart':
       'calls: only after the user started/answered a call (Android prompt in context); '
           'child emergency audio opens it only after its visible notice (kid_audio_child.dart)',
+  // group-calls
+  'lib/calls/group_mesh_media.dart':
+      'group calls: only after the user started / answered / joined a group call (Android prompt in context)',
   'lib/screens/shop_live_rtc.dart':
       'Shop Box live view: the box phone sits on the open Shop Box screen the owner set up',
   'lib/screens/shop_box_mode_screen.dart':

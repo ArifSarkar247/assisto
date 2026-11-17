@@ -1,3 +1,4 @@
+import '../screens/group_call_screen.dart' show GroupCallScreen, groupRoomOf; // group-calls
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -170,13 +171,21 @@ class CallLaunchRouter {
           name: ringRouteName);
     }
     if (l.accept) {
+      // group-calls: a ring INTO a group call opens the group call screen
+      final room = groupRoomOf(l.payload.data);
       return instantCallRoute<void>(
-          (_) => CircleCallScreen(
-                member: l.member,
-                kind: l.payload.isVideo ? 'video' : 'voice',
-                outgoing: false,
-                callId: int.tryParse(l.callId),
-              ),
+          (_) => room != null
+              ? GroupCallScreen(
+                  roomId: room,
+                  answerCallId: int.tryParse(l.callId),
+                  video: l.payload.isVideo,
+                  title: l.payload.callerName)
+              : CircleCallScreen(
+                  member: l.member,
+                  kind: l.payload.isVideo ? 'video' : 'voice',
+                  outgoing: false,
+                  callId: int.tryParse(l.callId),
+                ),
           name: acceptRouteName);
     }
     return instantCallRoute<void>((_) => IncomingCallScreen(payload: l.payload),

@@ -24,7 +24,8 @@ PAID_GATES = {
     "crm_followup_reminders": {"unlock": "premium", "files": ["crm/plan_gate.py"]},
     "shop_quote": {"unlock": "premium", "files": ["crm/plan_gate.py"]},
     "ledger_ai_addons": {"unlock": "premium", "files": ["core/business_views.py"]},
-    "video_call": {"unlock": "premium", "files": ["core/views_c2_calls.py", "core/logic/circle_calls.py"]},
+    "video_call": {"unlock": "premium", "files": ["core/views_c2_calls.py", "core/logic/circle_calls.py",
+                                                  "core/views_group_calls.py"]},  # group-calls
     "call_link": {"unlock": "premium", "files": ["core/views_messenger.py"]},
     "chat_themes": {"unlock": "premium", "files": ["core/chat_decor.py"]},
     "ad_free": {"unlock": "premium", "files": ["core/sponsor_service.py"]},

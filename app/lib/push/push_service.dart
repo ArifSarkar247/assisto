@@ -1,3 +1,4 @@
+import '../screens/group_call_screen.dart' show GroupCallScreen, groupRoomOf; // group-calls
 import '../services/journey_habits.dart'; // sjstart2
 import '../screens/journey_start_screen.dart' show JourneyStartScreen; // sjstart2
 import '../audio/msg_open_tick.dart'; // circlebub
@@ -791,12 +792,19 @@ class PushService {
         };
         final kind = p.isVideo ? 'video' : 'voice';
         if (action == PushNotifier.actionAccept) {
+          final room = groupRoomOf(p.data); // group-calls
           nav.push(MaterialPageRoute(
-              builder: (_) => CircleCallScreen(
-                  member: member,
-                  kind: kind,
-                  outgoing: false,
-                  callId: int.tryParse(p.callId))));
+              builder: (_) => room != null
+                  ? GroupCallScreen(
+                      roomId: room,
+                      answerCallId: int.tryParse(p.callId),
+                      video: p.isVideo,
+                      title: p.callerName)
+                  : CircleCallScreen(
+                      member: member,
+                      kind: kind,
+                      outgoing: false,
+                      callId: int.tryParse(p.callId))));
         } else {
           // plain tap / full-screen launch: ring first, user decides.
           nav.push(MaterialPageRoute(

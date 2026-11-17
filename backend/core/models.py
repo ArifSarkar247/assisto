@@ -9601,3 +9601,57 @@ class AiReplyEvent(models.Model):
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["user", "kind", "created_at"], name="aireply_evt_user_kind")]
 # ---- /ai-reply-core ----
+
+
+# ---- group-calls ---- (owner 17 Nov: My Circle group calls, up to 8 people)
+# MESH: every PAIR of people in a group call is a normal 1:1 CallRecord (so
+# the ring, FCM full-screen ring, TURN, timeouts and missed calls are reused).
+# GroupCall is the ROOM that ties those pair records ("legs") into one call;
+# GroupCallMember is one person's seat (ringing | joined | left | declined |
+# missed). Logic: core/logic/group_call.py, views: core/views_group_calls.py.
+class GroupCall(models.Model):
+    KINDS = [("voice", "voice"), ("video", "video")]
+    host = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="group_calls_hosted")
+    kind = models.CharField(max_length=8, choices=KINDS, default="voice")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.SET_NULL,
+                              related_name="group_calls")
+    state = models.CharField(max_length=8, default="live")  # live | ended
+    created_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["group", "state"],
+                                name="gc_group_state")]
+
+
+class GroupCallMember(models.Model):
+    STATES = [("ringing", "ringing"), ("joined", "joined"), ("left", "left"),
+              ("declined", "declined"), ("missed", "missed")]
+    room = models.ForeignKey(GroupCall, on_delete=models.CASCADE,
+                             related_name="members")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="group_call_seats")
+    state = models.CharField(max_length=8, choices=STATES, default="ringing")
+    invited_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL,
+                                   related_name="+")
+    ring_call = models.ForeignKey(CallRecord, null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name="+")
+    muted = models.BooleanField(default=False)
+    camera = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("room", "user")]
+        ordering = ["created_at", "id"]
+
+
+CallRecord.add_to_class(
+    "room", models.ForeignKey(GroupCall, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="legs"))
+# ---- /group-calls ----

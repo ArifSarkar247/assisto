@@ -19,6 +19,10 @@ import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
 import '../calls/call_pip.dart' show showPipOffHint; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
+import '../calls/group_add_people_sheet.dart'; // group-calls
+import '../calls/group_call_api.dart'; // group-calls
+import '../calls/group_call_controller.dart' show GroupCallError; // group-calls
+import 'group_call_screen.dart'; // group-calls
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
@@ -156,6 +160,10 @@ class _CircleCallScreenState extends State<CircleCallScreen>
   /// b1: the live call went to the mini bar (minimized) — this screen must
   /// not hang it up or stop its foreground service when it is disposed.
   bool _handedOff = false;
+
+  /// group-calls: this 1:1 call moved to the group call screen (Add person,
+  /// or the other side added someone) — nothing here may end it.
+  bool _groupHandover = false;
   int _noticeSeq = 0;
   CallNotice _noticeShown = CallNotice.none;
   Timer? _noticeTimer;
@@ -394,7 +402,11 @@ class _CircleCallScreenState extends State<CircleCallScreen>
 
   void _onChange() {
     final c = _c;
-    if (c == null || !mounted) return;
+    if (c == null || !mounted || _groupHandover) return;
+    if (_owns && c.roomId != null && !c.isEnded) {
+      unawaited(_toGroup(c));
+      return;
+    }
     _syncNotice(c);
     if (_owns) {
       // b1: video mode keeps the screen on and allows Home -> PiP
@@ -526,7 +538,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
         c.dispose(); // hangs up if still live
       }
     }
-    if (_owns) {
+    if (_owns && !_groupHandover) {
       unawaited(CallNative.keepScreenOn(false));
       unawaited(CallKeepAlive.stop());
     }
@@ -1514,6 +1526,59 @@ class _CircleCallScreenState extends State<CircleCallScreen>
     if (picked != null) await c.setRoute(picked);
   }
 
+  /// group-calls: Add person — pick people from My Circle; this call
+  /// becomes a group call (the server keeps it as one leg) and this screen
+  /// hands over to the group call screen.
+  Future<void> _addPerson(CallController c) async {
+    final id = c.callId;
+    if (id == null || !c.isLive || !_owns) return;
+    final app = context.read<AppState>();
+    final api = GroupCallApi(app.api);
+    final ids = await showGroupAddPeopleSheet(context,
+        load: () => api.candidates(), free: 6);
+    if (ids == null || ids.isEmpty || !mounted || !c.isLive) return;
+    try {
+      final body = await api.addToCall(id, ids);
+      if (!mounted) return;
+      await _toGroup(c, initial: body);
+    } on GroupCallError catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          key: const Key('call-add-person-error'),
+          content: Text(groupErrorLine(_t, e))));
+    }
+  }
+
+  /// group-calls: hand this live call to the group call screen (no hang-up:
+  /// the same call goes on as one leg of the group call).
+  Future<void> _toGroup(CallController c,
+      {Map<String, dynamic>? initial}) async {
+    if (_groupHandover) return;
+    final roomId =
+        (initial?['room_id'] as num?)?.toInt() ?? c.roomId;
+    if (roomId == null) return;
+    _groupHandover = true;
+    final app = context.read<AppState>();
+    final seq = CallRuntime.instance.transportFor(app).seq;
+    final callId = c.callId;
+    final video = c.videoOn || _isVideo;
+    await c.handover();
+    if (CallRuntime.instance.activeCallId == callId) {
+      CallRuntime.instance.activeCallId = null;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(instantCallRoute<void>(
+      (_) => GroupCallScreen(
+        roomId: roomId,
+        initial: initial,
+        video: video,
+        title: _name,
+        adoptCallId: callId,
+        sinceSeq: seq,
+      ),
+    ));
+  }
+
   Widget _controls(CallController? c) {
     final t = _t;
     final live = c != null && c.isLive;
@@ -1577,6 +1642,15 @@ class _CircleCallScreenState extends State<CircleCallScreen>
                     label: t.b1CallToVoice,
                     active: false,
                     onTap: c.switchToVoice,
+                  ),
+                // group-calls: add people (My Circle) -> a group call
+                if (live && widget.origin == 'circle' && _owns)
+                  _CtlButton(
+                    key: const Key('call-add-person'),
+                    icon: Icons.person_add_alt_1_rounded,
+                    label: t.gcallAddPerson,
+                    active: false,
+                    onTap: () => unawaited(_addPerson(c)),
                   ),
                 _CtlButton(
                   key: const Key('call-mute'),

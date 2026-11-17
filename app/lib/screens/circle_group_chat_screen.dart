@@ -77,7 +77,10 @@ import '../widgets/group_menu_sheet.dart';
 import '../widgets/msgr_mod_report_sheet.dart';
 import 'circle_group_info_screen.dart';
 import '../widgets/paywall_sheet.dart'; // p2-money
-import '../calls/group_call_sheet.dart'; // callsbar
+import '../calls/group_call_api.dart'; // group-calls
+import '../calls/group_call_controller.dart' show GroupCallError; // group-calls
+import '../calls/group_call_join_bar.dart'; // group-calls
+import 'group_call_screen.dart'; // group-calls
 import '../messaging/chat_decor/chat_control.dart'; // cde-chat
 import '../messaging/chat_decor/chat_themes.dart';
 import '../messaging/chat_decor/decor_chat.dart';
@@ -1086,12 +1089,53 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     await _load();
   }
 
-  /// callsbar: a call with 3+ people is NOT built yet (no group media) —
-  /// the buttons used to show "Starting call…" and then nothing. Now an
-  /// honest sheet: group calls are not ready + a real 1:1 voice / video call
-  /// with any member in my circle, in one tap.
-  Future<void> _call(String kind) => showGroupCallSheet(context,
-      members: _members, groupName: '${widget.group['name'] ?? ''}');
+  /// group-calls (owner 17 Nov): a REAL group call — rings every member
+  /// at once (FCM full-screen ring with the app closed); joins the call that
+  /// is already on in this group instead of starting a second one. Audio is
+  /// free; video needs Premium (the server says so, never a dead tap).
+  bool _startingCall = false;
+  final _joinBar = GlobalKey<GroupCallJoinBarState>();
+
+  Future<void> _call(String kind) async {
+    if (_startingCall || _gid <= 0) return;
+    _startingCall = true;
+    final t = _t;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final body = await GroupCallApi(_api).startFromGroup(_gid, kind);
+      if (!mounted) return;
+      final room = (body['room_id'] as num?)?.toInt();
+      if (room == null || body['live'] == false) {
+        messenger.showSnackBar(SnackBar(content: Text(t.gcallNobodyReached)));
+        return;
+      }
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => GroupCallScreen(
+              roomId: room,
+              initial: body,
+              video: body['kind'] == 'video',
+              title: '${widget.group['name'] ?? ''}')));
+      unawaited(_joinBar.currentState?.refresh());
+    } on GroupCallError catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(
+            key: const Key('gcall-start-error'),
+            content: Text(groupErrorLine(t, e))));
+      }
+    } finally {
+      _startingCall = false;
+    }
+  }
+
+  /// group-calls: the "Join call" bar.
+  Future<void> _joinCall(int room, String kind) async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => GroupCallScreen(
+            roomId: room,
+            video: kind == 'video',
+            title: '${widget.group['name'] ?? ''}')));
+    unawaited(_joinBar.currentState?.refresh());
+  }
 
   Future<void> _createPoll() async {
     final poll = await showCircleGroupPollComposer(context);
@@ -2011,6 +2055,13 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                           // messv2: the mess "Today" card (only on an active mess group)
                           if (!_searching && !_selecting && _gid > 0)
                             MessGroupCard(groupId: _gid),
+                          // group-calls: a call is on in this group -> Join
+                          if (!_searching && !_selecting && _gid > 0)
+                            GroupCallJoinBar(
+                                key: _joinBar,
+                                load: () => GroupCallApi(_api).liveInGroup(_gid),
+                                onJoin: (room, kind) =>
+                                    unawaited(_joinCall(room, kind))),
                           if (pinned.isNotEmpty && !_searching && !_selecting)
                             _pinnedBar(pinned),
                         ]),

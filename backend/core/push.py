@@ -1030,7 +1030,10 @@ def hook_call_placed(caller, member, call, attempt=0):
     try:
         if not is_available():
             return False
-        callee = member_peer_user(member)
+        # group-calls: a group-chat ring may go to a member who is not in
+        # the caller's circle (member None) -> the record's callee.
+        callee = (member_peer_user(member) if member is not None
+                  else getattr(call, "callee", None))
         if callee is None or callee.pk == caller.pk:
             return False
         edge = _reverse_edge(callee, caller)
@@ -1061,6 +1064,8 @@ def hook_call_placed(caller, member, call, attempt=0):
                                "caller_photo": _x1_photo(caller),
                                "ack_sig": _ack_sig(call),
                                "attempt": int(attempt or 0),
+                               # group-calls: ring into a group call
+                               "room_id": getattr(call, "room_id", None) or "",
                                "route": "circle/call"})
     except Exception:
         return False

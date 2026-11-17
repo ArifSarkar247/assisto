@@ -1231,6 +1231,19 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
     path("circle/calls/<int:call_id>/quality", c2calls.CallQualityView.as_view()),  # callsbar
 ]
+# ---- group-calls ---- My Circle group calls (mesh, up to 8)
+from . import views_group_calls as gcalls  # noqa: E402
+urlpatterns += [
+    path("circle/group-calls", gcalls.GroupCallStartView.as_view()),
+    path("circle/group-calls/candidates", gcalls.GroupCallCandidatesView.as_view()),
+    path("circle/group-calls/<int:pk>", gcalls.GroupCallDetailView.as_view()),
+    path("circle/group-calls/<int:pk>/invite", gcalls.GroupCallInviteView.as_view()),
+    path("circle/group-calls/<int:pk>/join", gcalls.GroupCallJoinView.as_view()),
+    path("circle/group-calls/<int:pk>/leave", gcalls.GroupCallLeaveView.as_view()),
+    path("circle/group-calls/<int:pk>/media", gcalls.GroupCallMediaView.as_view()),
+    path("circle/group-calls/group/<int:gid>", gcalls.GroupLiveCallView.as_view()),
+# ---- /group-calls ----
+]
 # ---- /c2-calls ----
 # ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears
 # the badge; items stay unread until tapped; SOS/family alerts keep counting)
