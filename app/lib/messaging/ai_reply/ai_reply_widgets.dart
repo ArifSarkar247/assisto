@@ -433,7 +433,10 @@ class AiReplyTag extends StatelessWidget {
         const SizedBox(width: Gap.xs),
         Flexible(
           child: Text(t.aiReplyTag,
-              style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: color)),
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall
+                  ?.copyWith(fontStyle: FontStyle.italic, color: color)),
         ),
       ]),
     );

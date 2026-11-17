@@ -288,7 +288,7 @@ REGISTRY = (
     # modes (Suggest / Busy / Full auto); ai_reply_notif = suggested replies
     # on other apps' message notifications (lane 2). Both OFF until the owner
     # turns them on. They own no route (a chat menu entry / a settings row).
-    ('ai_reply', 'circle', 'AI reply in My Circle (suggest / busy / full auto)', 'My Circle-এ AI উত্তর (প্রস্তাব / ব্যস্ত / পুরো অটো)', False, ()),
+    ('ai_reply', 'circle', 'AI reply in My Circle (suggest / busy / full auto)', 'আমার সার্কেলে AI উত্তর (প্রস্তাব / ব্যস্ত / পুরো অটো)', False, ()),
     ('ai_reply_notif', 'circle', 'AI reply suggestions on message notifications', 'মেসেজ নোটিফিকেশনে AI উত্তরের প্রস্তাব', False, ()),
 )
 
