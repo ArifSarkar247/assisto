@@ -493,6 +493,11 @@ class CallController extends ChangeNotifier {
   /// call goes on) — the screen says so instead of a plain "camera off".
   bool remoteAway = false;
 
+  /// circle-screenshare: the other person is sharing their screen (their
+  /// video is drawn uncropped) / I am sharing mine.
+  bool remoteScreen = false;
+  bool screenSharing = false;
+
   /// TURN-only (relay) ICE was forced after repeated failures.
   bool relayForced = false;
 
@@ -992,6 +997,7 @@ class CallController extends ChangeNotifier {
           remoteMicOn = data['mic'] != false;
           remoteVideoPausedNet = data['net_paused'] == true;
           remoteAway = data['away'] == true; // callpip
+          remoteScreen = data['screen'] == true; // circle-screenshare
           final rl = data['low_data'] == true;
           if (rl != remoteLowData) {
             final before = effectiveLowData;
@@ -1512,6 +1518,10 @@ class CallController extends ChangeNotifier {
   Future<void> setBackgroundCameraPause(bool pause) async {
     if (_disposed || isEnded) return;
     if (pause == cameraPausedBg) return;
+    // circle-screenshare: leaving Assisto is the point of sharing — the
+    // screen must keep going (stopVideo would not blank it, but the camera
+    // pause would also tell the other phone "camera off")
+    if (pause && screenSharing) return;
     if (pause && (!videoOn || !cameraOn || media.cameraUnavailable)) return;
     cameraPausedBg = pause;
     log.add(pause ? 'camera-bg-pause' : 'camera-bg-resume');
@@ -1589,7 +1599,8 @@ class CallController extends ChangeNotifier {
       await signaling.signal(id, 'media', {
         // callpip: a camera paused because I left Assisto is OFF for the
         // other phone (it shows my avatar, never a frozen frame)
-        'camera': videoOn && cameraOn && !cameraPausedBg,
+        // circle-screenshare: a shared screen is video on the wire too
+        'camera': (videoOn && cameraOn && !cameraPausedBg) || screenSharing,
         'mic': !muted,
         'video': videoOn,
         // callsbar: low-data for both directions + "my video is paused for
@@ -1600,6 +1611,8 @@ class CallController extends ChangeNotifier {
         // callpip: I left Assisto (camera paused, back by itself). Sent
         // only while true (old builds / exact-state readers unchanged).
         if (cameraPausedBg) 'away': true,
+        // circle-screenshare: sent only while sharing (old builds ignore it)
+        if (screenSharing) 'screen': true,
       });
     } catch (e) {
       callLog('call_controller#18', e);
@@ -1773,6 +1786,41 @@ class CallController extends ChangeNotifier {
     unawaited(_sendMediaState());
   }
 
+  // --------------------------------------------- circle-screenshare (1:1)
+  /// The screen-share controller started / stopped sharing. [renegotiate] =
+  /// a video sender was ADDED (no camera before): the caller re-offers (the
+  /// callee asks it). Stopping puts a FRESH camera back when the camera is on
+  /// (Android may have taken it while Assisto was in the background).
+  Future<void> setScreenSharing(bool on, {bool renegotiate = false}) async {
+    if (_disposed || isEnded) return;
+    if (screenSharing == on && !renegotiate) return;
+    screenSharing = on;
+    log.add(on ? 'screen-share:on' : 'screen-share:off');
+    notifyListeners();
+    if (on && renegotiate) {
+      await _renegotiateOrAsk();
+      // the new sender's encodings exist only after the answer: caps again
+      _screenCapTimer?.cancel();
+      _screenCapTimer = Timer(const Duration(seconds: 3), _reapplyPlan);
+    }
+    if (!on && videoOn && cameraOn && !media.cameraUnavailable && !isEnded) {
+      if (!await _openCamera()) cameraOn = false;
+      if (!_disposed) notifyListeners();
+    }
+    await _sendMediaState();
+  }
+
+  Timer? _screenCapTimer;
+
+  void _reapplyPlan() {
+    _screenCapTimer = null;
+    final m = media, p = appliedPlan;
+    if (m is! AdaptiveCallMedia || p == null || isEnded) return;
+    unawaited((m as AdaptiveCallMedia).applyPlan(p).catchError((Object e) {
+      callLog('call_controller#ss1', e);
+    }));
+  }
+
   /// The CALLER renegotiates (it is the only offerer — no glare). The callee
   /// asks the caller with `reneg_request`.
   Future<void> _renegotiateOrAsk() async {
@@ -1927,6 +1975,7 @@ class CallController extends ChangeNotifier {
 
   void _stopTimers() {
     _upgradeTimer?.cancel();
+    _screenCapTimer?.cancel(); // circle-screenshare
     _renegTimer?.cancel();
     _restartTimer?.cancel();
     _connectTimer?.cancel();

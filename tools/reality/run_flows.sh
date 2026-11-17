@@ -139,6 +139,32 @@ net_mode() {  # $1 = off|on
         echo "$(date +%T) geo $lat $lng $f" >> "$OUT/geo.log"
       done ) &
 
+# circle-screenshare: Android's screen-capture consent for the screen-share
+# proof. The app prints `REALITY_PROJECTION <file>` just before it asks; the
+# host pre-allows PROJECT_MEDIA (API <= 33 then skips the dialog) and taps
+# the SystemUI "Start now" if the dialog still shows (tools/reality/
+# projection_tap.py), then acks. The flow itself waits for frames, not acks.
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_PROJECTION [A-Za-z0-9_.-]+' \
+    | while read -r _ f; do
+        timeout 10 adb shell appops set $PKG PROJECT_MEDIA allow >/dev/null 2>&1 || true
+        tapped=none
+        for _i in $(seq 1 15); do
+          timeout 15 adb shell uiautomator dump /sdcard/ss_ui.xml >/dev/null 2>&1 || true
+          timeout 10 adb pull /sdcard/ss_ui.xml "$OUT/ss_ui.xml" >/dev/null 2>&1 || true
+          t=$(python3 tools/reality/projection_tap.py "$OUT/ss_ui.xml" 2>/dev/null || true)
+          if [ -n "$t" ]; then
+            set -- $t
+            timeout 10 adb shell input tap "$1" "$2" >/dev/null 2>&1 || true
+            tapped="$t"
+            break
+          fi
+          sleep 1
+        done
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) projection $f tapped=$tapped" >> "$OUT/projection.log"
+      done ) &
+
 echo "== settle 60 s after boot"; sleep 60
 # rt2: a "+" joins groups into ONE drive / app process (the matrix job runs
 # "start+personal": log in, then the group, on a fresh emulator).
