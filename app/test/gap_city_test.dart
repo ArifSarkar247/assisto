@@ -37,10 +37,12 @@ import 'fake_city.dart';
 class _GapApi extends FakeApi {
   bool offline = false;
   bool netDown = false; // everything off (Safe Journey start too)
+  final List<String> gets = [];
   _GapApi({super.mode});
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
+    gets.add(path);
     if (netDown || (offline && path.startsWith('/city/'))) throw const SocketException('offline');
     return super.getJson(path);
   }
@@ -240,6 +242,34 @@ void main() {
       expect(find.byKey(const ValueKey('city_need_start_pick')), findsOneWidget);
       // the old misleading "Could not find the way" is gone
       expect(find.text(t.cityPlanFailed), findsNothing);
+    });
+
+    testWidgets('Leave at…: a later time re-plans for that hour; Leave now goes back', (tester) async {
+      final api = _GapApi();
+      final t = await _pump(
+          tester,
+          CityServiceScreen(
+              debugHere: _here,
+              debugTo: const (name: 'Motijheel', address: '', lat: 23.7284, lng: 90.4205),
+              debugSimple: false,
+              debugNow: DateTime(2026, 11, 17, 14, 30),
+              store: CityStore(files: MemoryCityFiles())),
+          api);
+      expect(find.text(t.cityGLeaveNow), findsOneWidget);
+      expect(api.gets.where((g) => g.startsWith('/city/plan')).last, isNot(contains('at=')));
+      await tester.ensureVisible(find.byKey(const ValueKey('city_leave_at')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('city_leave_at')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(MaterialLocalizations.of(tester.element(find.byType(Dialog))).okButtonLabel));
+      await tester.pumpAndSettle();
+      expect(api.gets.where((g) => g.startsWith('/city/plan')).last, contains('at=14%3A30'));
+      expect(find.byKey(const ValueKey('city_leave_now')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('city_leave_now')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('city_leave_now')));
+      await tester.pumpAndSettle();
+      expect(api.gets.where((g) => g.startsWith('/city/plan')).last, isNot(contains('at=')));
     });
 
     testWidgets('Start as Safe Journey with no internet: the get-off alarm still starts + the trip guide opens',

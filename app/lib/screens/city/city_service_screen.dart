@@ -89,6 +89,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   List<CityReport> _reports = const [];
   bool? _learnOn; // trip learning consent (null = unknown / offline)
   int _verifiedStops = 0; // mapapp: "You verified N stops"
+  TimeOfDay? _leaveAt; // gap-city: null = leave now
 
   CityStore get _store => widget.store ?? CityStore.I;
   ApiClient get _api => context.read<AppState>().api;
@@ -184,10 +185,12 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       _planError = null;
       _rememberedAt = null;
     });
-    final key = CityStore.planKey(o.lat, o.lon, d.lat, d.lng);
+    final la = _leaveAt;
+    final at = la == null ? '' : '${la.hour.toString().padLeft(2, '0')}:${la.minute.toString().padLeft(2, '0')}';
+    final key = CityStore.planKey(o.lat, o.lon, d.lat, d.lng) + (at.isEmpty ? '' : '@$at');
     CityPlan? plan;
     try {
-      final m = await _api.cityPlan(o.lat, o.lon, d.lat, d.lng);
+      final m = await _api.cityPlan(o.lat, o.lon, d.lat, d.lng, at: at);
       plan = CityPlan.from(m);
       if (plan.ok) unawaited(_store.rememberPlan(key, m));
     } catch (_) {
@@ -200,7 +203,8 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
         for (final city in const ['dhaka', 'chattogram']) {
           final r = await _store.router(city);
           if (r != null && r.covers(o.lat, o.lon)) {
-            plan = CityPlan.from(r.plan(o.lat, o.lon, d.lat, d.lng), offline: true);
+            plan = CityPlan.from(r.plan(o.lat, o.lon, d.lat, d.lng, minute: la == null ? null : la.hour * 60 + la.minute),
+                offline: true);
             break;
           }
         }
@@ -258,6 +262,28 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       _to = newTo;
     });
     _planNow();
+  }
+
+  /// gap-city: "Leave at…" — fares and times for a later trip (the server
+  /// plans for that time of day; night -> Safer at night first).
+  Future<void> _pickLeaveAt() async {
+    final now = TimeOfDay.fromDateTime(_now);
+    final v = await showTimePicker(context: context, initialTime: _leaveAt ?? now);
+    if (v == null || !mounted) return;
+    setState(() {
+      _leaveAt = v;
+      _pick = (v.hour >= 20 || v.hour < 6) ? CityPick.saferNight : CityPick.cheapest;
+    });
+    await _planNow();
+  }
+
+  Future<void> _leaveNow() async {
+    final h = _now.hour;
+    setState(() {
+      _leaveAt = null;
+      _pick = (h >= 20 || h < 6) ? CityPick.saferNight : CityPick.cheapest;
+    });
+    await _planNow();
   }
 
   Future<void> _setSimple(bool v) async {
@@ -546,10 +572,29 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       final picks = _simple ? [CityPick.fewestChanges] : CityPick.values;
       final shown = _simple && p.options.containsKey(CityPick.fewestChanges) ? CityPick.fewestChanges : _pick;
       final opt = p.options[shown] ?? p.options.values.first;
+      final la = _leaveAt;
+      final laText = la == null ? '' : _timeText(DateTime(2000, 1, 1, la.hour, la.minute));
       out.add(Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
-        child: Text(cityD(context, t.cityForNow(_timeText(_now))),
-            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          // gap-city: plan a later trip (fares + times for that hour)
+          ActionChip(
+            key: const ValueKey('city_leave_at'),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            avatar: const Icon(Icons.schedule_rounded, size: 18),
+            label: Text(cityD(context, la == null ? t.cityGLeaveNow : t.cityGLeaveAt(laText))),
+            onPressed: _pickLeaveAt,
+          ),
+          if (la != null)
+            TextButton(
+              key: const ValueKey('city_leave_now'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _leaveNow,
+              child: Text(t.cityGLeaveNow),
+            ),
+          Text(cityD(context, la == null ? t.cityForNow(_timeText(_now)) : t.cityGForLeaving(laText)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ]),
       ));
       if (!_simple) {
         out.add(Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -791,6 +836,17 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
     final m = d.minute.toString().padLeft(2, '0');
     final t = AppLocalizations.of(context);
+    if (cityBn(context)) {
+      // gap-city: a real Bangla time of day ("রাত ৯:০০", not "বিকাল/রাত")
+      final x = d.hour;
+      final hm = '$h:$m';
+      if (x >= 4 && x < 6) return t.cityGAtDawn(hm);
+      if (x >= 6 && x < 12) return t.cityGAtMorning(hm);
+      if (x >= 12 && x < 15) return t.cityGAtNoon(hm);
+      if (x >= 15 && x < 18) return t.cityGAtAfternoon(hm);
+      if (x >= 18 && x < 20) return t.cityGAtEvening(hm);
+      return t.cityGAtNight(hm);
+    }
     return d.hour < 12 ? t.cityTimeAm('$h:$m') : t.cityTimePm('$h:$m');
   }
 
