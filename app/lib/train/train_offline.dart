@@ -299,7 +299,10 @@ OffPosition? towerPosition(TrainOfflinePack p, OffTrain t, TrainCell? cell, Date
 }
 
 /// km along [t]'s route of the point (lat, lng): projected on the straight
-/// lines between its stations; null when farther than 3 km from all.
+/// lines between its STOPS; null when farther than 8 km from all. The
+/// engine snaps each learned tower to the real (curved) rail line, and an
+/// intercity's stops can be 50+ km apart, so the real line may bow a few km
+/// away from the straight stop-to-stop chord — 8 km keeps those towers.
 double? trainKmAlong(OffTrain t, double lat, double lng) {
   final kx = 111320.0 * math.cos(lat * math.pi / 180), ky = 110540.0;
   double? best, bestD;
@@ -318,8 +321,11 @@ double? trainKmAlong(OffTrain t, double lat, double lng) {
       best = a.km + (b.km - a.km) * f;
     }
   }
-  return bestD != null && bestD <= 3000 ? best : null;
+  return bestD != null && bestD <= kTowerChordM ? best : null;
 }
+
+/// How far a learned tower may lie from the stop-to-stop chord.
+const double kTowerChordM = 8000;
 
 /// The offline "line" in the server's line_view shape (+ "source"), so the
 /// same timeline widget draws it. ETAs/times are from the timetable.

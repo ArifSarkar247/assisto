@@ -32,6 +32,7 @@ import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/train/train_fgs.dart';
 import 'package:assisto/train/train_offline.dart';
+import 'package:assisto/train/train_api.dart';
 import 'package:assisto/train/train_onboard.dart';
 import 'package:assisto/train/train_share_service.dart';
 import 'package:assisto/train/train_sms_parse.dart';
@@ -44,9 +45,11 @@ class _Fake extends ApiClient {
   final bool empty;
   bool offline;
   final posts = <(String, Map<String, dynamic>)>[];
+  final gets = <String>[];
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     if (offline) throw const SocketException('offline');
+    gets.add(path);
     return fakeTrainGet(path, bn: true, empty: empty) ?? <String, dynamic>{};
   }
 
@@ -263,6 +266,40 @@ void main() {
       expect(again.pack, isNotNull);
       expect(trainSizeLabel(431000), '421 KB');
       expect(trainSizeLabel(1300000), '1.2 MB');
+    });
+
+    test('downloads the ENGINE pack (/train/offline/pack, tw filled), not the raw bundle', () async {
+      final api = _Fake();
+      final s = TrainOfflineStore(dir: Directory.systemTemp.createTempSync('tr2e'));
+      expect(await s.download(api.trainOfflinePack), isTrue);
+      expect(api.gets.single, '/train/offline/pack');
+      // engine tower_map() rows: [mcc, mnc, tac, cid, segment, metres, samples, lat*1e5, lng*1e5]
+      expect(s.pack!.towers.keys, containsAll(['470-1-1234-56789', '470-3-77-4242']));
+      expect(s.pack!.towers['470-1-1234-56789']!.single.lat, closeTo(23.50426, 1e-6));
+      // up to date -> the server answers {version, same: true}; the phone keeps its pack
+      expect(await s.download((have) async {
+        expect(have, 'a1b2c3d4e5f6');
+        return {'version': have, 'same': true};
+      }), isTrue);
+      expect(s.pack!.towers.length, 2);
+    });
+
+    test('engine tower point on a curved line (km off the stop-to-stop chord) is still placed', () {
+      final j = trainOfflinePackJson();
+      // half way Cumilla -> Bhairab, ~5 km east of the straight chord
+      (j['tw'] as List).add([470, 7, 900, 123456, 31, 2200, 9, 2375660, 9112765]);
+      final p = TrainOfflinePack.fromJson(j), tr = p.trains['701']!;
+      final pos = towerPosition(
+          p, tr, const TrainCell(mcc: '470', mnc: '07', tac: 900, cid: 123456), _at(10, 0))!;
+      expect(pos.source, 'tower');
+      expect(pos.km, inInclusiveRange(175.0, 215.0));
+      // the raw bundle has an empty tw: no tower, the timetable is used
+      final raw = trainOfflinePackJson()..['tw'] = [];
+      final p2 = TrainOfflinePack.fromJson(raw);
+      expect(towerPosition(p2, p2.trains['701']!, _cumillaCell, _at(10, 0)), isNull);
+      // 8-field rows (no learned point) are ignored, never misplaced
+      final short = trainOfflinePackJson()..['tw'] = [[470, 1, 1234, 56789, 12, 640, 14, 2350426]];
+      expect(TrainOfflinePack.fromJson(short).towers, isEmpty);
     });
 
     test('outbox: offline keeps reports, sends them when online, drops refused ones', () async {
