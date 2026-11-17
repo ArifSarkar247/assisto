@@ -52301,5 +52301,33 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "gapcEditTooLate": "It's too late to edit this message.",
+  "@gapcEditTooLate": {
+    "description": "gap-circle: group edit refused, outside the 15-minute window"
+  },
+  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
+  "@gapcDeleteMeGroupConfirm": {
+    "description": "gap-circle: confirm delete-for-me in a group chat"
+  },
+  "gapcCallsClear": "Clear call history",
+  "@gapcCallsClear": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsClearBody": "All calls are removed from your call history. The other person keeps theirs.",
+  "@gapcCallsClearBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemove": "Remove from call history",
+  "@gapcCallRemove": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemoveBody": "This call is removed from your call history only. The other person keeps theirs.",
+  "@gapcCallRemoveBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsRemoved": "Removed from your call history.",
+  "@gapcCallsRemoved": {
+    "description": "gap-circle: remove calls from my call history"
   }
 }
