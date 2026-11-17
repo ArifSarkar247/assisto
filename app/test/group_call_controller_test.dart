@@ -128,9 +128,8 @@ void main() {
             reason: '${p.myId}: ${p.mediaProof}');
         expect((await p.evidence()).length, 2);
       }
-      // a camera that stops sending -> that pair is NOT proven any more
-      hub.camera[2] = false;
-      await a.refresh();
+      // a camera that is on but frozen -> that pair is NOT proven any more
+      hub.frozenVideo.add(2);
       await proveAll(hub, [a]);
       expect(a.mediaProof[2], isFalse);
       for (final p in [a, b, c]) {

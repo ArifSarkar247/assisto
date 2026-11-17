@@ -33,6 +33,7 @@ class Hub {
   final Map<int, bool> camera = {};
   final List<String> serverEvents = [];
   final Set<int> blocked = {};
+  final Set<int> frozenVideo = {}; // camera 'on' but no new frames
   String? joinError;
 
   StreamController<Map<String, dynamic>> streamOf(int uid) =>
@@ -268,8 +269,11 @@ class FakeGroupMedia implements GroupMedia {
     return LegStats(
       audioPacketsIn: s * 50,
       audioBytesIn: s * 4000,
-      videoFramesDecoded:
-          (hub.camera[other] ?? false) ? s * 15 : 0,
+      videoFramesDecoded: !(hub.camera[other] ?? false)
+          ? 0
+          : hub.frozenVideo.contains(other)
+              ? 15
+              : s * 15,
       audioLevel: otherMuted ? 0 : (levels[other] ?? 0),
       bytesSent: s * 5000,
       bytesReceived: s * 5000,
