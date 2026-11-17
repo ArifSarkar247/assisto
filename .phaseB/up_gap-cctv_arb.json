@@ -30,6 +30,14 @@
   "gcvWarnDeleteAsk": "Delete your recorded warning?",
   "@gcvWarnDeleteAsk": {
    "description": "gap-cctv: confirm before deleting the own-voice warning"
+  },
+  "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
+  "@gcvEvidenceMaking": {
+   "description": "gap-cctv: progress while building the evidence pack"
+  },
+  "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
+  "@gcvEvidencePartial": {
+   "description": "gap-cctv: evidence pack built without watermark copies or PDF"
   }
  },
  "bn": {
@@ -48,6 +56,8 @@
   "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ",
   "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনও চলবে — আমরা দেখতে থাকছি।",
   "gcvWarnRecordFirst": "এখনো রেকর্ড করা হয়নি — নিজের কণ্ঠে সতর্কবার্তা রেকর্ড করতে চাপুন",
-  "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?"
+  "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?",
+  "gcvEvidenceMaking": "প্রমাণ-প্যাক তৈরি হচ্ছে… (ছবি, ক্লিপ, SHA-256 তালিকা, PDF)",
+  "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।"
  }
 }

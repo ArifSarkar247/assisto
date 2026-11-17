@@ -14,10 +14,12 @@ import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
 import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
+import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
+import 'cctvx_fakes.dart' show FakeCctvx;
 import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
 import 'phonecam_shots.dart' show pcFakePair;
 
@@ -27,6 +29,17 @@ class _FailFirstEscalate extends FakeEscalate {
   Future<Map<String, dynamic>> warnClip(int siteId) async {
     if (n++ == 0) throw StateError('offline');
     return super.warnClip(siteId);
+  }
+}
+
+class _SlowEvidence extends FakeCctvx {
+  final gate = Completer<void>();
+  int asked = 0;
+  @override
+  Future<Map<String, dynamic>> evidence(int eventId) async {
+    asked++;
+    await gate.future;
+    return {'created': '2026-11-17T10:00:00+06:00', 'facts': const {}};
   }
 }
 
@@ -289,6 +302,34 @@ void main() {
       await _settle(tester);
       expect(esc.calls.last, 'delete_clip:1');
       expect(seen, [false], reason: 'a swipe-down still tells the caller');
+    });
+  });
+
+  group('G10 evidence pack: visible progress, one build at a time', () {
+    testWidgets('progress shows while building; a second tap does nothing', (tester) async {
+      _phone(tester);
+      final src = _SlowEvidence();
+      late BuildContext ctx;
+      await tester.pumpWidget(_app(Scaffold(body: Builder(builder: (c) {
+        ctx = c;
+        return const SizedBox.expand();
+      }))));
+      unawaited(exportEvidenceFlow(ctx, src, 201));
+      await _settle(tester);
+      await tester.tap(find.text(en.cxEvidenceMake));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-evidence-progress')), findsOneWidget);
+      expect(find.text(en.gcvEvidenceMaking), findsOneWidget);
+      await exportEvidenceFlow(ctx, src, 201); // the second tap
+      await _settle(tester);
+      expect(find.text(en.cxEvidenceMake), findsNothing, reason: 'no second confirm');
+      src.gate.complete();
+      await _settle(tester, 12);
+      // no photo / clip here: the honest "nothing to pack" line, progress gone
+      expect(find.byKey(const ValueKey('gcv-evidence-progress')), findsNothing);
+      expect(find.text(en.cxEvidenceNothing), findsOneWidget);
+      expect(src.asked, 1);
+      expect(evidenceBuilding, isFalse);
     });
   });
 }
