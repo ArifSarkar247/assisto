@@ -109,3 +109,43 @@ class GroupReplyEditTests(_Base):
         self.assertEqual(self.ca.post(self.p("messages/%d/edit" % vo.id),
                                       {"per_recipient": self.pr("TkVX")},
                                       format="json").status_code, 403)
+
+
+class CallLogHideTests(_Base):
+    def call(self, caller, callee):
+        from core.models import CallRecord
+        return CallRecord.objects.create(caller=caller, callee=callee,
+                                         kind="voice", state="ended")
+
+    def ids(self, client):
+        r = client.get(V + "/circle/calls")
+        self.assertEqual(r.status_code, 200, r.content)
+        return {x["id"] for x in r.json()["calls"]}
+
+    def hide(self, client, body):
+        return client.post(V + "/circle/calls/hide", body, format="json")
+
+    def test_remove_one_call_from_my_log_only(self):
+        c1, c2 = self.call(self.a, self.b), self.call(self.b, self.a)
+        r = self.hide(self.ca, {"ids": [c1.id]})
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(self.ids(self.ca), {c2.id})
+        self.assertEqual(self.ids(self.cb), {c1.id, c2.id}, "B keeps theirs")
+
+    def test_clear_all_then_new_calls_still_show(self):
+        self.call(self.a, self.b)
+        self.call(self.b, self.a)
+        self.assertEqual(self.hide(self.ca, {"all": True}).status_code, 200)
+        self.assertEqual(self.ids(self.ca), set())
+        from core.models import CallRecord
+        CallRecord.objects.update(started_at=timezone.now() - timedelta(minutes=5))
+        later = self.call(self.b, self.a)
+        self.assertEqual(self.ids(self.ca), {later.id})
+        self.assertEqual(len(self.ids(self.cb)), 3)
+
+    def test_someone_elses_call_and_bad_input_refused(self):
+        c1 = self.call(self.a, self.b)
+        self.assertEqual(self.hide(self.cc, {"ids": [c1.id]}).status_code, 404)
+        self.assertEqual(self.hide(self.ca, {"ids": "x"}).status_code, 400)
+        self.assertEqual(self.hide(self.ca, {}).status_code, 400)
+        self.assertEqual(self.ids(self.ca), {c1.id})

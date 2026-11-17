@@ -9,6 +9,7 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/group_msg_actions.dart';
 import 'package:assisto/messaging/outbox.dart';
+import 'package:assisto/screens/circle_call_history_screen.dart';
 import 'package:assisto/screens/circle_group_chat_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:flutter/material.dart';
@@ -261,5 +262,88 @@ void main() {
     await _settle(tester);
     expect(api.posts('/circle/groups/7/messages/105/delete').single['scope'], 'everyone');
     await _dispose(tester);
+  });
+
+  group('call history: remove from my log', () {
+    Map<String, dynamic> calls() => {
+          'calls': [
+            {'id': 9, 'kind': 'voice', 'state': 'missed', 'outgoing': false,
+             'name': 'Shanto', 'member_id': 4, 'outcome': 'Missed call',
+             'started_at': '2026-11-16T07:30:00Z'},
+            {'id': 8, 'kind': 'voice', 'state': 'missed', 'outgoing': false,
+             'name': 'Shanto', 'member_id': 4, 'outcome': 'Missed call',
+             'started_at': '2026-11-16T07:10:00Z'},
+            {'id': 7, 'kind': 'voice', 'state': 'ended', 'outgoing': true,
+             'name': 'Rina', 'member_id': 5, 'outcome': 'Outgoing',
+             'duration': '01:05', 'started_at': '2026-11-15T09:00:00Z'},
+          ],
+          'groups': [
+            {'id': 9, 'kind': 'voice', 'state': 'missed', 'outgoing': false,
+             'name': 'Shanto', 'member_id': 4, 'outcome': 'Missed call',
+             'started_at': '2026-11-16T07:30:00Z', 'count': 2, 'ids': [9, 8]},
+            {'id': 7, 'kind': 'voice', 'state': 'ended', 'outgoing': true,
+             'name': 'Rina', 'member_id': 5, 'outcome': 'Outgoing',
+             'duration': '01:05', 'started_at': '2026-11-15T09:00:00Z'},
+          ],
+        };
+
+    Future<_Api> host(WidgetTester tester) async {
+      final api = _Api();
+      api.replies['/circle/calls'] = calls;
+      api.replies['/circle/calls/hide'] = {'ok': true};
+      await tester.binding.setSurfaceSize(const Size(400, 800));
+      final app = AppState()..api = api;
+      await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+        value: app,
+        child: MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const CircleCallHistoryScreen(),
+        ),
+      ));
+      await _settle(tester);
+      return api;
+    }
+
+    testWidgets('long-press a grouped row removes every call in it', (tester) async {
+      final api = await host(tester);
+      expect(find.byKey(const ValueKey('call-log-row-9')), findsOneWidget);
+      await tester.longPress(find.byKey(const ValueKey('call-log-row-9')));
+      await _settle(tester);
+      expect(find.text(en.gapcCallRemoveBody), findsOneWidget);
+      await tester.tap(find.byKey(const Key('gapc-calls-confirm')));
+      await _settle(tester);
+      final ids = (api.posts('/circle/calls/hide').single['ids'] as List).toSet();
+      expect(ids, {9, 8});
+      expect(find.byKey(const ValueKey('call-log-row-9')), findsNothing);
+      expect(find.byKey(const ValueKey('call-log-row-7')), findsOneWidget);
+      await _dispose(tester);
+    });
+
+    testWidgets('clear all asks first; cancel sends nothing', (tester) async {
+      final api = await host(tester);
+      await tester.tap(find.byKey(const Key('gapc-calls-menu')));
+      await _settle(tester);
+      await tester.tap(find.byKey(const Key('gapc-calls-clear')));
+      await _settle(tester);
+      await tester.tap(find.text(en.cancel));
+      await _settle(tester);
+      expect(api.posts('/circle/calls/hide'), isEmpty);
+      await tester.tap(find.byKey(const Key('gapc-calls-menu')));
+      await _settle(tester);
+      await tester.tap(find.byKey(const Key('gapc-calls-clear')));
+      await _settle(tester);
+      await tester.tap(find.byKey(const Key('gapc-calls-confirm')));
+      await _settle(tester);
+      expect(api.posts('/circle/calls/hide').single, {'all': true});
+      expect(find.byKey(const ValueKey('call-log-row-7')), findsNothing);
+      await _dispose(tester);
+    });
   });
 }

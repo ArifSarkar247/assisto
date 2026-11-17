@@ -119,11 +119,92 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     ));
   }
 
+  // ------------------------------------------------------------ gap-circle
+  Future<bool> _confirm(String title, String body) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true, // 200% text
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+              key: const Key('gapc-calls-confirm'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(_t.delete)),
+        ],
+      ),
+    );
+    return ok == true && mounted;
+  }
+
+  Future<void> _hide(Map<String, dynamic> body, bool Function(Map<String, dynamic>) gone) async {
+    final beforeCalls = _calls;
+    final beforeById = _byId;
+    setState(() {
+      _calls = _calls.where((c) => !gone(c)).toList();
+      _byId = {
+        for (final e in _byId.entries)
+          if (!gone(e.value)) e.key: e.value
+      };
+    });
+    try {
+      await _api.postJson('/circle/calls/hide', body);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_t.gapcCallsRemoved)));
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _calls = beforeCalls;
+        _byId = beforeById;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(_t.grpActionFailed)));
+    }
+  }
+
+  Future<void> _removeRow(Map<String, dynamic> row) async {
+    if (!await _confirm(_t.gapcCallRemove, _t.gapcCallRemoveBody)) return;
+    final ids = {
+      for (final e in callInfoEntries(row, _byId)) '${e['id']}',
+      if (row['ids'] is List) for (final i in row['ids'] as List) '$i',
+      '${row['id']}',
+    }.map(int.tryParse).whereType<int>().toList();
+    if (ids.isEmpty) return;
+    await _hide({'ids': ids}, (c) => ids.contains(int.tryParse('${c['id']}')));
+  }
+
+  Future<void> _clearAll() async {
+    if (!await _confirm(_t.gapcCallsClear, _t.gapcCallsClearBody)) return;
+    await _hide({'all': true}, (_) => true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(_t.circleCallHistoryTitle)),
+      appBar: AppBar(
+        title: Text(_t.circleCallHistoryTitle),
+        actions: [
+          // gap-circle: clear my call history (the other person keeps theirs)
+          if (!_loading && _calls.isNotEmpty)
+            PopupMenuButton<String>(
+              key: const Key('gapc-calls-menu'),
+              onSelected: (_) => _clearAll(),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                    key: const Key('gapc-calls-clear'),
+                    value: 'clear',
+                    child: Text(_t.gapcCallsClear)),
+              ],
+            ),
+        ],
+      ),
       body: _loading
           ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
               for (var i = 0; i < 4; i++)
@@ -238,6 +319,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
       key: ValueKey('call-log-row-${call['id']}'),
       // wa-polish2: tap the row -> Call info (the call button still calls)
       onTap: () => _openInfo(call),
+      onLongPress: () => _removeRow(call), // gap-circle
       leading: CallAvatar(
           name: name,
           photoUrl: '${call['photo_url'] ?? ''}',
