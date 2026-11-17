@@ -1065,7 +1065,8 @@ class WatchmanClipsView(_OwnerBase):
     gap-cctv D4: the PAST CLIPS still kept on the server (newest first), by
     camera and day, with each camera's honest keep time. Read-only: unlike the
     alert list it does not mark anything as seen. A guard / limited viewer
-    sees only their cameras."""
+    sees only their cameras. `day` is the shop's LOCAL date (TIME_ZONE,
+    Asia/Dhaka), the same day the app shows."""
 
     def get(self, request):
         from .models import ShopEvent
