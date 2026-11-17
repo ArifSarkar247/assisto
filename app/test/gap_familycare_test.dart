@@ -391,7 +391,7 @@ void main() {
       await openGoals(t, api);
       expect(api.gets.where((g) => g.startsWith('family/accounting/') && !g.contains('family=10')),
           isEmpty, reason: '${api.gets}');
-      expect(find.text('Shared with everyone in My family'), findsOneWidget);
+      expect(find.text('My family — everyone sees and adds'), findsOneWidget);
       expect(find.text('Eid fund'), findsOneWidget);
       expect(find.byKey(const ValueKey('fcg-goal-progress-5')), findsOneWidget);
       await t.tap(find.byKey(const ValueKey('fcg-goal-add-5')));

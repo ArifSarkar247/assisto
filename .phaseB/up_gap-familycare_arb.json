@@ -65,7 +65,7 @@
         }
       }
     },
-    "fcgLedgerShared": "Shared with everyone in {family}",
+    "fcgLedgerShared": "{family} — everyone sees and adds",
     "@fcgLedgerShared": {
       "placeholders": {
         "family": {
@@ -100,7 +100,7 @@
     "fcgGoalReached": "লক্ষ্য পূরণ!",
     "fcgGoalDone": "বন্ধ করা লক্ষ্য",
     "fcgGoalProgress": "{target}-এর মধ্যে {collected} · {pct}%",
-    "fcgLedgerShared": "{family}-এর সবার সাথে ভাগ করা",
+    "fcgLedgerShared": "{family} — সবাই দেখেন ও যোগ করেন",
     "fcgLedgerFamily": "পরিবারের (সবার)",
     "fcgLedgerMine": "শুধু আমার"
   }

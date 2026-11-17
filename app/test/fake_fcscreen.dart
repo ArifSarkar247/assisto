@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 // fcscreen — fake /family/v3/* answers for the gallery, fake_api.dart and
 // fcscreen_test.dart. Server-shaped (backend/core/family_v3.py board()).
 // FcFake.scene picks the state set: 'mixed' (default: SOS-free, one gray
@@ -6,6 +8,10 @@
 
 class FcFake {
   static String scene = 'mixed';
+
+  /// gap-familycare: a gallery shot's own scene (set by [FcScene] while it
+  /// is on screen; wins over [scene], which the gallery resets per shot).
+  static String? sceneOverride;
   static final List<String> posts = [];
 }
 
@@ -216,7 +222,7 @@ Map<String, dynamic>? fakeFcGet(String path, {bool bn = false, bool empty = fals
     return {};
   }
   if (!p.startsWith('family/v3/')) return null;
-  final scene = empty ? 'empty' : FcFake.scene;
+  final scene = empty ? 'empty' : (FcFake.sceneOverride ?? FcFake.scene);
   if (p == 'family/v3/families') return fcFakeFamilies(bn: bn, scene: scene);
   if (RegExp(r'^family/v3/families/\d+/board$').hasMatch(p)) {
     return fcFakeBoard(bn: bn, scene: scene);
@@ -239,4 +245,30 @@ Map<String, dynamic>? fakeFcPost(String path, Map<String, dynamic> body) {
   }
   if (p.endsWith('/invite')) return {'ok': true, 'state': 'invited', 'membership_id': 40};
   return {'ok': true};
+}
+
+/// gap-familycare: wraps a gallery screen so its fake board uses [scene].
+class FcScene extends StatefulWidget {
+  final String scene;
+  final Widget child;
+  const FcScene({super.key, required this.scene, required this.child});
+  @override
+  State<FcScene> createState() => _FcSceneState();
+}
+
+class _FcSceneState extends State<FcScene> {
+  @override
+  void initState() {
+    super.initState();
+    FcFake.sceneOverride = widget.scene;
+  }
+
+  @override
+  void dispose() {
+    if (FcFake.sceneOverride == widget.scene) FcFake.sceneOverride = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
