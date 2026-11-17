@@ -482,6 +482,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             trailing: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: h.primary ? Brand.dangerFill : null, // designv2: AA with white
+                foregroundColor: h.primary ? Colors.white : null, // dark theme onPrimary was 3.23:1 (design3 b05 fix)
                 minimumSize: const Size(0, 44),
               ),
               onPressed: () => _call(h.number),
