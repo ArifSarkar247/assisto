@@ -114,7 +114,7 @@ class AboutPageTests(Base):
             html = r.content.decode()
             self.assertIn(h1, html)
             self.assertIn('<html lang="%s"' % lang, html)
-            self.assertIn("AXON Dynamic", html)
+            self.assertIn("Axon Dynamics", html)
             self.assertNotIn("noindex", html)
         self.assertIn('href="/about"', Client().get("/").content.decode())   # footer link
 

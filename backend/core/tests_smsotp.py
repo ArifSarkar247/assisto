@@ -593,7 +593,7 @@ class EmailOtpTests(APITestCase):
         self.assertIn("assistoaiagent@gmail.com", msg["From"])
         body = mail_text(msg)
         self.assertIn(CODE, body)
-        self.assertIn("AXON Dynamic", body)
+        self.assertIn("Axon Dynamics", body)
         self.assertNotIn("Rahim", body)                      # no personal names
         self.assertNotIn("<img", body)
         self.assertNotIn("http", body)                       # no links / tracking
@@ -808,7 +808,7 @@ class EmailOtpTests(APITestCase):
         for b in (b_bn, b_en):
             self.assertIn("Your Assisto verification code", b)
             self.assertIn("যাচাই কোড", b)
-            self.assertIn("AXON Dynamic", b)
+            self.assertIn("Axon Dynamics", b)
 
 
 # ======================================================================= secrets

@@ -450,7 +450,7 @@ COPY = {
         "faq_h": "প্রশ্নোত্তর", "more_h": "আরও জানুন",
         "cta_h": "আজই শুরু করুন — ফ্রিতে",
         "cta_p": "Google Play থেকে Assisto নিন। বাংলা বা ইংরেজি, আপনার পছন্দ।",
-        "footer_made": "বাংলাদেশে তৈরি", "footer_company": "AXON Dynamic",
+        "footer_made": "বাংলাদেশে তৈরি", "footer_company": "Axon Dynamics",
         "f_privacy": "গোপনীয়তা নীতি", "f_terms": "শর্তাবলি", "f_delete": "অ্যাকাউন্ট মুছুন", "f_help": "সাহায্য ও যোগাযোগ",
         "f_tools": "ফ্রি টুল", "not_emergency": "Assisto জরুরি সেবা নয় — বিপদে ৯৯৯-এ ফোন করুন।",
         "shot_alt": "Assisto অ্যাপের স্ক্রিনশট: ",
@@ -509,7 +509,7 @@ COPY = {
         "faq_h": "FAQ", "more_h": "Learn more",
         "cta_h": "Start today — free",
         "cta_p": "Get Assisto on Google Play. Bangla or English, your choice.",
-        "footer_made": "Made in Bangladesh", "footer_company": "AXON Dynamic",
+        "footer_made": "Made in Bangladesh", "footer_company": "Axon Dynamics",
         "f_privacy": "Privacy policy", "f_terms": "Terms", "f_delete": "Delete account", "f_help": "Help and contact",
         "f_tools": "Free tools", "not_emergency": "Assisto is not an emergency service — in danger, call 999.",
         "shot_alt": "Assisto app screenshot: ",
@@ -658,7 +658,7 @@ def jsonld(lang, site, url, page, faq_rows, crumbs=None, install_url=None):
     # in-app purchases, NO aggregateRating/review (we have no real reviews).
     org = {"@type": "Organization", "@id": site + "/#org", "name": SC.COMPANY, "url": site + "/",
            "email": SC.EMAIL, "logo": {"@type": "ImageObject", "url": site + "/site/icon-512.png", "width": 512, "height": 512},
-           "address": {"@type": "PostalAddress", "streetAddress": "Cha-63 Uttar Badda", "addressLocality": "Dhaka",
+           "address": {"@type": "PostalAddress", "streetAddress": "Cha-63/3, Uttar Badda, Badda", "addressLocality": "Dhaka",
                        "postalCode": "1212", "addressCountry": "BD"},
            "contactPoint": {"@type": "ContactPoint", "email": SC.EMAIL, "contactType": "customer support",
                             "availableLanguage": ["bn", "en"]}}

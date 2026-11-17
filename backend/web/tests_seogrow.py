@@ -171,10 +171,10 @@ class LandingPageTests(LandingBase):
                 self.assertTrue(p.ld, path)
                 g = graph(p)
                 org, app = g["Organization"], g["SoftwareApplication"]
-                self.assertEqual(org["name"], "AXON Dynamic")
+                self.assertEqual(org["name"], "Axon Dynamics")
                 self.assertEqual(org["email"], "assistoaiagent@gmail.com")
                 self.assertEqual(org["url"], "https://lifeassisto.com/")
-                self.assertEqual(org["address"]["streetAddress"], "Cha-63 Uttar Badda")
+                self.assertEqual(org["address"]["streetAddress"], "Cha-63/3, Uttar Badda, Badda")
                 self.assertEqual(org["address"]["postalCode"], "1212")
                 self.assertEqual(org["address"]["addressLocality"], "Dhaka")
                 self.assertTrue(org["logo"]["url"].endswith("/site/icon-512.png"))

@@ -18,8 +18,8 @@ from html import escape
 
 BRAND_GRAD = "linear-gradient(90deg,#06B6D4 0%,#3B82F6 50%,#8B5CF6 100%)"
 BRAND_SOLID = "#3B82F6"           # fallback where gradients are not drawn
-FOOTER_BN = "Assisto — AXON Dynamic"
-FOOTER_EN = "Assisto by AXON Dynamic"
+FOOTER_BN = "Assisto — Axon Dynamics"
+FOOTER_EN = "Assisto by Axon Dynamics"
 AUTO_BN = "এটি স্বয়ংক্রিয় ইমেইল, উত্তর দেবেন না।"
 AUTO_EN = "This is an automated email; please don't reply."
 FONT = ("'Noto Sans Bengali','Hind Siliguri','Segoe UI',Roboto,Helvetica,"

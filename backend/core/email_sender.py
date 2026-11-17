@@ -55,8 +55,8 @@ if not log.handlers:
     log.addHandler(_h)
     log.setLevel(logging.INFO)
     log.propagate = False
-FOOTER_BN = "Assisto — AXON Dynamic"
-FOOTER_EN = "Assisto by AXON Dynamic"
+FOOTER_BN = "Assisto — Axon Dynamics"
+FOOTER_EN = "Assisto by Axon Dynamics"
 
 
 # ------------------------------------------------------------------ helpers

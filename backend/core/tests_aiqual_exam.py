@@ -154,7 +154,7 @@ class PromptTests(TestCase):
         GB.trip("http_402", "")
         sp = AP.system_prompt()
         self.assertIn("right now your answers come from Anthropic's Claude models", sp)
-        self.assertIn("AXON Dynamic", sp)
+        self.assertIn("Axon Dynamics", sp)
         self.assertNotIn("say exactly that", sp)
 
     def test_chat_task_has_format_length_web_and_date(self):

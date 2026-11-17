@@ -158,7 +158,7 @@ class PublicTests(TestCase):
         self.assertEqual(art["inLanguage"], "bn")
         self.assertEqual(art["mainEntityOfPage"]["@id"], url)
         self.assertEqual(art["dateModified"], blog_seed.REVIEWED)
-        self.assertEqual(art["publisher"]["name"], "AXON Dynamic")
+        self.assertEqual(art["publisher"]["name"], "Axon Dynamics")
         en = Client().get("/blog/%s?lang=en" % self.slug).content.decode()
         self.assertIn('<html lang="en">', en)
         self.assertIn('<link rel="canonical" href="%s?lang=en">' % url, en)
