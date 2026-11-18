@@ -55079,5 +55079,14 @@
   "tr2DataNoteOfficial": "Times: Bangladesh Railway official timetable (railway.gov.bd) — approximate until checked. Map © OpenStreetMap contributors (ODbL). Free to use.",
   "@tr2DataNoteOfficial": {
     "description": "train-e2e: data note under the train list (replaces trDataNote2, which still named Wikipedia as the source)"
+  },
+  "gcvTuyaAccessId": "Access ID (from your Tuya developer project)",
+  "@gcvTuyaAccessId": {
+    "description": "gap-cctv: Tuya / Smart Life own-project Access ID field"
+  },
+  "gcvTuyaAccessSecret": "Access Secret",
+  "gcvPhoneHint": "01XXXXXXXXX",
+  "@gcvPhoneHint": {
+    "description": "gap-cctv: phone number hint (Bangla digits in Bangla)"
   }
 }

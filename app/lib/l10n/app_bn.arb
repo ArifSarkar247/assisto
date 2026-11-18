@@ -26546,5 +26546,8 @@
   "gbzStopByOwner": "{date} তারিখে আপনি STOP হিসেবে চিহ্নিত করেছেন।",
   "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।",
   "tr2ReportNotTaken": "গণনা হয়নি — একটু পরে আবার চেষ্টা করুন",
-  "tr2DataNoteOfficial": "সময়: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি (railway.gov.bd) — যাচাই না হওয়া পর্যন্ত আনুমানিক। ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।"
+  "tr2DataNoteOfficial": "সময়: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি (railway.gov.bd) — যাচাই না হওয়া পর্যন্ত আনুমানিক। ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।",
+  "gcvTuyaAccessId": "অ্যাক্সেস আইডি (আপনার Tuya ডেভেলপার প্রজেক্ট থেকে)",
+  "gcvTuyaAccessSecret": "অ্যাক্সেস সিক্রেট",
+  "gcvPhoneHint": "০১XXXXXXXXX"
 }
