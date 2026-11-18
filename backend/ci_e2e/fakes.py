@@ -250,6 +250,9 @@ def install():
         from core import email_sender
         email_sender.configured = lambda: True
         email_sender._sender = lambda: _FakeMailSender()
+        # production today: the SMS gateway is OFF, so the login screen offers
+        # "Sign in with an email code" (with SMS on it offers SMS instead)
+        otp.sms_available = lambda: False
     # camflows: the fake vendor clouds (CCTV brand-cloud E2E only)
     import os
     if os.environ.get("E2E_VENDOR_SIM") == "1":
