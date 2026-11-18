@@ -31,6 +31,11 @@ Cases
             marks it SEEN on the server; delivery receipt from the killed app.
   family    B taps "I'm safe" -> family alert in the shade; tap -> the app opens
             and marks it SEEN on the server.
+  alarm     (proof-notif) the phone's OWN reminder alarm, app killed: rings at
+            the set minute (exact); Snooze / Done from the shade; the next
+            start applies them; the snoozed one rings again in DOZE.
+  reboot    (proof-notif) emulator restart: the boot receiver puts a future
+            alarm back and it rings without the app being opened.
 
 NOT proven here (stated in the proof file): Google's FCM servers carrying
 the message to a real phone, and OEM battery killers (ColorOS / MIUI) that
@@ -76,6 +81,12 @@ RESULT = {"cases": [], "setup": {}, "not_proven": [
     "(Firebase Test Lab + the owner's two-phone test)",
     "a FORCE-STOPPED app (Settings > Force stop) gets no push on Android at "
     "all, for every app — by design, not testable as a pass",
+    # proof-notif (np6-np8)
+    "the alarm cases run the DEBUG APK: the reboot reschedule in the R8-shrunk "
+    "release build is guarded by android.yml's R8 keep-rule gate, not run here",
+    "Android 14+: exact alarms are OFF for new installs until the user allows "
+    "'Alarms & reminders' (this emulator is API 33, where they are on); the "
+    "Reminders screen banner asks for it",
 ]}
 
 
@@ -211,6 +222,8 @@ def notif_records():
                      "flags": int(fl.group(1), 16) if fl else 0,
                      "intercept": icp.group(1) if icp else "?",
                      "fsi": bool(fsi and fsi.group(1) != "null"),
+                     # proof-notif: local reminder alarms are matched by title
+                     "title": (re.search(r"android\.title=\S+ \((.*?)\)\n", part) or [None, ""])[1],
                      "raw": part[:4000]})
     snd = re.search(r"mSoundNotificationKey=(\S*)", out)
     return recs, (snd.group(1) if snd else "?"), out
@@ -652,6 +665,405 @@ def setup():
     return A, Bu, tokens, eb.id if eb else None
 
 
+# ------------------------------------------------------- local reminder alarms
+# proof-notif (board rows 13 + 6): the phone's OWN reminder alarm (no push at
+# all — the server reminder job never runs here) with the app process KILLED:
+#   np6  rings at the set minute (exact alarm); Snooze + Done buttons work
+#        from the shade with the app closed (background isolate); the next
+#        app start applies them (server: Done = done, Snooze = +10 min)
+#   np7  Doze (screen off, unplugged, `deviceidle force-idle`): the snoozed
+#        reminder still rings while the phone stays in deep idle
+#   np8  emulator REBOOT: a future reminder is put back by the boot receiver
+#        and rings without the app ever being opened after the reboot
+REM_CH = "assisto_reminders"
+BTN_DONE = ("Done", "হয়ে গেছে")
+BTN_SNOOZE = ("Snooze 10 min", "১০ মিনিট পরে")
+
+
+def _next_minute(after_s):
+    t = time.time() + after_s
+    return int(t // 60 + 1) * 60
+
+
+def _iso(ts):
+    from datetime import datetime, timezone as dtz
+    return datetime.fromtimestamp(ts, dtz.utc).isoformat()
+
+
+def make_reminder(Ah, title, due_ts):
+    st, j = Ah.req("POST", "/reminders/", {"title": title, "due_at": _iso(due_ts)})
+    return st, j
+
+
+def reminder_row(rid):
+    from django.db import close_old_connections
+    from core.models import Reminder
+    close_old_connections()
+    return Reminder.objects.filter(id=rid).first()
+
+
+def alarm_entries():
+    """Our pending flutter_local_notifications alarms from `dumpsys alarm`
+    (tag ...ScheduledNotificationReceiver): when (epoch ms), window, flags."""
+    out = sh("dumpsys alarm", timeout=90)
+    lines = out.splitlines()
+    hdr = re.compile(r"^\s*(RTC_WAKEUP|RTC|ELAPSED_WAKEUP|ELAPSED) #\d+: Alarm\{\S+ type (\d+) origWhen (-?\d+)")
+    res = []
+    for i, ln in enumerate(lines):
+        m = hdr.match(ln)
+        if not m or PKG not in ln:
+            continue
+        blk = "\n".join(lines[i:i + 12])
+        nxt = [k for k in range(i + 1, min(i + 12, len(lines))) if hdr.match(lines[k])]
+        if nxt:
+            blk = "\n".join(lines[i:nxt[0]])
+        if "ScheduledNotificationReceiver" not in blk:
+            continue
+        w = re.search(r"window=(-?\d+)", blk)
+        fl = re.search(r"flags=(0x[0-9a-fA-F]+)", blk)
+        ex = re.search(r"exactAllowReason=(\S+)", blk)
+        res.append({"type": m.group(1), "when_ms": int(m.group(3)),
+                    "window": int(w.group(1)) if w else None,
+                    "flags": fl.group(1) if fl else "?",
+                    "exact_reason": ex.group(1) if ex else "?",
+                    "alarm_clock": "alarmClock" in blk or "AlarmClockInfo" in blk})
+    return res, out
+
+
+def wait_alarm_at(ts, timeout=90, tol_s=2):
+    end = time.time() + timeout
+    last = ([], "")
+    while time.time() < end:
+        last = alarm_entries()
+        for a in last[0]:
+            if a["type"].startswith("RTC") and abs(a["when_ms"] / 1000.0 - ts) <= tol_s:
+                return a, last
+        time.sleep(4)
+    return None, last
+
+
+def is_exact(a):
+    return a is not None and (a["window"] == 0 or a["alarm_clock"])
+
+
+def _rem_rec(title):
+    for r in notif_records()[0]:
+        if r["channel"] == REM_CH and (r["title"] == title or title in r["raw"]):
+            return r
+    return None
+
+
+def wait_ring(title, due_ts, late_s=75, idle_probe=False):
+    """Poll the shade until the reminder is posted; returns (seen_ts, rec,
+    deep-idle state right after it was seen)."""
+    end = due_ts + late_s
+    while time.time() < end:
+        r = _rem_rec(title)
+        if r is not None:
+            seen = time.time()
+            st = sh("dumpsys deviceidle get deep").strip() if idle_probe else ""
+            return seen, r, st
+        time.sleep(1.0 if time.time() > due_ts - 3 else 3.0)
+    return None, None, ""
+
+
+def open_app(wait_s=30, cold=False):
+    # cold: the reminder list syncs on app START / resume — a reminder made
+    # on the server while the app sits in front is not fetched until then
+    if cold:
+        kill_app()
+    wake_unlocked()
+    sh("am start -W -n %s/.MainActivity" % PKG, timeout=120)
+    time.sleep(wait_s)
+
+
+def stash_old_notifications():
+    """Old Assisto notifications (earlier cases) are snoozed away so the
+    reminder is the first, expanded row in the shade (its buttons visible)."""
+    n = 0
+    for r in notif_records()[0]:
+        if r["key"] and r["channel"] != REM_CH:
+            sh("cmd notification snooze --for 36000000 %s" % q(r["key"]))
+            n += 1
+    return n
+
+
+def tap_action(title, labels, timeout=25):
+    """Expand the shade, find the reminder row and tap one of its buttons."""
+    sh("cmd statusbar expand-notifications")
+    end = time.time() + timeout
+    root = None
+    tried_expand = False
+    while time.time() < end:
+        time.sleep(2)
+        root = ui_dump()
+        for lb in labels:
+            n = ui_find(root, lb, pkg="com.android.systemui")
+            if n is not None:
+                return lb, tap_node(n), root
+        row = ui_find(root, title, pkg="com.android.systemui")
+        if row is not None and not tried_expand:
+            # a collapsed row: swipe down on it to show its buttons
+            m = re.findall(r"\d+", row.get("bounds") or "")
+            if len(m) == 4:
+                x1, y1, x2, y2 = map(int, m)
+                x, y = (x1 + x2) // 2, (y1 + y2) // 2
+                sh("input swipe %d %d %d %d 300" % (x, y, x, y + 350))
+            tried_expand = True
+    return None, False, root
+
+
+def case_alarm_ring_actions(A, Ah):
+    c = Case("np6_alarm_closed_actions", [13, 6],
+             "the phone's own reminder alarm rings at the set minute with the app killed; Snooze / Done from the shade")
+    tag = int(time.time()) % 100000
+    t1, t2 = "notifproof pill %d" % tag, "notifproof water %d" % tag
+    due1 = _next_minute(150)
+    due2 = due1 + 60
+    c.r["exact_alarm_appop"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:200]
+    st1, j1 = make_reminder(Ah, t1, due1)
+    st2, j2 = make_reminder(Ah, t2, due2)
+    c.check("two reminders saved on the server (no server job runs: only the phone can ring)",
+            st1 in (200, 201) and st2 in (200, 201), (st1, j1, st2, j2))
+    r1, r2 = j1.get("id"), j2.get("id")
+    open_app(25, cold=True)
+    a1, (_, adump) = wait_alarm_at(due1, timeout=90)
+    save("np6_alarm_dump_before.txt", adump)
+    c.check("the app set a phone alarm for reminder 1 at its exact minute", a1 is not None,
+            alarm_entries()[0][:6])
+    c.r["alarm1"] = a1
+    c.check("it is an EXACT alarm (window=0 / alarm clock), not an inexact batch", is_exact(a1), a1)
+    a2, _ = wait_alarm_at(due2, timeout=30)
+    c.check("the app set a phone alarm for reminder 2", a2 is not None, "")
+    closed_precheck(c)
+    stash_old_notifications()
+    wake_unlocked()
+    # ---- reminder 1 rings with the app killed
+    seen, rec, _ = wait_ring(t1, due1)
+    shot("np6_ring1")
+    c.r["ring1_late_s"] = None if seen is None else round(seen - due1, 1)
+    c.check("reminder 1 RANG (posted on the reminders channel) with the app killed", rec is not None,
+            [(r["channel"], r["title"]) for r in notif_records()[0]])
+    if rec is None:
+        return c.done(), None
+    c.check("at the set minute (posted 0-60 s after the due time)", -2 <= seen - due1 <= 60, c.r["ring1_late_s"])
+    # ---- Snooze 10 min from the shade (app stays closed)
+    lb, ok, root = tap_action(t1, BTN_SNOOZE)
+    t_snz = time.time()
+    shot("np6_after_snooze")
+    c.check("the shade shows a 'Snooze 10 min' button and it was tapped", ok,
+            ui_texts(root, pkg="com.android.systemui")[:30])
+    time.sleep(6)
+    sh("cmd statusbar collapse")
+    c.check("Snooze dismissed the reminder", _rem_rec(t1) is None, "")
+    snz, (_, sdump) = wait_alarm_at(t_snz + 600, timeout=40, tol_s=20)
+    save("np6_alarm_dump_snooze.txt", sdump)
+    c.r["snooze_alarm"] = snz
+    c.check("Snooze set a new phone alarm 10 minutes later (app still closed)", snz is not None,
+            alarm_entries()[0][:6])
+    c.check("Snooze did NOT open the app", PKG not in resumed_activity(), resumed_activity())
+    # ---- reminder 2 rings; Done from the shade
+    seen2, rec2, _ = wait_ring(t2, due2)
+    shot("np6_ring2")
+    c.r["ring2_late_s"] = None if seen2 is None else round(seen2 - due2, 1)
+    c.check("reminder 2 rang at its minute too", rec2 is not None and -2 <= seen2 - due2 <= 60, c.r["ring2_late_s"])
+    if rec2 is not None:
+        lb, ok, root = tap_action(t2, BTN_DONE)
+        shot("np6_after_done")
+        c.check("the shade shows a 'Done' button and it was tapped", ok,
+                ui_texts(root, pkg="com.android.systemui")[:30])
+        time.sleep(6)
+        sh("cmd statusbar collapse")
+        c.check("Done dismissed reminder 2", _rem_rec(t2) is None, "")
+    # ---- the next app start applies both buttons
+    open_app(10)
+    end = time.time() + 90
+    d1 = d2 = None
+    while time.time() < end:
+        d1, d2 = reminder_row(r1), reminder_row(r2)
+        if d2 is not None and d2.done and d1 is not None and d1.due_at \
+                and d1.due_at.timestamp() > due1 + 300:
+            break
+        time.sleep(4)
+    c.check("next app start: 'Done' reached the server (reminder 2 done)", d2 is not None and d2.done,
+            d2 and (d2.done, d2.due_at))
+    c.check("next app start: 'Snooze' moved reminder 1 by 10 minutes on the server",
+            d1 is not None and d1.due_at is not None and abs(d1.due_at.timestamp() - (t_snz + 600)) < 90,
+            d1 and str(d1.due_at))
+    # the race fixed in reminder_alarms.dart (SerialRerun): after the start-up
+    # reconcile the snoozed reminder must STILL have its alarm
+    time.sleep(8)
+    snz_at = d1.due_at.timestamp() if d1 is not None and d1.due_at else t_snz + 600
+    a_after, (_, adump2) = wait_alarm_at(snz_at, timeout=40, tol_s=60)
+    save("np6_alarm_dump_after_open.txt", adump2)
+    c.check("after the app applied Snooze, reminder 1 still has its phone alarm (+10 min)",
+            a_after is not None, alarm_entries()[0][:6])
+    c.done()
+    return c, (t1, a_after["when_ms"] / 1000.0 if a_after else snz_at)
+
+
+def case_alarm_doze(snoozed):
+    c = Case("np7_alarm_doze", [13, 6], "the snoozed reminder rings while the phone is in Doze (deep idle), app killed")
+    if not snoozed:
+        c.check("needs the snoozed reminder from np6", False, "np6 did not leave a snoozed alarm")
+        return c.done()
+    title, at = snoozed
+    closed_precheck(c)
+    if at - time.time() < 45:
+        c.check("enough time left to enter Doze before the alarm", False, round(at - time.time()))
+        return c.done()
+    sh("input keyevent KEYCODE_SLEEP")
+    time.sleep(2)
+    sh("dumpsys battery unplug")
+    out = sh("dumpsys deviceidle force-idle")
+    time.sleep(3)
+    st = sh("dumpsys deviceidle get deep").strip()
+    c.r["force_idle"] = out.strip()[:200]
+    c.check("phone in Doze (deep state IDLE, screen off, unplugged) before the alarm", st == "IDLE", st)
+    seen, rec, st_after = wait_ring(title, at, late_s=90, idle_probe=True)
+    c.r["late_s"] = None if seen is None else round(seen - at, 1)
+    c.r["deep_state_at_ring"] = st_after
+    c.check("the reminder RANG in Doze (posted, app killed)", rec is not None,
+            [(r["channel"], r["title"]) for r in notif_records()[0]])
+    if rec is not None:
+        c.check("on time in Doze (0-60 s after its minute)", -2 <= seen - at <= 60, c.r["late_s"])
+        c.check("the phone was still in deep idle when it rang (alarm allowed while idle)",
+                st_after == "IDLE", st_after)
+    sh("dumpsys deviceidle unforce")
+    sh("dumpsys battery reset")
+    wake_unlocked()
+    shot("np7_after_doze")
+    if rec is not None:
+        sh("cmd notification snooze --for 36000000 %s" % q(rec["key"]))
+    return c.done()
+
+
+def _wait_boot(timeout=420):
+    adb("wait-for-device", timeout=timeout)
+    end = time.time() + timeout
+    while time.time() < end:
+        if sh("getprop sys.boot_completed", timeout=20).strip() == "1":
+            return True
+        time.sleep(5)
+    return False
+
+
+def case_alarm_reboot(A, Ah):
+    c = Case("np8_alarm_after_reboot", [13], "a future reminder still rings after the phone restarts (app never opened)")
+    title = "notifproof after reboot %d" % (int(time.time()) % 100000)
+    due = _next_minute(420)
+    st, j = make_reminder(Ah, title, due)
+    c.check("reminder saved on the server", st in (200, 201), (st, j))
+    open_app(25, cold=True)
+    a, _ = wait_alarm_at(due, timeout=90)
+    c.check("phone alarm set before the restart", a is not None, alarm_entries()[0][:6])
+    closed_precheck(c)
+    t0 = time.time()
+    adb("reboot", timeout=60)
+    booted = _wait_boot()
+    c.r["reboot_s"] = round(time.time() - t0)
+    c.check("emulator rebooted and finished booting", booted, c.r["reboot_s"])
+    log("root after reboot:", adb("root").strip())
+    time.sleep(4)
+    adb("wait-for-device", timeout=120)
+    if not c.check("the reboot finished before the reminder's minute", time.time() < due - 20,
+                   round(due - time.time())):
+        return c.done()
+    up = sh("cat /proc/uptime").split()
+    c.r["uptime_s"] = up[0] if up else "?"
+    time.sleep(20)  # BOOT_COMPLETED -> ScheduledNotificationBootReceiver
+    a2, (_, dump) = wait_alarm_at(due, timeout=120)
+    save("np8_alarm_dump_after_boot.txt", dump)
+    c.r["alarm_after_boot"] = a2
+    c.check("the boot receiver put the alarm back after the restart (app not opened)", a2 is not None,
+            alarm_entries()[0][:6])
+    c.check("still exact after the restart", is_exact(a2), a2)
+    c.r["resumed_before_ring"] = resumed_activity()
+    c.check("Assisto was never opened after the restart", PKG not in c.r["resumed_before_ring"],
+            c.r["resumed_before_ring"])
+    wake_unlocked()
+    seen, rec, _ = wait_ring(title, due)
+    shot("np8_ring_after_reboot")
+    c.r["late_s"] = None if seen is None else round(seen - due, 1)
+    c.check("the reminder RANG after the restart", rec is not None,
+            [(r["channel"], r["title"]) for r in notif_records()[0]])
+    if rec is not None:
+        c.check("at its minute (0-60 s)", -2 <= seen - due <= 60, c.r["late_s"])
+    return c.done()
+
+
+def case_alarm_made_while_open(A, Ah, Bu, B, tokens):
+    """proof-notif (app fix, reminder_freshness.dart): a reminder made
+    ELSEWHERE while A's app is OPEN in front gets its phone alarm without a
+    restart — (1) a family member's task (push -> foreground handler ->
+    list sync), (2) a reminder made on the server + A comes back to the app
+    (resume sync) — and then rings with the app killed."""
+    c = Case("np9_alarm_made_while_open", [13, 6],
+             "reminders made elsewhere while A's app is in front get a phone alarm without a restart")
+    from core.models import FamilyMember
+    from core import famcare as FC
+    open_app(30, cold=True)
+    p0 = pid()
+    c.check("app open in front (one process)", bool(p0) and PKG in resumed_activity(), resumed_activity())
+    fm = None
+    for f in FamilyMember.objects.filter(user=Bu):
+        u = FC.linked_user(f)
+        if u is not None and u.pk == A.pk:
+            fm = f
+            break
+    if fm is None:
+        # the CI seed links A and B in My Circle only; B adds A to B's family
+        # list through that Circle link (what "Add from My Circle" saves) —
+        # throw-away CI database, seed accounts only
+        from core.models import CircleMember
+        edge = CircleMember.objects.filter(user=Bu, peer_user=A).first()
+        if edge is not None:
+            f = FamilyMember.objects.create(user=Bu, name="Reality A", relation="mother",
+                                            circle_member=edge)
+            u = FC.linked_user(f)
+            fm = f if (u is not None and u.pk == A.pk) else None
+            c.r["family_link"] = "created from the Circle link" if fm else "Circle link not accepted"
+    tag = int(time.time()) % 100000
+    t1, t2 = "notifproof family task %d" % tag, "notifproof web reminder %d" % tag
+    due1 = _next_minute(170)
+    due2 = due1 + 60
+    t_open = time.time()
+    if c.check("B and A are family (B can give A a task)", fm is not None, ""):
+        n0 = len(fcm_calls())
+        st, j = B.req("POST", "/family/reminders", {"member_id": fm.id, "title": t1, "due_at": _iso(due1)})
+        c.check("B gave A a task with a time (server)", st == 201, (st, j))
+        m = wait_fcm(tokens, "family_task", n0, timeout=20) or wait_fcm(tokens, "reminder", n0, timeout=10)
+        if c.check("backend pushed it to A's phone", m is not None, ""):
+            ex, out = deliver(m)
+            c.r["broadcast"] = out
+            t_open = time.time()   # the push sync starts the resume throttle
+        a1, _ = wait_alarm_at(due1, timeout=60)
+        c.r["alarm1"] = a1
+        c.check("A's phone alarm for the task was set WHILE the app stayed open (no restart)",
+                a1 is not None and pid() == p0, (a1, pid(), p0))
+    # the resume sync is throttled to one per 30 s (the push above synced)
+    time.sleep(max(0, t_open + 40 - time.time()))
+    st, j = Ah.req("POST", "/reminders/", {"title": t2, "due_at": _iso(due2)})
+    c.check("a reminder made on the server (e.g. AI chat on another device / website)", st in (200, 201), (st, j))
+    sh("input keyevent KEYCODE_HOME")
+    time.sleep(4)
+    sh("am start -n %s/.MainActivity" % PKG)   # back to the app: resume, same process
+    a2, (_, dump) = wait_alarm_at(due2, timeout=60)
+    save("np9_alarm_dump.txt", dump)
+    c.check("coming back to the app set its phone alarm (resume sync, no restart)",
+            a2 is not None and pid() == p0, (a2, pid(), p0))
+    closed_precheck(c)
+    if fm is not None:
+        seen, rec, _ = wait_ring(t1, due1)
+        shot("np9_ring_task")
+        c.check("the family task RANG at its minute with the app killed",
+                rec is not None and -2 <= seen - due1 <= 60, None if seen is None else round(seen - due1, 1))
+    seen, rec, _ = wait_ring(t2, due2)
+    c.check("the server-made reminder RANG at its minute with the app killed",
+            rec is not None and -2 <= seen - due2 <= 60, None if seen is None else round(seen - due2, 1))
+    return c.done()
+
+
 def report():
     cases = RESULT["cases"]
     ok = bool(cases) and all(c["status"] == "pass" for c in cases)
@@ -680,6 +1092,25 @@ def report():
     return ok
 
 
+def _alarm_pair(A, Ah):
+    _, snoozed = case_alarm_ring_actions(A, Ah)
+    case_alarm_doze(snoozed)
+
+
+def _run_alarm_cases(A, Ah, only, Bu=None, B=None, tokens=()):
+    for name, fn in (("alarm", lambda: _alarm_pair(A, Ah)),
+                     ("front", lambda: case_alarm_made_while_open(A, Ah, Bu, B, tokens)),
+                     ("reboot", lambda: case_alarm_reboot(A, Ah))):
+        if only and name not in only:
+            continue
+        try:
+            fn()
+        except Exception as e:
+            RESULT["cases"].append({"id": name, "board_rows": [13], "status": "fail",
+                                    "checks": [{"check": "case crashed", "ok": False, "detail": repr(e)[:400]}]})
+            log("case", name, "crashed:", repr(e))
+
+
 def main():
     try:
         A, Bu, tokens, edge_b = setup()
@@ -702,6 +1133,9 @@ def main():
                 RESULT["cases"].append({"id": name, "board_rows": [], "status": "fail",
                                         "checks": [{"check": "case crashed", "ok": False, "detail": repr(e)[:400]}]})
                 log("case", name, "crashed:", repr(e))
+        # proof-notif: the phone's OWN reminder alarms (rows 13 + 6), after
+        # the push cases; reboot last (it restarts the emulator)
+        _run_alarm_cases(A, Ah, only, Bu, B, tokens)
     except Exception as e:
         RESULT["setup"]["error"] = repr(e)[:400]
         log("setup failed:", repr(e))

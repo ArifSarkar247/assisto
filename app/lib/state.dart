@@ -13,6 +13,7 @@ import 'models.dart';
 import 'sync_repo.dart';
 import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
 import 'reminders/reminder_actions.dart' show ReminderActions; // remnotes
+import 'reminders/reminder_freshness.dart'; // proof-notif
 import 'notifications.dart' show Notifications; // remnotes
 import 'background.dart';
 import 'push/push_service.dart';
@@ -214,6 +215,18 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// proof-notif: the reminder list re-syncs while the app is open (push,
+  /// resume, every 10 min in front) so reminders made elsewhere get their
+  /// phone alarm without a restart. See reminder_freshness.dart.
+  late final ReminderFreshness reminderFresh =
+      ReminderFreshness(sync: () => reminders.sync());
+
+  /// Re-fetch the reminder list (throttled unless [force]). Never throws.
+  void refreshReminders({bool force = false}) {
+    if (!loggedIn) return;
+    unawaited(reminderFresh.kick(force: force));
+  }
+
   Future<bool> undoLast() async {
     final ok = await api.undo();
     if (ok) {
@@ -370,6 +383,7 @@ class AppState extends ChangeNotifier {
         // never holds the cold start. sync() never throws.
         unawaited(sync());
         _syncAll();
+        reminderFresh.startPeriodic(); // proof-notif
         // Background poller must never block or crash startup.
         unawaited(Background.start());
       }
@@ -521,6 +535,7 @@ class AppState extends ChangeNotifier {
     unawaited(Background.start());
     await sync();
     _syncAll();
+    reminderFresh.startPeriodic(); // proof-notif
     notifyListeners();
   }
 

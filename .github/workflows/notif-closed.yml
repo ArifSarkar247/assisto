@@ -32,7 +32,7 @@ permissions:
 jobs:
   closed-app:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 100   # proof-notif: + local alarm, Doze and reboot cases (~25 min)
     services:
       postgres:
         image: postgres:16
