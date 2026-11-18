@@ -41,7 +41,7 @@ void registerAntiTheftNineFlows() {
     await f.step('protection on (B), A trusted; front camera present', () async {
       await AtKit.arm(f, traceNames: const [_snatch]);
       final cam = await AtKit.host(f, 'cam_info');
-      if (!cam.contains('granted')) throw TestFailure('camera permission: $cam');
+      if (!cam.contains('granted=true')) throw TestFailure('camera permission: $cam');
     });
     await f.step('B switches the thief photo on (consent) -> the RUNNING engine learns it from a check-in', () async {
       final r = await f.net(() => AtKit.b!.postJsonRaw('/security/engine/settings',
