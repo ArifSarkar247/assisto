@@ -5,6 +5,7 @@
 // 2. the English app showed the Bangla train name (list + header).
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/screens/train/train_tracker_screen.dart' show trainHm;
 import 'package:assisto/train/train_offline.dart';
 
 import 'fake_train.dart' show trainOfflinePackJson;
@@ -38,5 +39,12 @@ void main() {
     expect(trainNameOf(tr, false), 'Rangpur Express');
     expect(trainNameOf(const {'name_bn': 'রংপুর এক্সপ্রেস'}, false), 'রংপুর এক্সপ্রেস');
     expect(trainNameOf(null, false), '');
+  });
+
+  test('train times are Dhaka time whatever the phone zone (emulator run 44210347275)', () {
+    expect(trainHm('2026-11-18T08:02:00Z'), '14:02');
+    expect(trainHm('2026-11-18T14:02:00+06:00'), '14:02');
+    expect(trainHm('2026-11-18T19:30:00+00:00'), '01:30');
+    expect(trainHm('nonsense'), '');
   });
 }

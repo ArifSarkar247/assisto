@@ -98,7 +98,9 @@ String _d(bool bn, String s) => bn ? _bnD(s) : s;
 Map<String, dynamic> _m(Object? v) => Map<String, dynamic>.from((v ?? const {}) as Map);
 
 Future<void> _lang(RFlow f, String code) async {
-  await f.app.setLocale(Locale(code));
+  // syncServer:false — a synced 'bn' came back at the next flow's boot (run
+  // 44210347275: tp2 started in Bangla and missed the English "Today" chip)
+  await f.app.setLocale(Locale(code), syncServer: false);
   await f.pumpFor(const Duration(seconds: 2));
 }
 
@@ -182,6 +184,21 @@ Future<bool> _reachable() async {
   }
 }
 
+/// Move the emulator's GPS (host: adb emu geo fix) and wait for the ack.
+Future<void> _geo(RFlow f, double lat, double lng) async {
+  final file = 'geo_tp_${_tag}_${DateTime.now().millisecondsSinceEpoch % 100000}';
+  final d = await f.tester.runAsync(() => f.h.outDir());
+  final ack = File('${d!.path}/acks/$file');
+  // ignore: avoid_print
+  print('REALITY_GEO ${lat.toStringAsFixed(6)} ${lng.toStringAsFixed(6)} $file');
+  final end = DateTime.now().add(const Duration(seconds: 30));
+  while (DateTime.now().isBefore(end)) {
+    await f.tester.pump(const Duration(milliseconds: 250));
+    if (await f.tester.runAsync(() => ack.exists()) == true) break;
+  }
+  await f.pumpFor(const Duration(seconds: 2));
+}
+
 /// Ask the CI host to switch airplane mode (adb, tools/reality/run_flows.sh).
 Future<void> _airplane(RFlow f, bool on) async {
   final file = 'net_${on ? 'off' : 'on'}_tp_$_tag';
@@ -203,6 +220,7 @@ Future<void> _airplane(RFlow f, bool on) async {
 void registerTrainProofFlows() {
   realityFlow('tp1_data_771_772', 'Train Tracker', 'Rangpur Express 771/772 in the list: number, English name, Bangla digits, official times (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     await f.step('the list from the drawer, search 771', () async {
       await _openList(f);
       await _search(f, _no);
@@ -230,6 +248,7 @@ void registerTrainProofFlows() {
 
   realityFlow('tp2_live_three_riders', 'Train Tracker', '3 riders on the real line -> Live, 3 sharing, speed, next station ETA, timeline between the right stations; off-line + mock riders rejected, trust drops (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     await f.step('fake clock: 771 between Natore and Santahar now', () async {
       final c = await _sim(f, {
         'op': 'clock',
@@ -278,6 +297,11 @@ void registerTrainProofFlows() {
             find.descendant(of: _k('tr2_train_facts'), matching: _sees(unit)), what: 'speed ($unit)');
         final next = _m(e['next']);
         await f.waitFor(_sees('${bn ? next['bn'] : next['en']}'), what: 'the next station by name');
+        // its ETA in DHAKA time (run 44210347275 showed the phone's UTC: 08:02 for 14:02)
+        final v = await f.net(() => _api(f).getJson('/train/$_no/live?date=$_date'));
+        final line = _m(v['line']);
+        final st = (line['stations'] as List).cast<Map>()[(line['next_index'] as num).toInt()];
+        await f.waitFor(_sees(_d(bn, '≈ ${trainHm('${st['eta']}')}')), what: 'next ETA in Dhaka time');
       });
     });
     await f.step('outliers: off the line + mock location rejected, trust drops, still 3', () async {
@@ -304,6 +328,7 @@ void registerTrainProofFlows() {
 
   realityFlow('tp3_freshness_ladder', 'Train Tracker', 'Riders stop -> "N min ago" -> "Predicted — not live" (learned delay) -> "Timetable" (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     if (_date.isEmpty) f.skip('tp2 did not set the train clock');
     await f.step('riders stop, 4 minutes pass -> "N min ago"', () async {
       for (var k = 0; k < _tokens.length; k++) {
@@ -343,6 +368,7 @@ void registerTrainProofFlows() {
 
   realityFlow('tp4_paste_16318', 'Train Tracker', 'A pasted 16318 reply (2 people agree) moves the train to that station (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     if (_date.isEmpty) f.skip('tp2 did not set the train clock');
     late Map<String, dynamic> x;
     await f.step('someone else already shared the same reply', () async {
@@ -384,6 +410,7 @@ void registerTrainProofFlows() {
 
   realityFlow('tp5_station_checkin', 'Train Tracker', 'Station check-in: 1 report waits, 2 agreeing are accepted, a phone 55 km away is not counted (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     if (_date.isEmpty) f.skip('tp2 did not set the train clock');
     late Map<String, dynamic> next;
     await f.step('tap the next station on the timeline -> sheet (bn + en)', () async {
@@ -398,8 +425,13 @@ void registerTrainProofFlows() {
       await f.shot('checkin_sheet_en');
     });
     await f.step('"reached here" -> waits for one more person', () async {
-      await f.tap(_k('tr2_ci_reached'), settleSeconds: 2);
+      // the phone ~5 km from the station: not "near" (500 m), not "far" (40 km)
+      // — a fix (if the app may read one) and no fix both mean "wait for one more"
+      await _geo(f, (next['lat'] as num).toDouble() + 0.045, (next['lng'] as num).toDouble());
+      await f.tap(_k('tr2_ci_reached'), settleSeconds: 0.5);
       await f.waitFor(find.text(f.t.tr2CheckinPending), seconds: 15, what: 'pending snackbar');
+      final mine = await f.net(() => _api(f).getJson('/train/$_no/now?date=$_date'));
+      expect(_m(mine['checkins'])['${next['id']}'], isNull, reason: 'one report alone never counts');
       await f.shot('checkin_pending_en');
     });
     await f.step('a second person agrees -> accepted; 55 km away -> not counted', () async {
@@ -437,6 +469,7 @@ void registerTrainProofFlows() {
 
   realityFlow('tp6_offline_pack', 'Train Tracker', 'No network (real airplane mode): the list from the phone pack -> the train page labelled tower / timetable estimate (bn + en)',
       (f) async {
+    await _lang(f, 'en');
     if (_date.isEmpty) f.skip('tp2 did not set the train clock');
     await f.step('download every timetable to the phone', () async {
       if (find.byType(TrainLiveScreen).evaluate().isNotEmpty) await f.back();

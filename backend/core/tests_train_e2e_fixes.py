@@ -165,3 +165,30 @@ class SearchTests(TestCase):
         a = next(x for x in TS.search("771") if x["no"] == "771")
         self.assertEqual((a["dep"], a["arr"], a["off_days"]), ("09:10", "19:00", [0]))
         self.assertEqual((r["dep"], r["arr"], r["off_days"]), ("20:00", "06:00", [6]))
+
+
+class PassedStationAndOldReportTests(EngineBase):
+    """Emulator run 44210347275: (6) "reached here" at a station the train
+    passes without stopping (Madhnagar) answered 400; (7) an accepted 16318
+    reply 32 min old ("left Natore 13:55") still showed "timetable"."""
+
+    def test_checkin_at_a_station_the_train_passes(self):
+        passing = [s for s in SRC.geo_line_stations(NO) if not s["stop"]]
+        self.assertTrue(passing, "771 passes stations without stopping")
+        sid = passing[len(passing) // 2]["id"]
+        a, b = _user(61), _user(62)
+        at = _at(200)
+        r1 = TE.checkin(a, self.t, DAY, sid, "reached", at.isoformat(), now=at)
+        r2 = TE.checkin(b, self.t, DAY, sid, "reached", at.isoformat(), now=at + timedelta(seconds=20))
+        self.assertEqual((r1["status"], r2["status"]), ("pending", "accepted"))
+        self.assertTrue(TrainObservation.objects.filter(station=sid).exists())
+
+    def test_a_45_minute_old_report_still_places_the_train(self):
+        TE._add_obs(self.t, DAY, "text", IBRAHIMABAD, "left", _at(145))
+        now = _at(190)
+        st = TE.maybe_recompute(self.t, DAY, now, force=True)
+        self.assertIsNotNone(st)
+        r = TE.read(self.t, DAY, now)
+        self.assertEqual(r["mode"], "reported")
+        self.assertGreater(r["ch"], _ch(IBRAHIMABAD))
+        self.assertLess(r["confidence"], 0.5)

@@ -38,7 +38,10 @@ import 'train_v2_widgets.dart'; // train-app
 String trainHm(String iso) {
   final d = DateTime.tryParse(iso);
   if (d == null) return '';
-  final l = d.toLocal();
+  // train-e2e: Bangladesh trains run on Dhaka time (UTC+6, no DST) — the
+  // phone's own zone showed 08:02 for a 14:02 train on a phone set to UTC
+  // (family abroad watching a relative's train saw wrong times)
+  final l = d.toUtc().add(const Duration(hours: 6));
   return '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
 }
 
@@ -114,7 +117,7 @@ class TrainTrackerScreen extends StatelessWidget {
                 context, MaterialPageRoute(builder: (_) => const TrainPasteScreen())),
           ),
           const SizedBox(height: Gap.md),
-          Text(t.trDataNote2, style: AType.bodySmall),
+          Text(t.tr2DataNoteOfficial, style: AType.bodySmall), // train-e2e: was 'Wikipedia'
         ],
         // adcontrol (owner 10 Nov): one rewarded ad to see a train live,
         // then free for 15 min (owner-editable); never blocks (no ad -> open)

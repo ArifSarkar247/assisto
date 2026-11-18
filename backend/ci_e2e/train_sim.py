@@ -102,6 +102,13 @@ def _reset(t, d):
         TE.STORE.delete(k)
     for wd in range(7):
         cache.delete("train:delays:%s:%d" % (t["no"], wd))
+    # shared-text agreement memory (1 h) — an earlier run must not "agree"
+    from core import train_source as SRC2
+    ids = {s["id"] for s in TE.stops(t)} | {s["id"] for s in SRC2.geo_line_stations(t["no"])}
+    for day in (d - timedelta(days=1), d, d + timedelta(days=1)):
+        for sid in ids:
+            for kind in ("reached", "left"):
+                TE.STORE.delete("train:txt:%s:%s:%s:%s" % (t["no"], day.isoformat(), sid, kind))
 
 
 def op_clock(d):
@@ -181,7 +188,16 @@ def op_riders(d):
         riders.append(pts)
     now_ms = int(now().timestamp() * 1000)
     base = [p for p in riders[0] if p["at"] <= now_ms][-3:]
-    off_line = [dict(p, lat=round(p["lat"] + 0.0135, 6)) for p in base]   # ~1.5 km off the line
+    # ~1.5 km sideways (perpendicular to the line here) — a plain latitude
+    # shift lies ALONG the line where it runs north-south (the first run)
+    import math
+    ch_now = _sched_ch(t, day, (now() - timedelta(minutes=delay)).timestamp())
+    a, b = rt.point_at(max(0.0, ch_now - 50.0)), rt.point_at(ch_now + 50.0)
+    hd = math.radians(TG.bearing_deg(a[0], a[1], b[0], b[1]) + 90.0)
+    dlat = 1500.0 * math.cos(hd) / 111320.0
+    dlng = 1500.0 * math.sin(hd) / (111320.0 * math.cos(math.radians(a[0])))
+    off_line = [dict(p, lat=round(p["lat"] + dlat, 6), lng=round(p["lng"] + dlng, 6))
+                for p in base]
     mocked = [dict(p, mock=True) for p in base]
     return {"riders": riders, "outlier": {"off_line": off_line, "mock": mocked},
             "now": now().isoformat(), "now_ms": now_ms, "end": end.isoformat(),

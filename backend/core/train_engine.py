@@ -56,7 +56,11 @@ MAX_BATCH = 240
 QUEUED_MAX_H = 24
 FUTURE_SLACK_S = 60
 RECOMPUTE_EVERY_S = 10
-OBS_FRESH_MIN = 30
+# train-e2e: a 16318 reply names the LAST station passed; between far-apart
+# halts that is often 30-60 min old (Ibrahimabad -> Chatmohar = 56 min). At
+# 30 min an accepted report showed nothing ("timetable"); it is extrapolated
+# at the route's usual speed with falling confidence, so keep it 90 min.
+OBS_FRESH_MIN = 90
 NEAR_STATION_M = 500.0
 # train-e2e: a phone whose own good fix is this far from the station cannot
 # have seen the train there (40 km = ~30 min of a fast train, more than the
@@ -463,6 +467,11 @@ def _station_ch(t, sid):
     for s in SRC.line_stations(t):
         if s["id"] == sid:
             return float(s["ch"]), s
+    # train-e2e: the timeline lets people report at EVERY station the train
+    # passes (not only its halts); those got 400 "not_on_this_train"
+    for s in SRC.geo_line_stations(t["no"]):
+        if s["id"] == sid:
+            return float(s["km"]) * 1000.0, s
     return None, None
 
 
@@ -754,7 +763,8 @@ def share_text(user, text, no=None, date=None, lat=None, lng=None, acc=None, now
     if _limited(user, "text", TEXT_PER_HOUR, 3600):
         return 429, {"ok": False, "reason": "rate_limited"}
     t_hint = SRC.train(no) if no else None
-    line = {s["id"] for s in SRC.line_stations(t_hint)} if t_hint else None
+    line = ({s["id"] for s in SRC.line_stations(t_hint)} |
+            {s["id"] for s in SRC.geo_line_stations(t_hint["no"])}) if t_hint else None
     p = TX.parse(text, SRC.stations(), now, TG.DHAKA, train_no=no, line_ids=line,
                  known_trains=known_trains(), train_names=train_names())
     if not p or not p.get("candidates"):
