@@ -26155,5 +26155,12 @@
   "crfSkDeleteShort": "Delete (মুছুন)",
   "crfSkCodeImou": "Safety Code (সেফটি কোড)",
   "crfSkCodeEzviz": "Verification Code (যাচাই কোড)",
-  "crfSkCodeDmss": "পাসওয়ার্ড"
+  "crfSkCodeDmss": "পাসওয়ার্ড",
+  "gbzStopByLink": "{date} তারিখে আপনার SMS-এর বন্ধ-লিংকে চেপেছেন।",
+  "gbzStopByChat": "{date} তারিখে WhatsApp / Messenger চ্যাটে STOP লিখেছেন।",
+  "gbzStopByApp": "{date} তারিখে Assisto অ্যাপে বন্ধ চেপেছেন।",
+  "gbzStopByOwner": "{date} তারিখে আপনি STOP হিসেবে চিহ্নিত করেছেন।",
+  "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।",
+  "sosNumbersUnavailable": "পরিবারের সংরক্ষিত জরুরি নম্বর আনা যায়নি — ইন্টারনেট নেই। নিচের ৯৯৯-এ কল এখনো করা যায়; ইন্টারনেট ফিরলে আপনার SOS পরিবারের কাছে যাবে।",
+  "sosNumbersRetry": "আবার চেষ্টা করুন"
 }

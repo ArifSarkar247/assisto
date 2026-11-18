@@ -53182,5 +53182,45 @@
   "crfSkCodeDmss": "Password",
   "@crfSkCodeDmss": {
     "description": "imou-real: remove-from-vendor-app guide"
-  }
+  },
+  "gbzStopByLink": "They tapped the stop link in your SMS on {date}.",
+  "@gbzStopByLink": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzStopByChat": "They wrote STOP in a WhatsApp / Messenger chat on {date}.",
+  "@gbzStopByChat": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzStopByApp": "They pressed Stop in the Assisto app on {date}.",
+  "@gbzStopByApp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzStopByOwner": "You marked them as STOP on {date}.",
+  "@gbzStopByOwner": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzStopUndo": "Only the customer can turn messages back on: they write START to you, or tap the link in your SMS again.",
+  "@gbzStopUndo": {},
+  "sosNumbersUnavailable": "Your family's saved emergency numbers could not be loaded — no internet. Call 999 below still works; your SOS reaches the family when the internet is back.",
+  "@sosNumbersUnavailable": {
+    "description": "Emergency page: no saved numbers on this phone and the server could not be reached."
+  },
+  "sosNumbersRetry": "Try again",
+  "@sosNumbersRetry": {}
 }
