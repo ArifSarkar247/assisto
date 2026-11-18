@@ -54,3 +54,25 @@ class FlagproofSeedTests(TestCase):
         self.assertFalse(CircleMember.objects.filter(user_id=d["users"]["a"]["id"],
                                                      peer_user_id=d["users"]["d"]["id"]).exists())
         self.assertFalse(BloodDonor.objects.filter(user_id=d["users"]["b"]["id"]).exists())
+
+
+class GroupCallSeedTests(TestCase):
+    """group-calls: E (the 18g third person) joins A's and B's circle only in
+    the circle / calls drives — never in e.g. the mess drive, whose circle
+    picker must show B (gate 44243785970 picked "Reality Dipu")."""
+
+    def _edge(self, d, x, y):
+        return CircleMember.objects.filter(user_id=d["users"][x]["id"],
+                                           peer_user_id=d["users"][y]["id"]).exists()
+
+    def test_circle_drive_links_e(self):
+        d = _seed("start+circle")
+        self.assertEqual(d["failed_steps"], [], d["failed_steps"])
+        for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
+            self.assertTrue(self._edge(d, x, y), (x, y))
+
+    def test_other_drives_leave_e_out(self):
+        d = _seed("start+mess+business+save")
+        self.assertEqual(d["failed_steps"], [], d["failed_steps"])
+        for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
+            self.assertFalse(self._edge(d, x, y), (x, y))
