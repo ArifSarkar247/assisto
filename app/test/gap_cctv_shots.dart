@@ -63,7 +63,9 @@ class GapFakePlayback implements CctvPlaybackSource {
     asked.add((cameraId, startEpoch, endEpoch));
     final f = fail;
     if (f != null) throw f;
-    final d = DateTime.fromMillisecondsSinceEpoch(startEpoch * 1000);
+    // the camera's device time is Bangladesh time (UTC+6), like the server's
+    final d = DateTime.fromMillisecondsSinceEpoch(startEpoch * 1000, isUtc: true)
+        .add(const Duration(hours: 6));
     String at(int m) =>
         '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')} '
         '${d.hour.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:00';
