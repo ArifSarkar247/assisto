@@ -78,6 +78,23 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
     super.dispose();
   }
 
+  /// sosfam-crm-proof: the owner sees HOW and WHEN the customer said STOP.
+  String _stopWhy(AppLocalizations t, Object? stop) {
+    if (stop is! Map) return '';
+    final at = DateTime.tryParse('${stop['at'] ?? ''}')?.toLocal();
+    final date = at == null
+        ? ''
+        : _d('${at.day.toString().padLeft(2, '0')}-${at.month.toString().padLeft(2, '0')}-${at.year}');
+    if (date.isEmpty) return '';
+    return switch ('${stop['source'] ?? ''}') {
+      'sms_link' => t.gbzStopByLink(date),
+      'chat' => t.gbzStopByChat(date),
+      'in_app' => t.gbzStopByApp(date),
+      'owner' => t.gbzStopByOwner(date),
+      _ => '',
+    };
+  }
+
   String _d(Object v) =>
       localDigits('$v', Localizations.localeOf(context).languageCode);
 
@@ -261,7 +278,9 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
                 _Note(
                     key: const ValueKey('gbz-send-optedout'),
                     icon: Icons.block_rounded,
-                    text: t.c100SmsOptedOut,
+                    text: [t.c100SmsOptedOut, _stopWhy(t, pv['stop']), t.gbzStopUndo]
+                        .where((x) => x.isNotEmpty)
+                        .join('\n'),
                     bad: true),
               if (!phoneOk) _Note(icon: Icons.phone_disabled_rounded, text: t.c100NoPhone, bad: true),
               const SizedBox(height: Gap.sm),

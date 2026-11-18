@@ -1500,6 +1500,16 @@ def handle_message(ch, e):
     if text and t.opted_out and G1.is_opt_in(text):
         t.opted_out = False
         t.save(update_fields=["opted_out"])
+        # sosfam-crm-proof: the STOP also sat on the shop-wide list (CRM,
+        # SMS, automations) — clear it there too, or re-consent never works
+        try:
+            from .logic import msg_guard as MG
+            from .logic.business_selling import normalize_phone
+            key = normalize_phone(t.customer_phone) if t.customer_phone else (
+                "psid:" + t.external_user_id if t.external_user_id else "")
+            MG.record_opt_in(ch.business.pk, key)
+        except Exception:
+            log.exception("bizagent.opt_in")
         GD.audit(ch.business, "opt_in", thread=t)
         send_text(t, G1.opt_in_ack(lang), kind="text", is_ai=True, source="system")
         return "opted_in"

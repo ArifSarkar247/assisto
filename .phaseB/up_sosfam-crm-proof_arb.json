@@ -1,0 +1,21 @@
+{
+  "en": {
+    "gbzStopByLink": "They tapped the stop link in your SMS on {date}.",
+    "@gbzStopByLink": {"placeholders": {"date": {"type": "String"}}},
+    "gbzStopByChat": "They wrote STOP in a WhatsApp / Messenger chat on {date}.",
+    "@gbzStopByChat": {"placeholders": {"date": {"type": "String"}}},
+    "gbzStopByApp": "They pressed Stop in the Assisto app on {date}.",
+    "@gbzStopByApp": {"placeholders": {"date": {"type": "String"}}},
+    "gbzStopByOwner": "You marked them as STOP on {date}.",
+    "@gbzStopByOwner": {"placeholders": {"date": {"type": "String"}}},
+    "gbzStopUndo": "Only the customer can turn messages back on: they write START to you, or tap the link in your SMS again.",
+    "@gbzStopUndo": {}
+  },
+  "bn": {
+    "gbzStopByLink": "{date} তারিখে আপনার SMS-এর বন্ধ-লিংকে চেপেছেন।",
+    "gbzStopByChat": "{date} তারিখে WhatsApp / Messenger চ্যাটে STOP লিখেছেন।",
+    "gbzStopByApp": "{date} তারিখে Assisto অ্যাপে বন্ধ চেপেছেন।",
+    "gbzStopByOwner": "{date} তারিখে আপনি STOP হিসেবে চিহ্নিত করেছেন।",
+    "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।"
+  }
+}

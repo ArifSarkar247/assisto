@@ -337,6 +337,56 @@ def record_opt_out(business_id, key, source="in_app"):
     return created
 
 
+def opt_out_info(business_id, key):
+    """sosfam-crm-proof: WHY this customer is blocked, for the owner —
+    {"source": in_app|sms_link|chat|owner, "at": iso} or None."""
+    from ..models import BizOptOut, ChatThread
+    from .business_selling import normalize_phone
+    if not key:
+        return None
+    o = BizOptOut.objects.filter(business_id=business_id, key=key).order_by("-created_at").first()
+    if o is not None:
+        return {"source": o.source, "at": o.created_at.isoformat()}
+    try:
+        for t in ChatThread.objects.filter(business_id=business_id, opted_out=True).only(
+                "customer_phone", "external_user_id", "last_message_at", "created_at")[:2000]:
+            if (key.startswith("psid:") and t.external_user_id == key[5:]) or (
+                    t.customer_phone and normalize_phone(t.customer_phone) == key):
+                at = t.last_message_at or t.created_at
+                return {"source": "chat", "at": at.isoformat() if at else None}
+    except Exception:
+        pass
+    return None
+
+
+def record_opt_in(business_id, key):
+    """sosfam-crm-proof: the CUSTOMER turned messages back on (START in a
+    chat, the SMS link's "start again", START in the in-app inbox). Undo the
+    STOP everywhere it was recorded — the shop-wide list, the agent's chats
+    and the booking reminders — so re-consent really works. Returns True
+    when something was stopped before. Never called on the owner's behalf."""
+    from ..models import BizOptOut, BookingContact, ChatThread
+    from .business_selling import normalize_phone
+    if not key:
+        return False
+    n, _ = BizOptOut.objects.filter(business_id=business_id, key=key).delete()
+    try:
+        ids = [t.id for t in ChatThread.objects.filter(business_id=business_id, opted_out=True).only(
+            "id", "customer_phone", "external_user_id")[:5000]
+            if (key.startswith("psid:") and t.external_user_id == key[5:]) or (
+                t.customer_phone and normalize_phone(t.customer_phone) == key)]
+        if ids:
+            n += ChatThread.objects.filter(id__in=ids).update(opted_out=False)
+        if not key.startswith("psid:"):
+            bc = [c.id for c in BookingContact.objects.filter(business_id=business_id, stop=True)
+                  .only("id", "phone")[:5000] if normalize_phone(c.phone) == key]
+            if bc:
+                BookingContact.objects.filter(id__in=bc).update(stop=False)
+    except Exception:
+        pass
+    return n > 0
+
+
 def sent_counts(business_id, key, now):
     """(customer today, customer last 7 days, business today) — automated
     messages actually sent (blocked / failed ones never count)."""

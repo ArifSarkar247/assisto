@@ -1,3 +1,5 @@
+import 'dart:async';
+
 // sjduring: Safe Journey V2 DURING — the private route-change / stop screen
 // (exact button order + notes, family sees only "Time extended"), the
 // traveller panel (ask opens by itself, PIN on an abnormal arrival: wrong ->
@@ -57,6 +59,19 @@ Future<SjdApi> _pump(WidgetTester tester, Widget home, {String lang = 'en', SjdA
   return a;
 }
 
+// sosfam-crm-proof: the watch-board answer waits until the test releases it.
+class _SlowBoardApi extends SjdApi {
+  _SlowBoardApi(super.lang);
+  final _gate = Completer<void>();
+  void release() => _gate.complete();
+
+  @override
+  Future<Map<String, dynamic>> getJson(String path) async {
+    if (path == '/journey/watch-board') await _gate.future;
+    return super.getJson(path);
+  }
+}
+
 double _y(WidgetTester t, String k) => t.getTopLeft(find.byKey(ValueKey(k))).dy;
 
 void main() {
@@ -111,6 +126,20 @@ void main() {
         SjDuringPanel(journeyId: 5, poll: false, onArrived: (_) {}, onDanger: () {}),
       ])), api: api);
       expect(find.byType(SjPrivateAskScreen), findsOneWidget);
+    });
+
+    // sosfam-crm-proof: reality 44220546983 — the journey screen closed while
+    // the watch-board read was in flight; _react then used a dead context and
+    // the framework error broke every later flow on the phone.
+    testWidgets('closing during the watch-board read throws nothing', (t) async {
+      final api = _SlowBoardApi('en')..during = sjdDuring(state: 'slow');
+      await _pump(t, Scaffold(body: ListView(children: [
+        SjDuringPanel(journeyId: 5, poll: false, onArrived: (_) {}, onDanger: () {}),
+      ])), api: api);
+      await t.pumpWidget(const SizedBox()); // the panel goes away mid-load
+      api.release();
+      await t.pump(const Duration(milliseconds: 50));
+      expect(t.takeException(), isNull);
     });
 
     testWidgets('late while moving shows Slow in traffic, no alarm words', (t) async {
