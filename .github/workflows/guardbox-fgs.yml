@@ -131,6 +131,29 @@ jobs:
           echo "REALITY_APK=$RUNNER_TEMP/e2e-app-debug.apk" >> "$GITHUB_ENV"
           rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
           free -m; df -h / | tail -1
+      - name: Fake webcam with a moving person-sized shape (v4l2loopback + ffmpeg -> /dev/video0)
+        # The emulator's own "emulated" camera shows a still scene (run
+        # 44282451836: no motion in 150 s). The emulator reads a host webcam
+        # (-camera-back webcam0): a gray room, a dark person-sized shape walks
+        # across for 10 s every 25 s (motion bursts with still gaps).
+        run: |
+          set -x
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg v4l2loopback-dkms "linux-headers-$(uname -r)" >/dev/null 2>&1 \
+            || sudo apt-get install -y -qq --no-install-recommends ffmpeg v4l2loopback-dkms >/dev/null 2>&1 || true
+          CAM=emulated
+          if sudo modprobe v4l2loopback devices=1 video_nr=0 exclusive_caps=1 card_label=pcfgs-cam; then
+            sudo chmod 666 /dev/video0
+            nohup ffmpeg -hide_banner -loglevel error -re \
+              -f lavfi -i "color=c=0x8a8a7a:s=640x480:r=15" \
+              -f lavfi -i "color=c=0x1e2a3a:s=140x300:r=15" \
+              -filter_complex "[0][1]overlay=x='mod(t,25)*70-140':y=120:enable='lt(mod(t,25),10)',format=yuyv422" \
+              -f v4l2 /dev/video0 > "$RUNNER_TEMP/fakecam.log" 2>&1 &
+            sleep 5
+            if kill -0 $! 2>/dev/null; then CAM=webcam0; fi
+          fi
+          echo "PCFGS_CAM=$CAM" >> "$GITHUB_ENV"
+          echo "camera-back: $CAM"; cat "$RUNNER_TEMP/fakecam.log" 2>/dev/null | tail -5 || true
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -142,7 +165,7 @@ jobs:
           REALITY_ONLY: start+pcfgs
           REALITY_TOTAL_SECONDS: "2700"
           REALITY_DRIVE_SECONDS: "2400"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -camera-front none
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ env.PCFGS_CAM }} -camera-front none
         with:
           api-level: 33
           arch: x86_64
@@ -153,7 +176,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -camera-front none
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ env.PCFGS_CAM }} -camera-front none
           pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
           script: bash tools/e2e/pcfgs_run.sh
       - name: Stop Django
