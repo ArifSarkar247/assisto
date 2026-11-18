@@ -278,7 +278,10 @@ class DestStation {
   final double lat, lng;
   const DestStation(this.id, this.en, this.bn, this.lat, this.lng);
 
-  String name(bool bnLang) => bnLang && bn.isNotEmpty ? bn : en;
+  /// bn screen: the Bangla name; a stop that has none yet (OSM) keeps its
+  /// English name but in Bangla digits ("১৩ No Bus Stop"), like every other
+  /// number on a Bangla screen.
+  String name(bool bnLang) => !bnLang ? en : (bn.isNotEmpty ? bn : _bnDigitsOnly(en));
 }
 
 /// stations_bd.json ("stations") or bus_stops_bd.json ("stops").
@@ -386,4 +389,13 @@ DestStation? prevStationOnPath(
     if (trainLegUsable(p.lat, p.lng, target.lat, target.lng)) return p;
   }
   return null;
+}
+
+String _bnDigitsOnly(String s) {
+  const bn = '০১২৩৪৫৬৭৮৯';
+  final b = StringBuffer();
+  for (final r in s.runes) {
+    b.write(r >= 0x30 && r <= 0x39 ? bn[r - 0x30] : String.fromCharCode(r));
+  }
+  return b.toString();
 }
