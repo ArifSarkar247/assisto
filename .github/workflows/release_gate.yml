@@ -179,7 +179,7 @@ jobs:
           - leg: circle
             kind: flows
             only: start+circle
-            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways,18s_circle_screen_share
+            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways,18s_circle_screen_share,18g_group_call_3way
           - leg: journey-pay
             kind: flows
             only: start+sjproof+billing
