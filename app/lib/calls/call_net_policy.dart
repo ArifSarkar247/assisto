@@ -12,8 +12,9 @@ import 'call_controller.dart' show MediaStats;
 ///    Opus in-band FEC + DTX are always on (lost packets are rebuilt from the
 ///    next one; silence costs ~nothing) — imo's trick for 2G/3G voice;
 ///  * the cap for OUR outgoing video (bitrate / fps / resolution scale):
-///      normal 600 kbit/s 24 fps -> fair 350 kbit/s 20 fps;
-///      low-data 200 kbit/s 15 fps at half resolution;
+///      calls-quality ladder 720p 1.5 Mbit/s -> 480p 600k -> 320p 350k 20 fps
+///      -> 240p 150k 10 fps -> 180p 80k 8 fps (fair net caps at 320p, poor
+///      at 240p); low-data at most 240p 200 kbit/s 15 fps;
 ///  * AUDIO-ONLY FALLBACK: when the uplink can't carry video (available send
 ///    bandwidth < [pauseBelowKbps] or loss > [pauseLossPct] for
 ///    [pauseAfter] samples ≈ 6 s) our video is PAUSED — the voice goes on
@@ -117,10 +118,9 @@ class PolicyStep {
 class CallNetPolicy {
   CallNetPolicy({
     this.lowData = false,
-    this.pauseBelowKbps = 120,
-    this.hardPauseKbps = 50,
+    this.pauseBelowKbps = 40,
     this.pauseLossPct = 15,
-    this.resumeAboveKbps = 250,
+    this.resumeAboveKbps = 120,
     this.pauseAfter = 3,
     this.resumeAfter = 5,
     this.tierAfter = 2,
@@ -145,12 +145,20 @@ class CallNetPolicy {
   /// fills the current cap — a probe that falls back within 10 samples
   /// doubles the wait (max [maxRungUpAfter]). A fair/poor network (loss,
   /// RTT, jitter) caps the ladder at 320p.
+  /// calls-quality (lead 18 Nov, world-class weak networks): below 320p the
+  /// picture keeps going small and slow — 240p 10 fps at 150 kbit/s, 180p
+  /// 8 fps at 80 kbit/s — instead of the old audio-only pause at < 120
+  /// kbit/s; video pauses only under [pauseBelowKbps] (40 kbit/s) or > 15 %
+  /// loss. The call screen says "Poor connection" meanwhile (CallQuality).
   static const ladder = [
     VideoRung(720, 1500000, 24),
     VideoRung(480, 600000, 24),
     VideoRung(320, 350000, 20),
+    VideoRung(240, 150000, 10),
+    VideoRung(180, 80000, 8),
   ];
-  static const rungDownKbps = [900.0, 380.0];
+  static const bottomRung = 4;
+  static const rungDownKbps = [900.0, 380.0, 200.0, 110.0];
   static const rungDownAfter = 2;
   static const rungUpAfter = 3;
   static const maxRungUpAfter = 24;
@@ -172,10 +180,6 @@ class CallNetPolicy {
   /// The person chose "Low-data calls" (or the other phone asked for it).
   bool lowData;
   final double pauseBelowKbps;
-
-  /// calls-quality: under this the uplink can't carry any picture — pause
-  /// whatever the RTT / loss say.
-  final double hardPauseKbps;
   final double pauseLossPct;
   final double resumeAboveKbps;
   final int pauseAfter;
@@ -232,17 +236,22 @@ class CallNetPolicy {
         NetTier.poor => audioPoor,
       };
     }
-    final fair = tier != NetTier.good;
-    // calls-quality: a fair / poor network caps the ladder at 320p
-    final r = ladder[fair ? 2 : rung.clamp(_topRung, 2)];
+    // calls-quality: a fair network caps the ladder at 320p, a poor one at
+    // 240p; the uplink may take it lower still
+    final cap = switch (tier) {
+      NetTier.good => _topRung,
+      NetTier.fair => 2,
+      NetTier.poor => 3,
+    };
+    final cur = rung.clamp(_topRung, bottomRung);
+    final r = ladder[cur > cap ? cur : cap];
+    // low-data: at most ~240p, 200 kbit/s, 15 fps (lower rungs still win)
+    final h = lowData && r.height > 240 ? 240 : r.height;
     return MediaPlan(
       audioMaxBps: a,
-      videoMaxBps: lowData ? 200000 : r.maxBps,
-      videoMaxFps: lowData ? 15 : r.fps,
-      // low-data: ~240p (half of 480p, a third of 720p)
-      videoScaleDown: lowData
-          ? (hd ? 3.0 : 2.0)
-          : ((captureHeight / r.height) < 1 ? 1.0 : captureHeight / r.height),
+      videoMaxBps: lowData && r.maxBps > 200000 ? 200000 : r.maxBps,
+      videoMaxFps: lowData && r.fps > 15 ? 15 : r.fps,
+      videoScaleDown: captureHeight / h < 1 ? 1.0 : captureHeight / h,
       videoActive: !videoPaused,
       opusPtimeMs: lowData ? 60 : null,
     );
@@ -261,8 +270,8 @@ class CallNetPolicy {
     if (_samples <= 1) return; // the estimate is still ramping up
     _sinceUp++;
     final e = uplinkKbps!;
-    final cur = rung.clamp(_topRung, 2);
-    if (cur < 2 && e < rungDownKbps[cur]) {
+    final cur = rung.clamp(_topRung, bottomRung);
+    if (cur < bottomRung && e < rungDownKbps[cur]) {
       _upRun = 0;
       if (++_downRun >= rungDownAfter) {
         rung = cur + 1;
@@ -303,16 +312,12 @@ class CallNetPolicy {
     }
     final b = s.availableKbps;
     final l = s.lossPct ?? 0;
-    // calls-quality (calls2emu 44261908414): on a 3G-like path (RTT ~350 ms,
-    // ~3 % random loss) libwebrtc's loss-based estimate under-reads (~60
-    // kbit/s) and video was paused for 20 s although the link had room. Below
-    // [pauseBelowKbps] video pauses only on a really bad path (RTT > 500 ms
-    // or loss > 5 %) or under [hardPauseKbps]; otherwise it keeps adapting.
-    final r = s.rttMs ?? 0;
-    final bad = (b != null &&
-            (b < hardPauseKbps ||
-                (b < pauseBelowKbps && (r > 500 || l > 5)))) ||
-        l > pauseLossPct;
+    // calls-quality (calls2emu 44261908414 + lead 18 Nov): on a 3G-like path
+    // libwebrtc's estimate under-reads (~60 kbit/s) and video was paused for
+    // 20 s although the link had room. Now the picture steps down to 180p
+    // 8 fps first; it pauses only under [pauseBelowKbps] (40 kbit/s — not
+    // even a 180p picture fits) or above [pauseLossPct] loss.
+    final bad = (b != null && b < pauseBelowKbps) || l > pauseLossPct;
     final good = (b == null || b >= resumeAboveKbps) && l < 5;
     if (!videoPaused) {
       _badRun = bad ? _badRun + 1 : 0;

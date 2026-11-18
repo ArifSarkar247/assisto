@@ -70,7 +70,8 @@ Future<void> poll(CallController c, FakeCallMedia m, MediaStats st) async {
   await settle();
 }
 
-const weak = MediaStats(rttMs: 650, lossPct: 6, jitterMs: 90, availableKbps: 70);
+// calls-quality: video pauses only at an extreme estimate (< 40 kbit/s)
+const weak = MediaStats(rttMs: 650, lossPct: 6, jitterMs: 90, availableKbps: 30);
 const good = MediaStats(
     rttMs: 40, lossPct: 0.2, jitterMs: 6, availableKbps: 2500,
     bytesSent: 400000, bytesReceived: 600000);
@@ -237,7 +238,7 @@ void main() {
     expect(id, 42);
     expect(r['rtt_ms'], 650);
     expect(r['loss_pct'], 6.0);
-    expect(r['min_kbps'], 70);
+    expect(r['min_kbps'], 30);
     expect(r['data_kb'], (1000000 / 1024).round());
     expect(r['reconnects'], 0);
     expect(r['low_data'], isFalse);

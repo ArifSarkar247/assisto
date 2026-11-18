@@ -85,9 +85,21 @@ void main() {
       expect(p.plan.videoMaxFps, 20);
     });
 
-    test('EDGE: paused after 3 bad samples (~6 s), voice goes on', () {
+    test('EDGE (70 kbit/s): NO pause — a small slow picture (180p 8 fps), voice goes on', () {
+      // calls-quality (lead 18 Nov): the best apps keep a tiny low-fps
+      // picture; the old audio-only pause at < 120 kbit/s is gone
       final p = CallNetPolicy();
-      final steps = run(p, ['edge', 'edge', 'edge']);
+      final steps = run(p, List.filled(12, 'edge'));
+      expect(steps.any((s) => s.paused), isFalse);
+      expect(p.plan.videoActive, isTrue);
+      expect(p.targetHeight, 180);
+      expect(p.plan.videoMaxFps, 8);
+      expect(p.plan.audioMaxBps, greaterThan(0));
+    });
+
+    test('extreme (bad 2G, 30 kbit/s): paused after 3 samples (~6 s), voice goes on', () {
+      final p = CallNetPolicy();
+      final steps = run(p, ['2g-bad', '2g-bad', '2g-bad']);
       expect(steps[0].paused || steps[1].paused, isFalse);
       expect(steps[2].paused, isTrue);
       expect(p.plan.videoActive, isFalse);
@@ -108,7 +120,7 @@ void main() {
 
     test('resumes after 5 good samples (~10 s) with one "back" event', () {
       final p = CallNetPolicy();
-      run(p, ['edge', 'edge', 'edge']);
+      run(p, ['2g-bad', '2g-bad', '2g-bad']);
       final steps = run(p, List.filled(5, 'wifi'));
       expect(steps.where((s) => s.resumed).length, 1);
       expect(steps.last.resumed, isTrue);
@@ -119,25 +131,25 @@ void main() {
     test('stuck low estimate: a probe re-sends video after ~20 s; a failed '
         'probe pauses again silently and waits twice as long', () {
       final p = CallNetPolicy();
-      run(p, ['edge', 'edge', 'edge']); // paused
+      run(p, ['2g-bad', '2g-bad', '2g-bad']); // paused
       // the estimate stays at EDGE while only voice is sent
-      final probe = run(p, List.filled(10, 'edge'));
+      final probe = run(p, List.filled(10, '2g-bad'));
       expect(p.plan.videoActive, isTrue, reason: 'probing after 10 samples');
       expect(probe.any((s) => s.resumed), isFalse,
           reason: 'a probe is not announced as "video back"');
-      final fail = p.onSample(sample('edge'), sendingVideo: true);
+      final fail = p.onSample(sample('2g-bad'), sendingVideo: true);
       expect(fail.plan.videoActive, isFalse);
       expect(fail.paused, isFalse, reason: 'no second notice');
-      run(p, List.filled(10, 'edge'));
+      run(p, List.filled(10, '2g-bad'));
       expect(p.plan.videoActive, isFalse, reason: 'next probe waits 20');
-      run(p, List.filled(10, 'edge'));
+      run(p, List.filled(10, '2g-bad'));
       expect(p.plan.videoActive, isTrue);
     });
 
     test('a probe that finds a good network ends paused-for-network', () {
       final p = CallNetPolicy();
-      run(p, ['edge', 'edge', 'edge']);
-      run(p, List.filled(10, 'edge')); // probe starts
+      run(p, ['2g-bad', '2g-bad', '2g-bad']);
+      run(p, List.filled(10, '2g-bad')); // probe starts
       final steps = run(p, List.filled(6, 'wifi'));
       expect(steps.any((s) => s.paused), isFalse);
       expect(p.pausedForNetwork, isFalse);
@@ -146,11 +158,11 @@ void main() {
 
     test('voice-only / camera off: nothing to pause, state cleared', () {
       final p = CallNetPolicy();
-      run(p, ['edge', 'edge', 'edge']);
+      run(p, ['2g-bad', '2g-bad', '2g-bad']);
       expect(p.pausedForNetwork, isTrue);
-      p.onSample(sample('edge'), sendingVideo: false);
+      p.onSample(sample('2g-bad'), sendingVideo: false);
       expect(p.pausedForNetwork, isFalse);
-      final steps = run(p, List.filled(8, 'edge'), video: false);
+      final steps = run(p, List.filled(8, '2g-bad'), video: false);
       expect(steps.any((s) => s.paused), isFalse);
     });
 

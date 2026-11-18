@@ -162,8 +162,8 @@ void main() {
       for (var i = 0; i < 8; i++) {
         p.onSample(up(100), sendingVideo: false);
       }
-      expect(p.rung, 2);
-      expect(p.targetHeight, 320);
+      expect(p.rung, CallNetPolicy.bottomRung);
+      expect(p.targetHeight, 180);
       expect(p.plan.videoActive, isTrue, reason: 'nothing to pause while the camera is off');
     });
   });

@@ -408,20 +408,24 @@ class _PeerApp extends StatelessWidget {
                     child: Text('PEER B — ${p.status}',
                         style: const TextStyle(color: Colors.white, fontSize: 16)),
                   ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      color: const Color(0xFF202020),
-                      child: m == null ? const SizedBox.shrink() : m.remoteView(),
+                  // calls-quality: ONE small video view (A's picture) — the
+                  // peer's own preview cost a second swiftshader texture on a
+                  // shared 4-vCPU host (b330 gate: A's estimate fell to 118
+                  // kbit/s); B's camera state is in the status line
+                  Center(
+                    child: SizedBox(
+                      width: 240,
+                      height: 320,
+                      child: Container(
+                        color: const Color(0xFF202020),
+                        child: m == null ? const SizedBox.shrink() : m.remoteView(),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      color: const Color(0xFF303030),
-                      child: m == null ? const SizedBox.shrink() : m.localView(),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text('camera ${p.call?.cameraOn == true ? 'ON' : 'off'}',
+                        style: const TextStyle(color: Colors.white70)),
                   ),
                 ]);
               },

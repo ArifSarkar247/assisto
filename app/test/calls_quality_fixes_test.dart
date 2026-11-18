@@ -122,16 +122,41 @@ void main() {
         expect(st.paused, isFalse);
       }
       expect(p.plan.videoActive, isTrue);
-      expect(p.targetHeight, 320);
+      expect(p.targetHeight, 180, reason: 'steps down to 180p 8 fps instead');
+      expect(p.plan.videoMaxFps, 8);
     });
 
-    test('a really bad path still pauses: estimate < 50, or slow + lossy', () {
+    test('the ladder below 320p: 240p 10 fps, then 180p 8 fps, then back up', () {
+      final p = CallNetPolicy();
+      final seen = <int>{};
+      for (var i = 0; i < 14; i++) {
+        p.onSample(s(150, 120, 0.5), sendingVideo: true);
+        seen.add(p.targetHeight);
+      }
+      expect(p.targetHeight, 240);
+      expect(p.plan.videoMaxFps, 10);
+      expect(p.plan.videoMaxBps, 150000);
+      for (var i = 0; i < 14; i++) {
+        p.onSample(s(70, 120, 0.5), sendingVideo: true);
+      }
+      expect(p.targetHeight, 180);
+      expect(p.plan.videoActive, isTrue);
+      for (var i = 0; i < 30; i++) {
+        p.onSample(s(2500, 40, 0.1), sendingVideo: true);
+      }
+      expect(p.targetHeight, 480);
+    });
+
+    test('only an extreme path pauses: estimate < 40 kbit/s, or > 15 % loss', () {
       final hard = CallNetPolicy();
-      final a = [for (var i = 0; i < 3; i++) hard.onSample(s(40, 200, 1), sendingVideo: true)];
+      final a = [for (var i = 0; i < 3; i++) hard.onSample(s(35, 200, 1), sendingVideo: true)];
       expect(a.last.paused, isTrue);
-      final edge = CallNetPolicy();
-      final b = [for (var i = 0; i < 3; i++) edge.onSample(s(70, 650, 6), sendingVideo: true)];
+      final lossy = CallNetPolicy();
+      final b = [for (var i = 0; i < 3; i++) lossy.onSample(s(900, 120, 18), sendingVideo: true)];
       expect(b.last.paused, isTrue);
+      final edge = CallNetPolicy();
+      final c = [for (var i = 0; i < 6; i++) edge.onSample(s(70, 650, 6), sendingVideo: true)];
+      expect(c.any((x) => x.paused), isFalse, reason: 'EDGE keeps a small picture');
     });
   });
 

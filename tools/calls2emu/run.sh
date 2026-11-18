@@ -72,8 +72,17 @@ vm.heapSize=384
 EOF
 }
 
+# calls-quality (lead 18 Nov: b330 gate 18w_b/18w_d went C — the 4-vCPU host
+# was overloaded, A's bandwidth estimate fell to 118 kbit/s): each emulator
+# gets its OWN two vCPUs (A 0-1, B 2-3) so neither starves the other's
+# software VP8 encoder; host tools (flutter drive, Django, coturn) float.
+pin_of() {  # $1 = avd
+  [ "$(nproc)" -ge 4 ] || { echo ""; return; }
+  [ "$1" = c2eB ] && echo "taskset -c 2,3" || echo "taskset -c 0,1"
+}
+
 start_emu() {  # $1 = avd, $2 = port, $3 = extra opts
-  nohup emulator -avd "$1" -port "$2" -no-snapshot -no-window -no-audio -no-boot-anim \
+  nohup $(pin_of "$1") emulator -avd "$1" -port "$2" -no-snapshot -no-window -no-audio -no-boot-anim \
     -gpu swiftshader_indirect -memory "$(ram_of "$1")" -cores 2 \
     -camera-front emulated -camera-back emulated $3 \
     > "$C2E/emulator_$1.log" 2>&1 &
@@ -200,7 +209,7 @@ curl -fsS -m 5 http://127.0.0.1:8710/state >> "$C2E/run.log" 2>&1; echo >> "$C2E
 log "flutter drive A on $SA"
 grant $SA &
 cd app
-log "RAM A=${RAM_A} MB B=${RAM_B} MB"
+log "RAM A=${RAM_A} MB B=${RAM_B} MB; CPU pinning A='$(pin_of c2eA)' B='$(pin_of c2eB)'"
 IDS="${C2E_IDS:-01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d}"
 ANDROID_SERIAL=$SA REALITY_OUT="$OUT" timeout "${C2E_DRIVE_SECONDS:-2400}" flutter drive \
   --driver=test_driver/integration_test.dart \

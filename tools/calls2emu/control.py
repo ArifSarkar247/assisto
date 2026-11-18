@@ -69,7 +69,10 @@ def _rec(case, on):
             # Its own output is kept (run 44181263539 produced no video, no reason).
             lg = open(os.path.join(OUT, "videos", "rec_%s_%s.log" % (case, side)), "w")
             procs.append(subprocess.Popen(
+                # calls-quality: small + low bitrate — full-size screenrecord is
+                # software H.264 on each emulator and starved the call's VP8
                 ["timeout", "200", ADB, "-s", s, "shell", "screenrecord", "--verbose",
+                 "--size", "360x780", "--bit-rate", "600000",
                  "--time-limit", "170", "/sdcard/c2e_%s.mp4" % case],
                 stdout=lg, stderr=subprocess.STDOUT))
         REC[case] = procs
