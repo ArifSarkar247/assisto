@@ -53258,5 +53258,51 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
-  }
+  },
+  "lvgTitle": "Live grid (same Wi-Fi)",
+  "lvgEntry": "Watch all cameras live on this Wi-Fi",
+  "lvgSetupTitle": "See 4 or 9 cameras live at once",
+  "lvgSetupBenefit": "Straight from your DVR / NVR or IP cameras on the same Wi-Fi — no PC, no Assisto server in between. Small tiles use the camera's low-data stream; tap one camera to see it big in HD.",
+  "lvgStep1": "Pick the brand of your DVR / NVR (or paste the cameras' RTSP links)",
+  "lvgStep2": "Type the DVR's address and password, and how many cameras it has",
+  "lvgStep3": "Tap Show cameras — keep this phone on the same Wi-Fi",
+  "lvgHost": "DVR / NVR or camera address",
+  "lvgHostHelp": "For example 192.168.1.64 — it is in the DVR's network settings or on its screen.",
+  "lvgUser": "User name",
+  "lvgPass": "Password",
+  "lvgChannels": "How many cameras",
+  "lvgLines": "Camera links (one per line)",
+  "lvgLinesHelp": "rtsp://user:password@192.168.1.20:554/stream — optional: main link | small (sub) link on one line.",
+  "lvgPrivacy": "The address and password stay only on this phone (encrypted). Nothing is recorded.",
+  "lvgSave": "Show cameras",
+  "lvgCancelEdit": "Keep the old cameras",
+  "lvgNeedAddress": "Type the DVR address (or at least one rtsp:// link) first.",
+  "lvgEdit": "Change cameras",
+  "lvgLayout2": "Show 4 at a time",
+  "lvgLayout3": "Show 9 at a time",
+  "lvgCam": "Camera {n}",
+  "@lvgCam": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lvgNote": "Small tiles = low-data stream · {mb} MB a minute now · tiles off the screen use no data",
+  "@lvgNote": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "lvgConnecting": "Connecting…",
+  "lvgLive": "Live",
+  "lvgPaused": "Paused — scroll here to watch",
+  "lvgLost": "No picture — trying again. Is the camera on this Wi-Fi?",
+  "lvgNoDecoder": "This phone can't play this camera's video (or more cameras at once).",
+  "lvgSd": "SD",
+  "lvgHd": "HD",
+  "lvgBigNote": "HD (main stream). Going back returns to the small low-data tiles.",
+  "lvgOneStream": "This camera has one stream only, so its tile uses the same picture size."
 }
