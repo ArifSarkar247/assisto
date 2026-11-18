@@ -660,8 +660,12 @@ jobs:
               ' android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"/>'
               '\n        <receiver android:exported="false"'
               ' android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>'
+              # notif-nine: OUR boot receiver wraps the plugin's — on Android
+              # 12+ without "Alarms & reminders" the plugin DROPPED every
+              # exact reminder at reboot / app update (ExactAlarmPermission
+              # -> removed from its cache); ours re-arms them inexact first.
               '\n        <receiver android:exported="false"'
-              ' android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">'
+              ' android:name="com.assisto.assisto.push.ReminderBootReceiver">'
               '\n            <intent-filter>'
               '\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>'
               '\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>'

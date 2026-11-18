@@ -989,6 +989,7 @@ def case_alarm_reboot(A, Ah):
     time.sleep(20)  # BOOT_COMPLETED -> ScheduledNotificationBootReceiver
     a2, (_, dump) = wait_alarm_at(due, timeout=120)
     save("np8_alarm_dump_after_boot.txt", dump)
+    c.r["exact_appop_after_boot"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:160]
     c.r["alarm_after_boot"] = a2
     c.check("the boot receiver put the alarm back after the restart (app not opened)", a2 is not None,
             alarm_entries()[0][:6])
@@ -1084,13 +1085,19 @@ EXACT_TITLE = ("রিমাইন্ডার কি ঠিক মিনিট�
 EXACT_ALLOW = ("অনুমতি দিন", "Allow")
 
 
-def _app_find(labels, timeout=60):
+def _app_find(labels, timeout=60, exact=False):
     end = time.time() + timeout
     root = None
     while time.time() < end:
         root = ui_dump()
         for lb in labels:
-            n = ui_find(root, lb, pkg=PKG)
+            if exact:
+                # a BUTTON label: the whole node text, not a word inside the
+                # sheet's body ("Tap Allow, then ..." was tapped in run 44289591521)
+                n = next((x for x in ui_nodes(root) if x.get("package") == PKG and
+                          lb in ((x.get("text") or "").strip(), (x.get("content-desc") or "").strip())), None)
+            else:
+                n = ui_find(root, lb, pkg=PKG)
             if n is not None:
                 return n, root
         time.sleep(3)
@@ -1127,7 +1134,7 @@ def case_exact_off(A, Ah):
     if not c.check("the app explains why exact alarms matter (one sheet)", node is not None,
                    ui_texts(root, pkg=PKG)[:30]):
         return c.done()
-    btn, _ = _app_find(EXACT_ALLOW, timeout=10)
+    btn, _ = _app_find(EXACT_ALLOW, timeout=10, exact=True)
     c.check("the sheet has an 'Allow' button", btn is not None, "")
     if btn is None:
         return c.done()
@@ -1142,13 +1149,15 @@ def case_exact_off(A, Ah):
     root = ui_dump()
     sw = None
     for n in ui_nodes(root):
-        if n.get("class", "").endswith("Switch") or n.get("checkable") == "true":
+        if n.get("package") == "com.android.settings" and (
+                n.get("class", "").endswith("Switch") or n.get("checkable") == "true"):
             sw = n
             break
     if sw is not None:
         tap_node(sw)
         time.sleep(2)
-    if "allow" not in sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG):
+    c.r["appop_after_switch"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:160]
+    if "allow" not in c.r["appop_after_switch"]:
         sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)
         c.r["toggle"] = "appops fallback (switch not found on this Settings build)"
     else:
@@ -1166,12 +1175,15 @@ def case_exact_off(A, Ah):
     shot("np10_ring")
     c.check("it rang at its minute with the app killed",
             rec is not None and -2 <= seen - due <= 60, None if seen is None else round(seen - due, 1))
+    sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)   # the next cases measure the exact path
     return c.done()
 
 
 def _stash_all():
+    # NOT the conversation: snoozing its key also hides its NEXT messages
+    # (the en round showed none in run 44289591521)
     for r in notif_records()[0]:
-        if r["key"]:
+        if r["key"] and r["channel"] not in ("chat_msg_v2", "messages"):
             sh("cmd notification snooze --for 36000000 %s" % q(r["key"]))
 
 
@@ -1240,6 +1252,56 @@ def case_shade_shots(A, B, Ah, tokens, edge_b):
     return c.done()
 
 
+def case_reboot_exact_off(A, Ah):
+    """notif-nine (row 13): the reminder was armed EXACT, then "Alarms &
+    reminders" was turned off (Android cancels exact alarms then), then the
+    phone restarts. Before: the plugin's boot receiver DELETED it ("Exact
+    alarms are not permitted", run 44289591521). Now ReminderBootReceiver
+    re-arms it inexact and it still rings (maybe a few minutes late)."""
+    c = Case("np12_reboot_exact_off", [13], "exact alarms turned OFF + restart: the reminder is kept and still rings")
+    sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)
+    title = "notifproof kept after reboot %d" % (int(time.time()) % 100000)
+    due = _next_minute(480)
+    st, j = make_reminder(Ah, title, due)
+    c.check("reminder saved on the server", st in (200, 201), (st, j))
+    open_app(25, cold=True)
+    a, _ = wait_alarm_at(due, timeout=90)
+    c.check("armed EXACT while the permission was on", is_exact(a), a)
+    closed_precheck(c)
+    sh("appops set %s SCHEDULE_EXACT_ALARM deny" % PKG)
+    time.sleep(3)
+    c.r["appop"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:160]
+    adb("logcat", "-c")
+    adb("reboot", timeout=60)
+    booted = _wait_boot()
+    c.check("emulator rebooted", booted, "")
+    adb("root")
+    time.sleep(4)
+    adb("wait-for-device", timeout=120)
+    if not c.check("the reboot finished before the reminder's minute", time.time() < due - 20,
+                   round(due - time.time())):
+        return c.done()
+    time.sleep(20)
+    a2, (_, dump) = wait_alarm_at(due, timeout=120, tol_s=5)
+    save("np12_alarm_dump_after_boot.txt", dump)
+    lc = adb("logcat", "-d", "-s", "AssistoRem:I", "FLTLocalNotifPlugin:E", timeout=60)
+    save("np12_boot_log.txt", lc)
+    c.r["boot_log"] = [ln for ln in lc.splitlines() if "REM_BOOT" in ln or "not permitted" in ln][-4:]
+    c.check("still exact-OFF after the restart", "allow" not in sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG), "")
+    c.check("our boot receiver re-armed the reminder INEXACT instead of dropping it", a2 is not None
+            and any("downgraded=" in ln and "downgraded=0" not in ln for ln in c.r["boot_log"]),
+            (a2, c.r["boot_log"]))
+    c.check("Assisto was never opened after the restart", PKG not in resumed_activity(), resumed_activity())
+    wake_unlocked()
+    seen, rec, _ = wait_ring(title, due, late_s=600)
+    shot("np12_ring_inexact")
+    c.r["late_s"] = None if seen is None else round(seen - due, 1)
+    c.check("the reminder RANG after the restart (inexact: up to 10 min late allowed)", rec is not None,
+            c.r["late_s"])
+    sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)
+    return c.done()
+
+
 def report():
     cases = RESULT["cases"]
     ok = bool(cases) and all(c["status"] == "pass" for c in cases)
@@ -1278,7 +1340,8 @@ def _run_alarm_cases(A, Ah, only, Bu=None, B=None, tokens=(), edge_b=None):
                      ("front", lambda: case_alarm_made_while_open(A, Ah, Bu, B, tokens)),
                      ("exactoff", lambda: case_exact_off(A, Ah)),             # notif-nine
                      ("shade", lambda: case_shade_shots(A, B, Ah, tokens, edge_b)),  # notif-nine
-                     ("reboot", lambda: case_alarm_reboot(A, Ah))):
+                     ("reboot", lambda: case_alarm_reboot(A, Ah)),
+                     ("rebootoff", lambda: case_reboot_exact_off(A, Ah))):  # notif-nine
         if only and name not in only:
             continue
         try:
