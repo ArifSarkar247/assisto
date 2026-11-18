@@ -75,8 +75,9 @@ List<(double, double, double, int)> _trip() {
     total += d;
   }
   (double, double, int) at(double m) {
-    for (final l in legs) {
-      if (m <= l.$1 + l.$2 || identical(l, legs.last)) {
+    for (var i = 0; i < legs.length; i++) {
+      final l = legs[i];
+      if (m <= l.$1 + l.$2 || i == legs.length - 1) {
         final k = l.$2 == 0 ? 0.0 : ((m - l.$1) / l.$2).clamp(0.0, 1.0);
         final course = (math.atan2(l.$6 - l.$4, l.$5 - l.$3) * 180 / math.pi + 360) % 360;
         return (l.$3 + (l.$5 - l.$3) * k, l.$4 + (l.$6 - l.$4) * k, course.round());
@@ -288,7 +289,7 @@ void registerVehicleSt906Flows() {
                 (w) => w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical));
         if (sc.evaluate().isEmpty) break;
         final pos = f.tester.state<ScrollableState>(sc.first).position;
-        final to = (pos.pixels + (up ? -300.0 : 300.0)).clamp(pos.minScrollExtent, pos.maxScrollExtent);
+        final to = (pos.pixels + (up ? -300.0 : 300.0)).clamp(pos.minScrollExtent, pos.maxScrollExtent).toDouble();
         if (to == pos.pixels) break;
         pos.jumpTo(to);
         await f.tester.pump(const Duration(milliseconds: 300));
