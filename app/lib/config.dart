@@ -21,6 +21,14 @@ class AppConfig {
   static const String apiPrefix = '/api/v1';
   static const String appVersionLabel = '1.0';
 
+  /// min-build: "1.0.N+10N" once diag/app_version.dart resolved it (after the
+  /// first frame); empty until then.
+  static String appBuildVersion = '';
+
+  /// X-App-Version on every request: the full version + build when known.
+  static String get appVersionHeader =>
+      appBuildVersion.isNotEmpty ? appBuildVersion : appVersionLabel;
+
   /// l1-launch: true ONLY in the Google Play build (CI AAB step passes
   /// --dart-define=PLAY_STORE=true). Play forbids self-updating outside the
   /// store, so this build never checks /app/latest, never downloads an APK and

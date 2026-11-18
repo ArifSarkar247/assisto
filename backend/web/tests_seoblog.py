@@ -4,9 +4,7 @@ sitemap only when published, the 10 seed articles (unpublished, honest)."""
 import io
 import json
 import re
-import shutil
 import sys
-import tempfile
 import types
 from unittest import mock
 
@@ -18,8 +16,8 @@ from core.models import BlogPost, OwnerAudit
 from web import blog as B
 from web import blog_seed
 from web.tests_o2_owner_admin import OwnerBase
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_TMP = tempfile.mkdtemp(prefix="seoblog-media-")
 SITE = "https://lifeassisto.com"
 
 
@@ -197,12 +195,7 @@ class PublicTests(TestCase):
         self.assertEqual(Client().get("/blog/%s/cover" % self.slug).status_code, 404)
 
 
-@override_settings(MEDIA_ROOT=_TMP)
-class OwnerBlogTests(OwnerBase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_TMP, ignore_errors=True)
+class OwnerBlogTests(TempDirMixin, OwnerBase):
 
     def setUp(self):
         super().setUp()

@@ -23,9 +23,6 @@ import asyncio
 import base64
 import os
 import re
-import atexit
-import shutil
-import tempfile
 from datetime import datetime, timedelta, timezone as dtz
 from pathlib import Path
 from unittest import mock
@@ -43,13 +40,13 @@ from core.models import (CircleMember, FamilyAlert, FamilyAlertDelivery, KidsVoi
                          KidsWatch, KidsWatchCommand, KidsWatchPosition, NotifEvent,
                          SchoolEvent, SchoolPlan, User)
 from tracker.protocols import watch as WP
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 V = "/api/v1"
 DHAKA = ZoneInfo("Asia/Dhaka")
 HOME = (23.7808, 90.4130)
 TCP_PORT = 15041
 REPO = Path(__file__).resolve().parents[2]
-_MEDIA = tempfile.mkdtemp(prefix="kidsvoice-test-")
 
 
 def _east(lat, lng, metres):
@@ -439,8 +436,8 @@ class SchoolModeLogicTests(TestCase):
 
 # =========================================================================== service + API
 
-@override_settings(KIDSVOICE_ROOT=_MEDIA)
-class _Base(TestCase):
+class _Base(TempDirMixin, TestCase):
+    tmp_settings = {"KIDSVOICE_ROOT": ""}
     def setUp(self):
         cache.clear()
         flag(True)
@@ -621,7 +618,7 @@ class VoiceTests(_Base):
         credits = User.objects.get(pk=self.owner.pk).ai_credits
         note = KW.voice_up(self.w.id, AMR)
         self.assertIsNotNone(note)
-        raw = open(os.path.join(_MEDIA, note.file_name), "rb").read()
+        raw = open(os.path.join(self.tmp_dir, note.file_name), "rb").read()
         self.assertNotIn(AMR, raw)                             # encrypted at rest
         self.assertEqual(note.duration_s, 0.04)
         self.assertTrue(any(c["data"].get("voice_id") == str(note.id)
@@ -633,7 +630,7 @@ class VoiceTests(_Base):
         self.assertEqual(User.objects.get(pk=self.owner.pk).ai_credits, credits)
         KW.purge_voice(timezone.now() + timedelta(days=KW.VOICE_DAYS, minutes=1))
         self.assertFalse(KidsVoiceNote.objects.filter(pk=note.pk).exists())
-        self.assertFalse(os.path.exists(os.path.join(_MEDIA, note.file_name)))
+        self.assertFalse(os.path.exists(os.path.join(self.tmp_dir, note.file_name)))
 
     def test_voice_reply_amr_only_queued(self):
         bad = base64.b64encode(b"\x00\x00\x00 ftypM4A ").decode()
@@ -779,8 +776,8 @@ class SchoolPlanApiTests(_Base):
 
 # =========================================================================== real TCP
 
-@override_settings(KIDSVOICE_ROOT=_MEDIA)
-class WatchTcpEndToEndTests(APITransactionTestCase):
+class WatchTcpEndToEndTests(TempDirMixin, APITransactionTestCase):
+    tmp_settings = {"KIDSVOICE_ROOT": ""}
     """The REAL asyncio tracker server on 127.0.0.1:15041 (Store inline so the
     test DB is shared), driven by tracker.sim.WatchDevice over real TCP."""
 
@@ -883,8 +880,3 @@ class WatchTcpEndToEndTests(APITransactionTestCase):
         self.assertEqual(KW.read_audio(note), AMR)
         self.assertEqual(w.interval_s, 1800)
 
-
-# Removed once at interpreter exit, NOT in tearDownModule: parallel test
-# workers share this directory (created before fork), and one worker's
-# tearDownModule deleted it under the others (voice note "gone" flake).
-atexit.register(shutil.rmtree, _MEDIA, True)

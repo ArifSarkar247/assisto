@@ -27,7 +27,7 @@ from rest_framework.test import APIClient
 from core.logic import cash_guard as CG
 from core.logic import cctv_extras as CX
 from core.models import User
-from core.tests_cashguard import _Base, _MEDIA, _jpeg, _vector, ROOT
+from core.tests_cashguard import _Base, _jpeg, _vector, ROOT
 
 EDGE = os.path.join(ROOT, "edge", "shopbox")
 
@@ -218,7 +218,6 @@ class TextsTests(SimpleTestCase):
 
 
 # ============================================================ API
-@override_settings(MEDIA_ROOT=_MEDIA)
 class _X(_Base):
     def setUp(self):
         super().setUp()

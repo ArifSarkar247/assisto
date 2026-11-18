@@ -8,8 +8,6 @@ flag gating."""
 import base64
 import io
 import os
-import shutil
-import tempfile
 from datetime import timedelta
 from unittest import mock
 
@@ -19,6 +17,7 @@ from rest_framework.test import APIClient
 
 from core import blood_panel as BP
 from core.logic import blood_rules as BR
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 from core.models import (BloodDonor, BloodEvent, BloodRecipient, BloodReport, BloodRequest,
                          BloodThread, BloodVerification, User)
 
@@ -51,25 +50,9 @@ class Spy:
 
 
 @override_settings(PUSH_SYNC=True)
-class Base(TestCase):
-    """Each test class gets its OWN media dir: --parallel forks workers after
-    this module is imported, so a module-level dir is shared between workers
-    and one class's tearDownClass rmtree deleted another worker's fresh slip
-    photo (test_slip_reviewed_then_photo_deleted flaked)."""
+class Base(TempDirMixin, TestCase):
+    """MEDIA_ROOT = this class's own temp dir (core.testing_tmp)."""
     n = 0
-
-    @classmethod
-    def setUpClass(cls):
-        cls._media = tempfile.mkdtemp(prefix="blood-media-")
-        cls._media_ov = override_settings(MEDIA_ROOT=cls._media)
-        cls._media_ov.enable()
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        cls._media_ov.disable()
-        shutil.rmtree(cls._media, ignore_errors=True)
 
     def mk(self, name, days_old=30):
         Base.n += 1

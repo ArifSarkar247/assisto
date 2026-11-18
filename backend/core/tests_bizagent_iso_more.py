@@ -6,8 +6,6 @@ data anywhere) — the 4 isolation items the audit found uncovered:
      write B's chats).
 Made-up sample data only."""
 import json
-import shutil
-import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
@@ -22,10 +20,10 @@ from core.tests_bizagent_iso_scope import (B_CUST, B_MSG, B_PRICE, B_PRODUCT,  #
                                            TwoShops, setUpModule, tearDownModule)
 from core.tests_g1_bizagent import _png
 from core.tests_p1_bizagent import PAGE, mpayload
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 B_PAGE = "8800000008"
 V = "/api/v1/bizagent/"
-_MEDIA = tempfile.mkdtemp(prefix="isomedia")
 
 
 def comment(page, cid, post_id, text, frm="u55"):
@@ -70,12 +68,7 @@ class CommentIsolationTests(TwoShops):
 
 
 # ============================================================ (4) photos
-@override_settings(MEDIA_ROOT=_MEDIA)
-class PhotoIsolationTests(TwoShops):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_MEDIA, True)
+class PhotoIsolationTests(TempDirMixin, TwoShops):
 
     def setUp(self):
         super().setUp()

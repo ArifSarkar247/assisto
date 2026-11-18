@@ -7,10 +7,7 @@ camera's alert list rows, alert detail, evidence, clip, still, live view,
 grid tile, overview row or whole-site report — and is not pushed its alerts.
 Staff (is_staff / superuser) have no path to anyone's cameras.
 """
-import atexit
 import io
-import shutil
-import tempfile
 from datetime import timedelta
 from unittest import mock
 
@@ -21,9 +18,8 @@ from rest_framework.test import APIClient, APITestCase
 
 from core.logic import cctv_team as CT
 from core.models import User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_MEDIA = tempfile.mkdtemp(prefix="cctvteam-media-")
-atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 def _jpeg(w=320, h=180, color=(30, 80, 140)):
@@ -77,8 +73,7 @@ class PureTests(SimpleTestCase):
 
 
 # ============================================================ API
-@override_settings(MEDIA_ROOT=_MEDIA)
-class _Base(APITestCase):
+class _Base(TempDirMixin, APITestCase):
     def setUp(self):
         from core import feature_flags as FF
         from core.models import FeatureFlag, ShopCamera, ShopEvent, ShopSite

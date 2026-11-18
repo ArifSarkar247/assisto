@@ -4,24 +4,17 @@ Before the fix DRF's JSONField str()'d the decoded map read from form input
 -> 400 {"details": ["Value must be valid JSON."]} for every photo upload
 that carried any detail field."""
 import json
-import shutil
-import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from core.models import Document, User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_MEDIA = tempfile.mkdtemp(prefix="docdetails-")
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class MultipartDetailsTests(TestCase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_MEDIA, ignore_errors=True)
+class MultipartDetailsTests(TempDirMixin, TestCase):
 
     def setUp(self):
         self.u = User.objects.create_user(name="A", phone="01719990001", password="pw-123456x")

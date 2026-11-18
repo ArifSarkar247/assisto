@@ -21,7 +21,6 @@ from django.utils import timezone
 from core.logic import cash_guard as CG
 from core.logic import cctv_act as A
 from core.logic import tuya as T
-from core.tests_cashguard import _MEDIA
 from core.tests_cctvx import _X
 
 
@@ -329,7 +328,6 @@ def _signed(client, kid, secret, body, ts=None):
                        HTTP_X_ASSISTO_SIGNATURE=A.signature_header(secret, ts, raw))
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 class PosWebhookApiTests(_X):
     def _key(self, partner="asalify"):
         r = self.client.post("/api/v1/shop/sites/%d/pos-key" % self.site["id"],
@@ -409,7 +407,6 @@ class PosWebhookApiTests(_X):
         self.assertIn("csv", m["feeds"])
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 class ActApiTests(_X):
     def test_wrong_alert_learns_per_site_then_saves_quietly(self):
         from core.models import ShopEvent
@@ -547,7 +544,6 @@ class ActApiTests(_X):
             self.assertEqual(offs[-1], {"commands": [{"code": "switch_1", "value": False}]})
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 class ReportAskApiTests(_X):
     keep_closing_report = True   # gap-cctv: this class tests the report itself
 
