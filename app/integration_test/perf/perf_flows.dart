@@ -157,6 +157,55 @@ void registerPerfFlows({List<String>? only}) {
     await p.memory('chat_open');
   }, timeout: const Duration(minutes: 8));
 
+  // circle-chat: 500-message history — smooth scroll through older pages
+  // (paging loads 50 at a time while the user flings up). PROFILE build.
+  perfFlow('p02b_circle_chat_500', '২. আমার সার্কেল',
+      'My Circle: chat with 500+ messages, fling up through the whole history and back',
+      (p) async {
+    final f = p.f;
+    final apiB = await f.h.backend(userB: true);
+    await f.net(() async {
+      try {
+        KeyWiring.instance.start(f.app);
+      } catch (_) {}
+    });
+    await f.pumpFor(const Duration(seconds: 4));
+    var sent = 0;
+    await f.net(() async {
+      final e2e = SoftwareE2E();
+      final idB = e2e.generateIdentity();
+      await apiB.postJson('/circle/keys',
+          {'public_key': idB.publicKeyB64, 'key_id': idB.keyId, 'scheme': e2e.scheme});
+      final edgeB = _rows(await apiB.getJson('/circle/members'))
+          .firstWhere((m) => '${m['name']}'.contains('Rahim'));
+      final pk = '${edgeB['public_key'] ?? ''}';
+      if (pk.isEmpty) return;
+      for (var i = 0; i < 500; i++) {
+        final text = i % 7 == 0
+            ? 'History ${i + 1}: কাল সকালে স্কুলে যাওয়ার আগে ওষুধটা মনে করে খেয়ে নিও। '
+                'A longer line that wraps over two or three rows like a real chat.'
+            : 'History ${i + 1} ঠিক আছে 👍';
+        final ct = e2e.encrypt(self: idB, recipientPublicKey: base64Decode(pk), plaintext: text);
+        await apiB.postJson('/circle/${edgeB['id']}/messages', {
+          ...ct.toEnvelopeFields(),
+          'content_type': 'text',
+          'client_msg_id': 'p500-${DateTime.now().microsecondsSinceEpoch}-$i'
+        });
+        sent++;
+      }
+    });
+    p.out['messages_seeded'] = sent;
+    if (sent < 500) p.notes.add('only $sent messages seeded (A has no key on the server yet)');
+    await p.openRoute('circle_list', 'circle', ready: find.text(Seed.nameB));
+    await p.openTimed('chat_open', () async {
+      await f.tester.tap(find.text(Seed.nameB).first, warnIfMissed: false);
+    }, ready: find.byType(CircleChatScreen));
+    // 500 messages / 50 per page = 10 older pages; ~4 flings per page
+    await p.scroll('chat_500_older', downs: 40, ups: 0, older: true);
+    await p.scroll('chat_500_back', downs: 0, ups: 40, older: true);
+    await p.memory('chat_500');
+  }, timeout: const Duration(minutes: 12));
+
   // ---------------------------------------------------- 3. call screen (no call)
   perfFlow('p03_call_screen', '১. কল', 'Call screen open (voice + video, frozen controller, no real call)',
       (p) async {

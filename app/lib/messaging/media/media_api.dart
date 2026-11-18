@@ -40,9 +40,13 @@ abstract class MediaTransport {
   /// {url: signed path, size, sha256} — 404 when gone / not a participant.
   Future<Map<String, dynamic>> downloadUrl(String ref);
 
-  /// Stream the signed URL into [sink]; reports received bytes.
+  /// Stream the signed URL into [sink]; reports received bytes (of THIS
+  /// call). circle-chat: [from] > 0 resumes a cut download with
+  /// `Range: bytes=<from>-`; a server that answers 200 instead of 206
+  /// throws `MediaHttpError(-2, reason: 'no_range')` BEFORE writing a byte
+  /// (the caller starts over from 0); 416 = the range is wrong (start over).
   Future<void> download(String url, IOSink sink,
-      {void Function(int got)? onBytes, bool Function()? cancelled});
+      {void Function(int got)? onBytes, bool Function()? cancelled, int from = 0});
 
   Future<Map<String, dynamic>> peerKey(int memberId);
   Future<List<Map<String, dynamic>>> groupRoster(int groupId);
@@ -129,13 +133,18 @@ class HttpMediaTransport implements MediaTransport {
 
   @override
   Future<void> download(String url, IOSink sink,
-      {void Function(int got)? onBytes, bool Function()? cancelled}) async {
+      {void Function(int got)? onBytes, bool Function()? cancelled, int from = 0}) async {
     final full = url.startsWith('http') ? url : '${AppConfig.apiBase}$url';
     final req = http.Request('GET', Uri.parse(full));
+    if (from > 0) req.headers['Range'] = 'bytes=$from-';
     final resp = await _c.send(req).timeout(_t);
-    if (resp.statusCode != 200) {
+    final want = from > 0 ? 206 : 200;
+    if (resp.statusCode != want) {
       await resp.stream.drain<void>();
-      throw MediaHttpError(resp.statusCode);
+      if (from > 0 && resp.statusCode == 200) {
+        throw const MediaHttpError(-2, reason: 'no_range');
+      }
+      throw MediaHttpError(resp.statusCode, reason: resp.statusCode == 416 ? 'bad_range' : '');
     }
     var got = 0;
     await for (final chunk in resp.stream.timeout(const Duration(seconds: 45))) {

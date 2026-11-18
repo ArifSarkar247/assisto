@@ -445,6 +445,27 @@ class CircleGroupMessagesView(APIView):
         # not-plaintext fields WITHOUT ever accepting plaintext: the per_recipient
         # map is itself still validated for forbidden keys below.
         pr = env.get("per_recipient")
+        # circle-chat (E2E membership change): a phone with a STALE roster
+        # (offline queue, a failed roster refresh) may still seal a copy for
+        # a member who was REMOVED. Membership rows are reused on re-add, so
+        # that copy would open for them later (and feed the history
+        # re-share). Drop every copy / recipient id that is not an ACTIVE
+        # member right now — before the first copy is lifted to the top.
+        stale = []
+        if isinstance(pr, dict) and pr:
+            active = {str(i) for i in CircleGroupMember.objects.filter(
+                group=g, status=G.MEMBERSHIP_ACTIVE).values_list("id", flat=True)}
+            stale = [k for k in pr if str(k) not in active]
+            if stale:
+                pr = {k: v for k, v in pr.items() if str(k) in active}
+                env["per_recipient"] = pr
+                rids0 = env.get("recipient_ids")
+                if isinstance(rids0, list):
+                    env["recipient_ids"] = [r for r in rids0 if str(r) in active]
+                if not pr:
+                    return Response(
+                        {"detail": "members_changed", "reason": "members_changed"},
+                        status=status.HTTP_409_CONFLICT)
         if isinstance(pr, dict) and pr and not env.get("ciphertext"):
             first = None
             rids = env.get("recipient_ids") or []
@@ -520,8 +541,10 @@ class CircleGroupMessagesView(APIView):
                 group=g, status=G.MEMBERSHIP_ACTIVE).exclude(
                 member=request.user).values_list("member_id", flat=True))
         push.hook_group_message(request.user, g, x)   # key-gated, never raises
-        return Response({"id": x.id, "ok": True, "mentions": mentions},
-                        status=status.HTTP_201_CREATED)
+        out = {"id": x.id, "ok": True, "mentions": mentions}
+        if stale:   # circle-chat: the phone refreshes its roster
+            out["dropped_recipients"] = len(stale)
+        return Response(out, status=status.HTTP_201_CREATED)
 
 
 class CircleGroupMessageActionView(APIView):

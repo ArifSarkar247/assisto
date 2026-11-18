@@ -205,6 +205,17 @@ class FnOutboxTransport implements OutboxTransport, GroupOutboxTransport {
       post('/circle/groups/$groupId/messages', env);
 }
 
+/// circle-chat: the server refused a group envelope because none of its
+/// recipients is a member any more (HTTP 409, reason members_changed).
+bool isMembersChanged(Object err) {
+  try {
+    final d = err as dynamic;
+    return d.status == 409 && '${d.reason}' == 'members_changed';
+  } catch (_) {
+    return false;
+  }
+}
+
 class FlushResult {
   final List<String> sent;
   final int waiting;
@@ -304,7 +315,15 @@ class Outbox {
             try {
               await gt.sendGroup(e.key, i.envelope!);
               sent.add(i.id);
-            } catch (_) {
+            } catch (err) {
+              // circle-chat: every member this queued message was sealed
+              // for has left the group since (409 members_changed) — it
+              // can never be delivered; drop it instead of blocking the
+              // whole group's queue behind it forever.
+              if (isMembersChanged(err)) {
+                sent.add(i.id);
+                continue;
+              }
               waiting += 1;
               break; // keep order within the group
             }

@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess); empty = all"
+        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess, chat); empty = all"
         required: false
         default: ""
       impeller:
@@ -57,7 +57,7 @@ jobs:
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           # gap-money: opt-in single-feature groups (never part of "all")
-          optin = ["mess"]
+          optin = ["mess", "chat"]  # circle-chat: My Circle chat proof
           sel = ([g for g in allg if not want or g in want]
                  + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))
@@ -69,7 +69,7 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     # A hung adb call once held a run for 6h; one group needs ~20-30 min.
-    timeout-minutes: 60
+    timeout-minutes: ${{ matrix.group == 'chat' && 85 || 60 }}
     strategy:
       fail-fast: false
       matrix:
@@ -246,8 +246,11 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           REALITY_ONLY: ${{ env.REALITY_DRIVE }}
-          REALITY_TOTAL_SECONDS: "1800"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          REALITY_TOTAL_SECONDS: ${{ matrix.group == 'chat' && '3600' || '1800' }}
+          # circle-chat: the chat proof (20 MB media both ways, airplane-mode
+          # cuts) needs one long drive, and audio ON for the voice-note mic
+          REALITY_DRIVE_SECONDS: ${{ matrix.group == 'chat' && '3300' || '1500' }}
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} ${{ matrix.group == 'chat' && '-no-boot-anim' || '-noaudio -no-boot-anim' }} -camera-back none -camera-front none
         with:
           api-level: 33
           arch: x86_64
@@ -262,7 +265,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} ${{ matrix.group == 'chat' && '-no-boot-anim' || '-noaudio -no-boot-anim' }} -camera-back none -camera-front none
           # rf1: a "hardware keyboard" so Android never opens the soft IME
           # window (run 40205920547: the emulator segfaulted seconds after
           # the IME opened); run_flows.sh also disables the IME itself.

@@ -13,7 +13,8 @@ import os
 
 from django.conf import settings
 from django.db import transaction
-from django.http import FileResponse, Http404, HttpResponse
+from django.http import (FileResponse, Http404, HttpResponse,
+                         StreamingHttpResponse)
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -23,6 +24,47 @@ from rest_framework.views import APIView
 from . import circle_blobs as CB
 from .i18n import req_lang
 from .models import CircleMediaBlob
+
+
+def parse_range(header, size):
+    """circle-chat: one byte range from a Range header.
+    None = no/ignored header (send the whole file); "bad" = 416;
+    else (start, end) inclusive. Only a single "bytes=a-b" / "bytes=a-" /
+    "bytes=-n" range (what a resuming downloader sends) is honoured; a
+    multi-range header is ignored (whole file, 200), like many servers."""
+    h = (header or "").strip()
+    if not h.startswith("bytes=") or "," in h:
+        return None
+    spec = h[6:].strip()
+    a, sep, b = spec.partition("-")
+    if not sep:
+        return None
+    a, b = a.strip(), b.strip()
+    try:
+        if a == "":
+            n = int(b)            # suffix: the last n bytes
+            if n <= 0:
+                return "bad"
+            return (max(0, size - n), size - 1) if size > 0 else "bad"
+        start = int(a)
+        end = int(b) if b else size - 1
+    except ValueError:
+        return None
+    if start < 0 or start >= size or end < start:
+        return "bad"
+    return start, min(end, size - 1)
+
+
+def _read_span(fh, n, block=256 * 1024):
+    try:
+        while n > 0:
+            buf = fh.read(min(block, n))
+            if not buf:
+                break
+            n -= len(buf)
+            yield buf
+    finally:
+        fh.close()
 
 
 def _nf():
@@ -203,13 +245,37 @@ class MediaBlobDownloadView(APIView):
             CB.mark_downloaded(b, int(q.get("u")))
         except (TypeError, ValueError):
             pass
+        size = os.path.getsize(p)
         if getattr(settings, "CIRCLE_BLOB_X_ACCEL", False):
+            # the front proxy serves the file and honours Range itself
             resp = HttpResponse(content_type="application/octet-stream")
             resp["X-Accel-Redirect"] = CB.ACCEL_PREFIX + CB.rel_name(ref)
         else:
-            resp = FileResponse(open(p, "rb"),
-                                content_type="application/octet-stream")
-            resp["Content-Length"] = str(os.path.getsize(p))
+            # circle-chat: RESUMABLE download — a phone that lost the
+            # network at 14 of 20 MB asks "Range: bytes=14680064-" and
+            # gets only the rest (206), instead of starting from 0.
+            rng = parse_range(request.META.get("HTTP_RANGE", ""), size)
+            if rng == "bad":
+                resp = HttpResponse(
+                    status=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE)
+                resp["Content-Range"] = "bytes */%d" % size
+                resp["Accept-Ranges"] = "bytes"
+                resp["Cache-Control"] = "private, no-store"
+                return resp
+            fh = open(p, "rb")
+            if rng is None:
+                resp = FileResponse(fh, content_type="application/octet-stream")
+                resp["Content-Length"] = str(size)
+            else:
+                start, end = rng
+                fh.seek(start)
+                resp = StreamingHttpResponse(
+                    _read_span(fh, end - start + 1),
+                    status=status.HTTP_206_PARTIAL_CONTENT,
+                    content_type="application/octet-stream")
+                resp["Content-Length"] = str(end - start + 1)
+                resp["Content-Range"] = "bytes %d-%d/%d" % (start, end, size)
+            resp["Accept-Ranges"] = "bytes"
         resp["Cache-Control"] = "private, no-store"
         resp["X-Content-Type-Options"] = "nosniff"
         resp["Content-Disposition"] = "attachment"

@@ -668,6 +668,18 @@ def _group_edit(x, g, uid, d):
     pr = d.get("per_recipient")
     if not isinstance(pr, dict) or not pr:
         return _bad("per_recipient required")
+    # circle-chat: the new text goes ONLY to members who got the original
+    # AND are still in the group — never to someone removed since (a stale
+    # roster), never to someone who joined after it was sent.
+    from .models import CircleGroupMember
+    active = {str(i) for i in CircleGroupMember.objects.filter(
+        group=g, status="active").values_list("id", flat=True)}
+    orig = set(str(k) for k in (x.per_recipient or {}).keys()) | set(
+        str(r) for r in (x.recipient_ids if isinstance(x.recipient_ids, list) else []))
+    pr = {k: v for k, v in pr.items() if str(k) in active and str(k) in orig}
+    if not pr:
+        return Response({"ok": False, "detail": "members_changed"},
+                        status=status.HTTP_409_CONFLICT)
     first = next(iter(pr.values()))
     if not isinstance(first, dict):
         return _bad("bad per_recipient")

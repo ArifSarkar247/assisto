@@ -97,13 +97,30 @@ class FakeServer implements MediaTransport {
   }
 
   Uint8List? tamper;
+  // circle-chat: resumable download. [cutAt] = the network drops after
+  // that many bytes of the WHOLE blob (once); [noRange] = a server that
+  // ignores Range (200); [froms] records each call's start offset.
+  int cutAt = -1;
+  bool noRange = false;
+  final List<int> froms = [];
   @override
   Future<void> download(String url, IOSink sink,
-      {void Function(int got)? onBytes, bool Function()? cancelled}) async {
+      {void Function(int got)? onBytes, bool Function()? cancelled, int from = 0}) async {
+    froms.add(from);
     final ref = url.split('/').last;
     final data = tamper ?? (blobs[ref]!['data'] as BytesBuilder).toBytes();
-    sink.add(data);
-    onBytes?.call(data.length);
+    if (from > 0 && noRange) throw const MediaHttpError(-2, reason: 'no_range');
+    if (from > data.length) throw const MediaHttpError(416, reason: 'bad_range');
+    if (cutAt > from && cutAt < data.length) {
+      final part = data.sublist(from, cutAt);
+      sink.add(part);
+      onBytes?.call(part.length);
+      cutAt = -1;
+      throw const SocketException('network cut');
+    }
+    final rest = data.sublist(from);
+    sink.add(rest);
+    onBytes?.call(rest.length);
   }
 
   @override
@@ -479,6 +496,49 @@ void main() {
       expect(await cache.fetch(d), isNull);
       expect(cache.states.value[d.ref]?.error, 'damaged');
       expect(cache.cachedSync(d), isNull);
+    });
+
+    // circle-chat: a cut download resumes from the bytes it already has
+    test('network cut mid-download -> resumes with Range from the cut, opens fine', () async {
+      MediaCache.resumeDelays = const [Duration.zero];
+      addTearDown(() => MediaCache.resumeDelays = const [
+            Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)]);
+      final (srv, d, plain) = await uploaded();
+      srv.cutAt = 30000;
+      final cache = MediaCache(transport: srv);
+      final f = await cache.fetch(d);
+      expect(f, isNotNull);
+      expect(f!.readAsBytesSync(), plain);
+      expect(srv.froms, [0, 30000]); // the second call asked only for the rest
+    });
+
+    test('every attempt cut -> "network", partial KEPT; the tap later resumes', () async {
+      MediaCache.resumeDelays = const [];
+      addTearDown(() => MediaCache.resumeDelays = const [
+            Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)]);
+      final (srv, d, plain) = await uploaded();
+      srv.cutAt = 25000;
+      final cache = MediaCache(transport: srv);
+      expect(await cache.fetch(d), isNull);
+      expect(cache.states.value[d.ref]?.error, 'network');
+      expect(File('${dir.path}/dl/${d.ref}.enc').existsSync(), isTrue);
+      final f = await cache.fetch(d); // the user's tap on retry
+      expect(f!.readAsBytesSync(), plain);
+      expect(srv.froms, [0, 25000]);
+      expect(File('${dir.path}/dl/${d.ref}.enc').existsSync(), isFalse);
+    });
+
+    test('a server without Range support -> starts over cleanly (never corrupt)', () async {
+      MediaCache.resumeDelays = const [Duration.zero];
+      addTearDown(() => MediaCache.resumeDelays = const [
+            Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)]);
+      final (srv, d, plain) = await uploaded();
+      srv.cutAt = 20000;
+      srv.noRange = true;
+      final cache = MediaCache(transport: srv);
+      final f = await cache.fetch(d);
+      expect(f!.readAsBytesSync(), plain);
+      expect(srv.froms, [0, 20000, 0]);
     });
 
     test('expired on the server -> gone (honest "ask them to send again")', () async {

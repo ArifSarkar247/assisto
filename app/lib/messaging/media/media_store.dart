@@ -180,10 +180,22 @@ class MediaCache {
     }
   }
 
+  /// circle-chat: pauses between automatic resume attempts inside one
+  /// fetch (a short network cut resumes by itself). Tests set [].
+  static List<Duration> resumeDelays = const [
+    Duration(seconds: 2),
+    Duration(seconds: 5),
+    Duration(seconds: 10),
+  ];
+
   Future<File?> _fetch(MediaDescriptor d, {String? presetUrl, File? outFile}) async {
     final ref = d.ref;
     _set(ref, const MediaDl(progress: 0));
     File? tmp;
+    // circle-chat: the partial ciphertext is KEPT after a network cut, so
+    // the next attempt (automatic, or the user's tap) asks only for the
+    // rest (HTTP Range) — a 20 MB video cut at 14 MB never starts again.
+    var keepPartial = false;
     try {
       final out = outFile ?? await fileFor(d);
       if (out.existsSync()) {
@@ -191,21 +203,54 @@ class MediaCache {
         return out;
       }
       tmp = File('${(await MediaDirs.sub('dl')).path}/$ref.enc');
-      final u = presetUrl != null ? <String, dynamic>{'url': presetUrl} : await transport.downloadUrl(ref);
-      final url = '${u['url'] ?? ''}';
-      if (url.isEmpty) throw const MediaHttpError(404);
-      final sink = tmp.openWrite();
-      try {
-        final total = d.size > 0 ? d.size : ((u['size'] as num?)?.toInt() ?? 0);
-        await transport.download(url, sink,
-            cancelled: () => _cancel.contains(ref),
-            onBytes: (got) {
-              if (total > 0) {
-                _set(ref, MediaDl(progress: (got / total).clamp(0, 1).toDouble()));
-              }
-            });
-      } finally {
-        await sink.close();
+      var attempt = 0;
+      while (true) {
+        final have = tmp.existsSync() ? tmp.lengthSync() : 0;
+        try {
+          final u = presetUrl != null
+              ? <String, dynamic>{'url': presetUrl}
+              : await transport.downloadUrl(ref);
+          final url = '${u['url'] ?? ''}';
+          if (url.isEmpty) throw const MediaHttpError(404);
+          final total = d.size > 0 ? d.size : ((u['size'] as num?)?.toInt() ?? 0);
+          if (total > 0 && have >= total) break; // already whole: just open it
+          if (total > 0 && have > 0) {
+            _set(ref, MediaDl(progress: (have / total).clamp(0, 1).toDouble()));
+          }
+          final sink = tmp.openWrite(mode: have > 0 ? FileMode.append : FileMode.write);
+          try {
+            await transport.download(url, sink,
+                from: have,
+                cancelled: () => _cancel.contains(ref),
+                onBytes: (got) {
+                  if (total > 0) {
+                    _set(ref, MediaDl(progress: ((have + got) / total).clamp(0, 1).toDouble()));
+                  }
+                });
+          } finally {
+            await sink.close();
+          }
+          break;
+        } on MediaHttpError catch (e) {
+          if (e.reason == 'no_range' || e.reason == 'bad_range') {
+            // the server cannot resume (or the partial is wrong): start over
+            if (tmp.existsSync()) tmp.deleteSync();
+            if (have > 0) continue;
+          }
+          if (e.reason == 'cancelled' || e.status == 404 || e.status == 403 ||
+              attempt >= resumeDelays.length) {
+            keepPartial = e.reason != 'cancelled' && e.status != 404 && e.status != 403;
+            rethrow;
+          }
+        } on Exception {
+          if (attempt >= resumeDelays.length) {
+            keepPartial = true;
+            rethrow;
+          }
+        }
+        await Future<void>.delayed(resumeDelays[attempt]);
+        attempt++;
+        if (_cancel.contains(ref)) throw const MediaHttpError(-1, reason: 'cancelled');
       }
       _set(ref, const MediaDl(progress: -1));
       final part = '${out.path}.part';
@@ -229,7 +274,7 @@ class MediaCache {
       return null;
     } finally {
       try {
-        if (tmp != null && tmp.existsSync()) tmp.deleteSync();
+        if (!keepPartial && tmp != null && tmp.existsSync()) tmp.deleteSync();
       } catch (e) {
         reportNonFatal('md1_dl_cleanup', e);
       }
