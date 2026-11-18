@@ -20,9 +20,11 @@ def _frames(n, night=False, people=True, fps=3.0):
     for i in range(n):
         g = np.zeros((90, 160), np.uint8)
         f = rc.Frame(t=i / fps, img=np.zeros((360, 640, 3), np.uint8), gray160=g,
-                     gray=np.zeros((360, 640), np.uint8), night=night)
+                     gray=np.zeros((360, 640), np.uint8), night=night,
+                     spread=0.0 if night else 60.0, luma=110.0)
         if people:
             f.people = [(0.4, 0.2, 0.6, 0.9, 0.62)]
+            f.people_enh = list(f.people)
         out.append(f)
     return out
 
@@ -62,10 +64,24 @@ def test_day_confirm_needs_the_next_picture_too():
     fr = _frames(30)
     for i, f in enumerate(fr):
         if i % 2:
-            f.people = []                      # flickering single-frame box
+            f.people = f.people_enh = []       # flickering single-frame box
     _moving(fr, "ipcam")
     s = rc.replace(rc.shipped(), day_confirm=2)
     assert rc.sim_phone_like(fr, s, "ipcam") == []
+
+
+def test_grey_daylight_is_not_ir_night_with_a_lower_spread_line():
+    """A grey rainy DAY frame (spread 6) counted as IR night (< 10): night
+    threshold + night 2-check. With the line at 4 it is a day frame."""
+    fr = _frames(6)
+    for f in fr:
+        f.spread = 6.0
+    s = rc.shipped()
+    assert rc.is_night_for(fr[0], s) is (6.0 < s.spread_max)
+    assert not rc.is_night_for(fr[0], rc.replace(s, spread_max=4.0))
+    dark = _frames(1)[0]
+    dark.luma = 20.0
+    assert rc.is_night_for(dark, rc.replace(s, spread_max=2.0)), "dark is still night"
 
 
 def test_motion_only_fallback_uses_the_motion_cooldown():
@@ -104,6 +120,8 @@ def test_shopbox_path_runs_the_real_analyzer_on_cached_boxes():
         f.img[100:300, x:x + 60] = (200, 60, 40)
     al = rc.sim_shopbox(fr, rc.shipped())
     assert al and al[0][1] == "person_detected"
+    from shopbox import night as N
+    assert N.NIGHT_SPREAD_MAX == rc.shipped().spread_max   # restored after the run
     none = rc.sim_shopbox(fr, rc.replace(rc.shipped(), day_thr=0.9))
     assert none == []
 

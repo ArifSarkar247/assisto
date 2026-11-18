@@ -76,23 +76,25 @@ class Setting:
     day_confirm: int = 1             # phone / ipcam: day checks in a row
     min_box_h: float = 0.0           # smallest person box (share of frame height)
     model: bool = True               # False = motion-only fallback
+    spread_max: float = 10.0         # night.NIGHT_SPREAD_MAX: "grey picture = IR night"
 
     def short(self) -> str:
-        return ("day %.2f night %.2f confirm %d minH %.2f recheck %s" %
+        return ("day %.2f night %.2f confirm %d minH %.2f recheck %s greyIR<%g" %
                 (self.day_thr, self.night_thr, self.day_confirm, self.min_box_h,
-                 "on" if self.ipcam_night_recheck else "off"))
+                 "on" if self.ipcam_night_recheck else "off", self.spread_max))
 
 
 def shipped(name: str = "before") -> Setting:
     from shopbox import thresholds as T
-    from shopbox.night import PERSON_SCORE_NIGHT
+    from shopbox.night import NIGHT_SPREAD_MAX, PERSON_SCORE_NIGHT
 
     t = T.load()
     return Setting(name=name, day_thr=float(t["person_score"]),
                    night_thr=float(PERSON_SCORE_NIGHT),
                    check_every_s=float(t["check_every_s"]),
                    person_cool_s=float(t["person_cooldown_s"]),
-                   motion_cool_s=float(t["motion_cooldown_s"]))
+                   motion_cool_s=float(t["motion_cooldown_s"]),
+                   spread_max=float(NIGHT_SPREAD_MAX))
 
 
 # ----------------------------------------------------------------- frames
@@ -102,8 +104,11 @@ class Frame:
     img: np.ndarray          # 640-px-wide BGR (analysis size)
     gray160: np.ndarray      # the ipcam decoder's grey plane (gw = 160)
     gray: np.ndarray         # 640-px grey (phone stream stand-in)
-    night: bool = False
+    night: bool = False      # with the shipped rule (report only)
+    spread: float = 0.0      # night.frame_stats: colour spread, luma
+    luma: float = 0.0
     people: List[Tuple[float, float, float, float, float]] = field(default_factory=list)
+    people_enh: List[Tuple[float, float, float, float, float]] = field(default_factory=list)
     vehicles: List[Tuple[float, float, float, float, float]] = field(default_factory=list)
 
 
@@ -139,25 +144,38 @@ def decode(path: str, fps: float = FPS, width: int = 640, max_s: float = 0.0):
 
 
 def run_model(frames: List[Frame], det) -> None:
-    """Boxes once per frame on exactly the model input the product builds
-    (night frames are fit to 416 and enhanced: night.model_input)."""
-    from shopbox.night import model_input
-    from shopbox.person import VEHICLE_CLASS_IDS  # noqa: F401  (documented classes)
+    """Boxes once per frame on BOTH model inputs the product can build: the
+    plain frame (day) and the night input (fit to 416 + enhanced, exactly
+    night.model_input) — so a setting that moves the day/night line sees
+    what the product would have seen."""
+    from shopbox.night import NIGHT_PRE, enhance, fit_side, frame_stats, is_night
 
-    for fr in frames:
-        img, night = model_input(fr.img)
-        fr.night = bool(night)
+    def run(img):
         if hasattr(det, "detect_all"):
             ppl, veh = det.detect_all(img, score_thr=CACHE_THR, vehicle_thr=0.2)
         else:
             ppl, veh = det.detect(img, score_thr=CACHE_THR), []
-        fr.people = [(d.x1, d.y1, d.x2, d.y2, d.score) for d in ppl]
-        fr.vehicles = [(v.x1, v.y1, v.x2, v.y2, v.score) for v in veh]
+        return ([(d.x1, d.y1, d.x2, d.y2, d.score) for d in ppl],
+                [(v.x1, v.y1, v.x2, v.y2, v.score) for v in veh])
+
+    for fr in frames:
+        fr.spread, fr.luma = frame_stats(fr.img)
+        fr.night = bool(is_night(fr.img))
+        fr.people, fr.vehicles = run(fr.img)
+        fr.people_enh, _ = run(enhance(fit_side(fr.img), NIGHT_PRE))
+
+
+def is_night_for(fr: Frame, s: Setting) -> bool:
+    from shopbox.night import NIGHT_LUMA_MAX
+
+    return fr.spread < s.spread_max or fr.luma < NIGHT_LUMA_MAX
 
 
 def people_at(fr: Frame, s: Setting) -> list:
-    thr = s.night_thr if fr.night else s.day_thr
-    return [b for b in fr.people if b[4] >= thr and (b[3] - b[1]) >= s.min_box_h]
+    night = is_night_for(fr, s)
+    thr = s.night_thr if night else s.day_thr
+    src = fr.people_enh if night else fr.people
+    return [b for b in src if b[4] >= thr and (b[3] - b[1]) >= s.min_box_h]
 
 
 # ----------------------------------------------------------------- paths
@@ -202,15 +220,15 @@ def sim_phone_like(frames: List[Frame], s: Setting, kind: str) -> List[Tuple[flo
             last_alert = t
             continue
         boxes = people_at(fr, s)
-        ok = confirm.check(bool(boxes), fr.night, t)
+        ok = confirm.check(bool(boxes), is_night_for(fr, s), t)
         pending = confirm.pending
         recheck = kind == "phone" or s.ipcam_night_recheck
         if not ok and pending and recheck and i + 1 < len(frames):
             nx = frames[i + 1]       # the next picture (~0.33 s later)
             b2 = people_at(nx, s)
-            ok = confirm.check(bool(b2), nx.night, nx.t)
+            ok = confirm.check(bool(b2), is_night_for(nx, s), nx.t)
             pending = confirm.pending
-        if ok and not fr.night and s.day_confirm > 1:
+        if ok and not is_night_for(fr, s) and s.day_confirm > 1:
             j = i
             for _ in range(s.day_confirm - 1):   # the next picture(s) must agree
                 j += 1
@@ -237,11 +255,24 @@ class CachedDetector:
 
         thr = CACHE_THR if score_thr is None else float(score_thr)
         fr = self.cur
-        return [Detection(*b[:4], b[4]) for b in fr.people
+        # the analyzer passes the plain frame (day) or the night input
+        src = fr.people if img is fr.img or img.shape == fr.img.shape else fr.people_enh
+        return [Detection(*b[:4], b[4]) for b in src
                 if b[4] >= thr and (b[3] - b[1]) >= self.s.min_box_h]
 
 
 def sim_shopbox(frames: List[Frame], s: Setting) -> List[Tuple[float, str]]:
+    from shopbox import night as N
+
+    keep = N.NIGHT_SPREAD_MAX
+    N.NIGHT_SPREAD_MAX = s.spread_max     # read by night.is_night at call time
+    try:
+        return _sim_shopbox(frames, s)
+    finally:
+        N.NIGHT_SPREAD_MAX = keep
+
+
+def _sim_shopbox(frames: List[Frame], s: Setting) -> List[Tuple[float, str]]:
     from shopbox.analyzer import CameraAnalyzer
     from shopbox.config import AppConfig, CameraConfig, DetectionConfig
     from shopbox.cooldown import Cooldown
@@ -380,11 +411,12 @@ def by_scene(clips, per):
 
 # ----------------------------------------------------------------- tuning
 def candidates(base: Setting):
-    for d, n, conf, mh in itertools.product((0.40, 0.45, 0.50, 0.55, 0.60),
-                                            (0.25, 0.30, 0.35, 0.40, 0.45),
-                                            (1, 2), (0.0, 0.05, 0.10)):
+    for d, n, conf, mh, sm in itertools.product((0.40, 0.45, 0.50, 0.55, 0.60),
+                                                (0.25, 0.30, 0.35, 0.40, 0.45),
+                                                (1, 2), (0.0, 0.05, 0.10),
+                                                (10.0, 6.0, 4.0, 2.0)):
         yield replace(base, name="cand", day_thr=d, night_thr=n, day_confirm=conf,
-                      min_box_h=mh, ipcam_night_recheck=True)
+                      min_box_h=mh, spread_max=sm, ipcam_night_recheck=True)
 
 
 def pick(clips, frames_by, base: Setting, dev_ids) -> Tuple[Setting, list]:
@@ -409,7 +441,7 @@ def pick(clips, frames_by, base: Setting, dev_ids) -> Tuple[Setting, list]:
     ok = [(s, r) for s, r in table if r["found"] >= ref["found"]]
     ok.sort(key=lambda x: (x[1]["fp"], -x[1]["found"], abs(x[0].day_thr - base.day_thr)
                            + abs(x[0].night_thr - base.night_thr), x[0].day_confirm,
-                           x[0].min_box_h))
+                           x[0].min_box_h, -x[0].spread_max))
     best = ok[0][0] if ok else replace(base, ipcam_night_recheck=True)
     return replace(best, name="after"), [
         {"setting": s.short(), "dev_fp": r["fp"], "dev_found": r["found"]}
@@ -442,8 +474,11 @@ def main(argv=None) -> int:
         fr = decode(p, max_s=float(c["labels"].get("use_s") or 0))
         run_model(fr, det)
         frames_by[c["id"]] = fr
-        print("decoded %s %-12s %4d frames  night %3d%%" % (
-            c["id"], c["scene"], len(fr), 100 * sum(f.night for f in fr) / max(1, len(fr))))
+        sp = sorted(f.spread for f in fr)
+        print("decoded %s %-12s %4d frames  night %3d%%  colour spread p10/p50/p90 %.1f/%.1f/%.1f  luma %.0f" % (
+            c["id"], c["scene"], len(fr), 100 * sum(f.night for f in fr) / max(1, len(fr)),
+            sp[len(sp) // 10], sp[len(sp) // 2], sp[min(len(sp) - 1, len(sp) * 9 // 10)],
+            sum(f.luma for f in fr) / max(1, len(fr))))
     print("decode + model: %.0f s" % (time.time() - t0))
 
     ids = [c["id"] for c in clips if c["id"] in frames_by]
