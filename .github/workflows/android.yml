@@ -297,6 +297,10 @@ jobs:
               '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>'
               '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>'
               '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>'
+              # guardbox-play: "this phone is a camera" keeps watching with the
+              # screen off (PhoneCamService, type camera, user-started, Stop
+              # button; declared in Play: owner_actions/PLAY_DECL_GUARDBOX_BN.md)
+              '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>'
               '\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>'
               '\n    <uses-permission android:name="android.permission.WAKE_LOCK"/>'
               # #70 Health Connect reads — healthfit (least privilege): ONLY the four
@@ -883,6 +887,17 @@ jobs:
                             ' android:foregroundServiceType="location"'
                             ' android:exported="false"/>\n    </application>', 1)
           # ---- /fcbrain ----
+          # ---- guardbox-play ---- the phone camera's screen-off watch.
+          # Started ONLY from the open Phone-camera screen after the user
+          # pressed Start (camera already granted); type camera; a permanent
+          # notification with a Stop button; no receiver, no boot start, not
+          # sticky, stops itself when the app's screen stops reading frames.
+          if 'shopbox.PhoneCamService' not in s:
+              s = s.replace('</application>',
+                            '\n        <service android:name="com.assisto.assisto.shopbox.PhoneCamService"'
+                            ' android:foregroundServiceType="camera"'
+                            ' android:exported="false"/>\n    </application>', 1)
+          # ---- /guardbox-play ----
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP, b6 anti-theft engine")
           PY
@@ -1743,12 +1758,21 @@ jobs:
           # owner_actions/PLAY_PRODUCTION_CHECKLIST_8NOV_BN.md (step 4).
           for P in ACCESS_BACKGROUND_LOCATION QUERY_ALL_PACKAGES SEND_SMS READ_SMS RECEIVE_SMS \
                    READ_CALL_LOG WRITE_CALL_LOG PROCESS_OUTGOING_CALLS READ_PHONE_STATE READ_PHONE_NUMBERS \
-                   SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE FOREGROUND_SERVICE_CAMERA \
+                   SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE \
                    USE_EXACT_ALARM MANAGE_EXTERNAL_STORAGE ACTIVITY_RECOGNITION REQUEST_DELETE_PACKAGES; do
             if grep -a -q "android.permission.$P" /tmp/play-manifest.pb; then
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
+          # guardbox-play: the camera FGS permission is allowed for exactly ONE
+          # declared service (PhoneCamService, the phone camera's screen-off
+          # watch — PLAY_DECL_GUARDBOX_BN.md); nothing else may bring it in.
+          if grep -a -q "android.permission.FOREGROUND_SERVICE_CAMERA" /tmp/play-manifest.pb; then
+            grep -a -q "shopbox.PhoneCamService" /tmp/play-manifest.pb || {
+              echo "::error::FOREGROUND_SERVICE_CAMERA without the declared PhoneCamService"; exit 1; }
+            N=$(grep -a -o 'foregroundServiceType' /tmp/play-manifest.pb | wc -l)
+            echo "Play manifest: FOREGROUND_SERVICE_CAMERA kept for PhoneCamService (declared); foregroundServiceType attrs: $N"
+          fi
           for C in GeolocatorLocationService OfflineDownloadService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1

@@ -1,6 +1,6 @@
 # পুরনো ফোন = Assisto ক্যামেরা (CCTV অর্ডার ৩ Nov, অংশ A) — agent/cctvphone
 
-> সুইচ: `cctv_watchman` (শপ বক্স সুইচ) — নতুন সুইচ নেই। Play-তে কোনো নতুন অনুমতি/FGS নেই।
+> সুইচ: `cctv_watchman` (শপ বক্স সুইচ) — নতুন সুইচ নেই। **guardbox-play (১৮ নভেম্বর):** Play ও APK দুটোতেই একটি camera FGS (`PhoneCamService`) — ঘোষণা: `PLAY_DECL_GUARDBOX_BN.md`।
 
 ## ১. এটা কী, কেন
 - ড্রয়ারে পড়ে থাকা পুরনো Android ফোন (Android 8+) দরজা/দোকানের দিকে রেখে চার্জে লাগালে সেটাই একটা ক্যামেরা।
@@ -22,7 +22,7 @@
 | বিশ্বাস | দেখতে পারেন শুধু মালিক; পরিবারের দর্শকের লাইভ দেখা **ডিফল্টে বন্ধ** — মালিক প্রতিটি ক্যামেরায় "পরিবার লাইভ দেখতে পারবে" চালু করলে (কে দেখবে তা এক লাইনে বলে) তবেই। সতর্কতা/স্বাস্থ্য push দর্শকেরা আগের মতো পান। শব্দ **বন্ধ** ডিফল্ট — ক্যামেরা-ফোনেই সম্মতি সুইচ চালু করলে তবেই। "১০০% চুরি ঠেকায়" কোথাও বলা নেই |
 
 ## ৪. সৎ সীমা
-- **স্ক্রিন খোলা রাখতে হবে** (ম্লান কালো স্ক্রিন)। Play-র নিয়মে স্ক্রিন বন্ধ রেখে ক্যামেরা চালাতে camera FGS ঘোষণা লাগে; ৮ Nov লঞ্চে আমরা কোনো camera FGS রাখছি না (CI গেট এটা আটকায়)। ঘোষণার লেখা নিচে তৈরি।
+- **স্ক্রিন বন্ধ করলেও পাহারা চলে** (guardbox-play): "চালু করুন" চাপলে একটি camera FGS চালু হয়, নোটিফিকেশনে "বন্ধ করুন" বোতাম। স্ক্রিন বন্ধ অবস্থায় শুধু নড়াচড়ায় ছবিসহ সতর্কতা ও লাইভ; ১০ সেকেন্ডের ক্লিপ শুধু স্ক্রিন খোলা থাকলে। অ্যাপ সরিয়ে দিলে (swipe) সার্ভিস নিজে বন্ধ হয়। ঘোষণা: `PLAY_DECL_GUARDBOX_BN.md`।
 - অ্যাপের ভেতরে QR স্ক্যানার নেই (স্ক্যানার প্লাগইন নিষেধ) — ফোনের নিজের ক্যামেরা/Lens স্ক্যান করে; খুব পুরনো ফোনে কোড টাইপ।
 - ক্লিপ শুধু ক্যামেরা-ফোনে থাকে; দূর থেকে ক্লিপ দেখা এখনো নেই (লাইভ আছে)। ক্লাউড ক্লিপ = অংশ D-এর ভিডিও অ্যাড-অন।
 - লাইভ চলাকালীন ফোনের ক্যামেরা লাইভকে দেওয়া হয় — সেই সময়ে মোশন-চেক থামে (একসাথে দুই কাজে পুরনো ফোন গরম হয়)।
@@ -51,7 +51,7 @@
 ৯. আনবাইন্ড: B-তে "এই ফোন সরান" → A-তে ক্যামেরা চলে যাবে।
 ফল লিখুন: সতর্কতার সময়, লাইভ শুরুর সময়, ফোন মডেল/Android সংস্করণ।
 
-## ৭. (ফেজ ২) FGS camera ঘোষণার লেখা — এখন জমা দেবেন না
+## ৭. FGS camera ঘোষণা — এখন জমা দিন: পূর্ণ লেখা ও ভিডিও-স্ক্রিপ্ট `PLAY_DECL_GUARDBOX_BN.md`-এ (নিচেরটি পুরনো খসড়া)
 **Feature:** Assisto phone camera — the user turns their own old phone into a security camera for their home or shop and starts it themselves.
 **Why foreground:** to keep watching for people while the old phone's screen is off; the camera is used only while the user's "Camera on" switch is on, with a persistent notification ("This phone is working as a camera") and a Stop button. Video stays on the phone; only an alert photo and a live view the owner opens are sent.
 **Video:** show pairing, the camera-on notification, the alert on the second phone, and Stop.

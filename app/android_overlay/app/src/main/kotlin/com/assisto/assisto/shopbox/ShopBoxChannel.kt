@@ -37,6 +37,13 @@ import io.flutter.plugin.common.MethodChannel
  *                                       [] on any failure
  *   freeBytes()               -> Long?  cctvplay: free space of the app's own
  *                                       storage (StatFs) for the recording guard
+ *   guardbox-play (PhoneCamService, camera foreground service — only after
+ *   the user pressed Start; see that file):
+ *   camSvcStart({title, body, stop}) -> Bool, camSvcStop() -> Bool,
+ *   camSvcPing() -> Bool, camSvcState() -> {running, listed, foreground, ...},
+ *   bgCamOpen() -> Bool, bgCamClose() -> Bool,
+ *   bgFrame() -> {y, w, h, stride, rot, ts, n}?, bgJpeg({quality}) -> ByteArray?
+ *   Dart is told "camSvcStopTapped" when the notification's Stop was tapped.
  *
  * Nothing runs at launch: registering a MethodChannel handler is free; the
  * work only happens when Dart calls a method. Every call is try/catch so a
@@ -46,9 +53,52 @@ object ShopBoxChannel {
     private const val NAME = "com.assisto/shopbox"
 
     fun register(engine: FlutterEngine, activity: Activity) {
-        MethodChannel(engine.dartExecutor.binaryMessenger, NAME)
-            .setMethodCallHandler { call, result ->
+        val ch = MethodChannel(engine.dartExecutor.binaryMessenger, NAME)
+        // guardbox-play: Stop in the camera notification -> the open screen
+        // ends its run too (same honest state everywhere)
+        PhoneCamService.onStopTapped = {
+            try { ch.invokeMethod("camSvcStopTapped", null) } catch (_: Throwable) {}
+        }
+        ch.setMethodCallHandler { call, result ->
                 when (call.method) {
+                    // ---- guardbox-play ---- camera foreground service (PhoneCamService)
+                    "camSvcStart" -> {
+                        val ok = try {
+                            PhoneCamService.start(activity.applicationContext,
+                                call.argument<String>("title") ?: "",
+                                call.argument<String>("body") ?: "",
+                                call.argument<String>("stop") ?: "")
+                        } catch (_: Throwable) { false }
+                        result.success(ok)
+                    }
+                    "camSvcStop" -> result.success(
+                        try { PhoneCamService.stop(activity.applicationContext) } catch (_: Throwable) { false })
+                    "camSvcPing" -> { PhoneCamService.ping(); result.success(PhoneCamService.running) }
+                    "camSvcState" -> result.success(
+                        try { PhoneCamService.isRunning(activity.applicationContext) } catch (_: Throwable) { null })
+                    "bgCamOpen" -> {
+                        val main = Handler(Looper.getMainLooper())
+                        try {
+                            Thread {
+                                val ok = try { PhoneCamService.bgOpen() } catch (_: Throwable) { false }
+                                main.post { try { result.success(ok) } catch (_: Throwable) {} }
+                            }.apply { name = "assisto-pc-open"; isDaemon = true }.start()
+                        } catch (_: Throwable) { result.success(false) }
+                    }
+                    "bgCamClose" -> result.success(PhoneCamService.bgClose())
+                    "bgFrame" -> result.success(
+                        try { PhoneCamService.frame() } catch (_: Throwable) { null })
+                    "bgJpeg" -> {
+                        val q = (call.argument<Int>("quality") ?: 80).coerceIn(40, 95)
+                        val main = Handler(Looper.getMainLooper())
+                        try {
+                            Thread {
+                                val b = try { PhoneCamService.jpeg(q) } catch (_: Throwable) { null }
+                                main.post { try { result.success(b) } catch (_: Throwable) {} }
+                            }.apply { name = "assisto-pc-jpeg"; isDaemon = true }.start()
+                        } catch (_: Throwable) { result.success(null) }
+                    }
+                    // ---- /guardbox-play ----
                     "keepScreenOn" -> {
                         val on = call.argument<Boolean>("on") ?: false
                         try {

@@ -1,0 +1,24 @@
+{
+  "en": {
+    "pcSvcNotifTitle": "This phone is working as a camera",
+    "@pcSvcNotifTitle": {"description": "guardbox-play: title of the permanent notification of the camera foreground service"},
+    "pcSvcNotifBody": "Assisto keeps watching for people, even with the screen off. Tap Stop to end.",
+    "@pcSvcNotifBody": {"description": "guardbox-play: body of the camera service notification"},
+    "pcSvcStop": "Stop",
+    "@pcSvcStop": {"description": "guardbox-play: Stop button in the camera service notification"},
+    "pcBgWatching": "Watching with the screen off",
+    "@pcBgWatching": {"description": "guardbox-play: status while the camera service watches in the background"},
+    "pcStartHelp2": "Keep this phone plugged in. You can turn the screen off: it keeps watching, and a notification with a Stop button stays on. Video clips are saved only while this screen is on.",
+    "@pcStartHelp2": {"description": "guardbox-play: replaces pcStartHelp under the Start button"},
+    "pcSvcOnLine": "Keeps watching with the screen off (photo alerts; clips need the screen on)",
+    "@pcSvcOnLine": {"description": "guardbox-play: running-view line while the camera service is on"}
+  },
+  "bn": {
+    "pcSvcNotifTitle": "এই ফোন এখন ক্যামেরা হিসেবে কাজ করছে",
+    "pcSvcNotifBody": "স্ক্রিন বন্ধ থাকলেও Assisto মানুষ এলে খেয়াল রাখছে। থামাতে \"বন্ধ করুন\" চাপুন।",
+    "pcSvcStop": "বন্ধ করুন",
+    "pcBgWatching": "স্ক্রিন বন্ধ রেখে পাহারা চলছে",
+    "pcStartHelp2": "ফোনটি চার্জে লাগিয়ে রাখুন। স্ক্রিন বন্ধ করতে পারেন: পাহারা চলবে, আর \"বন্ধ করুন\" বোতামসহ একটি নোটিফিকেশন থাকবে। ভিডিও ক্লিপ জমা হয় শুধু এই পাতা খোলা থাকলে।",
+    "pcSvcOnLine": "স্ক্রিন বন্ধ থাকলেও পাহারা চলবে (ছবিসহ সতর্কতা; ক্লিপের জন্য স্ক্রিন খোলা লাগবে)"
+  }
+}

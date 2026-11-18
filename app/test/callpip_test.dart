@@ -750,7 +750,7 @@ void main() {
       expect(y, contains('callpip: MainActivity configChanges'));
       expect(y, contains("'smallestScreenSize', 'screenLayout'"));
       // the Play guard still refuses these
-      expect(y, contains('SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE FOREGROUND_SERVICE_CAMERA'));
+      expect(y, contains('SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE'));
       expect(y.contains('FOREGROUND_SERVICE_PHONE_CALL'), isFalse,
           reason: 'phoneCall FGS type needs a Play declaration (owner)');
     });

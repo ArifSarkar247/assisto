@@ -358,12 +358,61 @@ void main() {
         'READ_PHONE_STATE',
         'SYSTEM_ALERT_WINDOW',
         'BIND_ACCESSIBILITY_SERVICE',
-        'FOREGROUND_SERVICE_CAMERA',
         'USE_EXACT_ALARM',
         'MANAGE_EXTERNAL_STORAGE',
       ]) {
         expect(play, contains(p), reason: p);
       }
+      // guardbox-play: the camera FGS permission is no longer forbidden, but
+      // only together with the ONE declared service
+      expect(play, contains('FOREGROUND_SERVICE_CAMERA without the declared PhoneCamService'));
+    });
+
+    test('guardbox-play: exactly one camera foreground service, user-started, '
+        'with a Stop button, never at boot, declared in Play', () {
+      // the reason (owner standing order 18 Nov: nothing hidden from Play):
+      // "this phone is a camera" keeps watching with the screen off
+      final at = RegExp(r'foregroundServiceType="[a-z|]*camera').allMatches(ci).toList();
+      expect(at.length, 1, reason: 'one camera FGS only');
+      final before = ci.substring((at.first.start - 160).clamp(0, ci.length), at.first.start);
+      expect(before, contains('com.assisto.assisto.shopbox.PhoneCamService'));
+      final k = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/shopbox/PhoneCamService.kt')
+          .readAsStringSync();
+      expect(k, contains('FOREGROUND_SERVICE_TYPE_CAMERA'));
+      expect(k, contains('ACTION_STOP_TAP')); // the Stop button
+      expect(k, contains('.addAction('));
+      expect(k, contains('setOngoing(true)'));
+      expect(k, contains('START_NOT_STICKY'));
+      expect(k, contains('onTaskRemoved'));
+      expect(k.contains('BOOT_COMPLETED'), isFalse);
+      expect(k.contains('START_STICKY\n'), isFalse);
+      // no receiver / boot path starts it: only the channel, only camSvcStart
+      final ch = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/shopbox/ShopBoxChannel.kt')
+          .readAsStringSync();
+      expect(ch, contains('"camSvcStart"'));
+      for (final f in Directory('android_overlay/app/src/main/kotlin').listSync(recursive: true)) {
+        if (f is! File || !f.path.endsWith('.kt')) continue;
+        if (f.path.endsWith('PhoneCamService.kt') || f.path.endsWith('ShopBoxChannel.kt')) continue;
+        expect(f.readAsStringSync().contains('PhoneCamService'), isFalse, reason: f.path);
+      }
+      // Dart: only the phone-camera screen starts it, inside _start() (the
+      // user's Start tap), after the camera is open (permission granted)
+      final users = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart') && f.readAsStringSync().contains("'camSvcStart'"))
+          .map((f) => f.path.replaceAll('\\', '/'))
+          .toList();
+      expect(users, ['lib/phonecam/phone_camera_screen.dart']);
+      final scr = File('lib/phonecam/phone_camera_screen.dart').readAsStringSync();
+      final start = scr.substring(scr.indexOf('Future<void> _start() async'));
+      final body = start.substring(0, start.indexOf('\n  Future<void> _stop('));
+      expect(body.indexOf('_openCamera()'), greaterThan(0));
+      expect(body.indexOf('_startCamService()'), greaterThan(body.indexOf('_openCamera()')));
+      // the Play declaration (form text + video script) exists
+      final decl = File('../owner_actions/PLAY_DECL_GUARDBOX_BN.md').readAsStringSync();
+      expect(decl, contains('FOREGROUND_SERVICE_CAMERA'));
+      expect(decl, contains('PhoneCamService'));
     });
 
     test('the generated manifest never requests them either', () {
@@ -380,7 +429,6 @@ void main() {
         'READ_CALL_LOG',
         'READ_PHONE_STATE',
         'SYSTEM_ALERT_WINDOW',
-        'FOREGROUND_SERVICE_CAMERA',
         'USE_EXACT_ALARM',
       ]) {
         expect(requested.contains(p), isFalse, reason: p);
@@ -392,9 +440,14 @@ void main() {
           .allMatches(ci)
           .expand((m) => m.group(1)!.split('|'))
           .toSet();
-      expect(types, {'microphone', 'location'});
+      // guardbox-play: + camera (PhoneCamService only, see the test above)
+      expect(types, {'microphone', 'location', 'camera'});
       final fgsPerms = requested.where((p) => p.startsWith('FOREGROUND_SERVICE_')).toSet();
-      expect(fgsPerms, {'FOREGROUND_SERVICE_MICROPHONE', 'FOREGROUND_SERVICE_LOCATION'});
+      expect(fgsPerms, {
+        'FOREGROUND_SERVICE_MICROPHONE',
+        'FOREGROUND_SERVICE_LOCATION',
+        'FOREGROUND_SERVICE_CAMERA',
+      });
       // the foreground-service types we DO declare (Play FGS form): mic + location
       expect(requested, containsAll(<String>[
         'FOREGROUND_SERVICE_MICROPHONE',

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart' show compute;
+import 'package:flutter/foundation.dart' show compute, visibleForTesting;
 import 'package:flutter/material.dart';
 import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
@@ -42,9 +42,14 @@ import '../ipcam/box_siren.dart'; // cctvbox
 /// live-view signaling, the on-phone YOLOX person model) — nothing rewritten.
 ///
 /// Honest by design:
-///   * the camera runs only while this screen is open (screen dimmed to the
-///     minimum, kept awake, plugged in). No WorkManager, no background camera
-///     service — Play's camera FGS rules (see CCTV_PHONE_CAMERA_BN.md);
+///   * the camera runs only while this screen's run is on (screen dimmed to
+///     the minimum, kept awake, plugged in). guardbox-play: the user may turn
+///     the screen off — a camera foreground service (PhoneCamService.kt, type
+///     camera, started only by Start, a notification with a Stop button, never
+///     at boot; Play declaration PLAY_DECL_GUARDBOX_BN.md) takes over the
+///     camera while the app is in the background: still frames for the same
+///     motion + person check and the alert photo; clips need the screen on.
+///     No WorkManager;
 ///   * a clear "this phone is a camera — recording" banner on the screen and
 ///     an ongoing notification while it runs;
 ///   * sound is OFF unless the consent switch on THIS phone is on;
@@ -58,6 +63,15 @@ class PhoneCameraScreen extends StatefulWidget {
   /// Tests / gallery: a canned state, no storage, no camera.
   final PhoneCamPreview? preview;
   const PhoneCameraScreen({super.key, this.initialCode, this.preview});
+
+  /// Tests: fake native channel replies (null = the real channel).
+  @visibleForTesting
+  static Future<Object?> Function(String method, [Object? args])? debugChannel;
+
+  /// E2E: skip the person model (motion-only alerts — the emulator's fake
+  /// camera shows no person). Never set in the app.
+  @visibleForTesting
+  static bool debugNoPersonModel = false;
 
   @override
   State<PhoneCameraScreen> createState() => _PhoneCameraScreenState();
@@ -144,6 +158,14 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   bool _inLive = false;
   BoxSiren? _siren; // cctvbox
 
+  // guardbox-play: the camera foreground service + its screen-off watch
+  bool _svcOn = false; // PhoneCamService runs (its notification is shown)
+  bool _bgOn = false; // the app is in the background: the service has the camera
+  Timer? _bgTimer;
+  int _bgLastN = -1;
+  int _bgRot = 0;
+  bool _bgBusy = false;
+
   // clips on this phone
   int _clipCount = 0;
   int _clipBytes = 0;
@@ -173,6 +195,16 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (widget.preview == null) {
+      // guardbox-play: Stop in the camera notification ends this run too
+      _channel.setMethodCallHandler((call) async {
+        if (call.method == 'camSvcStopTapped') {
+          _svcOn = false;
+          if (_running) await _stop();
+        }
+        return null;
+      });
+    }
     final c = widget.initialCode;
     if (c != null && c.isNotEmpty) _code.text = normalizePairCode(c) ?? c;
     _restore();
@@ -181,6 +213,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    if (widget.preview == null) _channel.setMethodCallHandler(null);
     _stop(silent: true);
     _hideTimer?.cancel();
     _code.dispose();
@@ -194,9 +227,108 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     // reopened when we come back (no hidden background camera)
     if (!_running) return;
     if (s == AppLifecycleState.paused) {
-      if (!_inLive) _closeCamera();
+      if (!_inLive) unawaited(_toBackground());
     } else if (s == AppLifecycleState.resumed) {
-      if (!_inLive && _cam == null) _openCamera();
+      if (!_inLive) unawaited(_toForeground());
+    }
+  }
+
+  // ------------------------------------------------- guardbox-play (FGS)
+  Future<Object?> _native(String method, [Object? args]) {
+    final d = PhoneCameraScreen.debugChannel;
+    if (d != null) return d(method, args);
+    return _channel.invokeMethod<Object?>(method, args);
+  }
+
+  /// After Start (the camera is open = permission granted): the camera
+  /// foreground service with its notification + Stop button. false = older
+  /// build / Android refused: the run still works with the screen on.
+  Future<bool> _startCamService() async {
+    if (widget.preview != null || !mounted) return false;
+    final t = AppLocalizations.of(context);
+    try {
+      final ok = await _native('camSvcStart',
+              {'title': t.pcSvcNotifTitle, 'body': t.pcSvcNotifBody, 'stop': t.pcSvcStop}) ==
+          true;
+      _svcOn = ok;
+    } catch (_) {
+      _svcOn = false;
+    }
+    return _svcOn;
+  }
+
+  Future<void> _stopCamService() async {
+    _bgTimer?.cancel();
+    _bgTimer = null;
+    _bgOn = false;
+    if (widget.preview != null) return;
+    try {
+      await _native('camSvcStop');
+    } catch (_) {} // the service also stops itself without pings
+    _svcOn = false;
+  }
+
+  /// The app left the screen (screen off / Home): hand the camera to the
+  /// service. Without the service the camera is released (old behaviour).
+  Future<void> _toBackground() async {
+    await _closeCamera();
+    if (!_running || !_svcOn || _bgOn) return;
+    var ok = false;
+    try {
+      ok = await _native('bgCamOpen') == true;
+    } catch (_) {}
+    if (!ok || !_running) {
+      if (ok) unawaited(_native('bgCamClose').catchError((_) => null));
+      return;
+    }
+    _bgOn = true;
+    _bgLastN = -1;
+    _motion.reset();
+    if (mounted) _setStatus(AppLocalizations.of(context).pcBgWatching);
+    _bgTimer?.cancel();
+    _bgTimer = Timer.periodic(const Duration(milliseconds: 350), (_) => _bgTick());
+  }
+
+  /// Back on the screen: the screen's own camera again (clips, preview).
+  Future<void> _toForeground() async {
+    if (_bgOn) {
+      _bgTimer?.cancel();
+      _bgTimer = null;
+      _bgOn = false;
+      try {
+        await _native('bgCamClose');
+      } catch (_) {}
+    }
+    if (_running && !_inLive && _cam == null) await _openCamera();
+  }
+
+  Future<void> _bgTick() async {
+    if (!_bgOn || _bgBusy || _busy || _inLive) return;
+    _bgBusy = true;
+    try {
+      final r = await _native('bgFrame');
+      if (r is! Map) return;
+      final n = (r['n'] as num?)?.toInt() ?? 0;
+      if (n == _bgLastN) return;
+      _bgLastN = n;
+      final y = r['y'];
+      if (y is! Uint8List) return;
+      _bgRot = (r['rot'] as num?)?.toInt() ?? 0;
+      _analyze(y, (r['w'] as num).toInt(), (r['h'] as num).toInt(),
+          (r['stride'] as num).toInt(), rot: _bgRot);
+    } catch (_) {
+      // a skipped frame is never fatal
+    } finally {
+      _bgBusy = false;
+    }
+  }
+
+  Future<Uint8List?> _bgJpeg() async {
+    try {
+      final b = await _native('bgJpeg', {'quality': 80});
+      return b is Uint8List ? b : null;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -762,10 +894,12 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       await _channel.invokeMethod<bool>('keepScreenOn', {'on': true});
       await _channel.invokeMethod<bool>('dim', {'on': true});
     } catch (_) {} // best-effort: older build — the guide says keep it plugged in and on
-    unawaited(_notif(true));
     await _heartbeat();
     _hb = Timer.periodic(_heartbeatEvery, (_) => _heartbeat());
     await _openCamera();
+    // guardbox-play: the service notification (with Stop) replaces ours
+    if (!await _startCamService()) unawaited(_notif(true));
+    if (PhoneCameraScreen.debugNoPersonModel) _modelTried = true;
     if (!_modelTried) {
       _modelTried = true;
       unawaited(guardPersonDetector().then((d) {
@@ -778,6 +912,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     _hb?.cancel();
     _hb = null;
     _segTimer?.cancel();
+    await _stopCamService();
     await _closeCamera();
     if (widget.preview == null) {
       try {
@@ -819,8 +954,14 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
 
   Future<void> _openCamera() async {
     final t = AppLocalizations.of(context);
-    // Play: explain the camera ask before the plugin's own system prompt.
-    if (!await showPermissionReason(context, PermKind.camera)) return;
+    // Play: explain the camera ask before the plugin's own system prompt —
+    // only when Android would really ask (guardbox-play bug fix: the reason
+    // dialog came back on EVERY reopen — after each live view, on every
+    // return to the app — so an unattended camera phone stopped watching
+    // until someone tapped "Continue").
+    if (!await _cameraGranted()) {
+      if (!mounted || !await showPermissionReason(context, PermKind.camera)) return;
+    }
     if (!mounted) return;
     try {
       final cams = await availableCameras();
@@ -846,6 +987,16 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     }
   }
 
+  Future<bool> _cameraGranted() async {
+    final d = PhoneCameraScreen.debugChannel;
+    if (d != null) return await d('cameraGranted') == true;
+    try {
+      return await Permission.camera.isGranted;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _closeCamera() async {
     if (_segRec) await _stopSegment(restartStream: false); // item 4: keep it
     final c = _cam;
@@ -867,21 +1018,28 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   }
 
   void _onFrame(CameraImage img) {
+    final p = img.planes.first;
+    _analyze(p.bytes, img.width, img.height, p.bytesPerRow,
+        rot: _cam?.description.sensorOrientation ?? 0, img: img);
+  }
+
+  /// One luma frame (the screen's camera stream, or guardbox-play: the
+  /// camera service's frame while the screen is off) -> motion / zones.
+  void _analyze(Uint8List luma, int width, int height, int bytesPerRow,
+      {required int rot, CameraImage? img}) {
     final now = DateTime.now();
     if (_busy || _inLive || now.difference(_lastFrame).inMilliseconds < 330) return;
     _lastFrame = now;
     try {
-      final p = img.planes.first;
-      final grid = _motion.downsample(p.bytes, img.width, img.height, p.bytesPerRow);
+      final grid = _motion.downsample(luma, width, height, bytesPerRow);
       final wasDark = _dark.dark;
       _dark.feed(DarkMonitor.meanOf(grid), now);
       if (wasDark != _dark.dark) unawaited(_heartbeat());
       // cctvacc2: + the pixel-level check (same place, 3 frames in a row)
-      final plane = _motion.pixelPlane(p.bytes, img.width, img.height, p.bytesPerRow);
+      final plane = _motion.pixelPlane(luma, width, height, bytesPerRow);
       final r = _motion.feedGrid(grid, plane: plane);
       // cctvdet: tamper + "gate left open" from the same grid (cheap)
-      final zd = _zones.onGrid(grid, _motion.gridW, _motion.gridH,
-          rot: _cam?.description.sensorOrientation ?? 0);
+      final zd = _zones.onGrid(grid, _motion.gridW, _motion.gridH, rot: rot);
       if (zd.isNotEmpty) {
         if (!_busy && !_segRec) {
           // take a photo (+ 10 s clip) for it, like any other alert
@@ -913,7 +1071,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       }
       _lastCheck = now;
       _busy = true;
-      if (_segRec) {
+      if (_segRec && img != null) {
         // item 4: the camera is recording — check THIS frame (no still)
         unawaited(_onMotionRec(img).whenComplete(() => _busy = false));
       } else {
@@ -942,15 +1100,17 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       {bool zoneOnly = false, List<Map<String, Object?>> carry = const []}) async {
     final c = _cam;
     final dev = _dev;
-    if (c == null || dev == null) return;
-    var jpeg = await _still(c);
+    if (dev == null || (c == null && !_bgOn)) return;
+    // guardbox-play: screen off = the camera service's newest frame
+    Future<Uint8List?> grab() => c != null ? _still(c) : _bgJpeg();
+    var jpeg = await grab();
     try {
       final detect = _detect;
       List<List<double>>? boxes;
       if (detect != null && jpeg != null) {
         boxes = await detect(jpeg);
         if (boxes != null && boxes.isEmpty && guardNightPending) {
-          final j2 = await _still(c);
+          final j2 = await grab();
           if (j2 != null) {
             final b2 = await detect(j2);
             if (b2 != null && b2.isNotEmpty) {
@@ -973,8 +1133,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         _lastAlert = DateTime.now();
         // cctvplay: the clip starts at once (not after the upload) and the
         // alert names it, so a viewer can later ask for exactly this video
-        final ref = newClipRef();
-        final recording = (_cam == c && _running && !_inLive)
+        final ref = c == null ? null : newClipRef(); // no clip with the screen off
+        final recording = (c != null && ref != null && _cam == c && _running && !_inLive)
             ? _recordClip(c, ref)
             : Future<void>.value();
         // cctvtoday: a big still is shrunk (off the UI thread), never dropped
@@ -990,7 +1150,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       }
     } finally {
       try {
-        if (_cam == c && _running && !_inLive && !c.value.isStreamingImages) {
+        if (c != null && _cam == c && _running && !_inLive && !c.value.isStreamingImages) {
           _motion.reset();
           await c.startImageStream(_onFrame);
         }
@@ -1047,7 +1207,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
               ? jpeg
               : await compute(shrinkAlertJpeg, jpeg);
       final r = await dev.ingest('${d['type']}', _zones.signals(d, model: _detect != null),
-          snapshot: snap, clipRef: jpeg == null ? null : ref);
+          snapshot: snap, clipRef: (jpeg == null || c == null) ? null : ref);
       if (mounted && r.ok) setState(() => _alerts++);
       await recording;
     }
@@ -1078,6 +1238,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     try {
       free = await _channel.invokeMethod<int>('freeBytes');
     } catch (_) {} // older build: no storage guard (the size cap still holds)
+    if (_svcOn) unawaited(_native('camSvcPing').catchError((_) => null)); // guardbox-play watchdog
     final r = await dev.heartbeat(caps: const ['live', 'phone'], health: health);
     if (!mounted) return;
     if (r.unauthorized || r.status == 404) {
@@ -1141,6 +1302,16 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     _inLive = true;
     _setStatus(t.pcLiveNow);
     await _closeCamera();
+    // guardbox-play: screen off — WebRTC takes the camera from the service
+    final wasBg = _bgOn;
+    if (wasBg) {
+      _bgTimer?.cancel();
+      _bgTimer = null;
+      _bgOn = false;
+      try {
+        await _native('bgCamClose');
+      } catch (_) {}
+    }
     dynamic peer;
     var after = 0;
     var answered = false;
@@ -1209,7 +1380,14 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       final secs = since == null ? 0 : DateTime.now().difference(since).inSeconds;
       await dev.end(sid, relayed: relayed, seconds: secs);
       _inLive = false;
-      if (mounted && _running) await _openCamera();
+      if (mounted && _running) {
+        final paused = WidgetsBinding.instance.lifecycleState == AppLifecycleState.paused;
+        if (paused && _svcOn) {
+          await _toBackground();
+        } else {
+          await _openCamera();
+        }
+      }
     }
   }
 
@@ -1368,7 +1546,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         label: Text(t.pcStart),
       ),
       const SizedBox(height: 8),
-      Text(t.pcStartHelp, style: Theme.of(context).textTheme.bodySmall),
+      Text(t.pcStartHelp2, style: Theme.of(context).textTheme.bodySmall),
       const SizedBox(height: 12),
       SwitchListTile(
         key: const Key('pcAudio'),
@@ -1491,6 +1669,10 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(_detect != null ? t.pcModelOn : t.pcModelOff,
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
+                  if (_svcOn) // guardbox-play: honest — what happens with the screen off
+                    Text(t.pcSvcOnLine,
+                        key: const Key('pcSvcOn'),
+                        textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(t.pcAlertsSent(fmtInt(context, _alerts)),
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(t.pcClipsLine(fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb)),

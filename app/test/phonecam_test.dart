@@ -3,6 +3,7 @@
 // health report) + the camera-phone screens, the owner's pairing sheet and
 // the live-view link at 200% text, bn/en, light/dark.
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -294,4 +295,46 @@ void main() {
       });
     }
   }
+
+  // guardbox-play: the screen-off watch (camera foreground service) + the
+  // reason-dialog bug. Behaviour is proven on the emulator
+  // (guardbox-fgs.yml, flows/phonecam_fgs_flow.dart); these keep the wiring.
+  group('guardbox-play wiring', () {
+    final src = File('lib/phonecam/phone_camera_screen.dart').readAsStringSync();
+    String body(String sig) {
+      final a = src.indexOf(sig);
+      expect(a, greaterThan(0), reason: sig);
+      final b = src.indexOf('\n  }\n', a);
+      return src.substring(a, b);
+    }
+
+    test('the camera reason is asked only when Android would ask', () {
+      final o = body('Future<void> _openCamera()');
+      expect(o.indexOf('_cameraGranted()'), greaterThan(0));
+      expect(o.indexOf('_cameraGranted()'), lessThan(o.indexOf('showPermissionReason(')));
+    });
+
+    test('screen off hands the camera to the service; screen on takes it back', () {
+      final l = body('void didChangeAppLifecycleState');
+      expect(l, contains('_toBackground()'));
+      expect(l, contains('_toForeground()'));
+      final bg = body('Future<void> _toBackground()');
+      expect(bg.indexOf('_closeCamera()'), lessThan(bg.indexOf("'bgCamOpen'")));
+      expect(bg, contains('_svcOn'));
+      expect(body('Future<void> _toForeground()'), contains("'bgCamClose'"));
+    });
+
+    test('Stop (screen or notification) always ends the service', () {
+      expect(body('Future<void> _stop('), contains('_stopCamService()'));
+      expect(body('Future<void> _stopCamService()'), contains("'camSvcStop'"));
+      expect(src, contains("call.method == 'camSvcStopTapped'"));
+      expect(body('Future<void> _heartbeat()'), contains("'camSvcPing'"));
+    });
+
+    test('live view releases the service camera first; no clip with the screen off', () {
+      final live = body('Future<void> _answerLive(');
+      expect(live.indexOf("'bgCamClose'"), greaterThan(live.indexOf('_closeCamera()')));
+      expect(src, contains('final ref = c == null ? null : newClipRef();'));
+    });
+  });
 }

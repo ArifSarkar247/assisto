@@ -14,6 +14,7 @@ import 'flows/budget_remittance_flow.dart';
 import 'flows/city_flow.dart'; // gap-city
 import 'flows/business_flow.dart';
 import 'flows/camflows_flow.dart'; // camflows
+import 'flows/phonecam_fgs_flow.dart'; // guardbox-play
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
@@ -80,6 +81,8 @@ void main() {
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
+  // guardbox-play: phone camera + camera FGS (emulated camera + sidecar) -> opt-in (guardbox-fgs.yml)
+  if (only.split(',').contains('pcfgs')) registerPhonecamFgsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
