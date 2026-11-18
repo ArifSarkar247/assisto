@@ -207,6 +207,9 @@ void registerAntiTheftE2eFlows() {
     _b = await f.h.backend(userB: true);
     await f.step('GPS + the labelled sensor traces reach the phone', () async {
       await _geo(f);
+      // the emulator always reports AC power; a grab on the charger is
+      // ignored by design (phone AND server), so the phone is "unplugged"
+      await _host(f, 'unplug');
       final out = await _host(f, 'traces');
       final d = await f.tester.runAsync(() => f.h.outDir());
       for (final n in [
@@ -523,6 +526,9 @@ void registerAntiTheftE2eFlows() {
         }
         await _call(f, 'debugSim', {'slots': null});
         await f.net(AntiTheftService.stop);
+        try {
+          await _host(f, 'battery_reset');
+        } catch (_) {}
       });
     }
   }, timeout: const Duration(minutes: 5));

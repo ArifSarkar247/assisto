@@ -145,8 +145,12 @@ net_mode() {  # $1 = off|on
 #   traces      push the labelled sensor traces (test/fixtures) to <out>/traces
 #   pin_on      set the emulator's SECURE screen lock (PIN 1379)
 #   lock_unlock screen off -> on -> unlock WITH the PIN (real USER_PRESENT)
-#   lockshot    screen off -> on, screenshot the LOCK SCREEN to shots/<file>.png,
-#               then unlock (PIN if set)
+#   lockshot    a PIN lock for the moment (else an emulator with no lock goes
+#               straight back to the app), screen off -> on, screenshot the
+#               LOCK SCREEN to shots/<file>.png, unlock with the PIN, PIN off
+#   unplug      the emulator stops "charging" (a grab on the charger is ignored
+#               by design, and the emulator always reports AC power)
+#   battery_reset  the real (emulated) battery state again
 #   pin_off     remove the PIN again (always run by the flow's cleanup)
 AT_PIN=1379
 at_unlock() {
@@ -172,13 +176,17 @@ host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
       timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
       at_unlock
       timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mDreamingLockscreen|isKeyguardShowing|mShowingLockscreen' | head -3 ;;
+    unplug) timeout 10 adb shell dumpsys battery unplug 2>&1; echo unplugged ;;
+    battery_reset) timeout 10 adb shell dumpsys battery reset 2>&1; echo reset ;;
     lockshot)
+      timeout 20 adb shell locksettings set-pin "$AT_PIN" >/dev/null 2>&1 || true
       timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
       timeout 10 adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true; sleep 2
       timeout 20 adb exec-out screencap -p > "$OUT/shots/$2.png" 2>/dev/null || true
       [ -s "$OUT/shots/$2.png" ] && echo "shot $2.png" || echo "shot MISSING"
       timeout 10 adb shell dumpsys notification --noredact 2>/dev/null | grep -c 'assisto_lost_message' | sed 's/^/lost_notif_records=/'
-      at_unlock ;;
+      at_unlock
+      timeout 20 adb shell locksettings clear --old "$AT_PIN" >/dev/null 2>&1 || true ;;
     *) echo "unknown verb $1" ;;
   esac
 }
