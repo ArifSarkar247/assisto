@@ -366,7 +366,12 @@
      "type": "String"
     }
    }
-  }
+  },
+  "gcvTuyaAccessId": "Access ID (from your Tuya developer project)",
+  "@gcvTuyaAccessId": {
+   "description": "gap-cctv: Tuya / Smart Life own-project Access ID field"
+  },
+  "gcvTuyaAccessSecret": "Access Secret"
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -452,6 +457,8 @@
   "gcvPlPosLinked": "{count, plural, other{যুক্ত: {pos} · {n}টি ঘটনা এসেছে}}",
   "gcvPlAutoLinked": "{count, plural, other{Smart Life যুক্ত · {n}টি ডিভাইস}}",
   "gcvPlPeople": "{count, plural, other{{n} জন}}",
-  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}"
+  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}",
+  "gcvTuyaAccessId": "অ্যাক্সেস আইডি (আপনার Tuya ডেভেলপার প্রজেক্ট থেকে)",
+  "gcvTuyaAccessSecret": "অ্যাক্সেস সিক্রেট"
  }
 }
