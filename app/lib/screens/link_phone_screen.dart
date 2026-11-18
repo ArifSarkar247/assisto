@@ -12,6 +12,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_counter.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/permission_reason.dart';
 import '../widgets/qr_scan_view.dart';
 
 /// circle-extras (row 50) — the NEW phone's side of "link a phone"
@@ -23,7 +24,7 @@ import '../widgets/qr_scan_view.dart';
 class LinkPhoneScreen extends StatefulWidget {
   const LinkPhoneScreen({super.key, this.startWithCamera = true});
 
-  /// Tests / phones without a camera start on the code field.
+  /// false = no "Scan the code" button (tests / previews): the code field only.
   final bool startWithCamera;
 
   @override
@@ -38,6 +39,7 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
   _Stage _stage = _Stage.enter;
   bool _camera = true;
   bool _cameraDenied = false;
+  bool _cameraGone = false; // no camera / camera error on this phone
   bool _busy = false;
   String? _error;
   Timer? _poll;
@@ -46,7 +48,7 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    _camera = widget.startWithCamera;
+    _camera = false; // the camera opens only after "Scan the code" + the reason
     final api = context.read<AppState>().api;
     _link = NewPhoneLink(post: (p, b) => api.postJsonRaw(p, b));
   }
@@ -95,6 +97,16 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
         _deadline = DateTime.now().add(const Duration(minutes: 5));
         _poll = Timer.periodic(const Duration(seconds: 3), (_) => _tick());
       }
+    });
+  }
+
+  /// Play disclosure: say why the camera is needed BEFORE Android asks.
+  Future<void> _openScanner() async {
+    if (!await showPermissionReason(context, PermKind.camera)) return;
+    if (!mounted) return;
+    setState(() {
+      _camera = true;
+      _error = null;
     });
   }
 
@@ -185,12 +197,13 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
               setState(() {
                 _camera = false;
                 _cameraDenied = denied;
+                _cameraGone = !denied;
               });
             },
           ),
         )
       else ...[
-        if (widget.startWithCamera)
+        if (_cameraDenied || _cameraGone)
           Text(_cameraDenied ? t.dlkCameraDenied : t.dlkCameraOff,
               key: const Key('dlk-camera-off'),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -203,7 +216,7 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
           textCapitalization: TextCapitalization.characters,
           autocorrect: false,
           enableSuggestions: false,
-          style: const TextStyle(fontSize: 22, letterSpacing: 3, fontWeight: FontWeight.w600),
+          style: AType.headlineSmall.copyWith(letterSpacing: 3, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             labelText: t.dlkCodeLabel,
             hintText: 'ABCD-EFGH',
@@ -234,12 +247,10 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
           icon: const Icon(Icons.keyboard_rounded),
           label: Text(t.dlkTypeInstead),
         )
-      else if (widget.startWithCamera && !_cameraDenied)
+      else if (widget.startWithCamera && !_cameraDenied && !_cameraGone)
         TextButton.icon(
-          onPressed: () => setState(() {
-            _camera = true;
-            _error = null;
-          }),
+          key: const Key('dlk-scan'),
+          onPressed: _openScanner,
           icon: const Icon(Icons.qr_code_scanner_rounded),
           label: Text(t.dlkScanInstead),
         ),
@@ -268,7 +279,7 @@ class _LinkPhoneScreenState extends State<LinkPhoneScreen> {
           child: Text(digits,
               key: const Key('dlk-verify'),
               semanticsLabel: digits,
-              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: 4)),
+              style: AType.displaySmall.copyWith(fontWeight: FontWeight.w700, letterSpacing: 4)),
         ),
       ),
       const SizedBox(height: Gap.xl),

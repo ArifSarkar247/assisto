@@ -133,7 +133,9 @@ class _LinkPhoneSheetState extends State<LinkPhoneSheet> {
     if (c != null) {
       try {
         await _link.reject((c['pair'] as num).toInt());
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: an unanswered claim expires on the server in 5 minutes
+      }
     }
     if (mounted) Navigator.of(context).pop();
   }
@@ -162,7 +164,7 @@ class _LinkPhoneSheetState extends State<LinkPhoneSheet> {
         Center(
           child: Text(notifLocalizeDigits(context, DeviceLinkCrypto.spaced(digits)),
               key: const Key('dlk-confirm-digits'),
-              style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w700, letterSpacing: 4)),
+              style: AType.displaySmall.copyWith(fontWeight: FontWeight.w700, letterSpacing: 4)),
         ),
         const SizedBox(height: Gap.md),
         Text(t.dlkConfirmWarn, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -225,7 +227,7 @@ class _LinkPhoneSheetState extends State<LinkPhoneSheet> {
         Center(
           child: SelectableText('${s['code']}',
               key: const Key('dlk-code'),
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 3)),
+              style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w700, letterSpacing: 3)),
         ),
         const SizedBox(height: Gap.xs),
         if (!_expired)

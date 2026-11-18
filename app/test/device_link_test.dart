@@ -262,8 +262,10 @@ void main() {
         }),
       ));
       await tester.tap(find.text('open'));
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-      await tester.pump(const Duration(milliseconds: 300));
+      for (var i = 0; i < 20 && find.byKey(const Key('dlk-qr')).evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.byKey(const Key('dlk-qr')), findsOneWidget);
       expect(find.text('ABCD-EFGH'), findsOneWidget);
       claimed = true;

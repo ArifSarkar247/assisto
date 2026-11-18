@@ -18,7 +18,7 @@ Map<String, dynamic>? fakeCxGet(String path, {bool bn = true, bool empty = false
       'devices': [
         {
           'device_id': 'sample-tab-1',
-          'name': 'Samsung Galaxy Tab A8',
+          'name': 'Samsung Galaxy Tab',
           'platform': 'android',
           'platform_label': bn ? 'অ্যান্ড্রয়েড' : 'Android',
           'role': 'linked',

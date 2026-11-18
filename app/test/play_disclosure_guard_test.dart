@@ -90,6 +90,9 @@ const _allowed = <String, String>{
       'Shop Box mode: the camera opens only after the user pressed Start on that screen',
   'lib/screens/camera/camera_screen.dart':
       'camera: the CameraPermissionGate explain state comes first; the controller starts only when granted',
+  // circle-extras
+  'lib/widgets/qr_scan_view.dart':
+      'link a phone: the scanner opens only after the user tapped "Scan the code" and saw showPermissionReason(camera)',
 };
 
 List<File> _dartFiles(String dir) => Directory(dir)
