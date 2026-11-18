@@ -7,6 +7,7 @@ import '../audio/audio_route_service.dart' show AudioRoute, isHeadset;
 import '../services/error_kind.dart';
 import 'call_log.dart';
 import 'call_net_policy.dart';
+import 'call_video_profile.dart'; // calls-quality
 
 export '../audio/audio_route_service.dart' show AudioRoute;
 export 'call_net_policy.dart' show MediaPlan, CallNetPolicy, NetTier;
@@ -379,7 +380,11 @@ class CallController extends ChangeNotifier {
   })  : clientCallId = clientCallId ?? newClientCallId(),
         videoOn = video,
         lowData = lowData,
-        netPolicy = netPolicy ?? CallNetPolicy(lowData: lowData);
+        netPolicy = netPolicy ??
+            CallNetPolicy(
+                lowData: lowData,
+                // calls-quality: the same capture decision the camera opens with
+                hd: CallVideoProfile.capture == VideoCapture.hd720);
 
   /// calls-presence (owner 24 Oct "Call server busy — try again"): every
   /// call-setup step (rtc config, placing, accepting) is retried SILENTLY on
@@ -1974,6 +1979,9 @@ class CallController extends ChangeNotifier {
     phase = CallPhase.ended;
     endedAt = now();
     log.add('ended:${reason.name}');
+    // calls-quality: the next call opens its camera at 480p after a weak uplink
+    final up = netPolicy.uplinkKbps;
+    if (up != null && videoOn) CallVideoProfile.lastUplinkKbps = up;
     _stopTimers();
     _hintSteady(false);
     signaling.setFast(false);

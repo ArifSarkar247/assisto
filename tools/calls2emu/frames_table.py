@@ -31,7 +31,10 @@ def main():
            "|---|---|---|---|---|"]
     # calls-quality: measured windows (rows with per-side "a"/"b" dicts) get their own table
     qrows = [r for r in rows if isinstance(r.get("a"), dict)]
-    rows = [r for r in rows if not isinstance(r.get("a"), dict)]
+    crows = [r for r in rows if "cam_to_picture_ms" in r]
+    rrows = [r for r in rows if "res_a" in r]
+    rows = [r for r in rows if not isinstance(r.get("a"), dict) and "cam_to_picture_ms" not in r
+            and "res_a" not in r]
     for r in rows:
         out.append("| %s | %s | %s | %s | %s |" % (
             r.get("case"), cell(r.get("a_to_b"), r.get("need_a_to_b", True)),
@@ -39,6 +42,16 @@ def main():
             "yes" if r.get("audio") else "**NO**", str(r.get("line", "")).replace("|", "/")[:220]))
     if not rows:
         out.append("| - | no samples (no case reached the media proof) | | | |")
+    if rrows:
+        out += ["", "### Video resolution (camera -> sent, ladder target)", ""]
+        out += ["- %s" % str(r.get("line", "")).replace("|", "/")[:400] for r in rrows]
+    if crows:
+        out += ["", "### Camera on -> other phone's first decoded frame (phones' clocks, bar 3000 ms)", "",
+                "| case | ms | bar |", "|---|---|---|"]
+        for r in crows:
+            ms = r.get("cam_to_picture_ms")
+            out.append("| %s | %s | %s |" % (r.get("case"), ms,
+                                             "ok" if isinstance(ms, int) and ms <= 3000 else "**OVER**"))
     if qrows:
         out += ["", "### Call quality windows (calls-quality)", "",
                 "| window | A video frames / max gap ms | B video frames / max gap ms | A audio pk / gap | B audio pk / gap | RTT ms | path |",

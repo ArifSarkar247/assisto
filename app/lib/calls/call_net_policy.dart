@@ -26,6 +26,34 @@ import 'call_controller.dart' show MediaStats;
 /// adapt. Hysteresis everywhere: one bad sample never flips anything.
 enum NetTier { good, fair, poor }
 
+/// calls-quality: the camera capture size (decided once, at camera open).
+enum VideoCapture { hd720, sd480 }
+
+/// Below this smoothed uplink (kbit/s) the NEXT call opens the camera at
+/// 480p even on a capable phone.
+const double weakUplinkKbps = 900;
+
+/// 720p only on a phone with more than ~3 GB RAM (MemoryInfo.totalMem; a
+/// "3 GB" phone reports ~2.7–2.9 GB, so 3328 MB is the cut, as in
+/// LowRamTuning), not flagged low-RAM, and no weak uplink measured last call.
+/// Unknown RAM (0) = 480p (safe).
+VideoCapture videoCaptureFor(
+    {required int ramMb, required bool lowRam, double? lastUplinkKbps}) {
+  if (lowRam || ramMb <= 3328) return VideoCapture.sd480;
+  if (lastUplinkKbps != null && lastUplinkKbps < weakUplinkKbps) {
+    return VideoCapture.sd480;
+  }
+  return VideoCapture.hd720;
+}
+
+/// calls-quality: one rung of the live resolution ladder.
+class VideoRung {
+  const VideoRung(this.height, this.maxBps, this.fps);
+  final int height; // target picture height (720 / 480 / 320)
+  final int maxBps;
+  final int fps;
+}
+
 class MediaPlan {
   const MediaPlan({
     required this.audioMaxBps,
@@ -97,7 +125,43 @@ class CallNetPolicy {
     this.tierAfter = 2,
     this.probeAfterSamples = 10,
     this.maxProbeAfterSamples = 60,
-  });
+    this.hd = false,
+  }) : rung = hd ? 0 : 1;
+
+  /// calls-quality: the camera was opened at 720p ([VideoCapture.hd720]).
+  /// false = 480p capture: the ladder starts at 480p (the old plan values).
+  final bool hd;
+
+  /// The live resolution ladder (index = [rung]): 720p 1.5 Mbit/s, 480p
+  /// 600 kbit/s, 320p 350 kbit/s. Down one rung when the smoothed available
+  /// send bitrate stays under [rungDownKbps] for [rungDownAfter] samples;
+  /// up one rung (a probe) after [rungUpAfter] samples of an uplink that
+  /// fills the current cap — a probe that falls back within 10 samples
+  /// doubles the wait (max [maxRungUpAfter]). A fair/poor network (loss,
+  /// RTT, jitter) caps the ladder at 320p.
+  static const ladder = [
+    VideoRung(720, 1500000, 24),
+    VideoRung(480, 600000, 24),
+    VideoRung(320, 350000, 20),
+  ];
+  static const rungDownKbps = [900.0, 380.0];
+  static const rungDownAfter = 2;
+  static const rungUpAfter = 3;
+  static const maxRungUpAfter = 24;
+
+  /// current ladder rung (0 = 720p, 1 = 480p, 2 = 320p)
+  int rung;
+  int _downRun = 0, _upRun = 0, _sinceUp = 1 << 20, _samples = 0;
+  int _upWait = rungUpAfter;
+
+  /// smoothed available send bitrate (kbit/s, EMA) — the next call's
+  /// capture decision reads it (CallVideoProfile.lastUplinkKbps).
+  double? uplinkKbps;
+
+  /// the camera's own height for this call (720 or 480)
+  int get captureHeight => hd ? 720 : 480;
+
+  int get _topRung => hd ? 0 : 1;
 
   /// The person chose "Low-data calls" (or the other phone asked for it).
   bool lowData;
@@ -159,20 +223,65 @@ class CallNetPolicy {
       };
     }
     final fair = tier != NetTier.good;
+    // calls-quality: a fair / poor network caps the ladder at 320p
+    final r = ladder[fair ? 2 : rung.clamp(_topRung, 2)];
     return MediaPlan(
       audioMaxBps: a,
-      videoMaxBps: lowData ? 200000 : (fair ? 350000 : 600000),
-      videoMaxFps: lowData ? 15 : (fair ? 20 : 24),
-      videoScaleDown: lowData ? 2.0 : 1.0,
+      videoMaxBps: lowData ? 200000 : r.maxBps,
+      videoMaxFps: lowData ? 15 : r.fps,
+      // low-data: ~240p (half of 480p, a third of 720p)
+      videoScaleDown: lowData
+          ? (hd ? 3.0 : 2.0)
+          : ((captureHeight / r.height) < 1 ? 1.0 : captureHeight / r.height),
       videoActive: !videoPaused,
       opusPtimeMs: lowData ? 60 : null,
     );
+  }
+
+  /// The target picture height of our outgoing video right now.
+  int get targetHeight => (captureHeight / plan.videoScaleDown).round();
+
+  /// calls-quality: one step of the resolution ladder (uplink only; the
+  /// tier cap is applied in [plan]). Missing numbers never move it.
+  void _stepRung(double? kbps) {
+    _samples++;
+    if (kbps == null || kbps <= 0) return;
+    final u = uplinkKbps;
+    uplinkKbps = u == null ? kbps : u * 0.6 + kbps * 0.4;
+    if (_samples <= 1) return; // the estimate is still ramping up
+    _sinceUp++;
+    final e = uplinkKbps!;
+    final cur = rung.clamp(_topRung, 2);
+    if (cur < 2 && e < rungDownKbps[cur]) {
+      _upRun = 0;
+      if (++_downRun >= rungDownAfter) {
+        rung = cur + 1;
+        _downRun = 0;
+        // a probe that failed quickly: wait twice as long next time
+        if (_sinceUp <= 10) {
+          _upWait = (_upWait * 2).clamp(rungUpAfter, maxRungUpAfter);
+        }
+      }
+      return;
+    }
+    _downRun = 0;
+    if (cur > _topRung && e >= ladder[cur].maxBps / 1000 * 0.9) {
+      if (++_upRun >= _upWait) {
+        rung = cur - 1;
+        _upRun = 0;
+        _sinceUp = 0;
+      }
+    } else {
+      _upRun = 0;
+      if (_sinceUp > 10) _upWait = rungUpAfter; // the last probe held
+    }
   }
 
   /// One stats sample. [sendingVideo] = our camera is on in a video call
   /// (the pause logic is idle otherwise).
   PolicyStep onSample(MediaStats s, {required bool sendingVideo}) {
     _stepTier(tierOf(s));
+    if (sendingVideo) _stepRung(s.availableKbps);
     var paused = false, resumed = false;
     if (!sendingVideo) {
       // voice call / camera off: nothing to pause; forget any pause state

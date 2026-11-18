@@ -24,6 +24,7 @@ import 'package:assisto/calls/api_call_signaling.dart';
 import 'package:assisto/calls/call_controller.dart';
 import 'package:assisto/calls/webrtc_media.dart';
 import 'package:assisto/config.dart';
+import 'package:assisto/perf/low_ram.dart'; // calls-quality
 import 'package:assisto/realtime/realtime_transport.dart';
 
 import 'support/call_quality_watch.dart'; // calls-quality
@@ -217,14 +218,20 @@ class Peer extends ChangeNotifier {
         // A times the TRANSPORT (and the warm-up is a number of its own).
         final sw = Stopwatch()..start();
         var enc = 0;
+        int? firstAt; // calls-quality: B's own clock at its camera's first encoded frame
         while (sw.elapsed < const Duration(seconds: 12)) {
           enc = (await c.media.stats()).videoFramesEncoded ?? 0;
-          if (enc > 0) break;
-          await Future<void>.delayed(const Duration(milliseconds: 250));
+          if (enc > 0) {
+            firstAt = DateTime.now().millisecondsSinceEpoch;
+            break;
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 50));
         }
+        _log('CALLQ camera_first_frame device_ms=$firstAt');
         _set('camera ON (first encoded frame after ${sw.elapsedMilliseconds} ms)');
         return {'cameraOn': c.cameraOn, 'cameraUnavailable': media?.cameraUnavailable,
             'framesEncoded': enc, 'firstFrameMs': enc > 0 ? sw.elapsedMilliseconds : null,
+            'firstFrameAt': firstAt, // calls-quality
             // calls-camfast: the camera went out on the pre-negotiated slot
             // (no reneg_request / reneg_offer round trips)
             'replaceTrack': c.log.contains('camera-on:replace-track'),
@@ -290,7 +297,15 @@ class Peer extends ChangeNotifier {
       // calls-quality: one quality snapshot / a measured window on B
       case 'quality': {
         final c = _need();
-        return {...await (c.media as WebRtcCallMedia).debugQuality(), 'phase': '${c.phase}'};
+        return {...await (c.media as WebRtcCallMedia).debugQuality(), 'phase': '${c.phase}',
+            'rung': c.netPolicy.rung, 'targetHeight': c.netPolicy.targetHeight,
+            'uplinkKbps': c.netPolicy.uplinkKbps, 'ramMb': LowRamTuning.ramMb};
+      }
+      case 'clock': { // device clock - host clock (ms), NTP-style midpoint
+        final t0 = DateTime.now().millisecondsSinceEpoch;
+        final h = await _req('GET', '/clock');
+        final t1 = DateTime.now().millisecondsSinceEpoch;
+        return {'offset_ms': (t0 + t1) ~/ 2 - (h['host_ms'] as num).toInt(), 'rtt_ms': t1 - t0};
       }
       case 'watch': {
         final c = _need();
@@ -361,6 +376,10 @@ Future<void> _loop(Peer p) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // calls-quality: read this emulator's RAM (the 720p / 480p camera decision)
+  try {
+    await LowRamTuning.apply();
+  } catch (_) {}
   final p = Peer();
   runApp(_PeerApp(p));
   unawaited(_loop(p));

@@ -77,7 +77,9 @@ jobs:
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
       E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
-      C2E_IDS: ${{ inputs.ids || (startsWith(github.ref, 'refs/heads/ci/calls-quality-run') && '01_language,02_login,03_onboarding,18q_relay,18q_lossy,18q_netswitch,18q_pip,18q_audio') || '01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d' }}
+      C2E_IDS: ${{ inputs.ids || (startsWith(github.ref, 'refs/heads/ci/calls-quality-run') && '01_language,02_login,03_onboarding,18q_res,18w_b,18w_d,18q_relay,18q_lossy,18q_netswitch,18q_pip,18q_audio') || '01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d' }}
+      # calls-quality: B = a 4 GB phone (720p camera), A = 2 GB (480p) in the quality set
+      C2E_RAM_B: ${{ (contains(inputs.ids, '18q_') || startsWith(github.ref, 'refs/heads/ci/calls-quality-run')) && '4096' || '2048' }}
     steps:
       - uses: actions/checkout@v4
         with:

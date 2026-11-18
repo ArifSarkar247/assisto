@@ -44,6 +44,7 @@ import 'package:assisto/screens/circle_call_screen.dart';
 
 import 'package:assisto/audio/audio_route_service.dart'; // calls-quality
 import 'package:assisto/calls/call_native.dart'; // calls-quality
+import 'package:assisto/perf/low_ram.dart'; // calls-quality
 
 import '../support/call_quality_watch.dart'; // calls-quality
 import '../support/harness.dart';
@@ -224,34 +225,66 @@ class _TwoEmu {
   /// B just turned its camera on: B's encoder must produce frames within 12 s
   /// and A must decode B's first frame within 12 s of B's camera tap (the
   /// time a user waits for the other person's picture). Numbers in the note.
+  /// calls-quality: this device's clock minus the runner's (ms), NTP-style.
+  Future<int> clockOffset() async {
+    final t0 = DateTime.now().millisecondsSinceEpoch;
+    final h = await f.net(() => _req('GET', '/clock'));
+    final t1 = DateTime.now().millisecondsSinceEpoch;
+    return (t0 + t1) ~/ 2 - (h['host_ms'] as num).toInt();
+  }
+
   Future<void> bCameraOnAndFirstFrame(String kase) async {
+    // calls-quality: both phones' own clocks, put on the runner's clock
+    final offA = await clockOffset();
+    final offB = ((await b('clock'))['offset_ms'] as num).toInt();
+    final dec0 = (await f.net(() => a.media.stats())).videoFramesDecoded ?? 0;
     final sw = Stopwatch()..start();
-    final r = await b('cameraOn', const {}, 30);
+    // A watches for B's first decoded frame WHILE B turns its camera on
+    final id = await send('cameraOn');
+    int dec = dec0;
+    int? aFirstAt;
+    while (sw.elapsed < const Duration(seconds: 15)) {
+      dec = (await f.net(() => a.media.stats())).videoFramesDecoded ?? 0;
+      if (dec > dec0) {
+        aFirstAt = DateTime.now().millisecondsSinceEpoch;
+        break;
+      }
+      await f.tester.pump(const Duration(milliseconds: 100));
+    }
+    final r = await result(id, 'cameraOn', seconds: 30);
     if (r['cameraOn'] != true || r['cameraUnavailable'] == true) {
       throw TestFailure('$kase: B camera did not turn on: $r');
     }
     if (((r['framesEncoded'] as num?) ?? 0) <= 0) {
       throw TestFailure('$kase: B camera on but its encoder made no frame in 12 s: $r');
     }
-    int dec = 0;
-    while (sw.elapsed < const Duration(seconds: 12)) {
-      dec = (await f.net(() => a.media.stats())).videoFramesDecoded ?? 0;
-      if (dec > 0) break;
-      await f.tester.pump(const Duration(milliseconds: 300));
-    }
     f.note('$kase: B camera on -> B first encoded frame ${r['firstFrameMs']} ms, '
-        'A first decoded frame ${dec > 0 ? '${sw.elapsedMilliseconds} ms' : 'NONE in 12 s'}');
-    if (dec <= 0) {
-      throw TestFailure('$kase: B turned its camera on but A decoded no frame of it in 12 s ($r)');
+        'A first decoded frame ${aFirstAt != null ? '${sw.elapsedMilliseconds} ms' : 'NONE in 15 s'}');
+    if (aFirstAt == null) {
+      throw TestFailure('$kase: B turned its camera on but A decoded no frame of it in 15 s ($r)');
+    }
+    // calls-quality (lead 18 Nov): HARD 3 s bar — B's camera first frame (B's
+    // own clock) -> A's first decoded frame (A's own clock), both on the
+    // runner's clock.
+    final bAt = (r['firstFrameAt'] as num?)?.toInt();
+    if (bAt == null) throw TestFailure('$kase: B reported no first-frame time ($r)');
+    final camToPicture = (aFirstAt - offA) - (bAt - offB);
+    f.note('$kase: CAMERA FIRST FRAME -> PEER FIRST DECODED FRAME = $camToPicture ms '
+        '(phones\' clocks; offsets A $offA ms, B $offB ms; bar 3000 ms)');
+    try {
+      await f.net(() => _req('POST', '/sample', {
+            'case': '${kase}_cam', 'line': '$kase camera->picture $camToPicture ms', 'cam_to_picture_ms': camToPicture,
+          }));
+    } catch (_) {}
+    if (camToPicture > 3000) {
+      throw TestFailure('$kase: camera first frame -> A first decoded frame took $camToPicture ms (> 3 s bar)');
     }
     // calls-camfast: camera on mid-call must NOT renegotiate (the fix; it
     // cost ~4.3 s of signalling). The camera-to-picture gap is measured and
     // reported (A's clock starts earlier than B's: an upper bound). On the CI
     // emulators it is dominated by software VP8 at 3-5 fps (encode ~300 ms a
     // frame) and the decoder start, so it is a number here, not a bar.
-    final gap = sw.elapsedMilliseconds - ((r['firstFrameMs'] as num?)?.toInt() ?? 0);
-    f.note('$kase: camera first frame -> A first decoded frame <= $gap ms; '
-        'replaceTrack=${r['replaceTrack']} renegotiated=${r['renegotiated']}');
+    f.note('$kase: replaceTrack=${r['replaceTrack']} renegotiated=${r['renegotiated']}');
     if (r['replaceTrack'] != true || r['renegotiated'] == true) {
       throw TestFailure('$kase: camera on renegotiated instead of using the ready video slot ($r)');
     }
@@ -477,10 +510,64 @@ extension _Quality on _TwoEmu {
   }
 
   Future<AudioRoute?> osRoute() => f.net(() => MethodChannelAudioRoutePlatform().active());
+
+  /// Resolution state of both sides: camera (source) size, sent size, the
+  /// policy's ladder rung / target height, smoothed uplink.
+  Future<(Map<String, dynamic>, Map<String, dynamic>)> resolution(String label) async {
+    final c = a;
+    final Map<String, dynamic> qa = {
+      ...await f.net(aMedia.debugQuality),
+      'rung': c.netPolicy.rung, 'targetHeight': c.netPolicy.targetHeight,
+      'uplinkKbps': c.netPolicy.uplinkKbps, 'ramMb': LowRamTuning.ramMb,
+    };
+    final qb = await b('quality', const {}, 20);
+    String one(Map<String, dynamic> q) => 'ram ${q['ramMb']} MB, capture ${q['capture']}, camera '
+        '${q['src_w']}x${q['src_h']}, sent ${q['vout_w']}x${q['vout_h']}@${q['vout_fps']} '
+        '(limit ${q['vout_limit']}), ladder ${q['targetHeight']}p, uplink ${(q['uplinkKbps'] as num?)?.round()} kbps, '
+        'plan ${q['plan']}';
+    final line = '$label: A [${one(qa)}] | B [${one(qb)}]';
+    f.note(line);
+    try {
+      await f.net(() => _req('POST', '/sample', {'case': label, 'line': line, 'res_a': qa, 'res_b': qb}));
+    } catch (_) {}
+    return (qa, qb);
+  }
+}
+
+int _longEdge(Map<String, dynamic> q, String w, String h) {
+  final x = (q[w] as num?)?.toInt() ?? 0, y = (q[h] as num?)?.toInt() ?? 0;
+  return x > y ? x : y;
 }
 
 void registerCallsQualityFlows() {
   const t = Duration(minutes: 8);
+  realityFlow('18q_res', 'My Circle', 'Two emulators: adaptive camera size — 2 GB phone 480p, 4 GB phone 720p',
+      (f) async {
+    await f.home();
+    await f.net(() => LowRamTuning.apply()); // no-op when the app already read it
+    final e = _TwoEmu(f);
+    await e.reset();
+    await e.kase('q_res', () async {
+      await f.step('A (2 GB) video-calls B (4 GB); B answers', () => e.qCall(video: true));
+      await f.step('video both ways', () => e.prove('q_res'));
+      await f.step('A opened its camera at 480p, B at 720p (RAM decides)', () async {
+        final (qa, qb) = await e.resolution('q_res');
+        final ra = (qa['ramMb'] as num?)?.toInt() ?? 0, rb = (qb['ramMb'] as num?)?.toInt() ?? 0;
+        if (ra <= 0 || ra > 3328) throw TestFailure('A should read as a <= 3 GB phone (ram $ra MB)');
+        if (rb <= 3328) throw TestFailure('B should read as a > 3 GB phone (ram $rb MB)');
+        if (qa['capture'] != 'sd480' || _longEdge(qa, 'src_w', 'src_h') > 640) {
+          throw TestFailure('A (2 GB) camera not 480p: ${qa['capture']} ${qa['src_w']}x${qa['src_h']}');
+        }
+        if (qb['capture'] != 'hd720' || _longEdge(qb, 'src_w', 'src_h') < 1280) {
+          throw TestFailure('B (4 GB) camera not 720p: ${qb['capture']} ${qb['src_w']}x${qb['src_h']}');
+        }
+        if ((qa['targetHeight'] as num) > 480) throw TestFailure('A ladder above its 480p camera: $qa');
+        await f.shot('q-res');
+      });
+      await f.step('A hangs up', e.aHangsUp);
+    });
+  }, timeout: t);
+
   realityFlow('18q_relay', 'My Circle', 'Two emulators: TURN relay only on both sides, media both ways',
       (f) async {
     await f.home();
@@ -522,9 +609,11 @@ void registerCallsQualityFlows() {
         await f.step('A video-calls B (through TURN); B answers', () async {
           await e.qCall(video: true, bArgs: {'relayOnly': true});
         });
+        late (Map<String, dynamic>, Map<String, dynamic>) clean;
         await f.step('baseline: 10 s on a clean link', () async {
           final (wa, wb) = await e.watchBoth('q_lossy_clean', 10);
           e.needMoving('q_lossy_clean', wa, wb);
+          clean = await e.resolution('q_res_clean');
         });
         await f.step('3G-like link: ~300 ms RTT, ~3 % loss each way, 3 Mbit — 30 s measured', () async {
           final n = await e.host('netem', {'on': true, 'delay_ms': 75, 'jitter_ms': 10, 'loss_pct': 1.5, 'rate_kbit': 3000});
@@ -535,6 +624,23 @@ void registerCallsQualityFlows() {
           if (rtt < 200) throw TestFailure('netem had no effect (A rtt $rtt ms) — not a lossy test');
           e.needMoving('q_lossy_3g', wa, wb, maxVideoGapMs: 2000, maxAudioGapMs: 2000);
           if (!e.a.isLive) throw TestFailure('call not live on the lossy link (${e.a.phase})');
+          await e.resolution('q_res_3g');
+        });
+        await f.step('the uplink drops (400 kbit shared): both phones step their video DOWN live', () async {
+          final n = await e.host('netem', {'on': true, 'delay_ms': 75, 'jitter_ms': 10, 'loss_pct': 1.5, 'rate_kbit': 400});
+          if ((n['errors'] as List?)?.isNotEmpty ?? true) throw TestFailure('netem not applied: $n');
+          final (wa, wb) = await e.watchBoth('q_lossy_tight', 24);
+          e.needMoving('q_lossy_tight', wa, wb); // still moving (no 2 s bar while it adapts)
+          final (qa, qb) = await e.resolution('q_res_tight');
+          final (ca, cb) = clean;
+          for (final (side, c0, c1) in [('A', ca, qa), ('B', cb, qb)]) {
+            final h0 = (c0['targetHeight'] as num).toInt(), h1 = (c1['targetHeight'] as num).toInt();
+            if (!(h1 < h0 || h1 <= 320)) {
+              throw TestFailure('$side did not step down: ladder ${h0}p -> ${h1}p (uplink ${c1['uplinkKbps']} kbps, plan ${c1['plan']})');
+            }
+            final s0 = _longEdge(c0, 'vout_w', 'vout_h'), s1 = _longEdge(c1, 'vout_w', 'vout_h');
+            if (s0 > 0 && s1 > s0) throw TestFailure('$side sends a BIGGER picture on the tight link ($s0 -> $s1)');
+          }
         });
       } finally {
         await e.host('netem', {'on': false});

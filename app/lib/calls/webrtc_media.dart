@@ -8,6 +8,7 @@ import '../audio/webrtc_audio_fallback.dart';
 import 'call_controller.dart';
 import 'call_log.dart';
 import 'call_net_policy.dart';
+import 'call_video_profile.dart'; // calls-quality
 import 'call_video.dart';
 import 'media_ext.dart'; // circle-screenshare
 
@@ -60,8 +61,17 @@ class WebRtcCallMedia
   /// with two emulated cameras can run a video call with both cameras on).
   final String facing;
 
-  Map<String, dynamic> get _videoConstraints =>
-      {..._videoConstraintsBase, 'facingMode': facing};
+  Map<String, dynamic> get _videoConstraints => {
+        ..._videoConstraintsBase,
+        // calls-quality: 720p on a capable phone, else 480p (decided once)
+        ...CallVideoProfile.constraintsFor(capture),
+        'facingMode': facing,
+      };
+
+  /// calls-quality: this call's camera size (the first decision sticks for
+  /// the whole call — the controller's resolution ladder uses the same one).
+  VideoCapture get capture => _capture ??= CallVideoProfile.capture;
+  VideoCapture? _capture;
 
   RTCPeerConnection? _pc;
   RTCRtpSender? _audioSender;
@@ -777,7 +787,11 @@ class WebRtcCallMedia
         'port': c['port'],
       };
     }
-    final out = <String, dynamic>{'t_ms': DateTime.now().millisecondsSinceEpoch};
+    final out = <String, dynamic>{
+      't_ms': DateTime.now().millisecondsSinceEpoch,
+      'capture': capture.name,
+      if (_plan != null) 'plan': '$_plan',
+    };
     var vinFrames = 0, vinFreezes = 0, vinLost = 0, vinRecv = 0;
     var vinFreezeS = 0.0;
     var ainPk = 0, ainLost = 0, aoutPk = 0, voutFrames = 0;
@@ -823,6 +837,11 @@ class WebRtcCallMedia
         if (v['targetBitrate'] is num) out['vout_target_kbps'] = ((v['targetBitrate'] as num) / 1000).round();
       } else if (r.type == 'outbound-rtp' && kind == 'audio') {
         aoutPk += n(v['packetsSent']).toInt();
+      } else if (r.type == 'media-source' && kind == 'video') {
+        // what the CAMERA delivers (before any encoder scaling)
+        if (v['width'] != null) out['src_w'] = v['width'];
+        if (v['height'] != null) out['src_h'] = v['height'];
+        if (v['framesPerSecond'] != null) out['src_fps'] = v['framesPerSecond'];
       }
     }
     out.addAll({

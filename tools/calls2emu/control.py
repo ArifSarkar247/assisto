@@ -218,6 +218,8 @@ class H(BaseHTTPRequestHandler):
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
         if u.path == "/health":
             return self._send(200, {"ok": True})
+        if u.path == "/clock":  # calls-quality: one host clock for both emulators' timestamps
+            return self._send(200, {"host_ms": int(time.time() * 1000)})
         if u.path == "/state":
             with LOCK:
                 return self._send(200, {"hello": HELLO, "last_id": len(CMDS)})

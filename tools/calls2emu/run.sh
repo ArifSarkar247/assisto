@@ -32,6 +32,11 @@ yes | timeout 300 sdkmanager --licenses >/dev/null 2>&1 || true
 timeout 900 sdkmanager --install emulator platform-tools "$IMG" > "$C2E/sdkmanager.log" 2>&1 \
   || { log "sdkmanager failed"; tail -20 "$C2E/sdkmanager.log"; }
 
+# calls-quality: RAM per emulator (MB) — 2 GB A vs 4 GB B proves the 480p
+# (≤ 3 GB phone) and 720p camera paths side by side. Default 2 GB both.
+RAM_A="${C2E_RAM_A:-2048}" RAM_B="${C2E_RAM_B:-2048}"
+ram_of() { [ "$1" = c2eB ] && echo "$RAM_B" || echo "$RAM_A"; }
+
 make_avd() {  # $1 = name
   # avdmanager first; when it makes nothing (run 44165707378: the runner's old
   # cmdline-tools vs SDK XML v4) the AVD is written by hand (same keys).
@@ -55,7 +60,7 @@ make_avd() {  # $1 = name
     || { log "system image missing under $SDK"; return 1; }
   sed -i -E '/^(hw\.ramSize|hw\.keyboard|hw\.camera\.front|hw\.camera\.back|disk\.dataPartition\.size|hw\.gpu\.enabled|hw\.gpu\.mode|hw\.cpu\.ncore|vm\.heapSize)=/d' "$c"
   cat >> "$c" <<EOF
-hw.ramSize=2048
+hw.ramSize=$(ram_of "$1")
 hw.keyboard=yes
 hw.camera.front=emulated
 hw.camera.back=emulated
@@ -69,7 +74,7 @@ EOF
 
 start_emu() {  # $1 = avd, $2 = port, $3 = extra opts
   nohup emulator -avd "$1" -port "$2" -no-snapshot -no-window -no-audio -no-boot-anim \
-    -gpu swiftshader_indirect -memory 2048 -cores 2 \
+    -gpu swiftshader_indirect -memory "$(ram_of "$1")" -cores 2 \
     -camera-front emulated -camera-back emulated $3 \
     > "$C2E/emulator_$1.log" 2>&1 &
   echo $! > "$C2E/emu_$1.pid"
@@ -195,6 +200,7 @@ curl -fsS -m 5 http://127.0.0.1:8710/state >> "$C2E/run.log" 2>&1; echo >> "$C2E
 log "flutter drive A on $SA"
 grant $SA &
 cd app
+log "RAM A=${RAM_A} MB B=${RAM_B} MB"
 IDS="${C2E_IDS:-01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d}"
 ANDROID_SERIAL=$SA REALITY_OUT="$OUT" timeout "${C2E_DRIVE_SECONDS:-2400}" flutter drive \
   --driver=test_driver/integration_test.dart \
