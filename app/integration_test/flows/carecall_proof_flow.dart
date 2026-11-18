@@ -14,7 +14,6 @@
 //
 // The killed-app / screen-off full-screen wake is proven by the notifproof
 // case 'carecall' (tools/notifproof/np_driver.py, notif-closed.yml only=carecall).
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
 
