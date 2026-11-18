@@ -236,7 +236,10 @@ def state(vendor, serial):
             return {"exists": False}
         return {"exists": True, "owner": d.owner, "oauth_user": d.oauth_user,
                 "alarms": len(d.alarms), "online": d.online,
-                "hls_hits": [h for h in HITS["hls"] if "/%s/" % serial in h][-20:],
+                # playlists kept apart: a 150 s stream fetches > 20 segments
+                # at once, which pushed the .m3u8 out of a plain last-20 window
+                "hls_hits": [h for h in HITS["hls"] if "/%s/" % serial in h and h.endswith(".m3u8")][-5:]
+                + [h for h in HITS["hls"] if "/%s/" % serial in h and not h.endswith(".m3u8")][-15:],
                 # flag-cctv-e2e: bytes the phone downloaded from the live stream
                 "hls_bytes": int(HITS["hls_bytes"].get(serial.upper(), 0)),
                 "pic_hits": len(HITS["pic"])}
