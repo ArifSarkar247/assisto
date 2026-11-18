@@ -76,16 +76,26 @@ void registerSosJourneyFlows() {
       await f.scrollTo(safe); // below the fold under the ladder
       await f.waitFor(safe, what: '"I\'m safe now" button');
       await f.tester.ensureVisible(safe);
-      // sosfam-crm-proof: let the list stop moving — a tap on a list that is
-      // still flinging only stops the fling (run 44213469898: the button was
-      // on screen, no /resolve was sent)
+      // sosfam-crm-proof: ensureVisible parks the button at the very top edge
+      // under the app bar; a person scrolls it into the middle first. Then
+      // wait for the list to stop (a tap on a moving list only stops it).
+      final sc = find.byWidgetPredicate((w) =>
+          w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical).hitTestable();
+      if (sc.evaluate().isNotEmpty) {
+        await f.tester.drag(sc.first, const Offset(0, 250), warnIfMissed: false);
+      }
       await f.pumpFor(const Duration(milliseconds: 1500));
       final m2 = f.httpMark;
-      // sosfam-crm-proof: tap the button the USER sees — with an older
-      // Emergency page still under this one, `first` was the hidden copy
-      // (runs 44213469898 + 44226928480: button on screen, no /resolve)
-      f.note('safe buttons: ${safe.evaluate().length}, on screen: ${safe.hitTestable().evaluate().length}');
+      final btn = f.tester.widget<ButtonStyleButton>(safe.first);
+      f.note('safe buttons: ${safe.evaluate().length}, on screen: '
+          '${safe.hitTestable().evaluate().length}, enabled: ${btn.onPressed != null}, '
+          'at y=${f.tester.getCenter(safe.first).dy.round()}');
       await f.tap(safe.hitTestable(), settleSeconds: 3);
+      if (!f.h.recorder.hits.skip(m2).any((x) => x.path.startsWith('/family/sos/resolve'))) {
+        // diagnostics for the owner report — a missed first tap is written down
+        f.note('FIRST TAP MISSED (snackbar: ${find.byType(SnackBar).evaluate().length})');
+        await f.tap(find.text(f.t.fa100SafeNow).hitTestable(), settleSeconds: 3);
+      }
       await f.shot('safe');
       f.expectHttp('POST', '/family/sos/resolve', since: m2);
       await f.eventually('B: no active SOS from A', () async {
