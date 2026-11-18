@@ -4,6 +4,7 @@
 //     "no_admin"): now an honest line + a "Turn on device admin" button that
 //     first explains why (Play disclosure);
 //   * bn + en, 200% text: the line and the button wrap (no overflow).
+import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

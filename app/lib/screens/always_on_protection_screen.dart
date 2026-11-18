@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 import 'dart:io' show Platform;
 import 'dart:typed_data' show Uint8List;
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:intl/intl.dart';
