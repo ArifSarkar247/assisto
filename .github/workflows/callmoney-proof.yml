@@ -10,10 +10,6 @@ on:
   workflow_dispatch:
   push:
     branches: ['ci/callmoney-proof**']
-    paths:
-      - "tools/callmoney_proof/**"
-      - "app/android_overlay/app/src/main/kotlin/com/assisto/assisto/notiflisten/**"
-      - ".github/workflows/callmoney-proof.yml"
 
 concurrency:
   group: callmoney-proof-${{ github.ref }}
