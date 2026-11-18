@@ -538,9 +538,12 @@ void registerAntiTheftE2eFlows() {
     } finally {
       await f.step('cleanup: lost mode off, "It was me", protection off', () async {
         try {
-          await f.net(() => _b!.postJsonRaw('/security/action',
-              {'action': 'turn_off_lost', 'pin': _pin}));
+          // "It was me" first: the SIM change froze sensitive actions (by
+          // design a thief with the PIN cannot end lost mode for 48 h)
           await f.net(() => _b!.postJsonRaw('/security/engine/false-alarm', {'pin': _pin}));
+          final off = await f.net(() => _b!.postJsonRaw('/security/action',
+              {'action': 'turn_off_lost', 'pin': _pin}));
+          f.note('lost mode off: ${off['_status']} ${off['reason'] ?? ''}');
           await f.net(AntiTheftService.flushNow);
           await f.tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 12)));
           final s = await _state(f);
