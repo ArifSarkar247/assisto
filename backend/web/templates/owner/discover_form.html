@@ -28,7 +28,7 @@
   <div class="span2"><button class="btn primary">{{ T.save }}</button></div>
 </form>
 {% if card %}
-<form method="post" action="/owner/discover/{{ card.id }}/delete" class="card danger">
+<form method="post" action="/owner/discover/{{ card.id }}/delete" class="card danger" data-confirm="{{ T.confirm_destructive }}">
   {% include "owner/_csrf.html" %}
   <h2>{{ T.delete_card }}</h2>
   <label class="check"><input type="checkbox" name="confirm" required> {{ T.delete_confirm }}</label>

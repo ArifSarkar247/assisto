@@ -1,6 +1,22 @@
 // Assisto owner panel — tiny progressive enhancement (no framework, no eval).
 (function () {
   "use strict";
+  document.documentElement.classList.add("js");
+  // owneradmin: phone menu (the side nav folds under one "Menu" button < 860 px)
+  var tog = document.getElementById("navtoggle"), side = document.getElementById("side");
+  if (tog && side) {
+    tog.addEventListener("click", function () {
+      var open = side.classList.toggle("open");
+      tog.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+  // owneradmin: confirm before a destructive action. A form or its submit
+  // button with data-confirm="…" asks first (CSP-safe: no inline handlers).
+  document.addEventListener("submit", function (e) {
+    var b = e.submitter, f = e.target;
+    var msg = (b && b.getAttribute("data-confirm")) || (f && f.getAttribute("data-confirm"));
+    if (msg && !window.confirm(msg)) { e.preventDefault(); }
+  }, true);
   // Drag & drop reorder of the Discover table. Without JS the ↑/↓ buttons work.
   var table = document.getElementById("cards-table");
   var ids = document.getElementById("reorder-ids");

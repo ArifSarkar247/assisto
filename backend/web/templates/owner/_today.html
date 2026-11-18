@@ -1,0 +1,41 @@
+{# owneradmin: home "Today" card — counts only, never names / numbers / messages / places #}
+<section class="card today" id="today" aria-labelledby="today-h">
+  <div class="row-between"><h2 id="today-h">{{ T.td_h }}</h2><span class="mut small">{{ T.td_note }}</span></div>
+  <div class="tiles">
+    {% with b=today.build %}
+    <a class="tile" href="/owner/users" id="td-build"><span>{{ T.td_build }} ({{ b.target|default:"" }}+)</span>
+      {% if b.ok and b.pct is not None %}<b class="{% if b.pct >= 80 %}pos{% elif b.pct < 50 %}neg{% endif %}">{{ b.pct }}%</b>
+      <small>{{ b.on }} / {{ b.known }} · {{ T.td_build_sub }}</small>
+      {% if b.top %}<small>{{ T.td_build_top }}: {% for x in b.top %}{{ x.build }} ({{ x.n }}){% if not forloop.last %} · {% endif %}{% endfor %}</small>{% endif %}
+      {% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}</a>
+    {% endwith %}
+    {% with c=today.calls %}
+    <a class="tile" href="/owner/calls" id="td-calls"><span>{{ T.td_calls }}</span>
+      {% if c.ok and c.attempts %}<b class="{% if c.below %}neg{% else %}pos{% endif %}">{{ c.pct }}%</b>
+      <small>{{ c.delivered }} / {{ c.attempts }} {{ T.td_calls_tries }} · {{ T.td_calls_target }} {{ c.target }}%</small>
+      {% if c.brands %}<ul class="tdlist">{% for br in c.brands %}<li class="{% if br.below %}neg{% endif %}"><span translate="no">{% if br.brand %}{{ br.brand }}{% else %}{{ T.td_brand_unknown }}{% endif %}</span> <b>{% if br.pct is not None %}{{ br.pct }}%{% else %}—{% endif %}</b> <small>({{ br.attempts }})</small></li>{% endfor %}</ul>{% endif %}
+      {% elif c.ok %}<b class="mut sm">—</b><small>{{ T.td_calls_none }}</small>
+      {% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}</a>
+    {% endwith %}
+    {% with s=today.s5xx %}
+    <a class="tile" href="/owner/system" id="td-5xx"><span>{{ T.td_5xx }}</span>
+      {% if s.ok %}<b class="{% if s.bad %}neg{% elif s.errors %}{% else %}pos{% endif %}">{{ s.errors }}</b>
+      <small>{{ T.td_5xx_of }} {{ s.requests }} {{ T.td_5xx_req }}{% if s.share is not None %} · {{ s.share }}%{% endif %}</small>
+      {% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}</a>
+    {% endwith %}
+    <a class="tile" href="/owner/users?f=new_today" id="td-signups"><span>{{ T.td_signups }}</span>
+      {% if today.signups.ok %}<b>{{ today.signups.n }}</b>{% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}</a>
+    {% with k=today.crashes %}
+    <a class="tile" href="/owner/reports/errors?days=1" id="td-crash"><span>{{ T.td_crash }}</span>
+      {% if k.ok %}<b class="{% if k.fatal %}neg{% elif not k.n %}pos{% endif %}">{{ k.n }}</b>
+      <small>{{ k.groups }} {{ T.td_crash_groups }} · {{ k.fatal }} {{ T.td_crash_fatal }}</small>
+      {% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}</a>
+    {% endwith %}
+    {% with q=today.ci %}
+    {% if today.ci_url %}<a class="tile" href="{{ today.ci_url }}" rel="noopener noreferrer" id="td-ci">{% else %}<div class="tile" id="td-ci">{% endif %}<span>{{ T.td_ci }}</span>
+      {% if q.ok %}<b>{{ q.queued }}</b><small>{{ T.td_ci_queued }} · {{ q.running }} {{ T.td_ci_running }}{% if q.at %} · {{ q.at|time:"H:i" }}{% endif %}</small>
+      {% else %}<b class="mut sm">—</b><small>{{ T.td_na }}</small>{% endif %}
+    {% if today.ci_url %}</a>{% else %}</div>{% endif %}
+    {% endwith %}
+  </div>
+</section>

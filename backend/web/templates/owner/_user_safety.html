@@ -29,7 +29,7 @@
   <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
   <button class="btn primary">{{ T.as_warn }}</button>
 </form>
-<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="force_logout">
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="force_logout">
   <h2>{{ T.as_force_logout }}</h2><p class="mut small">{{ T.as_force_logout_note }}</p>
   <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
   <button class="btn">{{ T.as_force_logout }}</button>
@@ -49,13 +49,13 @@
   <button class="btn primary">{{ T.as_unrestrict }}</button>
 </form>{% endif %}
 {% if not blocked %}
-<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="suspend">
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="suspend">
   <h2>{{ T.as_suspend }}</h2><p class="mut small">{{ T.as_suspend_note }}</p>
   <label>{{ T.as_days }}<input name="days" type="number" min="1" max="365" value="7" required></label>
   <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
   <button class="btn danger">{{ T.as_suspend }}</button>
 </form>
-<form method="post" action="/owner/users/{{ u.id }}/act" class="card danger">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="ban">
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card danger" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="ban">
   <h2>{{ T.as_ban }}</h2><p class="mut small">{{ T.as_ban_note }}</p>
   <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
   <button class="btn danger">{{ T.as_ban }}</button>
@@ -67,7 +67,7 @@
   <button class="btn primary">{{ T.unblock }}</button>
 </form>
 {% endif %}
-<form method="post" action="/owner/users/{{ u.id }}/act" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="remove_content">
+<form method="post" action="/owner/users/{{ u.id }}/act" class="card" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="kind" value="remove_content">
   <h2>{{ T.as_remove_content }}</h2><p class="mut small">{{ T.as_remove_content_note }}</p>
   <label>{{ T.as_reason_user }}<input name="reason" required maxlength="300"></label>
   <button class="btn danger">{{ T.as_remove_content }}</button>

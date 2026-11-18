@@ -24,7 +24,7 @@
   <label>{{ T.reason }}<input name="reason" required maxlength="200"></label>
   <button class="btn primary">{{ T.apply }}</button>
 </form>
-<form method="post" action="/owner/founders" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="uid" value="{{ u.id }}"><input type="hidden" name="back" value="{{ u.id }}">
+<form method="post" action="/owner/founders" class="card" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="uid" value="{{ u.id }}"><input type="hidden" name="back" value="{{ u.id }}">
   <h2>{{ T.fm_badge }}{% if u.is_founder %} <span class="pill fm">{{ T.fm_badge }}</span>{% endif %}</h2>
   {% if u.is_founder %}<input type="hidden" name="action" value="revoke">
   <p class="mut small">{% if u.founder_since %}{{ T.fm_since }} {{ u.founder_since|date:"Y-m-d" }} · {{ T.fm_premium_until }} {{ u.founder_until|date:"Y-m-d" }}{% else %}{{ T.fm_lifetime }}{% endif %}</p>

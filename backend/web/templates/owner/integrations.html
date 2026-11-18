@@ -26,7 +26,7 @@
     <input type="text" readonly value="{{ r.callback_url }}" aria-label="{{ T.cb_link }}"></label>
     <p class="mut small">{{ T.cb_link_hint }}</p>
     <label class="small"><input type="checkbox" name="rotate_ok" value="1"> {{ T.cb_rotate_ok }}</label>
-    <button class="btn ghost" name="action" value="rotate_cb">{{ T.cb_rotate }}</button></div>{% endif %}
+    <button class="btn ghost" name="action" value="rotate_cb" data-confirm="{{ T.confirm_destructive }}">{{ T.cb_rotate }}</button></div>{% endif %}
   {% if r.detail %}<p class="small {% if r.status == 'working' %}pos{% elif r.status == 'failing' %}neg{% endif %}" role="status" id="result-{{ r.slug }}"><b>{{ r.detail }}</b></p>{% endif %}
   {% if r.test_to_kind %}<label>{% if r.test_to_kind == 'email' %}{{ T.test_to_email }}{% else %}{{ T.test_to_phone }}{% endif %}
     <input name="test_to" {% if r.test_to_kind == 'email' %}type="email" placeholder="you@example.com"{% else %}type="tel" placeholder="01XXXXXXXXX"{% endif %} autocomplete="off"></label>{% endif %}

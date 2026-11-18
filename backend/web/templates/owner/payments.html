@@ -50,7 +50,7 @@
 <section class="card"><h2>{{ T.pay_h_orders }}</h2>
 {% if orders %}<div class="tbl"><table><thead><tr><th>#</th><th>{{ T.pay_when }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_sku }}</th><th>{{ T.pay_amount }}</th><th>{{ T.pay_status }}</th><th></th></tr></thead><tbody>
 {% for o in orders %}<tr><td>{{ o.pk }}</td><td>{{ o.created_at|date:"Y-m-d H:i" }}</td><td><a href="/owner/users/{{ o.user_id }}">#{{ o.user_id }}</a></td><td><code>{{ o.sku }}</code> · {{ o.source }}</td><td>৳{{ o.amount_bdt }}</td><td>{{ o.status }}{% if o.detail %}<br><span class="mut small">{{ o.detail }}</span>{% endif %}</td>
-<td>{% if o.status == "paid" %}<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="refund"><input type="hidden" name="order" value="{{ o.pk }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.pay_refund }}</button></form>{% endif %}</td></tr>{% endfor %}
+<td>{% if o.status == "paid" %}<form method="post" class="row" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="refund"><input type="hidden" name="order" value="{{ o.pk }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.pay_refund }}</button></form>{% endif %}</td></tr>{% endfor %}
 </tbody></table></div><p class="mut small">{{ T.pay_refund_note }}</p>
 {% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
 </section>

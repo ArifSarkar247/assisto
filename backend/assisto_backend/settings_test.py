@@ -62,3 +62,6 @@ AGENT_RATE_PER_MIN = 0
 AGENT_RATE_PER_HOUR = 0
 
 SHOPBOX_RELEASE_FETCH = False   # cctvtoday: tests never fetch the GitHub release manifest
+
+# owneradmin: never call GitHub from tests (Owner Admin home "Today" CI tile)
+OWNER_CI_REPO = ""

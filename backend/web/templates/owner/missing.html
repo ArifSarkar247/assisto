@@ -23,8 +23,8 @@
 {% if a.state == 'active' %}<button class="btn ghost" name="action" value="hide">{{ T.mis_hide }}</button>{% endif %}
 {% if a.state == 'hidden' %}<button class="btn primary" name="action" value="restore">{{ T.mis_restore }}</button>{% endif %}
 {% if a.state == 'active' or a.state == 'hidden' or a.state == 'pending' %}<button class="btn ghost" name="action" value="close">{{ T.mis_close }}</button>
-<button class="btn ghost" name="action" value="remove">{{ T.mis_remove }}</button>
-<button class="btn danger" name="action" value="remove_ban">{{ T.mis_remove_ban }}</button>{% endif %}
+<button class="btn ghost" name="action" value="remove" data-confirm="{{ T.confirm_destructive }}">{{ T.mis_remove }}</button>
+<button class="btn danger" name="action" value="remove_ban" data-confirm="{{ T.confirm_destructive }}">{{ T.mis_remove_ban }}</button>{% endif %}
 </form></td></tr>{% endfor %}
 </tbody></table></div>
 <div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?status={{ st }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>

@@ -2,6 +2,7 @@
 rendering with bn/en strings, and small form helpers."""
 import hmac
 import json
+import re
 from functools import wraps
 
 from django.http import (HttpResponse, HttpResponseForbidden,
@@ -113,7 +114,71 @@ def page(request, template, ctx=None, status=200, nav=""):
         except Exception:
             c["cost_alert"] = None
     c.update(ctx or {})
-    return render(request, template, c, status=status)
+    resp = render(request, template, c, status=status)
+    if lang == "bn":
+        resp.content = bn_html(resp.content.decode("utf-8")).encode("utf-8")
+    return resp
+
+
+# owneradmin: Bangla mode shows Bangla digits everywhere on the page — in
+# text only (never inside tags / attributes, so form values, links and ids stay
+# ASCII), and never in machine text (<code>, <pre>, <textarea>, <script>,
+# <style>, <kbd>, <samp>) or in elements marked lang="en" / translate="no".
+_BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+_RAW = ("code", "pre", "textarea", "script", "style", "kbd", "samp")
+_TAG = re.compile(r"(<!--.*?-->|<[^>]*>)", re.S)
+_ENT = re.compile(r"(&#?\w+;)")
+_NAME = re.compile(r"</?\s*([a-zA-Z][a-zA-Z0-9]*)")
+_MARK = re.compile(r"""\blang\s*=\s*["']?en\b|\btranslate\s*=\s*["']?no\b""", re.I)
+
+
+_TOKEN = re.compile(r"\S+")
+_PHONE = re.compile(r"\+?\d[\d-]{9,}")
+_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def keeps_ascii(token):
+    """Machine tokens keep ASCII digits in Bangla mode: anything with a Latin
+    letter (RMX3491, claude-opus-5-5, 10.0.0.1-ish hosts), phone numbers and
+    long ids (7+ digits in a row) — owners copy / compare those."""
+    core = token.strip("()[]{}<>,.;:!?“”‘’\"'")
+    if re.search(r"[A-Za-z]", core) or re.search(r"\d{7,}", core):
+        return True
+    return bool(_PHONE.fullmatch(core)) and not _DATE.fullmatch(core)
+
+
+def _bn_words(t):
+    return _TOKEN.sub(lambda m: m.group(0) if keeps_ascii(m.group(0))
+                      else m.group(0).translate(_BN_DIGITS), t)
+
+
+def _bn_text(t):
+    return "".join(x if x.startswith("&") else _bn_words(x) for x in _ENT.split(t))
+
+
+def bn_html(html):
+    out, raw = [], []            # raw: [tag, depth] of the machine-text element we are in
+    for part in _TAG.split(html):
+        if not part:
+            continue
+        if part.startswith("<"):
+            m = _NAME.match(part)
+            if m and not part.startswith("<!"):
+                name = m.group(1).lower()
+                closing = part.startswith("</")
+                selfclose = part.endswith("/>")
+                if raw:
+                    if name == raw[-1][0]:
+                        raw[-1][1] += -1 if closing else (0 if selfclose else 1)
+                        if raw[-1][1] == 0:
+                            raw.pop()
+                elif not closing and not selfclose and (name in _RAW or _MARK.search(part)) \
+                        and name not in ("input", "img", "br", "meta", "link", "hr"):
+                    raw.append([name, 1])
+            out.append(part)
+        else:
+            out.append(part if raw else _bn_text(part))
+    return "".join(out)
 
 
 def done(path, msg="saved"):

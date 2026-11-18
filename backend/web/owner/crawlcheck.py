@@ -152,7 +152,13 @@ def english_words(chunks):
 
 
 def ascii_digits(chunks):
-    return [s.strip()[:40] for s in chunks if re.search(r"[0-9]", s)]
+    from .base import keeps_ascii
+    out = []
+    for s in chunks:
+        for tok in s.split():
+            if re.search(r"[0-9]", tok) and not keeps_ascii(tok):
+                out.append(tok[:40])
+    return out
 
 
 def analyse(html, lang):

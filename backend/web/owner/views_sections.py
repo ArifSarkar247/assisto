@@ -101,6 +101,11 @@ def dashboard(request):
         ctx.update(live_ctx(request.owner_lang))
     except Exception:
         ctx["live"] = None
+    try:   # owneradmin: the "Today" top card (counts only, no PII)
+        from .today import today_ctx
+        ctx.update(today_ctx())
+    except Exception:
+        ctx["today"] = None
     return page(request, "owner/dashboard.html", ctx, nav="home")
 
 

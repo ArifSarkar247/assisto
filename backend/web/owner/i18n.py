@@ -2613,3 +2613,32 @@ BN.update({
     "ads_src_step4": "এগুলো ডেভেলপারকে দিন; তারপর AdMob অ্যাকাউন্ট দিয়ে একবার সাইন-ইন (scope admob.readonly)। AdMob API-তে service account চলে না।",
 })
 # ---- /ads-guard ----
+
+# ---- owneradmin ---- home "Today" card, mobile menu, confirm on destructive actions
+EN.update({
+    "td_h": "Today", "td_note": "Counts only — no names, numbers or messages. Refreshed every few minutes.",
+    "td_build": "Phones on the newest build", "td_build_sub": "phones seen in 30 days",
+    "td_build_of": "of", "td_build_top": "Most used builds",
+    "td_calls": "Call ring delivery (24 h)", "td_calls_none": "No calls in the last 24 hours",
+    "td_calls_target": "goal", "td_calls_tries": "calls",
+    "td_5xx": "Server errors (5xx, 24 h)", "td_5xx_of": "of", "td_5xx_req": "requests",
+    "td_signups": "New signups (24 h)", "td_crash": "App crash reports (24 h)",
+    "td_crash_fatal": "app closed", "td_crash_groups": "different errors",
+    "td_ci": "CI queue", "td_ci_queued": "waiting", "td_ci_running": "running",
+    "td_na": "Not measured yet", "td_brand_unknown": "Unknown brand",
+    "menu": "Menu", "confirm_destructive": "This cannot be undone. Are you sure?",
+})
+BN.update({
+    "td_h": "আজ", "td_note": "শুধু সংখ্যা — কারও নাম, নম্বর বা মেসেজ নেই। কয়েক মিনিট পরপর নতুন হয়।",
+    "td_build": "নতুন বিল্ডে কত ফোন", "td_build_sub": "গত ৩০ দিনে দেখা ফোন",
+    "td_build_of": "এর মধ্যে", "td_build_top": "সবচেয়ে বেশি চলা বিল্ড",
+    "td_calls": "কলের রিং পৌঁছানো (২৪ ঘণ্টা)", "td_calls_none": "গত ২৪ ঘণ্টায় কোনো কল হয়নি",
+    "td_calls_target": "লক্ষ্য", "td_calls_tries": "কল",
+    "td_5xx": "সার্ভারের ভুল (৫xx, ২৪ ঘণ্টা)", "td_5xx_of": "মোট", "td_5xx_req": "রিকোয়েস্টের মধ্যে",
+    "td_signups": "নতুন সাইনআপ (২৪ ঘণ্টা)", "td_crash": "অ্যাপ ক্র্যাশ রিপোর্ট (২৪ ঘণ্টা)",
+    "td_crash_fatal": "অ্যাপ বন্ধ হয়েছে", "td_crash_groups": "আলাদা ভুল",
+    "td_ci": "CI লাইন", "td_ci_queued": "অপেক্ষায়", "td_ci_running": "চলছে",
+    "td_na": "এখনো মাপা হয়নি", "td_brand_unknown": "অজানা ব্র্যান্ড",
+    "menu": "মেনু", "confirm_destructive": "এটি আর ফেরানো যাবে না। আপনি কি নিশ্চিত?",
+})
+# ---- /owneradmin ----

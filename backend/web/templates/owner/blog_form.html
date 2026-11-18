@@ -27,7 +27,7 @@
 </form>
 {% if preview %}<section class="card"><h2>{{ L.preview }}</h2><div class="blogpv">{{ preview|safe }}</div></section>{% endif %}
 {% if post %}
-<form method="post" action="/owner/blog/{{ post.id }}/delete" class="card danger">
+<form method="post" action="/owner/blog/{{ post.id }}/delete" class="card danger" data-confirm="{{ T.confirm_destructive }}">
   {% include "owner/_csrf.html" %}
   <label class="check"><input type="checkbox" name="confirm"> {{ L.confirm }}</label>
   <button class="btn danger">{{ L.delete }}</button>

@@ -24,7 +24,7 @@
     <td class="num">{{ p.calls }}</td>
     <td>{% if p.last_health_at %}{% if p.last_health_ok %}✓{% else %}<span class="neg">✗</span>{% endif %} <small class="mut">{{ p.last_health_at|date:"m-d H:i" }}</small>{% else %}<span class="mut">{{ T.ai_never }}</span>{% endif %}</td>
     <td>{% if p.last_error %}<span class="neg">{{ p.last_error }}</span> <small class="mut">{{ p.last_failure_at|date:"m-d H:i" }}</small>{% else %}—{% endif %}</td>
-    <td>{% if p.state != 'closed' %}<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset"><input type="hidden" name="slug" value="{{ p.slug }}"><button class="btn">{{ T.ai_reset }}</button></form>{% endif %}</td>
+    <td>{% if p.state != 'closed' %}<form method="post" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset"><input type="hidden" name="slug" value="{{ p.slug }}"><button class="btn">{{ T.ai_reset }}</button></form>{% endif %}</td>
   </tr>{% endfor %}
   </tbody></table></div>
   <p class="small">{{ T.ai_circuit_note }}</p>

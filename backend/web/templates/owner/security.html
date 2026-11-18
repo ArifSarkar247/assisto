@@ -11,7 +11,7 @@
 <div class="tbl"><table><thead><tr><th>{{ T.started }}</th><th>{{ T.last_seen }}</th><th>IP</th><th>{{ T.device }}</th></tr></thead><tbody>
 {% for s in sessions %}<tr><td>{{ s.created_at|date:"Y-m-d H:i" }}{% if s.id == current_id %} <span class="pill ok">{{ T.this_session }}</span>{% endif %}</td><td>{{ s.last_seen|date:"Y-m-d H:i" }}</td><td>{{ s.ip }}</td><td class="small">{{ s.ua|truncatechars:60 }}</td></tr>{% endfor %}
 </tbody></table></div>
-<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke_others"><button class="btn ghost">{{ T.revoke_others }}</button></form>
+<form method="post" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke_others"><button class="btn ghost">{{ T.revoke_others }}</button></form>
 </section>
 <div class="cols">
 <form method="post" class="card">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="new_codes">
@@ -19,7 +19,7 @@
   <label>{{ T.code }}<input name="code" inputmode="numeric" maxlength="6" required autocomplete="one-time-code"></label>
   <button class="btn primary">{{ T.generate }}</button>
 </form>
-<form method="post" class="card danger">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset_2fa">
+<form method="post" class="card danger" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reset_2fa">
   <h2>{{ T.reset_2fa }}</h2><p class="mut small">{{ T.reset_2fa_note }}</p>
   <label>{{ T.password }}<input name="password" type="password" required autocomplete="current-password"></label>
   <label>{{ T.code_or_recovery }}<input name="code" maxlength="12" required autocomplete="one-time-code"></label>

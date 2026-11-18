@@ -27,7 +27,7 @@
 <input name="lat" value="{{ p.e.lat }}" size="9" aria-label="lat"><input name="lon" value="{{ p.e.lon }}" size="9" aria-label="lon">
 <button class="btn primary" name="action" value="save">{{ T.nby_save }}</button>
 {% if p.hidden %}<button class="btn ghost" name="action" value="show">{{ T.nby_show }}</button>{% else %}<button class="btn ghost" name="action" value="hide">{{ T.nby_hide }}</button>{% endif %}
-{% if p.edited_at %}<button class="btn ghost" name="action" value="reset">{{ T.nby_reset }}</button>{% endif %}
+{% if p.edited_at %}<button class="btn ghost" name="action" value="reset" data-confirm="{{ T.confirm_destructive }}">{{ T.nby_reset }}</button>{% endif %}
 {% if p.source == 'biz' and p.sponsored_until %}<button class="btn ghost" name="action" value="sponsor_off">{{ T.nby_sponsor_off }}</button>{% endif %}
 </form>{% if p.edited_at %}<div class="small mut">{{ T.nby_edited }} {{ p.edited_at|date:"Y-m-d H:i" }} · OSM: {{ p.name|default:"—" }} / {{ p.name_en|default:"—" }} / {{ p.phone|default:"—" }}</div>{% endif %}</td>
 <td>{{ p.source }}{% if p.src_id %} <a href="https://www.openstreetmap.org/{% if p.src_id.0 == 'n' %}node{% elif p.src_id.0 == 'w' %}way{% else %}relation{% endif %}/{{ p.src_id|slice:'1:' }}" target="_blank" rel="noopener noreferrer">{{ p.src_id }}</a>{% endif %}<div class="small">{{ p.refreshed_at|date:"Y-m-d" }}</div>{% if p.sponsored_until %}<div class="small">Sponsored → {{ p.sponsored_until|date:"Y-m-d" }}</div>{% endif %}</td>

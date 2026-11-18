@@ -11,7 +11,7 @@
 <td>{{ r.proposed }}</td>
 <td><form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="partner" value="{{ r.id }}"><input name="reason" placeholder="{{ L.reason }}" maxlength="200" required size="14">
 {% if r.status != 'approved' %}<button class="btn" name="action" value="approve">{{ L.approve }}</button>{% endif %}
-{% if r.status != 'suspended' %}<button class="btn ghost" name="action" value="suspend">{{ L.suspend }}</button>{% endif %}</form></td></tr>{% endfor %}
+{% if r.status != 'suspended' %}<button class="btn ghost" name="action" value="suspend" data-confirm="{{ T.confirm_destructive }}">{{ L.suspend }}</button>{% endif %}</form></td></tr>{% endfor %}
 </tbody></table></div>
 <p class="small">{{ L.total }}: <b>{{ total }}</b></p>
 {% else %}<p class="empty">{{ L.none }}</p>{% endif %}

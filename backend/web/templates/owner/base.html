@@ -14,7 +14,8 @@
 {% block shell %}
 <aside class="side" id="side">
   <div class="brand"><span class="logo">A</span><div><b>Assisto</b><small>{{ T.panel }}</small></div></div>
-  <nav>
+  <button class="navtoggle" type="button" id="navtoggle" aria-expanded="false" aria-controls="side-nav">{{ T.menu }}</button>
+  <nav id="side-nav">
     {% if role == "owner" %}
     <a href="/owner/" class="{% if nav == 'home' %}on{% endif %}">{{ T.nav_home }}</a>
     <a href="/owner/discover" class="{% if nav == 'discover' %}on{% endif %}">{{ T.nav_discover }}</a>

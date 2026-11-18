@@ -16,7 +16,7 @@
 <section class="card"><h2>{{ T.fm_members }}</h2>
 {% if members %}<div class="tbl"><table><thead><tr><th>ID</th><th>{{ T.name }}</th><th>{{ T.phone }}</th><th>{{ T.fm_since }}</th><th>{{ T.fm_premium_until }}</th><th>{{ T.plan }}</th><th>{{ T.fm_revoke }}</th></tr></thead><tbody>
 {% for r in members %}<tr><td><a href="/owner/users/{{ r.u.id }}">#{{ r.u.id }}</a></td><td>{{ r.u.name|default:"—" }} <span class="pill fm">{{ T.fm_badge }}</span></td><td>{{ r.u.phone|default:r.u.username }}</td><td>{% if r.lifetime %}{{ T.fm_lifetime }}{% else %}{{ r.u.founder_since|date:"Y-m-d" }}{% endif %}</td><td>{% if r.lifetime %}—{% else %}{{ r.u.founder_until|date:"Y-m-d" }}{% endif %}</td><td>{{ r.eff }}</td>
-<td><form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke"><input type="hidden" name="uid" value="{{ r.u.id }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.fm_revoke }}</button></form></td></tr>{% endfor %}
+<td><form method="post" class="row" data-confirm="{{ T.confirm_destructive }}">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="revoke"><input type="hidden" name="uid" value="{{ r.u.id }}"><input name="reason" required maxlength="200" placeholder="{{ T.reason }}" class="grow"><button class="btn danger small">{{ T.fm_revoke }}</button></form></td></tr>{% endfor %}
 </tbody></table></div>
 <p class="mut small">{{ T.fm_revoke_note }}</p>
 {% else %}<p class="empty">{{ T.fm_none }}</p>{% endif %}
