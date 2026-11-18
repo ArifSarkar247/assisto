@@ -19,7 +19,7 @@ void main() {
     expect(ReminderFreshness.isReminderChange(const {}), isFalse);
   });
 
-  test('resume is throttled (60 s); a push forces a sync', () async {
+  test('resume is throttled (30 s); a push forces a sync', () async {
     var now = DateTime(2026, 11, 18, 9);
     var n = 0;
     final f = ReminderFreshness(sync: () async => n++, clock: () => now);
@@ -27,7 +27,7 @@ void main() {
     now = now.add(const Duration(seconds: 20));
     expect(await f.kick(), isFalse, reason: 'resume 20 s later: no second GET');
     expect(await f.kick(force: true), isTrue, reason: 'a reminder push always syncs');
-    now = now.add(const Duration(seconds: 61));
+    now = now.add(const Duration(seconds: 31));
     expect(await f.kick(), isTrue);
     expect(n, 3);
   });

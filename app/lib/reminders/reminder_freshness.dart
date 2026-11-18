@@ -21,7 +21,7 @@ class ReminderFreshness {
   ReminderFreshness({
     required this.sync,
     DateTime Function()? clock,
-    this.minGap = const Duration(seconds: 60),
+    this.minGap = const Duration(seconds: 30),
     this.period = const Duration(minutes: 10),
   }) : _clock = clock ?? DateTime.now;
 

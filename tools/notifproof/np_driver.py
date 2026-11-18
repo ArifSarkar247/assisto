@@ -1036,12 +1036,13 @@ def case_alarm_made_while_open(A, Ah, Bu, B, tokens):
         if c.check("backend pushed it to A's phone", m is not None, ""):
             ex, out = deliver(m)
             c.r["broadcast"] = out
+            t_open = time.time()   # the push sync starts the resume throttle
         a1, _ = wait_alarm_at(due1, timeout=60)
         c.r["alarm1"] = a1
         c.check("A's phone alarm for the task was set WHILE the app stayed open (no restart)",
                 a1 is not None and pid() == p0, (a1, pid(), p0))
-    # the resume sync is throttled to one per 60 s (the push above synced)
-    time.sleep(max(0, t_open + 70 - time.time()))
+    # the resume sync is throttled to one per 30 s (the push above synced)
+    time.sleep(max(0, t_open + 40 - time.time()))
     st, j = Ah.req("POST", "/reminders/", {"title": t2, "due_at": _iso(due2)})
     c.check("a reminder made on the server (e.g. AI chat on another device / website)", st in (200, 201), (st, j))
     sh("input keyevent KEYCODE_HOME")
