@@ -371,7 +371,11 @@
   "@gcvTuyaAccessId": {
    "description": "gap-cctv: Tuya / Smart Life own-project Access ID field"
   },
-  "gcvTuyaAccessSecret": "Access Secret"
+  "gcvTuyaAccessSecret": "Access Secret",
+  "gcvPhoneHint": "01XXXXXXXXX",
+  "@gcvPhoneHint": {
+   "description": "gap-cctv: phone number hint (Bangla digits in Bangla)"
+  }
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -459,6 +463,7 @@
   "gcvPlPeople": "{count, plural, other{{n} জন}}",
   "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}",
   "gcvTuyaAccessId": "অ্যাক্সেস আইডি (আপনার Tuya ডেভেলপার প্রজেক্ট থেকে)",
-  "gcvTuyaAccessSecret": "অ্যাক্সেস সিক্রেট"
+  "gcvTuyaAccessSecret": "অ্যাক্সেস সিক্রেট",
+  "gcvPhoneHint": "০১XXXXXXXXX"
  }
 }

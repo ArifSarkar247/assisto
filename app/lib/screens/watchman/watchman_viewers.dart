@@ -163,7 +163,7 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
                 controller: _phone,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                    labelText: t.wmFamilyPhone, hintText: '01XXXXXXXXX', border: const OutlineInputBorder()),
+                    labelText: t.wmFamilyPhone, hintText: t.gcvPhoneHint, border: const OutlineInputBorder()),
               ),
               if (_addError != null) ...[
                 const SizedBox(height: 8),
