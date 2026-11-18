@@ -110,10 +110,11 @@ class _SjDuringPanelState extends State<SjDuringPanel> with WidgetsBindingObserv
     } catch (_) {
       // best-effort: the "also watching" list is extra
     }
-    _react();
+    if (mounted) _react(); // sosfam-crm-proof: the journey screen may close meanwhile
   }
 
   void _react() {
+    if (!mounted) return; // reality 44220546983: context after unmount
     final ask = _d['ask'];
     if (ask is Map && !_askOpen && _shownAsk != '${ask['id']}') {
       _shownAsk = '${ask['id']}';
