@@ -35,6 +35,10 @@ _MSG = {
                       "Please make the text shorter (up to {n} characters)."),
     "bad_time": ("সময় বেছে নিন।", "Pick a time."),
     "bad_repeat": ("কতবার বাজবে বেছে নিন।", "Pick how often it repeats."),
+    # gap-carecall: a one-time call whose date + time already passed
+    "past_time": ("এই তারিখ আর সময় পেরিয়ে গেছে। সামনের একটা সময় বা তারিখ বেছে নিন।",
+                  "That date and time have already passed. Pick a time or date ahead."),
+    "bad_date": ("এক বছরের মধ্যে একটা তারিখ বেছে নিন।", "Pick a date within one year."),
     "bad_days": ("অন্তত একটা দিন বেছে নিন।", "Pick at least one day."),
     "bad_voice": ("রেকর্ডটা পড়া গেল না। আবার রেকর্ড করুন।", "The recording could not be read. Please record again."),
     "voice_too_long": ("রেকর্ড সর্বোচ্চ {n} সেকেন্ড।", "The recording can be up to {n} seconds."),

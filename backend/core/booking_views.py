@@ -638,6 +638,9 @@ class PublicBookView(APIView):
         except S.BookingError as e:
             return err(lang, e.code, e.status)
         d = S.booking_dict(b, lang, for_business=False)
+        if raw is None:              # bizassist B2: a retry of the same booking
+            d["already_booked"] = True
+            return Response(d, status=200)
         d["manage_token"] = raw
         return Response(d, status=201)
 

@@ -52,6 +52,11 @@ def taka_to_poisha(v):
         cents = int(round(abs(v) * 100 + 1e-9))
         return -cents if neg else cents
     s = str(v).strip()
+    # proof-ledger: "Tk. 500" kept its dot (".500" = 50 poisha) and "500/-"
+    # was junk; currency words (any case, with a dot) and the "/-" "/="
+    # endings go first.
+    import re
+    s = re.sub("(?i)(bdt|taka|tk)\\.?|\u099F\u09BE\u0995\u09BE|/[-=]\\s*$", "", s).strip()
     # strip currency symbol, commas, spaces
     for ch in ("৳", "Tk", "tk", "TK", ",", " "):
         s = s.replace(ch, "")
