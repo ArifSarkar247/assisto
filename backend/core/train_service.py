@@ -117,7 +117,8 @@ def save_checked(nos, actor=None):
 
 
 def train_summary(t, checked=None):
-    return {"no": t["no"], "name_bn": t["name_bn"], "from": _st(t["from"]),
+    return {"no": t["no"], "name_bn": t["name_bn"], "name_en": t.get("name_en") or "",
+            "from": _st(t["from"]),
             "to": _st(t["to"]), "dep": t["dep"], "arr": t["arr"],
             "off_days": t.get("off_days") or [], "km": t.get("km"),
             # flagprep: the owner's per-train tick (Owner Admin -> Train schedule)
@@ -130,12 +131,17 @@ def _verified():
     return schedule_verified()
 
 
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
 def search(q):
-    q = str(q or "").strip().lower()
+    # train-e2e: "৭৭১" (Bangla digits) and the English name ("Rangpur
+    # Express") found nothing before
+    q = str(q or "").strip().lower().translate(_BN_DIGITS)
     out = []
     checked = checked_nos()
     for t in TG.timetable()["trains"]:
-        names = [t["no"], t["name_bn"].lower()]
+        names = [t["no"].lower(), t["name_bn"].lower(), str(t.get("name_en") or "").lower()]
         for s in t["stops"]:
             st = TG.stations().get(s["st"]) or {}
             names += [st.get("bn", "").lower(), st.get("en", "").lower()]

@@ -38,7 +38,10 @@ import 'train_v2_widgets.dart'; // train-app
 String trainHm(String iso) {
   final d = DateTime.tryParse(iso);
   if (d == null) return '';
-  final l = d.toLocal();
+  // train-e2e: Bangladesh trains run on Dhaka time (UTC+6, no DST) — the
+  // phone's own zone showed 08:02 for a 14:02 train on a phone set to UTC
+  // (family abroad watching a relative's train saw wrong times)
+  final l = d.toUtc().add(const Duration(hours: 6));
   return '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
 }
 
@@ -114,7 +117,7 @@ class TrainTrackerScreen extends StatelessWidget {
                 context, MaterialPageRoute(builder: (_) => const TrainPasteScreen())),
           ),
           const SizedBox(height: Gap.md),
-          Text(t.trDataNote2, style: AType.bodySmall),
+          Text(t.tr2DataNoteOfficial, style: AType.bodySmall), // train-e2e: was 'Wikipedia'
         ],
         // adcontrol (owner 10 Nov): one rewarded ad to see a train live,
         // then free for 15 min (owner-editable); never blocks (no ad -> open)
@@ -149,6 +152,7 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
   final _q = TextEditingController();
   Timer? _deb;
   bool _loading = true, _failed = false;
+  bool _offline = false; // train-e2e: rows from the phone's offline pack
   List<Map<String, dynamic>> _trains = const [];
   int _day = 0; // -1 yesterday, 0 today, 1 tomorrow
 
@@ -176,12 +180,19 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
       setState(() {
         _trains = [for (final t in (r['trains'] as List? ?? const [])) Map<String, dynamic>.from(t as Map)];
         _loading = false;
+        _offline = false;
       });
     } catch (_) {
+      // train-e2e: no internet -> the same list from the offline pack
+      // (the train page then shows the tower / timetable estimate)
+      final p = await TrainOfflineStore.I.load();
       if (!mounted) return;
+      final rows = p == null ? <Map<String, dynamic>>[] : trainOfflineSearch(p, _q.text);
       setState(() {
         _loading = false;
-        _failed = true;
+        _offline = rows.isNotEmpty;
+        _trains = rows;
+        _failed = rows.isEmpty;
       });
     }
   }
@@ -259,7 +270,15 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
         ),
       ];
     }
-    return [for (final tr in _trains) _card(t, bn, tr)];
+    return [
+      if (_offline)
+        Padding(
+          key: const ValueKey('tr2_list_offline'),
+          padding: const EdgeInsets.only(bottom: Gap.sm),
+          child: DsOfflineStrip(label: t.tr2OfflineStrip, retryLabel: t.trRetry, onRetry: _load),
+        ),
+      for (final tr in _trains) _card(t, bn, tr),
+    ];
   }
 
   Widget _card(AppLocalizations t, bool bn, Map<String, dynamic> tr) {
@@ -271,7 +290,7 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(d('${tr['no']} · ${tr['name_bn']}'), style: AType.titleMedium),
+            Text(d('${tr['no']} · ${trainNameOf(tr, bn)}'), style: AType.titleMedium),
             const SizedBox(height: Gap.xxs),
             Text(route, style: AType.bodyMedium),
             Text(d(t.trDepArr('${tr['dep']}', '${tr['arr']}')), style: AType.bodySmall),
@@ -509,6 +528,16 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         _ => t.tr2CheckinRejected,
       };
       unawaited(_load(quiet: true));
+    } on ApiException catch (e) {
+      // train-e2e: the server ANSWERED "no" (wrong station, too many
+      // reports) — say so; before, it was "saved, sent later" and then
+      // silently dropped by the outbox
+      if ((e.status ?? 500) >= 500) {
+        await TrainOutbox.I.add(TrainOutItem('checkin', widget.no, body));
+        msg = t.tr2Queued;
+      } else {
+        msg = t.tr2ReportNotTaken;
+      }
     } catch (_) {
       await TrainOutbox.I.add(TrainOutItem('checkin', widget.no, body));
       msg = t.tr2Queued;
@@ -699,7 +728,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         // ---- header
         Semantics(
           header: true,
-          child: Text(_d('${tr['name_bn']} · ${tr['no']}'),
+          child: Text(_d('${trainNameOf(tr, bn)} · ${tr['no']}'),
               key: const ValueKey('sjt_header'), style: AType.titleLarge),
         ),
         const SizedBox(height: Gap.xxs),

@@ -57,7 +57,10 @@ String trainLineName(Map? s, bool bn) {
 String _hm(String iso) {
   final d = DateTime.tryParse(iso);
   if (d == null) return '';
-  final l = d.toLocal();
+  // train-e2e: Bangladesh trains run on Dhaka time (UTC+6, no DST) — the
+  // phone's own zone showed 08:02 for a 14:02 train on a phone set to UTC
+  // (family abroad watching a relative's train saw wrong times)
+  final l = d.toUtc().add(const Duration(hours: 6));
   return '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
 }
 

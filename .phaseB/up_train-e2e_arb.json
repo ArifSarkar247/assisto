@@ -1,0 +1,16 @@
+{
+ "en": {
+  "tr2ReportNotTaken": "Not counted — please try again later",
+  "@tr2ReportNotTaken": {
+   "description": "train-e2e: the server refused a station report or a shared train text (too many reports, wrong station); shown instead of 'saved, sent later'"
+  },
+  "tr2DataNoteOfficial": "Times: Bangladesh Railway official timetable (railway.gov.bd) — approximate until checked. Map © OpenStreetMap contributors (ODbL). Free to use.",
+  "@tr2DataNoteOfficial": {
+   "description": "train-e2e: data note under the train list (replaces trDataNote2, which still named Wikipedia as the source)"
+  }
+ },
+ "bn": {
+  "tr2ReportNotTaken": "গণনা হয়নি — একটু পরে আবার চেষ্টা করুন",
+  "tr2DataNoteOfficial": "সময়: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি (railway.gov.bd) — যাচাই না হওয়া পর্যন্ত আনুমানিক। ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।"
+ }
+}

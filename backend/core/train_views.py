@@ -102,7 +102,28 @@ class LiveView(APIView):
         except Exception:   # noqa: BLE001 — the v1 view must never break
             import logging
             logging.getLogger(__name__).exception("train-engine enrich failed")
-        return R(view)
+        return _gz(request, view)
+
+
+def _gz(request, body):
+    """train-e2e (2G): the app polls this view every 30 s and it carries the
+    whole station line + the route path (~20-30 KB of JSON). Compressed when
+    the phone accepts gzip (Dart's HttpClient always does) — ~5x smaller."""
+    import gzip
+    import json
+
+    from django.http import HttpResponse
+    from rest_framework.utils.encoders import JSONEncoder   # same output as R(view)
+    raw = json.dumps(body, separators=(",", ":"), ensure_ascii=False,
+                     cls=JSONEncoder).encode()
+    if "gzip" in (request.META.get("HTTP_ACCEPT_ENCODING") or "") and len(raw) > 1024:
+        resp = HttpResponse(gzip.compress(raw, 6), content_type="application/json")
+        resp["Content-Encoding"] = "gzip"
+    else:
+        resp = HttpResponse(raw, content_type="application/json")
+    resp["Vary"] = "Accept-Encoding"
+    resp["Cache-Control"] = "private, no-cache"
+    return resp
 
 
 class SeatView(APIView):

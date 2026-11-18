@@ -53,3 +53,7 @@ if os.getenv("E2E_REAL_FCM") == "1":
 # settings_test switches the timer off for unit tests; without it here the
 # grab waited for the next phone check-in (no cron runs in the CI runner).
 ANTITHEFT_ESCALATE_TIMER = True
+
+# train-e2e: the Train Tracker E2E (train-e2e.yml) runs a real Redis service
+# for the live state (`train:live:<no>`); every other e2e keeps the cache.
+TRAIN_LIVE_REDIS_URL = os.getenv("TRAIN_LIVE_REDIS_URL", "")
