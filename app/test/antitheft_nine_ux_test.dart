@@ -98,6 +98,8 @@ void main() {
         expect(btn.height, greaterThanOrEqualTo(48));
         expect(tester.takeException(), isNull); // no overflow at 200%
         // the button explains WHY first (Play disclosure), never a dead end
+        await tester.ensureVisible(find.byKey(const Key('at9-admin-on')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('at9-admin-on')));
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('at100-disc-admin')), findsOneWidget);
