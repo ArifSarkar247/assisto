@@ -213,6 +213,22 @@ PERMISSIONS = [
                    "Android Settings → Apps → Special app access → Do Not Disturb access → Assisto."),
     },
     {
+        "id": "fgs_screen_share",   # circle-screenshare (website APK; the Play build strips it until declared)
+        "perm": "FOREGROUND_SERVICE_MEDIA_PROJECTION",
+        "name": ("স্ক্রিন শেয়ার (ভিডিও কলে)", "Screen sharing (in a video call)"),
+        "why": ("My Circle ভিডিও কলে আপনি \"স্ক্রিন শেয়ার\" চাপলে আপনার স্ক্রিন অন্যজনকে দেখানোর জন্য — যেমন বয়স্ক মা-বাবাকে "
+                "কোথায় চাপতে হবে দেখাতে। শেয়ার চলার সময় সবসময় একটি নোটিফিকেশন দেখা যায়, সেখান থেকেই বন্ধ করা যায়।",
+                "Showing your screen to the other person when you tap \"Share screen\" in a My Circle video call — "
+                "for example to show an elderly parent where to tap. While sharing, a notification is always visible, "
+                "with a Stop button."),
+        "when": ("শুধু চলমান ভিডিও কলে আপনি নিজে চাপলে; আগে Assisto জানায় অন্যজন কী দেখবেন (নোটিফিকেশনসহ পুরো স্ক্রিন), "
+                 "তারপর Android-এর নিজের অনুমতির বার্তা আসে।",
+                 "Only when you tap it yourself during a live video call; Assisto first says what the other person "
+                 "will see (the whole screen, including notifications), then Android shows its own consent dialog."),
+        "revoke": ("শেয়ার বন্ধ করতে নোটিফিকেশন বা কলের \"শেয়ার থামান\" চাপুন; কল শেষ হলে নিজে থেকেই থামে।",
+                   "Tap Stop in the notification or the call screen; it also stops when the call ends."),
+    },
+    {
         "id": "fgs",
         "perm": "FOREGROUND_SERVICE, FOREGROUND_SERVICE_MICROPHONE, FOREGROUND_SERVICE_LOCATION",
         "name": ("ফোরগ্রাউন্ড সার্ভিস (মাইক্রোফোন, লোকেশন)", "Foreground service (microphone, location)"),
