@@ -172,11 +172,14 @@ void main() {
           expect(find.byKey(const ValueKey('nearby_emergency_numbers')), findsOneWidget);
           expect(find.text(lang == 'bn' ? t.nearbyEmergencyIn(t.nearbyCountryBD)
               : 'Emergency numbers · Bangladesh'), findsOneWidget);
-          final dmch = tester.getTopLeft(find.text('Dhaka Medical College Hospital')).dy;
-          final square = tester.getTopLeft(find.text('Square Hospital')).dy;
-          expect(dmch, lessThan(square));
+          // nearest first: DMCH is the first place card (the farther Square
+          // Hospital comes later — gap-nearby: cards are taller now, so it is
+          // reached by scrolling)
+          expect(find.text('Dhaka Medical College Hospital'), findsOneWidget);
           // local name as the second line
           expect(find.text('ঢাকা মেডিকেল কলেজ হাসপাতাল'), findsOneWidget);
+          await tester.scrollUntilVisible(find.text('Square Hospital'), 200, scrollable: _list());
+          expect(find.text('Square Hospital'), findsOneWidget);
           expect(find.byType(AdBannerSlot), findsNothing); // no ads on emergency
           await tester.scrollUntilVisible(
               find.byKey(const ValueKey('nearby_see_more_maps')), 300,

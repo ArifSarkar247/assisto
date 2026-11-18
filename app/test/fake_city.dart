@@ -168,14 +168,21 @@ Map<String, dynamic> fakeCityMetro() => {
         'text_bn': 'এমআরটি পাস / র‍্যাপিড পাস: প্রতিটি স্টেশনের টিকিট অফিস বা ভেন্ডিং মেশিনে কেনা ও রিচার্জ করা যায় (নগদ)।',
       },
       'stations': [
-        {..._utn, 'code': 'UTN', 'gates': 2},
-        {..._m10, 'code': 'M10', 'gates': 4},
-        {..._far, 'code': 'FAR', 'gates': 3},
-        {..._mot, 'code': 'MOT', 'gates': 2},
+        // gap-nearby: km along the line (station-to-station fare)
+        {..._utn, 'code': 'UTN', 'gates': 2, 'km': 0.0},
+        {..._m10, 'code': 'M10', 'gates': 4, 'km': 6.6},
+        {..._far, 'code': 'FAR', 'gates': 3, 'km': 11.4},
+        {..._mot, 'code': 'MOT', 'gates': 2, 'km': 20.1},
       ],
       'fare': {
         'per_km': 5.0, 'min': 20, 'max': 100, 'card_discount_pct': 10, 'label': 'official', 'checked': _checked,
         'source': 'DTCA metro fare chart (Tk 5/km, min Tk 20, max Tk 100)', 'source_url': 'https://dmtc.org.bd/',
+        // gap-nearby: official pairs (backend fares.py METRO_CHART)
+        'chart': [
+          {'a': 'MOT', 'b': 'UTN', 'tk': 100},
+          {'a': 'FAR', 'b': 'UTN', 'tk': 70},
+          {'a': 'FAR', 'b': 'MOT', 'tk': 40},
+        ],
       },
     };
 

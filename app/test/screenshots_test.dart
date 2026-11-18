@@ -52,6 +52,7 @@ import 'bubbles2_shots.dart'; // bubbles2
 import 'at100_shots.dart'; // at100
 import 'city_shots.dart'; // cityapp
 import 'city_map_shots.dart'; // mapapp
+import 'gap_nearby_shots.dart'; // gap-nearby
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'gap_aichat_shots.dart'; // gap-aichat
@@ -1586,6 +1587,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // cityapp: City Service (route options, steps, metro guide, around me, live, women, offices)
     for (final e in cityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in gapNearbyShots.entries) e.key: (build: e.value, mode: FakeMode.fail, full: true), // gap-nearby
     for (final e in cityEmptyShots.entries) e.key: (build: e.value, mode: FakeMode.empty, full: true),
     // mapapp: City map (Badda, Motijheel, Mirpur routes, airport, Google view, trip card)
     for (final e in cityMapShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

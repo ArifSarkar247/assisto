@@ -24,36 +24,7 @@ class NearbyCategoryBar extends StatelessWidget {
     required this.onToggleFavView,
   });
 
-  String _label(AppLocalizations t, NearbyCat c) {
-    switch (c) {
-      case NearbyCat.hospital:
-        return t.nearbyCatHospital;
-      case NearbyCat.pharmacy:
-        return t.nearbyCatPharmacy;
-      case NearbyCat.atmBank:
-        return t.nearbyCatAtm;
-      case NearbyCat.police:
-        return t.nearbyCatPolice;
-      case NearbyCat.fire:
-        return t.nearbyCatFire;
-      case NearbyCat.transport:
-        return t.nearbyCatTransport;
-      case NearbyCat.fuel:
-        return t.nearbyCatFuel;
-      case NearbyCat.restaurant:
-        return t.nearbyCatRestaurant;
-      case NearbyCat.mosque:
-        return t.nearbyCatMosque;
-      case NearbyCat.govt:
-        return t.nearbyCatGovt;
-      case NearbyCat.clinic:
-        return t.nearbyCatClinic;
-      case NearbyCat.ambulance:
-        return t.nearbyCatAmbulance;
-      case NearbyCat.shop:
-        return t.nearbyCatShop;
-    }
-  }
+  String _label(AppLocalizations t, NearbyCat c) => nearbyCatLabel(t, c);
 
   @override
   Widget build(BuildContext context) {
@@ -100,5 +71,37 @@ class NearbyCategoryBar extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// The category's name (chips; gap-nearby: the unnamed-place title too).
+String nearbyCatLabel(AppLocalizations t, NearbyCat c) {
+  switch (c) {
+    case NearbyCat.hospital:
+      return t.nearbyCatHospital;
+    case NearbyCat.pharmacy:
+      return t.nearbyCatPharmacy;
+    case NearbyCat.atmBank:
+      return t.nearbyCatAtm;
+    case NearbyCat.police:
+      return t.nearbyCatPolice;
+    case NearbyCat.fire:
+      return t.nearbyCatFire;
+    case NearbyCat.transport:
+      return t.nearbyCatTransport;
+    case NearbyCat.fuel:
+      return t.nearbyCatFuel;
+    case NearbyCat.restaurant:
+      return t.nearbyCatRestaurant;
+    case NearbyCat.mosque:
+      return t.nearbyCatMosque;
+    case NearbyCat.govt:
+      return t.nearbyCatGovt;
+    case NearbyCat.clinic:
+      return t.nearbyCatClinic;
+    case NearbyCat.ambulance:
+      return t.nearbyCatAmbulance;
+    case NearbyCat.shop:
+      return t.nearbyCatShop;
   }
 }

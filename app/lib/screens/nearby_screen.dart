@@ -17,6 +17,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../widgets/local_counter.dart';
+import '../widgets/local_digits.dart' show toLocalDigits;
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/nearby_data.dart';
@@ -60,6 +61,11 @@ class NearbyScreen extends StatefulWidget {
   /// Test-only: the SIM / network country.
   @visibleForTesting
   final PhoneCountry? debugPhoneCountry;
+
+  /// gap-nearby: how many times this app asked the server for the area list
+  /// (the emulator proof reads it: pull-to-refresh must really refetch).
+  @visibleForTesting
+  static int areaRequests = 0;
 
   const NearbyScreen(
       {super.key,
@@ -192,40 +198,60 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   /// Saved area first (works offline), then ask the server with its token.
-  Future<void> _loadArea() async {
+  /// Returns true when the server answered (new list or "still current").
+  /// [manual] = pull-to-refresh: the list on screen stays while it asks.
+  Future<bool> _loadArea({bool manual = false}) async {
     final pos = _pos;
-    if (pos == null) return;
+    if (pos == null) return false;
     setState(() {
       _fetching = true;
       _error = null;
     });
-    EmergencyArea? saved;
-    try {
-      saved = await _cache.lookup(pos.lat, pos.lon);
-    } catch (_) { // best-effort: no offline copy -> the server answer below
-      saved = null;
+    EmergencyArea? saved = manual && _area != null && _area!.contains(pos.lat, pos.lon) ? _area : null;
+    if (saved == null) {
+      try {
+        saved = await _cache.lookup(pos.lat, pos.lon);
+      } catch (_) { // best-effort: no offline copy -> the server answer below
+        saved = null;
+      }
+      if (saved != null && mounted) {
+        setState(() {
+          _area = saved;
+          _offline = true; // until the server confirms
+        });
+      }
     }
-    if (saved != null && mounted) {
-      setState(() {
-        _area = saved;
-        _offline = true; // until the server confirms
-      });
-    }
+    var ok = false;
     try {
+      NearbyScreen.areaRequests++;
       final r = await context
           .read<AppState>()
           .api
           .nearbyArea(pos.lat, pos.lon, v: saved?.version ?? '');
-      if (!mounted) return;
+      if (!mounted) return false;
       if (r['unchanged'] == true && saved != null) {
-        setState(() => _offline = false);
+        final keep = saved;
+        DateTime at;
+        try {
+          at = await _cache.markFresh(keep.key);
+        } catch (_) { // best-effort: the time on screen is still right
+          at = DateTime.now();
+        }
+        if (mounted) {
+          setState(() {
+            _area = keep.withSavedAt(at);
+            _offline = false;
+          });
+        }
+        ok = true;
       } else {
         final a = EmergencyArea.fromServer(r);
         if (a != null) {
           setState(() {
-            _area = a;
+            _area = a.withSavedAt(_cache.clock());
             _offline = false;
           });
+          ok = true;
           try {
             await _cache.put(a);
           } catch (_) { // best-effort: no offline copy this time
@@ -234,10 +260,55 @@ class _NearbyScreenState extends State<NearbyScreen> {
         }
       }
     } catch (e) {
-      if (mounted && _area == null) setState(() => _error = e);
+      if (mounted) {
+        setState(() {
+          if (_area == null) {
+            _error = e;
+          } else {
+            _offline = true; // honest: what is on screen is the saved copy
+          }
+        });
+      }
     } finally {
       if (mounted) setState(() => _fetching = false);
     }
+    return ok;
+  }
+
+  /// gap-nearby: pull-to-refresh — read the position again (the user may
+  /// have moved), then really ask the server; say what happened.
+  Future<void> _refresh() async {
+    if (_pos == null) {
+      await _locate();
+      return;
+    }
+    if (widget.debugLocation == null && !widget.debugLocationDenied) {
+      try {
+        final p = await Geolocator.getCurrentPosition()
+            .timeout(const Duration(seconds: 8));
+        _pos = (lat: p.latitude, lon: p.longitude);
+      } catch (_) {
+        // best-effort: keep the last position; the list is still refreshed
+      }
+    }
+    final ok = await _loadArea(manual: true);
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+          key: ValueKey(ok ? 'nearby_refreshed' : 'nearby_refresh_failed'),
+          content: Text(ok
+              ? t.nearbyRefreshedNow
+              : _area != null
+                  ? t.nearbyRefreshFailedSaved
+                  : t.truthNearbyLoadFailed)));
+  }
+
+  String _when(DateTime d) {
+    final m = MaterialLocalizations.of(context);
+    return toLocalDigits(
+        '${m.formatShortMonthDay(d)}, ${m.formatTimeOfDay(TimeOfDay.fromDateTime(d))}', _bn);
   }
 
   Future<void> _loadSponsored() async {
@@ -447,7 +518,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   child: _showFav
                       ? _favBody(t)
                       : _cat.isEmergency
-                          ? _emergencyBody(t)
+                          // gap-nearby: pull down = really ask the server again
+                          ? RefreshIndicator(
+                              key: const ValueKey('nearby_refresh'),
+                              onRefresh: _refresh,
+                              child: _emergencyBody(t))
                           : _generalBody(t)),
             ]),
     );
@@ -477,7 +552,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     if (_pos == null) {
       // honest: without the user's real position there is nothing true
       // to list — the numbers still work, and Google Maps can search.
-      return ListView(padding: pad, children: [
+      return ListView(padding: pad, physics: const AlwaysScrollableScrollPhysics(), children: [
         ...head,
         StateMessage(
           key: const ValueKey('truth_nearby_no_location'),
@@ -495,10 +570,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
       ]);
     }
     if (_fetching && _area == null) {
-      return ListView(padding: pad, children: [...head, const SkeletonList()]);
+      return ListView(padding: pad, physics: const AlwaysScrollableScrollPhysics(), children: [...head, const SkeletonList()]);
     }
     if (_error != null && _area == null) {
-      return ListView(padding: pad, children: [
+      return ListView(padding: pad, physics: const AlwaysScrollableScrollPhysics(), children: [
         ...head,
         StateMessage(
           key: const ValueKey('truth_nearby_error'),
@@ -517,7 +592,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     }
     final items = _emergencyRows();
     final now = DateTime.now();
-    return ListView(padding: pad, children: [
+    return ListView(padding: pad, physics: const AlwaysScrollableScrollPhysics(), children: [
       ...head,
       // ODbL attribution with the list (shown above it so it is always seen)
       if (items.isNotEmpty && (_area?.attribution ?? '').isNotEmpty)
@@ -536,7 +611,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 size: 18, color: Theme.of(context).colorScheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Expanded(
-                child: Text(t.nearbyOfflineNote,
+                child: Text(
+                    // gap-nearby: say WHEN the saved list is from
+                    _area?.savedAt != null
+                        ? t.nearbyOfflineSavedOn(_when(_area!.savedAt!))
+                        : t.nearbyOfflineNote,
                     key: const ValueKey('nearby_offline_note'),
                     style: AType.bodySmall)),
           ]),

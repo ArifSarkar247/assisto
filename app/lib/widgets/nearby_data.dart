@@ -143,6 +143,9 @@ class NearbyPlace {
   final bool? openNow; // Places open_now; OSM has none (null = unknown)
   final int? serverId; // nearby: row id in Assisto's own list (for reports)
 
+  /// gap-nearby: where the phone number came from ('osm' | 'admin' | '').
+  final String phoneSrc;
+
   const NearbyPlace({
     required this.id,
     required this.cat,
@@ -156,6 +159,7 @@ class NearbyPlace {
     this.closeMin,
     this.openNow,
     this.serverId,
+    this.phoneSrc = '',
   });
 
   /// nearby: one row of the cached area (English name first, local name
@@ -169,6 +173,7 @@ class NearbyPlace {
         lon: a.lon,
         phone: a.phone.isEmpty ? null : a.phone,
         serverId: a.id,
+        phoneSrc: a.phoneSrc,
       );
 
   /// One row of GET /nearby `places`. Returns null for a row without a
@@ -188,6 +193,7 @@ class NearbyPlace {
       phone: phone.isEmpty ? null : phone,
       openNow: m['open_now'] is bool ? m['open_now'] as bool : null,
       serverId: (m['sid'] as num?)?.toInt(),
+      phoneSrc: phone.isEmpty ? '' : '${m['phone_src'] ?? ''}',
     );
   }
 
@@ -199,6 +205,7 @@ class NearbyPlace {
         'lon': lon,
         'phone': phone,
         if (serverId != null) 'sid': serverId,
+        if (phoneSrc.isNotEmpty) 'phone_src': phoneSrc,
       };
 
   /// A saved favourite (stored on the phone as the source gave it).

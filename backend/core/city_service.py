@@ -216,7 +216,7 @@ def package(city, have=""):
     # them again would add those stops / routes twice)
     ov_pkg = {k: v for k, v in ov.items() if k not in APPLIED_KEYS}
     doc = {"v": tok, "city": city, "net": _materialize(nw, raw), "overrides": ov_pkg, "applied": True,
-           "rates": F.rates(ov.get("rates")), "complaint": complaint(ov),
+           "rates": _pkg_rates(ov), "complaint": complaint(ov),
            "attribution": ATTRIBUTION, "copyright_url": COPYRIGHT_URL}
     gz = gzip.compress(json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode(), 6)
     with _lock:
@@ -246,6 +246,34 @@ def station(city, stop_id, lat=None, lon=None):
     return g
 
 
+def metro_chart():
+    """gap-nearby: the official station-pair amounts (fares.METRO_CHART) as a
+    list the app can use online AND offline (station-to-station fare)."""
+    return [{"a": a, "b": b, "tk": tk} for (a, b), tk in F.METRO_CHART.items()]
+
+
+def _pkg_rates(ov):
+    r = F.rates(ov.get("rates"))
+    r["metro"] = dict(r["metro"], chart=metro_chart())
+    return r
+
+
+def _with_metro_km(nw):
+    """Stations in line order + "km" = distance along MRT Line 6 from the first
+    station (the same route km the trip planner charges by)."""
+    out = nw.stations()
+    km = {}
+    for r in nw.routes:
+        if r["mode"] == "metro" and not r["hidden"]:
+            for si, k in zip(r["stops"], r["km"]):
+                km.setdefault(nw.stops[si]["id"], round(float(k), 2))
+            break
+    for p in out:
+        if p["id"] in km:
+            p["km"] = km[p["id"]]
+    return out
+
+
 def metro_info(city="dhaka"):
     got = network(city)
     if got is None:
@@ -255,12 +283,12 @@ def metro_info(city="dhaka"):
     r = nw.rates["metro"]
     return {"line": m.get("line") or {}, "service": m.get("service") or {},
             "recharge": m.get("recharge") or {}, "facilities": m.get("facilities") or {},
-            "stations": nw.stations(),
+            "stations": _with_metro_km(nw),
             "fare": {"per_km": r["per_km"], "min": r["min"], "max": r["max"],
                      "card_discount_pct": r.get("card_discount_pct", 0), "label": r["label"],
                      "checked": r.get("checked"), "source": r.get("source"),
                      "source_url": r.get("source_url"),
-                     "chart": [{"a": a, "b": b, "tk": tk} for (a, b), tk in F.METRO_CHART.items()]}}
+                     "chart": metro_chart()}}
 
 
 # Women (owner item 7). Facts with sources + checked date; the owner can

@@ -27,8 +27,12 @@ class AreaPlace {
   final double lon;
   final String phone;
   final String src;
+
+  /// gap-nearby: where the PHONE NUMBER came from — 'admin' (the owner set or
+  /// checked it), 'osm' (OpenStreetMap), '' = no number. Shown under Call.
+  final String phoneSrc;
   const AreaPlace(this.id, this.cat, this.name, this.nameEn, this.lat, this.lon,
-      this.phone, this.src);
+      this.phone, this.src, [this.phoneSrc = '']);
 
   static AreaPlace? fromRow(Object? r) {
     if (r is! List || r.length < 7) return null;
@@ -36,8 +40,12 @@ class AreaPlace {
     final lon = (r[5] as num?)?.toDouble();
     final id = (r[0] as num?)?.toInt();
     if (lat == null || lon == null || id == null) return null;
-    return AreaPlace(id, '${r[1]}', '${r[2] ?? ''}', '${r[3] ?? ''}', lat, lon,
-        '${r[6] ?? ''}', r.length > 7 ? '${r[7]}' : 'osm');
+    final phone = '${r[6] ?? ''}';
+    final src = r.length > 7 && r[7] != null ? '${r[7]}' : 'osm';
+    // older servers / caches have no phone_src: the number is the place's own
+    final psrc = r.length > 8 && r[8] != null ? '${r[8]}' : (phone.isEmpty ? '' : src);
+    return AreaPlace(id, '${r[1]}', '${r[2] ?? ''}', '${r[3] ?? ''}', lat, lon, phone, src,
+        phone.isEmpty ? '' : psrc);
   }
 
   /// Owner rule: the English name when there is one, else the local name.
@@ -78,6 +86,10 @@ class EmergencyArea {
   final String attribution;
   final String? refreshedAt;
   final List<AreaPlace> places;
+
+  /// gap-nearby: when this phone last got (or re-confirmed) this list from
+  /// the server — shown with the offline note. Null = not from the cache.
+  final DateTime? savedAt;
   const EmergencyArea({
     required this.key,
     required this.lat0,
@@ -89,7 +101,21 @@ class EmergencyArea {
     required this.attribution,
     required this.places,
     this.refreshedAt,
+    this.savedAt,
   });
+
+  EmergencyArea withSavedAt(DateTime? at) => EmergencyArea(
+      key: key,
+      lat0: lat0,
+      lat1: lat1,
+      lon0: lon0,
+      lon1: lon1,
+      version: version,
+      country: country,
+      attribution: attribution,
+      places: places,
+      refreshedAt: refreshedAt,
+      savedAt: at);
 
   bool contains(double lat, double lon) =>
       lat >= lat0 && lat < lat1 && lon >= lon0 && lon < lon1;
@@ -124,7 +150,7 @@ class EmergencyArea {
         'refreshed_at': refreshedAt,
         'rows': [
           for (final p in places)
-            [p.id, p.cat, p.name, p.nameEn, p.lat, p.lon, p.phone, p.src]
+            [p.id, p.cat, p.name, p.nameEn, p.lat, p.lon, p.phone, p.src, p.phoneSrc]
         ],
       };
 }
@@ -248,7 +274,8 @@ class AreaCache {
         if (a == null) continue;
         e['used'] = clock().millisecondsSinceEpoch;
         await _writeIndex(idx);
-        return a;
+        final saved = (e['saved'] as num?)?.toInt() ?? (e['used'] as num?)?.toInt();
+        return a.withSavedAt(saved == null ? null : DateTime.fromMillisecondsSinceEpoch(saved));
       } catch (_) {
         continue;
       }
@@ -271,6 +298,7 @@ class AreaCache {
       'version': a.version,
       'bytes': raw.length,
       'used': clock().millisecondsSinceEpoch,
+      'saved': clock().millisecondsSinceEpoch, // gap-nearby: shown offline
     });
     idx.sort((x, y) => ((y['used'] as num?) ?? 0).compareTo((x['used'] as num?) ?? 0));
     int total() => idx.fold<int>(0, (s, e) => s + ((e['bytes'] as num?)?.toInt() ?? 0));
@@ -283,6 +311,18 @@ class AreaCache {
       await store.delete('area_${gone['key']}');
     }
     await _writeIndex(idx);
+  }
+
+  /// gap-nearby: the server said the saved list is still current — it now
+  /// counts as fresh (the offline note shows this time). Index only.
+  Future<DateTime> markFresh(String key) async {
+    final now = clock();
+    final idx = await _readIndex();
+    for (final e in idx) {
+      if (e['key'] == key) e['saved'] = now.millisecondsSinceEpoch;
+    }
+    await _writeIndex(idx);
+    return now;
   }
 
   /// Keys currently saved (most recent first) — for tests / diagnostics.

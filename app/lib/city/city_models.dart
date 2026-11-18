@@ -489,11 +489,16 @@ class CityStation {
   final String id, code, name, nameBn;
   final double? lat, lon;
   final int gates;
-  const CityStation(this.id, this.code, this.name, this.nameBn, this.lat, this.lon, this.gates);
+
+  /// gap-nearby: km along the metro line from its first station (null =
+  /// unknown; the station-to-station fare then needs the official chart).
+  final double? km;
+  const CityStation(this.id, this.code, this.name, this.nameBn, this.lat, this.lon, this.gates,
+      [this.km]);
   static CityStation from(Object? v) {
     final m = _m(v);
     return CityStation(_s(m['id']), _s(m['code']), _s(m['name']), _s(m['name_bn']), _d(m['lat']),
-        _d(m['lon']), _i(m['gates']));
+        _d(m['lon']), _i(m['gates']), _d(m['km']));
   }
 
   String label(bool bn) => bn && nameBn.isNotEmpty ? nameBn : name;

@@ -345,19 +345,22 @@ class OfflineRouter {
       };
   double _n(Map<String, dynamic> r, String k, double def) => (r[k] as num?)?.toDouble() ?? def;
 
-  Map<String, dynamic> fare(String mode, double km) {
+  /// [a] / [b] = station codes (metro): the official chart wins over the
+  /// per-km rule, exactly like the server (fares.py metro()).
+  Map<String, dynamic> fare(String mode, double km, {String a = '', String b = ''}) {
     switch (mode) {
       case 'metro':
         final r = _r('metro');
         final step = _n(r, 'round_to', 10).clamp(1, 100);
-        var tk = ((km * _n(r, 'per_km', 5)) / step).round() * step;
-        tk = tk.clamp(_n(r, 'min', 20), _n(r, 'max', 100));
+        final hit = metroChartTk(r['chart'], a, b);
+        num tk = hit ?? ((km * _n(r, 'per_km', 5)) / step).round() * step;
+        if (hit == null) tk = tk.clamp(_n(r, 'min', 20), _n(r, 'max', 100));
         final disc = _n(r, 'card_discount_pct', 0);
         return {
           ..._meta(r),
           'low': tk.round(),
           'high': tk.round(),
-          'basis': 'rate',
+          'basis': hit != null ? 'chart' : 'rate',
           'card': (tk - tk * disc / 100).round()
         };
       case 'bus':
@@ -405,7 +408,7 @@ class OfflineRouter {
         for (var q = p + 1; q < r.stops.length; q++) {
           final s = r.stops[q];
           final sec = a.value / walkSpeed + wait + r.t(p, q, pf);
-          final f = fare(r.mode, r.km[q] - r.km[p]);
+          final f = fare(r.mode, r.km[q] - r.km[p], a: stops[r.stops[p]].code, b: stops[s].code);
           final eg = egress[s];
           if (eg != null) {
             cands.add(_Cand(sec + eg / walkSpeed, f['low'] as int, f['high'] as int, a.key, s, a.value.round(),
@@ -432,7 +435,7 @@ class OfflineRouter {
           for (var q = p + 1; q < r.stops.length; q++) {
             final eg = egress[r.stops[q]];
             if (eg == null) continue;
-            final f = fare(r.mode, r.km[q] - r.km[p]);
+            final f = fare(r.mode, r.km[q] - r.km[p], a: stops[r.stops[p]].code, b: stops[r.stops[q]].code);
             final sec = sec0 + walk / walkSpeed + r.hw * 30.0 + r.t(p, q, pf) + eg / walkSpeed;
             cands.add(_Cand(sec, lo0 + (f['low'] as int), hi0 + (f['high'] as int), acc, r.stops[q], accM,
                 eg.round(), [ride0, _Ride(ri, p, q)], [walk.round()]));
@@ -484,7 +487,7 @@ class OfflineRouter {
         'wait_min': (r.hw / 2).round(),
         'minutes': (r.t(rd.from, rd.to, pf) / 60).round(),
         'km': double.parse(km.toStringAsFixed(1)),
-        'fare': fare(r.mode, km),
+        'fare': fare(r.mode, km, a: stops[r.stops[rd.from]].code, b: stops[r.stops[rd.to]].code),
         'headway_min': r.hw.round(),
       };
       if (r.mode == 'metro') {
@@ -637,6 +640,9 @@ class OfflineRouter {
     if (metro.isEmpty) return out;
     for (final si in metro.first.stops) {
       out.add({...stops[si].pt(), 'code': stops[si].code, 'gates': gates[si]?.length ?? 0});
+      // gap-nearby: km along the line (station-to-station fare offline)
+      final k = metro.first.stops.indexOf(si);
+      if (k >= 0 && k < metro.first.km.length) out.last['km'] = metro.first.km[k];
     }
     return out;
   }
@@ -681,4 +687,16 @@ String googleMapsTransit(double? oLat, double? oLon, double? dLat, double? dLon)
   if (oLat != null && oLon != null) q['origin'] = '${oLat.toStringAsFixed(6)},${oLon.toStringAsFixed(6)}';
   if (dLat != null && dLon != null) q['destination'] = '${dLat.toStringAsFixed(6)},${dLon.toStringAsFixed(6)}';
   return Uri.https('www.google.com', '/maps/dir/', q).toString();
+}
+
+/// gap-nearby: the official metro chart amount for a station pair (either
+/// direction), or null. [chart] = `[{a, b, tk}]` from the server / package.
+int? metroChartTk(Object? chart, String a, String b) {
+  if (a.isEmpty || b.isEmpty || chart is! List) return null;
+  for (final e in chart) {
+    if (e is! Map) continue;
+    final x = '${e['a'] ?? ''}', y = '${e['b'] ?? ''}';
+    if ((x == a && y == b) || (x == b && y == a)) return (e['tk'] as num?)?.round();
+  }
+  return null;
 }

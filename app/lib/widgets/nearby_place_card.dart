@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'nearby_category_bar.dart' show nearbyCatLabel;
 import 'nearby_data.dart';
 import '../services/action_feedback.dart'; // db1
 
@@ -96,7 +97,13 @@ class NearbyPlaceCard extends StatelessWidget {
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(place.name(bn),
+                Text(
+                    // gap-nearby: OSM has places with no name — say so
+                    // (the BD file has 128), never a blank title
+                    place.name(bn).trim().isNotEmpty
+                        ? place.name(bn)
+                        : t.nearbyUnnamedPlace(nearbyCatLabel(t, place.cat)),
+                    key: ValueKey('nearby_name_${place.serverId ?? place.id}'),
                     style: const TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 15, height: 1.25)),
                 const SizedBox(height: 2),
@@ -146,6 +153,23 @@ class NearbyPlaceCard extends StatelessWidget {
               ),
             ),
           ]),
+          // gap-nearby: every number says where it came from; no number =
+          // say so and point at the official numbers on top
+          if (phone != null && phone.isNotEmpty && place.phoneSrc.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(
+                  place.phoneSrc == 'admin' ? t.nearbyPhoneSrcAdmin : t.nearbyPhoneSrcOsm,
+                  key: ValueKey('nearby_phone_src_${place.serverId}'),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            ),
+          if ((phone == null || phone.isEmpty) && place.serverId != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(t.nearbyNoPhoneListed,
+                  key: ValueKey('nearby_no_phone_${place.serverId}'),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            ),
           if (onReport != null)
             Align(
               alignment: AlignmentDirectional.centerStart,

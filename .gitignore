@@ -97,3 +97,4 @@ reality_out/
 tools/wakeword/real_clips/
 *.wakeword-clips.zip
 backend/agent_eval_reports/
+maptiles/
