@@ -356,7 +356,8 @@ class EventLogTests(_Base):
                                    placement="x1").status_code, 400)
         r = self.post(user=self.prem, kind="impression", format="banner", placement="banner_x")
         self.assertEqual(r.json()["reason"], "not_free")
-        self.assertFalse(AdPlacementStat.objects.exists())
+        # ads-nine: never a view; the leak itself is counted apart
+        self.assertFalse(AdPlacementStat.objects.exclude(fmt="paid_leak").exists())
 
     def test_rate_limited(self):
         with mock.patch.object(AS, "RATE_PER_HOUR", 3):

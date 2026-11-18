@@ -102,12 +102,13 @@ class OwnerAdsRequestsTests(OwnerBase):
         today = timezone.localdate()
         AdPlacementStat.objects.create(date=today, placement="banner_dictionary",
                                        fmt="banner", requests=20, no_fill=5,
-                                       impressions=15, test=True)
+                                       impressions=15)
         en = self.c.get("/owner/ads?lang=en").content.decode()
         for s in ('id="ads-requests"', "Ad requests (app events)", "Fill rate",
                   'id="ads-paid-leaks"', "Ad events from paid"):
             self.assertIn(s, en, s)
-        self.assertIn("75.0%", en)  # 15 / 20
+        self.assertIn(">75%<", en)  # 15 / 20 in the table
+        self.assertIn("Fill rate: 75%", en)
         AdPlacementStat.objects.create(date=today, placement="banner_dictionary",
                                        fmt="paid_leak", impressions=2)
         bn = self.c.get("/owner/ads?lang=bn").content.decode()

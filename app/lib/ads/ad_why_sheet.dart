@@ -41,7 +41,7 @@ class AdLabelChip extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Text(t.h1AdLabel,
             maxLines: 1,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: scheme.onTertiaryContainer)),
@@ -114,8 +114,10 @@ class AdWhySheet extends StatelessWidget {
             const SizedBox(width: Gap.md),
             Expanded(
                 child: Text(text,
-                    style: TextStyle(
-                        fontSize: 15, height: 1.4, color: scheme.onSurface))),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(height: 1.4, color: scheme.onSurface))),
           ]),
         );
     return SingleChildScrollView(
