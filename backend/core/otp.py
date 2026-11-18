@@ -772,7 +772,9 @@ def verify(phone, purpose, code, email=None):
         ch.save(update_fields=["consumed_at"])
         raise OtpError("expired", 400)
 
-    supplied = re.sub(r"\D", "", str(code or ""))[:CODE_LENGTH]
+    # gap-recovery: a code typed on a Bangla keyboard (৪৮২৯১৩) used to keep
+    # the Bangla digits (\d matches them) and never matched.
+    supplied = re.sub(r"[^0-9]", "", str(code or "").translate(_BN_ASCII))[:CODE_LENGTH]
     good = (len(supplied) == CODE_LENGTH and
             hmac.compare_digest(_hash(ch.salt, _key(canon, addr), purpose, supplied),
                                 ch.code_hash))

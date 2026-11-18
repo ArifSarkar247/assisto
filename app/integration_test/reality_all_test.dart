@@ -38,6 +38,7 @@ import 'flows/onboarding_flow.dart';
 import 'flows/personal_flow.dart';
 import 'flows/quranblood_flow.dart'; // gap-quranblood
 import 'flows/remmeter_flow.dart';
+import 'flows/recovery_flow.dart'; // gap-recovery
 import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
@@ -112,6 +113,9 @@ void main() {
   if (only.split(',').contains('calls2emu')) registerCallsTwoEmuFlows();
   // gap-carecall: Care Call main path (needs settings_e2eproof's tick + outbox) -> opt-in (e2e.yml start+carecall)
   if (only.split(',').contains('carecall')) registerCareCallProofFlows();
+  // gap-recovery: lost phone -> email code -> keys back; needs settings_e2eproof
+  // + E2E_FAKE_EMAIL=1 (captured mail) -> opt-in only (e2e.yml group=start+recovery)
+  if (only.split(',').contains('recovery')) registerRecoveryFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   // proof-ledger: offline khata / cashbox / mess across a REAL app kill +

@@ -609,7 +609,7 @@ def complete(row, data, request=None, lang="bn", now=None):
         record_change(u, "phone", old, row.contact_phone, lang=lang, now=now)
     otp.mark_verified(u, row.contact_phone)
     _log(u, "account.recovered", ref=row.ref)
-    return u, login_token(u, request)
+    return u, login_token(u, request, method="support")   # gap-recovery
 
 
 def cancel_by_owner(user, pk):

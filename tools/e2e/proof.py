@@ -44,6 +44,8 @@ BOARD = {
     "at04_secure_unlock_cancels": [11], "at05_sensitivity_levels": [11],
     "at06_sim_change_alert": [11], "at07_lost_mode_screen": [11],
     "cc1_once_rings_on_time": [21],   # gap-carecall (e2e.yml group=start+carecall)
+    # gap-recovery: lost phone -> email code -> keys + My Circle (group=start+recovery)
+    "rec1_lost_phone_email_code": [52, 58, 2],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -66,6 +68,10 @@ def expected():
         # gap-carecall: the Care Call main path (e2e.yml input group=start+carecall)
         files = ["app/integration_test/flows/carecall_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(cc\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "recovery" in os.environ.get("REALITY_ONLY", ""):
+        # gap-recovery: the account-recovery proof run (e2e.yml group=start+recovery)
+        files = ["app/integration_test/flows/recovery_flow.dart"]
+        pat = r"realityFlow\(\s*'(rec\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f

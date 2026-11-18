@@ -14,6 +14,7 @@
 Only the throw-away CI database (ci_e2e.apps refuses anything else).
 """
 import json
+import os
 import re
 
 from django.core.management import call_command
@@ -71,6 +72,10 @@ class Command(BaseCommand):
         def otp_status():
             r = Client().get("/api/v1/auth/otp/status")
             d = r.json()
+            # gap-recovery: the recovery run mirrors production (SMS off,
+            # captured email on) — then the EMAIL channel must be on instead
+            if os.environ.get("E2E_FAKE_EMAIL") == "1":
+                return d.get("sms_enabled") is False and d.get("email_enabled") is True, d
             return d.get("sms_enabled") is True, d
 
         def ai_bn():
