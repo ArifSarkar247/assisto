@@ -300,7 +300,10 @@ class MessageAndDownloadTests(_Base):
         gmb.status = "left"
         gmb.save(update_fields=["status"])
         self.assertEqual(self.url_for(ref, self.cb).status_code, 404)
-        # a missing blob is refused in groups too
+        # a missing blob is refused in groups too (B active again: since
+        # circle-chat a send ONLY to ex-members is a 409 members_changed)
+        gmb.status = "active"
+        gmb.save(update_fields=["status"])
         r = self.ca.post("%s/circle/groups/%d/messages" % (V, g.id), {
             "content_type": "photo", "blob_ref": "a" * 32,
             "recipient_ids": [gmb.id],
