@@ -1,0 +1,9 @@
+{
+  "en": {
+    "ccErrPastTime": "That time has already passed on that day. Pick a later time, or change the date.",
+    "@ccErrPastTime": {"description": "gap-carecall: Care Call New screen error when a one-time call's date + time is already in the past on the receiver's clock"}
+  },
+  "bn": {
+    "ccErrPastTime": "ওই দিনের এই সময়টা পেরিয়ে গেছে। পরের কোনো সময় বেছে নিন, অথবা তারিখ বদলান।"
+  }
+}

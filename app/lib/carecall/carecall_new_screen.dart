@@ -52,6 +52,10 @@ class CareCallNewScreen extends StatefulWidget {
   final String? debugText;
   final Map<String, dynamic>? limits;
 
+  /// gap-carecall test hook: "now" for the once-date rules (null = real clock).
+  @visibleForTesting
+  static DateTime Function()? debugNow;
+
   @override
   State<CareCallNewScreen> createState() => _CareCallNewScreenState();
 }
@@ -64,6 +68,9 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
   String _repeat = 'daily';
   Set<int> _days = {5, 6, 0, 1, 2, 3, 4};
   DateTime? _date;
+  // gap-carecall: the date follows the picked time ("next 9:00" on the
+  // receiver's clock) until the user picks a date themselves.
+  bool _dateManual = false;
   String? _voicePath;
   int _voiceSec = 0;
   bool _voiceDeleted = false;
@@ -110,10 +117,12 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
       _repeat = '${e['repeat'] ?? 'daily'}';
       _days = {for (final d in (e['days'] as List? ?? const [])) (d as num).toInt()};
       _date = DateTime.tryParse('${e['date'] ?? ''}');
+      _dateManual = _date != null;
       _voiceSec = (e['voice_sec'] as num?)?.toInt() ?? 0;
       _who = {
         'user_id': e['receiver_id'], 'name': e['other_name'], 'initial': e['other_initial'],
         'link': e['link'], 'quiet_start': e['quiet_start'], 'quiet_end': e['quiet_end'],
+        'tz_offset_min': e['receiver_offset_min'], // gap-carecall
       };
     }
   }
@@ -166,27 +175,42 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
     if (v != null && mounted) {
       setState(() {
         _repeat = v;
-        if (v == 'once') _date ??= _defaultDate();
+        if (v == 'once' && !_dateManual) _date = null; // follows the time
         if (v == 'days' && _days.isEmpty) _days = {0, 1, 2, 3, 4, 5, 6};
       });
     }
   }
 
-  DateTime _defaultDate() {
-    final w = ccBdWall(DateTime.now());
-    final today = DateTime(w.year, w.month, w.day);
-    final mins = w.hour * 60 + w.minute;
-    return (_time.hour * 60 + _time.minute) > mins ? today : today.add(const Duration(days: 1));
-  }
+  /// gap-carecall: the receiver's clock (minutes ahead of UTC; Dhaka 360).
+  int get _off => (_who?['tz_offset_min'] as num?)?.toInt() ?? kCcDhakaOffsetMin;
+
+  DateTime _now() => (CareCallNewScreen.debugNow ?? DateTime.now)();
+
+  /// gap-carecall: the NEXT time the picked clock time comes on the
+  /// receiver's clock (today if still ahead, else tomorrow) — recomputed
+  /// whenever the time changes, so "once" never lands on the wrong day.
+  DateTime _defaultDate() =>
+      DateTime.parse(ccOnceNextDate(_now(), _time.hour * 60 + _time.minute, offsetMin: _off));
+
+  DateTime get _onceDate => _dateManual && _date != null ? _date! : _defaultDate();
 
   Future<void> _pickDate() async {
-    final now = ccBdWall(DateTime.now());
-    final first = DateTime(now.year, now.month, now.day);
+    final first = ccToday(_now(), offsetMin: _off);
+    final cur = _onceDate;
     final v = await showDatePicker(
-        context: context, initialDate: _date ?? first, firstDate: first,
+        context: context, initialDate: cur.isBefore(first) ? first : cur, firstDate: first,
         lastDate: first.add(const Duration(days: 365)));
-    if (v != null && mounted) setState(() => _date = v);
+    if (v != null && mounted) {
+      setState(() {
+        _date = v;
+        _dateManual = true;
+        _error = null;
+      });
+    }
   }
+
+  String _ymd(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   // ---------------------------------------------------------------- voice
   /// Microphone: our own reason first (Play policy), then Android's prompt.
@@ -279,7 +303,7 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
         'repeat': _repeat,
         if (_repeat == 'days') 'days': (_days.toList()..sort()),
         if (_repeat == 'once')
-          'date': (_date ?? _defaultDate()).toIso8601String().substring(0, 10),
+          'date': _ymd(_onceDate),
         if (_isEdit && _voiceDeleted && _voicePath == null) 'delete_voice': true,
       };
 
@@ -292,6 +316,9 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
       err = t.ccErrWhat;
     } else if (_repeat == 'days' && _days.isEmpty) {
       err = t.ccErrDays;
+    } else if (_repeat == 'once' &&
+        ccOncePast(_ymd(_onceDate), _time.hour * 60 + _time.minute, _now(), offsetMin: _off)) {
+      err = t.ccErrPastTime; // gap-carecall: never save a call that can't ring
     }
     if (err != null) {
       setState(() => _error = err);
@@ -474,7 +501,7 @@ class _CareCallNewScreenState extends State<CareCallNewScreen>
               child: TextButton.icon(
                 onPressed: _pickDate,
                 icon: const Icon(Icons.event_rounded),
-                label: Text('${ccRepeatText(context, 'once', const [], (_date ?? _defaultDate()).toIso8601String())} · ${t.ccOnceChange}'),
+                label: Text('${ccRepeatText(context, 'once', const [], _ymd(_onceDate), offsetMin: _off, now: _now())} · ${t.ccOnceChange}'),
               ),
             ),
           ],

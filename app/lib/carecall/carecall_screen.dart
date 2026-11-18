@@ -421,7 +421,7 @@ class _CareCallScreenState extends State<CareCallScreen>
   }
 
   String _when(Map<String, dynamic> c) =>
-      '${ccTimeText(context, '${c['time']}')} · ${ccRepeatText(context, '${c['repeat']}', [for (final d in (c['days'] as List? ?? const [])) (d as num).toInt()], '${c['date'] ?? ''}')}';
+      '${ccTimeText(context, '${c['time']}')} · ${ccRepeatText(context, '${c['repeat']}', [for (final d in (c['days'] as List? ?? const [])) (d as num).toInt()], '${c['date'] ?? ''}', offsetMin: (c['receiver_offset_min'] as num?)?.toInt() ?? kCcDhakaOffsetMin)}';
 
   Widget _sentTile(AppLocalizations t, Map<String, dynamic> c) {
     final s = Theme.of(context).colorScheme;

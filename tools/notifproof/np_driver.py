@@ -79,6 +79,11 @@ RESULT = {"cases": [], "setup": {}, "not_proven": [
 ]}
 
 
+# gap-carecall: opt-in cases run only when named in NP_ONLY
+OPT_IN = {"carecall"}
+B_ID = [None]
+
+
 def log(*a):
     print("[notifproof]", *a, flush=True)
 
@@ -599,6 +604,130 @@ def case_family(A, B, tokens):
     return c.done()
 
 
+def _outbox_rows(since, user_id=None, push_kind=None):
+    rows = []
+    try:
+        with open(os.environ.get("E2E_OUTBOX") or "", encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    r = json.loads(line)
+                except ValueError:
+                    continue
+                if r.get("kind") != "push" or float(r.get("ts") or 0) < since:
+                    continue
+                if user_id is not None and r.get("user_id") != user_id:
+                    continue
+                if push_kind and r.get("push_kind") != push_kind:
+                    continue
+                rows.append(r)
+    except OSError:
+        pass
+    return rows
+
+
+def case_carecall(A, B, Ah, tokens):
+    """gap-carecall (board row 21): a ONE-TIME Care Call from B rings A's
+    phone FULL-SCREEN with the app killed and the screen off, at the right
+    time on A's clock; A taps Done on the ring screen; the server records it
+    and B (family) is told. Opt-in only: NP_ONLY=carecall."""
+    c = Case("np5_carecall_fullscreen_closed", [21, 6],
+             "B's one-time Care Call rings A: app killed, screen off -> full-screen ring -> Done -> B told")
+    from datetime import datetime, timedelta, timezone as dtz
+    wake_unlocked()
+    z = sh("date +%z").strip()
+    m_ = re.match(r"([+-])(\d\d)(\d\d)$", z)
+    off = (1 if not m_ or m_.group(1) == "+" else -1) * (int(m_.group(2)) * 60 + int(m_.group(3))) if m_ else 0
+    c.r["phone_utc_offset_min"] = off
+    # A's phone clock is what the server rings on (fcbrain ping, as the app sends)
+    Ah.req("POST", "/family/brain/ping", {"tz_offset_min": off})
+    phone_now = datetime.now(dtz.utc) + timedelta(minutes=off)
+    q = phone_now + timedelta(hours=12)
+    Ah.req("POST", "/carecall/quiet", {"start": q.strftime("%H:%M"),
+                                       "end": (q + timedelta(minutes=1)).strftime("%H:%M")})
+    at = phone_now + timedelta(minutes=2 if phone_now.second <= 40 else 3)
+    text = "notifproof care call %d" % (int(time.time()) % 100000)
+    st, j = B.req("POST", "/carecall", {"receiver_id": A.pk, "text": text,
+                                        "time": at.strftime("%H:%M"), "repeat": "once"})
+    cc = (j or {}).get("care_call") or {}
+    if not c.check("B's one-time Care Call saved (no date: the next time on A's clock)", st == 201 and cc.get("id"), (st, j)):
+        return c.done()
+    nxt = datetime.fromisoformat(str(cc.get("next_at")).replace("Z", "+00:00"))
+    ahead = (nxt - datetime.now(dtz.utc)).total_seconds()
+    c.r["next_at"], c.r["ahead_s"] = cc.get("next_at"), int(ahead)
+    c.check("the slot is ~2 min ahead on A's clock (not hours, not past)", 30 <= ahead <= 240, ahead)
+    c.check("the server tells the app A's clock (receiver_offset_min)", cc.get("receiver_offset_min") == off,
+            cc.get("receiver_offset_min"))
+    st, j = Ah.req("POST", "/carecall/consent", {"setter_id": B_ID[0], "accept": True})
+    c.check("A accepted Care Calls from B (consent)", st == 200, (st, j))
+    closed_precheck(c)
+    sh("input keyevent KEYCODE_SLEEP")
+    time.sleep(3)
+    wk = sh("dumpsys power | grep mWakefulness= | head -1").strip()
+    c.check("screen is OFF before the ring", "Awake" not in wk, wk)
+    # wait (real clock) until the slot, then the server minute job
+    while datetime.now(dtz.utc) < nxt:
+        time.sleep(2)
+    n0 = len(fcm_calls())
+    t0 = time.time()
+    st, tj = Ah.req("POST", "/ci-e2e/tick", {"job": "carecall_tick", "advance_min": 1})
+    c.check("server Care Call job ran at the slot", st == 200 and tj.get("ok"), (st, tj))
+    m = wait_fcm(tokens, "carecall", n0, pred=lambda d: d.get("care_call_id") == str(cc["id"]))
+    if not c.check("backend sent a HIGH-priority FCM 'carecall' ring to A", m is not None
+                   and (m.get("android") or {}).get("priority") == "HIGH", m):
+        return c.done()
+    c.r["slot"] = (m.get("data") or {}).get("slot")
+    ex, out = deliver(m)
+    c.r["broadcast"] = out
+    t_inj = time.time()
+    rec, (recs, snd, raw) = wait_notif(lambda r: r["channel"] == "calls", timeout=60)
+    save("np5_dumpsys_notification.txt", raw)
+    c.check("the ring is posted on the call channel", rec is not None, [r["channel"] for r in recs])
+    if rec is not None:
+        c.r["inject_to_notification_ms"] = int((time.time() - t_inj) * 1000)
+        c.r["ring_record"] = {k: rec[k] for k in ("key", "channel", "flags", "intercept", "fsi")}
+        c.check("it carries a FULL-SCREEN intent", rec["fsi"], rec["raw"][:400])
+        c.check("it rings like a call until answered (FLAG_INSISTENT)", bool(rec["flags"] & 0x4), hex(rec["flags"]))
+    time.sleep(4)
+    wk = sh("dumpsys power | grep mWakefulness= | head -1").strip()
+    c.check("the full-screen ring WOKE the screen", "Awake" in wk, wk)
+    ra = resumed_activity()
+    c.r["resumed"] = ra
+    c.check("Assisto's ring screen is in front over the lock screen", PKG in ra, ra)
+    ok, texts = app_shows([text], timeout=90)
+    shot("np5_fullscreen_ring")
+    c.check("the ring screen shows the Care Call text exactly", ok, texts[:40])
+    root = ui_dump()
+    btn = ui_find(root, "Done", pkg=PKG) or ui_find(root, "হয়ে গেছে", pkg=PKG)
+    if not c.check("the big Done button is on the ring screen", btn is not None, ui_texts(root, pkg=PKG)[:40]):
+        return c.done()
+    tap_node(btn)
+    from django.db import close_old_connections
+    from core.models import CareCallRing
+    ring = None
+    end = time.time() + 60
+    while time.time() < end:
+        close_old_connections()
+        ring = CareCallRing.objects.filter(care_call_id=cc["id"]).order_by("-id").first()
+        if ring is not None and ring.status == "done":
+            break
+        time.sleep(2)
+    shot("np5_after_done")
+    c.check("Done is recorded on the server (ring status done)", ring is not None and ring.status == "done",
+            getattr(ring, "status", None))
+    told = []
+    end = time.time() + 30
+    while time.time() < end and not told:
+        told = [r for r in _outbox_rows(t0 - 5, user_id=B_ID[0], push_kind="carecall_status")
+                if (r.get("data") or {}).get("status") == "done"]
+        time.sleep(2)
+    c.check("B (family) is told: 'confirmed' push to B", bool(told), len(told))
+    st, mj = B.req("GET", "/carecall")
+    c.check("B's Care Call feed shows it confirmed", st == 200 and any(
+        x.get("care_call_id") == cc["id"] and x.get("kind") == "confirmed" for x in mj.get("feed") or []),
+        (st, (mj.get("feed") or [])[:2]))
+    return c.done()
+
+
 # ------------------------------------------------------------------- main
 def setup():
     import django
@@ -690,11 +819,15 @@ def main():
         Ah = Client("A-host", "notifproof-host-a")
         Ah.login(PHONE_A)
         only = set(filter(None, os.environ.get("NP_ONLY", "").split(",")))
+        B_ID[0] = Bu.pk
         for name, fn in (("message", lambda: case_message(A, B, tokens, edge_b)),
                          ("reminder", lambda: case_reminder(A, Ah, tokens)),
                          ("sos", lambda: case_sos(A, B, tokens)),
-                         ("family", lambda: case_family(A, B, tokens))):
+                         ("family", lambda: case_family(A, B, tokens)),
+                         ("carecall", lambda: case_carecall(A, B, Ah, tokens))):  # gap-carecall
             if only and name not in only:
+                continue
+            if not only and name in OPT_IN:
                 continue
             try:
                 fn()

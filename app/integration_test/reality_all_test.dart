@@ -12,6 +12,7 @@ import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/city_flow.dart'; // gap-city
+import 'flows/carecall_proof_flow.dart'; // gap-carecall
 import 'flows/business_flow.dart';
 import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
@@ -82,6 +83,8 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // gap-carecall: Care Call main path (needs settings_e2eproof's tick + outbox) -> opt-in (e2e.yml start+carecall)
+  if (only.split(',').contains('carecall')) registerCareCallProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

@@ -15,6 +15,11 @@ name: Closed-app notification proof (notifproof)
 # the owner account (CI seed accounts only).
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma list of cases (message,reminder,sos,family; opt-in: carecall); empty = the four default cases"
+        required: false
+        default: ""
   push:
     branches: ['ci/notifproof**']
     paths:
@@ -54,6 +59,7 @@ jobs:
       E2E_FCM_TOKEN_URI: http://127.0.0.1:18890/token
       E2E_FCM_SEND_URL: http://127.0.0.1:18890/v1/projects/{project_id}/messages:send
       NP_FCM: http://127.0.0.1:18890
+      NP_ONLY: ${{ github.event.inputs.only }}   # gap-carecall
     steps:
       - uses: actions/checkout@v4
       - name: Free runner disk (the emulator image needs ~8 GB)

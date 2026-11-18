@@ -15,6 +15,15 @@ final Map<String, Widget Function(String)> carecallShots = {
       person: ccPerson(l),
       debugText: l == 'bn' ? 'গ্যাসের ট্যাবলেটটা খাও' : 'Take your gas tablet',
       debugVoiceSec: 7),
+  // gap-carecall: SCREEN 1 — one-time call; the date follows the time on
+  // the receiver's clock ("Once · Today / Tomorrow · Change date")
+  'cc_screen1_once': (l) => CareCallNewScreen(api: FakeCareCallApi(), edit: {
+        'id': 1, 'text': l == 'bn' ? 'গ্যাসের ট্যাবলেটটা খাও' : 'Take your gas tablet',
+        'time': '21:30', 'repeat': 'once', 'days': const [], 'date': '', 'active': true,
+        'has_voice': false, 'voice_sec': 0, 'receiver_id': 7,
+        'other_name': l == 'bn' ? 'আম্মু' : 'Ammu', 'other_initial': l == 'bn' ? 'আ' : 'A',
+        'link': 'accepted', 'quiet_start': '22:00', 'quiet_end': '07:00', 'receiver_offset_min': 360,
+      }),
   // SCREEN 1 — nothing picked yet (the example hint + chips)
   'cc_screen1_blank': (l) => CareCallNewScreen(api: FakeCareCallApi()),
   // SCREEN 2 — receiver, incoming Care Call (full screen)

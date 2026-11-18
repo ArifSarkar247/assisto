@@ -38,6 +38,7 @@ BOARD = {
     "sjp05_impossible_early_arrival": [4], "sjp06_danger_pin_silent_red": [4],
     "sjp07_two_journeys": [4], "sjp08_child_unknown_place": [4],
     "sjp09_train_three_passengers": [4], "sjp10_offline_destination_alarm": [4],
+    "cc1_once_rings_on_time": [21],   # gap-carecall (e2e.yml group=start+carecall)
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -52,6 +53,10 @@ def expected():
         # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
         files = ["app/integration_test/flows/sj_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "carecall" in os.environ.get("REALITY_ONLY", ""):
+        # gap-carecall: the Care Call main path (e2e.yml input group=start+carecall)
+        files = ["app/integration_test/flows/carecall_proof_flow.dart"]
+        pat = r"realityFlow\(\s*'(cc\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f
