@@ -165,6 +165,12 @@ const Map<String, String> _allow = {
   'cx_cash_guard_extras|digit|Cash drawer:': 'fake data: core/logic/cctv_extras.py sends bn lines',
   'cx_cash_guard_extras|digit|Camera/internet silent': 'fake data: core/logic/cctv_extras.py sends bn lines',
   'cx_cash_guard_extras|digit|The shop opened at': 'fake data: core/logic/cctv_extras.py sends bn lines',
+  // gap-cctv: a camera's LAN address is typed and shown exactly as on the
+  // router / camera label (Latin digits, dots) — never translated
+  'wm_add_form*|digit|"192.168.': 'camera IP address the user types (router format)',
+  'icg_*|digit|"192.168.': 'camera IP address the user types (router format)',
+  'ccn_devices|digit|DS-7604': 'DVR model name as printed on the device (Hikvision DS-7604)',
+  'shop_live*|digit|(P2P)': 'P2P is a technical name, the same in Bangla (the price uses Bangla digits)',
   'cev_recording*|english|"SD card OK"': 'fake data: core/cctv_evidence.py sends the bn SD label',
   'carm_sos_live|english|"Home"': 'the place name the owner typed (user data)',
   'bbl2_circle_row|english|"Karim"': 'a contact name (user data)',

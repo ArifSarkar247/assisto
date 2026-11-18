@@ -17,7 +17,11 @@ const _lower = [
 ];
 
 class FakeWatchmanDet extends FakeWatchman {
-  FakeWatchmanDet() : super('data');
+  /// gap-cctv: the server answers in the user's language — the Bangla shots
+  /// get the Bangla texts (as core/logic/cctv_detect.py sends them).
+  final String lang;
+  FakeWatchmanDet({this.lang = 'en'}) : super('data');
+  bool get _bn => lang == 'bn';
 
   @override
   Future<Map<String, dynamic>> zones(int cameraId) async => {
@@ -73,10 +77,10 @@ class FakeWatchmanDet extends FakeWatchman {
             'created': '2026-11-09T23:40:00+06:00',
             'clip': {'status': 'ready', 'expires_at': '2026-11-10T23:40:00+06:00', 'size': 520000},
             'detect': {
-              'title': 'Someone is at the shutter / gate', 'detail': 'Main shutter', 'zone': 'z1',
-              'measured': null, 'measured_text': 'Accuracy of this alert type is not measured yet',
+              'title': _bn ? 'শাটার / গেটে কেউ আছে' : 'Someone is at the shutter / gate', 'detail': _bn ? 'প্রধান শাটার' : 'Main shutter', 'zone': 'z1',
+              'measured': null, 'measured_text': _bn ? 'এই ধরনের সতর্কতার নির্ভুলতা এখনো মাপা হয়নি' : 'Accuracy of this alert type is not measured yet',
               'review_only': false, 'source': 'edge',
-              'desc': 'One person in a dark jacket stands by the shutter, holding a bag.', 'desc_src': 'ai'
+              'desc': _bn ? 'গাঢ় জ্যাকেট পরা একজন ব্যাগ হাতে শাটারের পাশে দাঁড়িয়ে আছেন।' : 'One person in a dark jacket stands by the shutter, holding a bag.', 'desc_src': 'ai'
             }
           },
           {
@@ -85,11 +89,12 @@ class FakeWatchmanDet extends FakeWatchman {
             'label': 'suspicious_please_check', 'last_at': '2026-11-09T15:12:00+06:00',
             'created': '2026-11-09T15:12:00+06:00',
             'detect': {
-              'title': 'The counter / post has been left empty', 'detail': 'Cash counter · for 5 min',
+              'title': _bn ? 'কাউন্টার / পোস্ট ফাঁকা পড়ে আছে' : 'The counter / post has been left empty',
+              'detail': _bn ? 'ক্যাশ কাউন্টার · ৫ মিনিট ধরে' : 'Cash counter · for 5 min',
               'zone': 'z2', 'measured': {'p': 0.93, 'r': 0.9, 'n': 400},
-              'measured_text': 'In tests this alert type was right 93% of the time (400 samples)',
+              'measured_text': _bn ? 'পরীক্ষায় এই ধরনের সতর্কতা ৯৩% বার ঠিক ছিল (৪০০টি নমুনা)' : 'In tests this alert type was right 93% of the time (400 samples)',
               'review_only': false, 'source': 'edge',
-              'desc': 'The counter is empty — Counter (Cash counter), 15:12', 'desc_src': 'template'
+              'desc': _bn ? 'কাউন্টার ফাঁকা — কাউন্টার (ক্যাশ কাউন্টার), ১৫:১২' : 'The counter is empty — Counter (Cash counter), 15:12', 'desc_src': 'template'
             }
           },
         ],
@@ -116,7 +121,7 @@ final Map<String, Widget Function(String)> cctvdetShots = {
             'end': '21:00'
           },
           opts: const {'absent_min': 5})),
-  'cdet_alerts': (_) => WatchmanAlertsScreen(source: FakeWatchmanDet(), siteId: 1, owner: true),
+  'cdet_alerts': (l) => WatchmanAlertsScreen(source: FakeWatchmanDet(lang: l), siteId: 1, owner: true),
   // stage 2: parking zones, the vehicle line, crowd count
   'cdet_zone_no_parking': (_) => Scaffold(
       body: ZoneOptionsBody(
@@ -130,11 +135,13 @@ final Map<String, Widget Function(String)> cctvdetShots = {
       body: ZoneOptionsBody(
           type: 'restricted', name: 'Restricted area', label: 'Bill counter queue', schedule: null,
           opts: const {'crowd_n': 5})),
-  'cdet_alerts_vehicle': (_) => WatchmanAlertsScreen(source: FakeWatchmanVeh(), siteId: 1, owner: true),
+  'cdet_alerts_vehicle': (l) => WatchmanAlertsScreen(source: FakeWatchmanVeh(lang: l), siteId: 1, owner: true),
 };
 
 class FakeWatchmanVeh extends FakeWatchman {
-  FakeWatchmanVeh() : super('data');
+  final String lang; // gap-cctv: Bangla shots get the server's Bangla texts
+  FakeWatchmanVeh({this.lang = 'en'}) : super('data');
+  bool get _bn => lang == 'bn';
 
   @override
   Future<Map<String, dynamic>> events(int siteId) async => {
@@ -147,12 +154,13 @@ class FakeWatchmanVeh extends FakeWatchman {
             'label': 'suspicious_please_check', 'last_at': '2026-11-10T08:15:00+06:00',
             'created': '2026-11-10T08:15:00+06:00',
             'detect': {
-              'title': 'A vehicle came in / went out', 'detail': 'Main gate · car · in · Plate: DHAKA METRO-GA 12-3456',
-              'zone': 'l1', 'measured': null, 'measured_text': 'Accuracy of this alert type is not measured yet',
+              'title': _bn ? 'একটি গাড়ি ঢুকেছে / বেরিয়েছে' : 'A vehicle came in / went out',
+              'detail': _bn ? 'প্রধান গেট · গাড়ি · ঢুকেছে · প্লেট: ঢাকা মেট্রো-গ ১২-৩৪৫৬' : 'Main gate · car · in · Plate: DHAKA METRO-GA 12-3456',
+              'zone': 'l1', 'measured': null, 'measured_text': _bn ? 'এই ধরনের সতর্কতার নির্ভুলতা এখনো মাপা হয়নি' : 'Accuracy of this alert type is not measured yet',
               'review_only': false, 'source': 'edge',
               'plate': {'bn': 'ঢাকা মেট্রো-গ ১২-৩৪৫৬', 'en': 'DHAKA METRO-GA 12-3456', 'number': '12-3456',
                         'partial': false, 'source': 'ai'},
-              'desc': 'A white car enters through the gate.', 'desc_src': 'ai'
+              'desc': _bn ? 'একটি সাদা গাড়ি গেট দিয়ে ঢুকছে।' : 'A white car enters through the gate.', 'desc_src': 'ai'
             }
           },
           {
@@ -161,8 +169,9 @@ class FakeWatchmanVeh extends FakeWatchman {
             'label': 'suspicious_please_check', 'last_at': '2026-11-10T13:05:00+06:00',
             'created': '2026-11-10T13:05:00+06:00',
             'detect': {
-              'title': 'A crowd / long queue', 'detail': 'Bill counter queue · 7 people', 'zone': 'q',
-              'measured': null, 'measured_text': 'Accuracy of this alert type is not measured yet',
+              'title': _bn ? 'ভিড় / লম্বা লাইন' : 'A crowd / long queue',
+              'detail': _bn ? 'বিল কাউন্টারের লাইন · ৭ জন' : 'Bill counter queue · 7 people', 'zone': 'q',
+              'measured': null, 'measured_text': _bn ? 'এই ধরনের সতর্কতার নির্ভুলতা এখনো মাপা হয়নি' : 'Accuracy of this alert type is not measured yet',
               'review_only': false, 'source': 'edge', 'desc': null, 'desc_src': null
             }
           },
