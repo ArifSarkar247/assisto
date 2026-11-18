@@ -428,6 +428,8 @@ class VoiceDictation extends ChangeNotifier {
 
   Future<bool?> _hasRealRecognizer() async {
     if (realRecognizerOverride != null) return realRecognizerOverride;
+    // Android-only probe (host tests: unknown -> the old path, no channel wait)
+    if (!Platform.isAndroid) return null;
     try {
       return await VaNative.realRecognizer().timeout(const Duration(seconds: 2));
     } catch (_) {
@@ -437,6 +439,7 @@ class VoiceDictation extends ChangeNotifier {
 
   Future<bool> _micGranted() async {
     if (micGrantedOverride != null) return micGrantedOverride!;
+    if (!Platform.isAndroid) return false;
     try {
       return await Permission.microphone.status
           .then((s) => s.isGranted)
