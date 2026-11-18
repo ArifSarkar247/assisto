@@ -9,6 +9,7 @@
 // Push ringing a locked phone still needs two real phones
 // (owner_actions/FAMILY_SAFETY_100_BN.md, SAFE_JOURNEY_100_BN.md).
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbsorbPointer;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/screens/nearby_screen.dart';
@@ -22,14 +23,34 @@ import '../support/harness.dart';
 
 /// Press and HOLD the big SOS button like a person does (a plain tap only
 /// shows "hold to send").
+// sosfam-crm-proof: the countdown dialog opens while the finger is still on
+// SOS. The Navigator then cancels that pointer and blocks taps until the
+// cancel arrives. On a phone the engine delivers it; under the integration
+// test binding a device-made cancel is never dispatched, so every later tap
+// on the page was dead (runs 44213469898..44250231295: "I'm safe now" and
+// "Who is on the way" both ignored, button enabled + hit-testable). The
+// finger therefore uses a known pointer id, and [releaseSosFinger] ends it
+// the way the engine would.
+const _sosPointer = 7357;
+
 Future<void> holdSos(RFlow f) async {
   final btn = find.byKey(const ValueKey('sosat-sos-hold'));
   await f.waitFor(btn, what: 'SOS hold button');
   await f.tester.ensureVisible(btn);
-  final g = await f.tester.startGesture(f.tester.getCenter(btn));
+  final g = await f.tester.createGesture(pointer: _sosPointer);
+  await g.down(f.tester.getCenter(btn));
   await f.pumpFor(const Duration(milliseconds: EmergencySosPanel.holdMs + 600));
   await g.up();
   await f.pumpFor(const Duration(milliseconds: 500));
+}
+
+/// End the SOS finger for the Navigator (see [holdSos]) — a touch on the
+/// status-bar strip, where nothing reacts.
+Future<void> releaseSosFinger(RFlow f) async {
+  final g = await f.tester.createGesture(pointer: _sosPointer);
+  await g.down(const Offset(4, 4));
+  await g.up();
+  await f.pumpFor(const Duration(milliseconds: 300));
 }
 
 /// Leave [screen] like the system back key (its app bar has its own arrow,
@@ -76,16 +97,58 @@ void registerSosJourneyFlows() {
       await f.scrollTo(safe); // below the fold under the ladder
       await f.waitFor(safe, what: '"I\'m safe now" button');
       await f.tester.ensureVisible(safe);
-      // sosfam-crm-proof: let the list stop moving — a tap on a list that is
-      // still flinging only stops the fling (run 44213469898: the button was
-      // on screen, no /resolve was sent)
+      // sosfam-crm-proof: ensureVisible parks the button at the very top edge
+      // under the app bar; a person scrolls it into the middle first. Then
+      // wait for the list to stop (a tap on a moving list only stops it).
+      final sc = find.byWidgetPredicate((w) =>
+          w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical).hitTestable();
+      if (sc.evaluate().isNotEmpty) {
+        await f.tester.drag(sc.first, const Offset(0, 250), warnIfMissed: false);
+      }
       await f.pumpFor(const Duration(milliseconds: 1500));
+      await releaseSosFinger(f);
       final m2 = f.httpMark;
-      // sosfam-crm-proof: tap the button the USER sees — with an older
-      // Emergency page still under this one, `first` was the hidden copy
-      // (runs 44213469898 + 44226928480: button on screen, no /resolve)
-      f.note('safe buttons: ${safe.evaluate().length}, on screen: ${safe.hitTestable().evaluate().length}');
+      // which pointer blocker sits above the button, and is it on?
+      for (final e in find.ancestor(of: safe.first, matching: find.byType(AbsorbPointer)).evaluate()) {
+        final w = e.widget as AbsorbPointer;
+        final ro = e.renderObject;
+        if (ro is RenderAbsorbPointer) f.note('render absorbing=${ro.absorbing}');
+        String owner = '?';
+        e.visitAncestorElements((a) {
+          if (a.widget is Navigator || a.widget is Overlay || a.widget is Scaffold) {
+            owner = a.widget.runtimeType.toString();
+            return false;
+          }
+          return true;
+        });
+        f.note('AbsorbPointer absorbing=${w.absorbing} under $owner');
+      }
+      final btn = f.tester.widget<ButtonStyleButton>(safe.first);
+      f.note('safe buttons: ${safe.evaluate().length}, on screen: '
+          '${safe.hitTestable().evaluate().length}, enabled: ${btn.onPressed != null}, '
+          'at y=${f.tester.getCenter(safe.first).dy.round()}');
       await f.tap(safe.hitTestable(), settleSeconds: 3);
+      if (!f.h.recorder.hits.skip(m2).any((x) => x.path.startsWith('/family/sos/resolve'))) {
+        // diagnostics for the owner report — a missed first tap is written down
+        f.note('FIRST TAP MISSED (snackbar: ${find.byType(SnackBar).evaluate().length}, '
+            'barriers: ${find.byType(ModalBarrier).evaluate().length}, '
+            'absorb: ${find.ancestor(of: safe.first, matching: find.byType(AbsorbPointer)).evaluate().length}, '
+            'ignore: ${find.ancestor(of: safe.first, matching: find.byType(IgnorePointer)).evaluate().length})');
+        // does ANY tap work on this page? the next button opens a page
+        final full = find.byKey(const ValueKey('sos-open-full'));
+        if (full.hitTestable().evaluate().isNotEmpty) {
+          final before = find.byType(Scaffold).evaluate().length;
+          await f.tester.tapAt(f.tester.getCenter(full.first));
+          await f.pumpFor(const Duration(seconds: 2));
+          f.note('open-full tap -> scaffolds $before -> ${find.byType(Scaffold).evaluate().length}');
+          if (find.byType(Scaffold).evaluate().length > before) {
+            await Navigator.of(f.tester.element(find.byType(Scaffold).last)).maybePop();
+            await f.pumpFor(const Duration(seconds: 2));
+          }
+        }
+        await f.tester.tapAt(f.tester.getCenter(safe.first));
+        await f.pumpFor(const Duration(seconds: 3));
+      }
       await f.shot('safe');
       f.expectHttp('POST', '/family/sos/resolve', since: m2);
       await f.eventually('B: no active SOS from A', () async {
