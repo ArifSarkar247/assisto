@@ -55088,5 +55088,17 @@
   "gcvPhoneHint": "01XXXXXXXXX",
   "@gcvPhoneHint": {
     "description": "gap-cctv: phone number hint (Bangla digits in Bangla)"
+  },
+  "caeSnapSlow": "Slow network — the photo is still loading…",
+  "@caeSnapSlow": {
+    "description": "flag-cctv-e2e: CCTV alert card, the alert photo is still downloading after 3 s (2G)"
+  },
+  "caeSnapFailed": "The photo didn't load. Check the internet — we'll also try again by ourselves.",
+  "@caeSnapFailed": {
+    "description": "flag-cctv-e2e: CCTV alert card, the photo failed for a network reason (not deleted)"
+  },
+  "caeAutoRetry": "No internet right now. The alerts will load by themselves when it's back.",
+  "@caeAutoRetry": {
+    "description": "flag-cctv-e2e: CCTV alerts list could not load; it retries automatically"
   }
 }
