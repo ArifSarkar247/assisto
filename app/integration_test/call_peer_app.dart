@@ -255,6 +255,10 @@ class Peer extends ChangeNotifier {
           'video': c.videoOn,
           'cameraOn': c.cameraOn,
           'remoteCameraOn': c.remoteCameraOn,
+          // calls-2emu: the weak-network policy pauses MY video below 120 kbps
+          // (gate 44256598783: emulator overload -> estimate 118 kbps)
+          'pausedForNet': c.videoPausedForNet,
+          'availableKbps': s.availableKbps,
         };
       }
       case 'waitEnded': {
