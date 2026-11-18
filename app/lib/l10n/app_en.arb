@@ -53258,5 +53258,48 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "vehHoldTitle": "Not sent: the vehicle is moving",
+  "@vehHoldTitle": {
+    "description": "vehicle-e2e: dialog title when an engine cut is refused because the vehicle is moving"
+  },
+  "vehHoldBody": "Assisto can wait and send the engine cut only after the vehicle has stopped. If it does not stop within {min} minutes, nothing is sent and you are told.",
+  "@vehHoldBody": {
+    "description": "vehicle-e2e: hold offer; min = minutes, already in UI digits",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "vehHoldCta": "Cut once it stops",
+  "@vehHoldCta": {
+    "description": "vehicle-e2e: button, hold the engine cut until the vehicle stops"
+  },
+  "vehHoldNo": "Not now",
+  "@vehHoldNo": {
+    "description": "vehicle-e2e: button, do not hold the engine cut"
+  },
+  "vehHoldQueued": "Waiting for the vehicle to stop. The engine cut is sent only then (up to {min} minutes).",
+  "@vehHoldQueued": {
+    "description": "vehicle-e2e: snack after a held cut was confirmed; min in UI digits",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "vehCmdStHeld": "waiting for the vehicle to stop (up to {min} min)",
+  "@vehCmdStHeld": {
+    "description": "vehicle-e2e: command row state of a held engine cut; min in UI digits",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "vehCmdStNeverStopped": "not sent: the vehicle did not stop in time",
+  "@vehCmdStNeverStopped": {
+    "description": "vehicle-e2e: command row state when a held cut expired because the vehicle never stopped"
   }
 }
