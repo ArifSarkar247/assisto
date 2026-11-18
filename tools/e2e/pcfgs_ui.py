@@ -18,37 +18,39 @@ def center(n):
     return (x1 + x2) // 2, (y1 + y2) // 2
 
 
+def bounds(n):
+    m = re.findall(r"\d+", n.get("bounds", ""))
+    return tuple(map(int, m)) if len(m) == 4 else None
+
+
 def main():
     try:
         root = ET.parse(sys.argv[1]).getroot()
     except Exception:
         print("none")
         return
-    parent = {c: p for p in root.iter() for c in p}
-
-    def ours(n):
-        # walk up to the notification row; it must hold our title
-        for _ in range(12):
-            n = parent.get(n)
-            if n is None:
-                return False
-            if any((d.get("text") or "") in TITLES for d in n.iter()):
-                return True
-        return False
-
-    for n in root.iter("node"):
+    nodes = list(root.iter("node"))
+    titles = [bounds(n) for n in nodes if (n.get("text") or "").strip() in TITLES and bounds(n)]
+    if not titles:
+        print("none")
+        return
+    ty = (titles[0][1] + titles[0][3]) // 2
+    # the Stop action of OUR row: the nearest Stop below our title
+    best = None
+    for n in nodes:
         t = (n.get("text") or n.get("content-desc") or "").strip()
-        if t in STOPS and n.get("clickable") == "true" and ours(n):
-            c = center(n)
-            if c:
-                print("stop %d %d" % c)
-                return
-    for n in root.iter("node"):
-        if (n.get("resource-id") or "").endswith("expand_button") and ours(n):
-            c = center(n)
-            if c:
-                print("expand %d %d" % c)
-                return
+        b = bounds(n)
+        if t in STOPS and b and b[1] > ty and (best is None or b[1] < best[1]):
+            best = b
+    if best and best[1] - ty < 600:
+        print("stop %d %d" % ((best[0] + best[2]) // 2, (best[1] + best[3]) // 2))
+        return
+    # collapsed: OUR row's expand chevron spans the title's height
+    for n in nodes:
+        b = bounds(n)
+        if b and (n.get("resource-id") or "").endswith("expand_button") and b[1] <= ty <= b[3]:
+            print("expand %d %d" % ((b[0] + b[2]) // 2, (b[1] + b[3]) // 2))
+            return
     print("none")
 
 

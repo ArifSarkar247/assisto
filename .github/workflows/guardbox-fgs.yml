@@ -134,7 +134,8 @@ jobs:
       - name: Fake webcam with a moving person-sized shape (v4l2loopback + ffmpeg -> /dev/video0)
         # The emulator's own "emulated" camera shows a still scene (run
         # 44282451836: no motion in 150 s). The emulator reads a host webcam
-        # (-camera-back webcam0): a gray room, a dark person-sized shape walks
+        # (-camera-back webcam0): a textured still room (a blank wall reads as
+        # "lens covered" — run 44292768276), a dark person-sized shape walks
         # across for 10 s every 25 s (motion bursts with still gaps).
         run: |
           set -x
@@ -146,7 +147,7 @@ jobs:
             sudo udevadm settle || true; sleep 1; sudo chmod 666 /dev/video0
             # sudo: run 44287542968 died with "Permission denied" writing frames
             sudo nohup ffmpeg -hide_banner -loglevel error -re \
-              -f lavfi -i "color=c=0x8a8a7a:s=640x480:r=15" \
+              -f lavfi -i "color=c=0x8a8a7a:s=640x480:r=15,format=yuv420p,geq=lum='120+45*sin(X/9)*cos(Y/13)':cb=128:cr=128" \
               -f lavfi -i "color=c=0x1e2a3a:s=140x300:r=15" \
               -filter_complex "[0][1]overlay=x='mod(t,25)*70-140':y=120:enable='lt(mod(t,25),10)',format=yuyv422" \
               -f v4l2 /dev/video0 > "$RUNNER_TEMP/fakecam.log" 2>&1 &

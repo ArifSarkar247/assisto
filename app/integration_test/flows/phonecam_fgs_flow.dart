@@ -293,15 +293,24 @@ Future<void> _flow(RFlow f) async {
     if (j != null) await f.net(() => _save('pcfgs_screenoff_frame.jpg', j));
     f.note('dump screen off: ${await _sidecar(f, 'DUMP')}');
     // a motion-only alert waits 3 min after the previous one (cooldown)
-    await _waitNet(f, 'a NEW alert with a photo while the screen is off', () async {
+    final seen = before.map((e) => e['id']).toSet();
+    final other = <String>[];
+    await _waitNet(f, 'a NEW MOTION alert with a photo while the screen is off', () async {
       final ev = await _snapEvents(b, site, camId);
-      return ev.length > before.length;
+      for (final e in ev.where((e) => !seen.contains(e['id']))) {
+        seen.add(e['id']);
+        if ('${e['type']}' == 'motion' || '${e['type']}' == 'person_detected') return true;
+        other.add('${e['type']}');
+      }
+      return false;
     }, seconds: 300);
+    if (other.isNotEmpty) f.note('other screen-off alerts: ${other.join(',')}');
     await _waitNet(f, 'the push to B (screen off)', () async {
       final o = await a.getJson('/ci-e2e/outbox?kind=push&user=$bId&since=$t1');
       return _list(o['rows']).isNotEmpty;
     }, seconds: 30);
-    final ev = (await f.net(() => _snapEvents(b, site, camId))).first;
+    final ev = (await f.net(() => _snapEvents(b, site, camId)))
+        .firstWhere((e) => '${e['type']}' == 'motion' || '${e['type']}' == 'person_detected');
     final jpg = await f.net(() => _photo('${ev['snapshot_url']}', b.token ?? ''));
     if (jpg.length < 1000 || jpg[0] != 0xFF || jpg[1] != 0xD8) {
       throw TestFailure('the screen-off alert photo is not a JPEG');
