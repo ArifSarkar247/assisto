@@ -130,8 +130,14 @@ TrainSmsReply? parseTrain16318(String raw,
     kind = 'left';
   }
 
-  // ---- station: the longest known name found in the text
-  final nt = ' ${_norm(text)} ';
+  // ---- station: the longest known name found in the text — but never the
+  // word(s) of a TRAIN name ("RANGPUR EXPRESS ... Left Natore" is Natore;
+  // emulator run 44214276829 previewed "left Rangpur"). A name right before
+  // Express / Mail / Commuter (also in Bangla) is dropped first.
+  final nt = ' ${_norm(text)} '.replaceAll(
+      RegExp(r' [\p{L}\p{M}]+ (?:express|exp|mail|commuter|\u098f\u0995\u09cd\u09b8\u09aa\u09cd\u09b0\u09c7\u09b8|\u09ae\u09c7\u0987\u09b2|\u0995\u09ae\u09bf\u0989\u099f\u09be\u09b0|\u098f\u0995\u09cd\u09b8\u09aa\u09cd\u09b0\u09c7\u09b8\u09c7\u09b0)(?= )',
+          unicode: true),
+      ' ');
   TrainSmsStation? best;
   var bestLen = 0;
   for (final s in stations) {
