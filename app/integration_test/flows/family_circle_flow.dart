@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
+import 'package:assisto/screens/circle_chat_screen.dart'; // circle-chat
 
 import '../support/harness.dart';
 import 'sos_journey_flow.dart' show holdSos; // qjourney
@@ -68,6 +69,15 @@ void registerFamilyCircleFlows() {
     });
     await f.step('open My Circle; seeded friend B is connected', () async {
       await f.openRoute('circle');
+      // circle-chat: the FIRST My Circle open shows the one-time "floating
+      // chat bubbles" offer (bubbles2 sheet) over the list; the tap on B
+      // landed on the sheet, the chat never opened and the flow timed out
+      // on the Message field (class C since 17 Nov, nightly 44007111431,
+      // shot 15_circle_message_02_chat). Tap "Later" like a user, by Key.
+      if (await f.appears(find.byKey(const Key('bbl2-later')), seconds: 4)) {
+        await f.shot('bubbles-offer');
+        await f.tap(find.byKey(const Key('bbl2-later')), settleSeconds: 2);
+      }
       await f.shot('circle');
       f.expectHttp('GET', '/circle/members');
       await f.waitFor(find.text(Seed.nameB), what: 'connected member B');
@@ -75,6 +85,7 @@ void registerFamilyCircleFlows() {
     final textA = 'Hello Karim a$_tag';
     await f.step('A opens the chat and sends a message', () async {
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
+      await f.waitFor(find.byType(CircleChatScreen), what: 'the chat with B opened');
       await f.shot('chat');
       if (find.text(f.t.circleKeyMissing).evaluate().isNotEmpty) {
         throw TestFailure('chat says the peer key is missing');
