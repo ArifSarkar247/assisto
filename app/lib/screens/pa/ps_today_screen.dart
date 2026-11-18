@@ -71,7 +71,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
     if (added == true && mounted) _load();
   }
 
-  /// bizassist S6: a spoken / typed task ("কাল সকাল ১০টায় করিম ভাইকে ফোন")
+  /// bizassist S6: a spoken / typed task ("kal sokal 10tay Karim bhaike phone")
   /// becomes a reminder in the phone's own clock — the same offline-first
   /// repo + alarm as the Reminders screen — then the brief reloads.
   Future<void> _addTask(ParsedReminder p, String title, Map<String, dynamic>? link) async {
