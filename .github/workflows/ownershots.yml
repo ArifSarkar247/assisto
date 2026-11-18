@@ -7,7 +7,7 @@ name: ownershots
 
 on:
   push:
-    branches: ['ci/adminsafe*']
+    branches: ['ci/adminsafe*', 'ci/owneradmin*']
   workflow_dispatch:
 
 concurrency:
@@ -40,6 +40,7 @@ jobs:
           cp tools/website/ci_settings.py backend/assisto_backend/settings_webci.py
           cp tools/owner_shots/settings_ownershots.py backend/assisto_backend/settings_ownershots.py
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          echo "INTEGRATIONS_FERNET_KEY=$INTEGRATIONS_FERNET_KEY" >> "$GITHUB_ENV"   # throwaway, this run only
           export WEBCI_DB=$RUNNER_TEMP/owner.sqlite3 SHOTS_SEED_OUT=$RUNNER_TEMP/seed.json
           cd backend
           python manage.py migrate -v0 --settings=assisto_backend.settings_ownershots --noinput
@@ -47,13 +48,24 @@ jobs:
           nohup python manage.py runserver 127.0.0.1:8000 --noreload --insecure \
             --settings=assisto_backend.settings_ownershots > "$RUNNER_TEMP/server.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:8000/owner/login && break; sleep 1; done
+      # owneradmin: every page with the crawl checks of web/tests_owneradmin_crawl.py
+      - name: crawl every Owner Admin page (bn + en)
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/shots"
+          export WEBCI_DB=$RUNNER_TEMP/owner.sqlite3 CRAWL_OUT=$RUNNER_TEMP/shots/crawl.json
+          cd backend
+          python manage.py shell --settings=assisto_backend.settings_ownershots -c "exec(open('../tools/owner_shots/crawl.py').read())" | tee "$RUNNER_TEMP/shots/crawl.txt"
       - name: screenshots
         run: |
           set -e
           mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
           npm init -y >/dev/null && npm i -s playwright@$PW_VERSION
           npx -y playwright@$PW_VERSION install --with-deps chromium >/dev/null
-          cp "$GITHUB_WORKSPACE/tools/owner_shots/shots.mjs" .
+          cp "$GITHUB_WORKSPACE/tools/owner_shots/shots.mjs" "$GITHUB_WORKSPACE/tools/owner_shots/allpages.mjs" .
+          sleep 31
+          node allpages.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots" "$RUNNER_TEMP/seed.json" "$RUNNER_TEMP/shots/crawl.json"
+          sleep 31
           node shots.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots" "$RUNNER_TEMP/seed.json"
       - name: server log on failure
         if: failure()
