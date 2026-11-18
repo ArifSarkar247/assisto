@@ -294,6 +294,8 @@ void main() {
       api.whereFails = false;
       await tester.tap(find.text(en.sjlRetry));
       await _settle(tester);
+      // safety-plan: a 5th Live Location tile (Family safety plan) moved this down
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('sjl_where_empty')), 200);
       expect(find.byKey(const ValueKey('sjl_where_empty')), findsOneWidget);
     });
   });

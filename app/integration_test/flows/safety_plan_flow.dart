@@ -36,12 +36,6 @@ List<Map<String, dynamic>> _rows(Map<String, dynamic> r, String key) =>
 
 ApiClient _apiA(RFlow f) => ApiClient.detached(f.app.api.token ?? '')..lang = 'en';
 
-Finder _sees(String s) => find.byWidgetPredicate((w) {
-      if (w is Text) return (w.data ?? w.textSpan?.toPlainText() ?? '').contains(s);
-      if (w is RichText) return w.text.toPlainText().contains(s);
-      return false;
-    });
-
 Future<Map<String, dynamic>> _sim(ApiClient api, Map<String, dynamic> body) async {
   final r = await api.postJsonRaw('/ci-e2e/sj-sim', body);
   if (r['ok'] != true) throw TestFailure('sj-sim ${body['op']}: $r');

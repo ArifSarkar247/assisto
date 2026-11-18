@@ -612,17 +612,20 @@ class _SafetyPlanEditScreenState extends State<SafetyPlanEditScreen>
                     onPressed: () => setState(() => _call.add(m['member_id'] as int))),
             ]),
           _h(t.splNumbers),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            for (final d in widget.defaults)
-              FilterChip(
-                  key: ValueKey('spl_def_${d['number']}'),
-                  label: Text('${jDigits(context, '${d['number']}')} · ${d['label']}'),
-                  selected: _nums.any((n) => n['number'] == d['number']),
-                  onSelected: (on) => setState(() {
-                        _nums.removeWhere((n) => n['number'] == d['number']);
-                        if (on) _nums.add({'number': d['number'], 'label': d['label']});
-                      })),
-          ]),
+          // shot review: a chip cut the long label ("…police, fire, a") —
+          // full-width rows wrap instead, and stay 48 dp tall
+          for (final d in widget.defaults)
+            CheckboxListTile(
+                key: ValueKey('spl_def_${d['number']}'),
+                contentPadding: EdgeInsets.zero,
+                value: _nums.any((n) => n['number'] == d['number']),
+                title: Text(jDigits(context, '${d['number']}'),
+                    style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+                subtitle: Text('${d['label']}'),
+                onChanged: (on) => setState(() {
+                      _nums.removeWhere((n) => n['number'] == d['number']);
+                      if (on == true) _nums.add({'number': d['number'], 'label': d['label']});
+                    })),
           for (var i = 0; i < _nums.length; i++)
             if (!widget.defaults.any((d) => d['number'] == _nums[i]['number']))
               ListTile(
