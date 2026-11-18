@@ -62,7 +62,7 @@ int _seq = 0;
 /// (the screen may be off: no frames).
 Future<String> _sidecar(RFlow f, String cmd, {int seconds = 60}) async {
   final tag = '${cmd.toLowerCase()}${++_seq}';
-  return f.net(() async {
+  final got = await f.net<String?>(() async {
     final dir = (await getApplicationSupportDirectory()).path;
     final ack = File('$dir/pcfgs_ack_$tag');
     // ignore: avoid_print
@@ -78,8 +78,10 @@ Future<String> _sidecar(RFlow f, String cmd, {int seconds = 60}) async {
       }
       await Future.delayed(const Duration(milliseconds: 500));
     }
-    throw TestFailure('sidecar never answered $cmd ($tag)');
+    return null;
   });
+  if (got == null) throw TestFailure('sidecar never answered $cmd ($tag)');
+  return got;
 }
 
 /// Poll with real time only (no pump: safe while the screen is off).

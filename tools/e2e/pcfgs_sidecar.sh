@@ -14,7 +14,12 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 LOG="$OUT/pcfgs_sidecar.log"
 mkdir -p "$OUT"; touch "$OUT/live_logcat.txt"
 A() { timeout 25 adb "$@"; }
-ack() { A shell run-as $PKG sh -c "mkdir -p files && echo '$2' > files/pcfgs_ack_$1" >> "$LOG" 2>&1; }
+# one string for `adb shell` (it re-joins argv: separate args lost the quoting)
+ack() {
+  local v="${2//\'/}"
+  A shell "run-as $PKG sh -c 'mkdir -p files; echo \"$v\" > files/pcfgs_ack_$1'" >> "$LOG" 2>&1
+  A shell "run-as $PKG ls files/pcfgs_ack_$1" >> "$LOG" 2>&1
+}
 declare -A seen
 timeout 4000 tail -n0 -F "$OUT/live_logcat.txt" 2>/dev/null \
   | grep --line-buffered -oE 'PCFGS:[A-Z]+:[a-z0-9]+' | while read -r m; do
