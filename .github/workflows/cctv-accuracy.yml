@@ -18,6 +18,9 @@ on:
       night_cam_hours:
         description: "Simulated night camera-hours for the false-alert estimate"
         default: "252"
+      mode:
+        description: "stills (COCO person + motion), sheets (cctv-accuracy: labelling contact sheets of the licensed clips) or clips (cctv-accuracy: real-clip alert accuracy before/after)"
+        default: "stills"
       use_owner_clips:
         description: "Also score the owner's private clips (secret CCTV_OWNER_CLIPS_URL)"
         type: boolean
@@ -28,6 +31,7 @@ permissions:
 
 jobs:
   accuracy:
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'stills' || inputs.mode == ''
     runs-on: ubuntu-latest
     timeout-minutes: 130
     steps:
@@ -86,4 +90,48 @@ jobs:
           path: |
             cctv_accuracy.json
             cctv_accuracy.txt
+          retention-days: 5
+
+  # cctv-accuracy: REAL video clips (openly licensed, Wikimedia Commons; list,
+  # licences and labels in tools/cctvacc/clips.json + SOURCES.md) through the
+  # exact Shop Box / Guard Box alert path (motion gate -> person model ->
+  # confirm -> cooldown). Downloads are SHA-1 checked; nothing is committed.
+  clips:
+    if: github.event_name == 'workflow_dispatch' && (inputs.mode == 'sheets' || inputs.mode == 'clips')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Shop Box runtime deps
+        working-directory: edge/shopbox
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Person model (SHA-256 verified)
+        if: inputs.mode == 'clips'
+        working-directory: edge/shopbox
+        run: python -m shopbox.model_fetch models/yolox_nano.onnx
+      - name: Clips (Wikimedia Commons, SHA-1 verified)
+        run: python tools/cctvacc/fetch.py --out "$RUNNER_TEMP/clips"
+      - name: Contact sheets (for human labels)
+        if: inputs.mode == 'sheets'
+        run: python tools/cctvacc/sheets.py --clips "$RUNNER_TEMP/clips" --out sheets
+      - name: Alert accuracy, before / after
+        if: inputs.mode == 'clips'
+        run: |
+          set -o pipefail
+          python tools/cctvacc/run_clips.py --clips "$RUNNER_TEMP/clips" \
+            --model edge/shopbox/models/yolox_nano.onnx --out cctv_clips.json | tee cctv_clips.txt
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: cctv-clips-${{ inputs.mode }}
+          path: |
+            sheets/
+            cctv_clips.json
+            cctv_clips.txt
+          if-no-files-found: ignore
           retention-days: 5

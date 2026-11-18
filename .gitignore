@@ -71,6 +71,7 @@ owner_actions/photo_bench/.media_tmp/
 !tools/perf2gb/
 !tools/speedproof/
 !tools/e2e/
+!tools/cctvacc/
 !tools/cashguard/
 !tools/play_pack/
 !tools/places/
