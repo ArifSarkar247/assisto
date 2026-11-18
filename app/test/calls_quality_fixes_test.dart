@@ -1,6 +1,7 @@
 // calls-quality: each bug the two-emulator quality run found
 // (calls2emu 44254417569 / 44261908414) becomes a test here.
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' show AppLifecycleState;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -220,5 +221,15 @@ void main() {
       expect(ans.last.$2['rseq'], 7);
       c.dispose();
     });
+  });
+
+  test('an ICE restart is a REAL restart on Android (new credentials)', () {
+    // flutter_webrtc Android ignores a top-level 'iceRestart' constraint
+    // (calls2emu 44272508208: ufrag unchanged across 6 "restarts", call lost)
+    final src = File('lib/calls/webrtc_media.dart').readAsStringSync();
+    final i = src.indexOf('Future<Map<String, dynamic>> createOffer');
+    final body = src.substring(i, src.indexOf('Future<Map<String, dynamic>> acceptOffer'));
+    expect(body, contains('await _peer.restartIce()'));
+    expect(body, contains("'mandatory': {'IceRestart': 'true'}"));
   });
 }

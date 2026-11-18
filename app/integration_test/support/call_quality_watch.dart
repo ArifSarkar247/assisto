@@ -25,7 +25,7 @@ Future<Map<String, dynamic>> watchQuality(QualitySnap snap, Duration window,
   final first = await snap();
   var last = first;
   var lastV = _i(first, 'vin_frames'), lastA = _i(first, 'ain_packets');
-  var vAt = 0, aAt = 0, vGap = 0, aGap = 0, samples = 1;
+  var vAt = 0, aAt = 0, vGap = 0, aGap = 0, samples = 1, prevAt = 0, maxStep = 0;
   final rtts = <int>[];
   while (sw.elapsed < window) {
     if (tick != null) {
@@ -37,9 +37,15 @@ Future<Map<String, dynamic>> watchQuality(QualitySnap snap, Duration window,
     samples++;
     final now = sw.elapsedMilliseconds;
     final v = _i(s, 'vin_frames'), a = _i(s, 'ain_packets');
-    // the gap runs until the sample that shows a new frame / packet
-    if (now - vAt > vGap) vGap = now - vAt;
-    if (now - aAt > aGap) aGap = now - aAt;
+    // calls-quality (calls2emu 44272508208): a gap is measured only up to the
+    // LAST sample that still showed no new frame — when the sampler itself
+    // stalls (the test's own UI pump on a busy emulator), that stall is not
+    // reported as a freeze; [max_sample_ms] shows such stalls. libwebrtc's
+    // own freeze counters (freezes / freeze_ms) are the receiver's truth.
+    if (now - prevAt > maxStep) maxStep = now - prevAt;
+    if (v <= lastV && now - vAt > vGap) vGap = now - vAt;
+    if (a <= lastA && now - aAt > aGap) aGap = now - aAt;
+    prevAt = now;
     if (v > lastV) {
       vAt = now;
       lastV = v;
@@ -61,6 +67,7 @@ Future<Map<String, dynamic>> watchQuality(QualitySnap snap, Duration window,
   return {
     'window_ms': sw.elapsedMilliseconds,
     'samples': samples,
+    'max_sample_ms': maxStep,
     'video_frames': _i(last, 'vin_frames') - _i(first, 'vin_frames'),
     'video_max_gap_ms': vGap,
     'video_loss_pct': dLost + dRecv > 0 ? (1000 * dLost / (dLost + dRecv)).round() / 10 : null,

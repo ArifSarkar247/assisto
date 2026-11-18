@@ -19,7 +19,7 @@ void main() {
     }, const Duration(milliseconds: 950), every: const Duration(milliseconds: 50));
     expect(w['video_frames'], greaterThan(5));
     // 7 sample intervals without a new frame (~350 ms), never the whole window
-    expect(w['video_max_gap_ms'] as int, inInclusiveRange(300, 700));
+    expect(w['video_max_gap_ms'] as int, inInclusiveRange(250, 700));
     expect(w['audio_max_gap_ms'] as int, lessThan(200));
     expect(w['rtt_median_ms'], 300);
     expect(isRelayed(w), isTrue);
@@ -30,7 +30,7 @@ void main() {
     final w = await watchQuality(() async => {'vin_frames': 7, 'ain_packets': 3},
         const Duration(milliseconds: 400), every: const Duration(milliseconds: 50));
     expect(w['video_frames'], 0);
-    expect(w['video_max_gap_ms'] as int, greaterThanOrEqualTo(350));
+    expect(w['video_max_gap_ms'] as int, greaterThanOrEqualTo(300));
     expect(isRelayed(w), isFalse);
   });
 }

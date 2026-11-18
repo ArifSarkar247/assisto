@@ -760,6 +760,11 @@ void registerCallsQualityFlows() {
     Future<void> switchAndSurvive(String label, bool wifiOn) async {
       final call = e.a; // this call object, whatever the screens do
       final before = call.log.length;
+      Future<String?> ufrag() async {
+        final ev = await f.net((call.media as WebRtcCallMedia).debugEvidence);
+        return RegExp(r'a=ice-ufrag:(\S+)').firstMatch('${ev['local_sdp'] ?? ''}')?.group(1);
+      }
+      final u0 = await ufrag();
       final n0 = await e.host('net', {'side': 'A'});
       final sw = Stopwatch()..start();
       final h = await e.host('wifi', {'side': 'A', 'on': wifiOn});
@@ -776,11 +781,12 @@ void registerCallsQualityFlows() {
           tick: () => f.tester.pump(const Duration(milliseconds: 250)));
       final wb = await e.result(id, 'watch $label', seconds: 70);
       final n1 = await e.host('net', {'side': 'A'});
+      final u1 = await ufrag();
       final newLog = call.log.skip(before).toList();
       final restarted = newLog.any((x) => x.startsWith('restart_offer') || x.startsWith('restart_request') ||
           x.contains('restart'));
       final line = '$label: wifi ${wifiOn ? 'ON' : 'OFF'} (${h['svc']}) default ${n0['lines']} -> ${n1['lines']}; '
-          'live again ${sw.elapsedMilliseconds} ms; B outage (max video gap) ${wb['video_max_gap_ms']} ms, '
+          'live again ${sw.elapsedMilliseconds} ms; ICE ufrag $u0 -> $u1; B outage (max video gap) ${wb['video_max_gap_ms']} ms, '
           'audio gap ${wb['audio_max_gap_ms']} ms; A after [${qualityLine(wa)}]; A log $newLog';
       f.note(line);
       try {
@@ -790,6 +796,11 @@ void registerCallsQualityFlows() {
         throw TestFailure('$label: A never saw the network change (log $newLog)');
       }
       if (!restarted) throw TestFailure('$label: no ICE restart after the switch (log $newLog)');
+      // a REAL restart has new ICE credentials (calls2emu 44272508208: the
+      // ufrag never changed — the restart was a no-op on Android)
+      if (u0 != null && u0 == u1) {
+        throw TestFailure('$label: ICE "restart" kept the old credentials (ufrag $u0) (log $newLog)');
+      }
       if (((wa['video_frames'] as num?) ?? 0) <= 0 || ((wa['audio_packets'] as num?) ?? 0) <= 0) {
         throw TestFailure('$label: media did not come back on A (${qualityLine(wa)})');
       }

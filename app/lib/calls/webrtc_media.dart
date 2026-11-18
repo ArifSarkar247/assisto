@@ -445,10 +445,24 @@ class WebRtcCallMedia
         callLog('webrtc_media#16', e);
       }
     }
+    // calls-quality (calls2emu 44272508208, Wi-Fi -> mobile data): the
+    // top-level 'iceRestart' was IGNORED by flutter_webrtc on Android (it
+    // parses only mandatory / optional) — every "ICE restart" re-sent the old
+    // ICE credentials (ufrag unchanged), no new candidates were gathered, and
+    // the relay fallback then cut the only working path: call lost. Now the
+    // standard restartIce() + the legacy mandatory IceRestart constraint.
+    if (iceRestart) {
+      try {
+        await _peer.restartIce();
+      } catch (e) {
+        callLog('webrtc_media#17', e);
+      }
+    }
     final offer = await _peer.createOffer({
       'offerToReceiveAudio': true,
       'offerToReceiveVideo': true,
       if (iceRestart) 'iceRestart': true,
+      if (iceRestart) 'mandatory': {'IceRestart': 'true'},
     });
     final tuned = _tuned(offer);
     await _peer.setLocalDescription(tuned);
