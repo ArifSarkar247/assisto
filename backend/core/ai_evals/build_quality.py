@@ -212,7 +212,7 @@ add("bn", "mfs", "কেউ ফোন করে বলছে বিকাশ অ
      "প্রতারণার চেষ্টা হলে নিকটস্থ থানায় জিডি করা যায়; পরিবারের বয়স্কদেরও বিষয়টি জানান।"],
     "এখনই পরিবারের সবাইকে বলুন: কেউ কোড চাইলে কখনো দেবেন না।", must=["16247", "১৬২৪৭"])
 add("bn", "mfs", "গ্রামে মাকে প্রতি মাসে টাকা পাঠাই, বিকাশ না নগদ কোনটা সুবিধা?",
-    "দুটোই নিরাপদ; যেটির এজেন্ট মায়ের বাড়ির কাছে বেশি এবং ক্যাশ আউট চার্জ কম, সেটিই আপনার জন্য সুবিধা।",
+    "বিকাশ ও নগদ দুটোই নিরাপদ; যেটির এজেন্ট মায়ের বাড়ির কাছে বেশি এবং ক্যাশ আউট চার্জ কম, সেটিই আপনার জন্য সুবিধা।",
     ["মায়ের এলাকায় কোন সেবার এজেন্ট বেশি ও কাছে আছে আগে জেনে নিন।",
      "দুই সেবার চলতি ক্যাশ আউট চার্জ ও অফার অ্যাপে মিলিয়ে দেখুন।",
      "মায়ের নামে নিজস্ব অ্যাকাউন্ট খুলে দিন এবং পিন যেন তিনি নিজেই রাখেন।",
@@ -607,7 +607,7 @@ add("en", "business", "How do I get a trade licence for my shop?",
 add("en", "business", "Compare selling on Facebook versus a marketplace like Daraz for a small seller.",
     "Facebook gives you more control and no commission but you must bring buyers yourself; a marketplace brings buyers but takes a commission and sets the rules.",
     ["Facebook: no commission, direct contact with buyers, you handle delivery and payment.",
-     "Marketplace: ready traffic and payment handling, but commission and strict policies.",
+     "Marketplace such as Daraz: ready traffic and payment handling, but commission and strict policies.",
      "Many sellers use both: a marketplace for reach, Facebook for repeat buyers.",
      "Track costs per order on each channel to see which really earns more."],
     "List five products on one channel this week and compare the profit per order.", must=["commission"], fault="table")

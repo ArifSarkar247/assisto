@@ -630,12 +630,6 @@ def _chat_level(request):
         return None
 
 
-def _live_kw(live):
-    """Only pass `stream` when streaming (test fakes of ai.generate keep
-    their old signature)."""
-    return {"stream": live} if live is not None else {}
-
-
 def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                    photo="", level=None, follow="", follow_free=False, live=None):
     """Produce the assistant reply for `text` given prior `history`.
@@ -748,7 +742,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
                     user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
-                    web=use_web, **_live_kw(live))
+                    web=use_web, stream=live)
                 if use_web:
                     meta_out["web"] = True
             elif mode:
@@ -762,13 +756,13 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
                     user=payer, history=history, mode=mode, out_meta=meta_out,
-                    upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault, **_live_kw(live))
+                    upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault, stream=live)
             else:
                 reply, cost = ai.generate(
                     task=task_text,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat", max_tokens=1500,
-                    user=payer, history=history, pii=vault, out_meta=meta_out, **_live_kw(live))
+                    user=payer, history=history, pii=vault, out_meta=meta_out, stream=live)
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
@@ -1186,9 +1180,6 @@ class ChatSendView(APIView):
         kw = dict(credout=credits_out.supported(request), mode=_chat_mode(request),
                   photo=_photo_context(request), level=_chat_level(request),
                   follow=fk, follow_free=ffree)
-        from . import chat_live_stream as LS
-        if LS.enabled():
-            return self._live(u, s, text, lang, history, kw, user_msg, cid)
         try:
             reply, meta, cards = _produce_reply(u, s, text, lang, history, **kw)
         except credits_out.CreditsOut as e:
