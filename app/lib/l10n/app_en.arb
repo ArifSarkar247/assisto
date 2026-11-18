@@ -52785,5 +52785,9 @@
   "@gcvTuyaAccessId": {
     "description": "gap-cctv: Tuya / Smart Life own-project Access ID field"
   },
-  "gcvTuyaAccessSecret": "Access Secret"
+  "gcvTuyaAccessSecret": "Access Secret",
+  "gcvPhoneHint": "01XXXXXXXXX",
+  "@gcvPhoneHint": {
+    "description": "gap-cctv: phone number hint (Bangla digits in Bangla)"
+  }
 }
