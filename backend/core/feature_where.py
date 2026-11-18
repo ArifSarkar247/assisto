@@ -151,8 +151,8 @@ WHERE = {
         "My Circle → open a chat → AI reply (suggest / busy / full auto)",
         "আমার সার্কেল → একটি চ্যাট খুলুন → AI উত্তর (প্রস্তাব / ব্যস্ত / পুরো অটো)"),
     "ai_reply_notif": (
-        "Menu ☰ → Settings → AI reply suggestions on notifications",
-        "মেনু ☰ → সেটিংস → নোটিফিকেশনে AI উত্তরের প্রস্তাব"),
+        "Menu ☰ → Settings → AI reply in notifications",
+        "মেনু ☰ → সেটিংস → নোটিফিকেশনে AI উত্তর"),
 }
 
 
