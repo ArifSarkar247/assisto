@@ -516,9 +516,23 @@ class AudioRouteService extends ChangeNotifier {
       } catch (e) {
         _err('select', e);
       }
-      log.add('route:${want.name}${ok ? '' : '!'}:$why');
-      active = want;
-      _routeCtl.add(want);
+      var now = want;
+      if (!ok && nativeOwner) {
+        // calls-quality (calls2emu 44261908414): the phone refused the route
+        // — report what Android really plays on, never the wish
+        try {
+          now = await _p.active() ?? want;
+        } catch (e) {
+          _err('active', e);
+        }
+      }
+      log.add('route:${want.name}${ok ? '' : '!'}${now != want ? '->${now.name}' : ''}:$why');
+      active = now;
+      _routeCtl.add(now);
+    } else if (why == 'pick' && active != null) {
+      // calls-quality: a pick this phone cannot do (e.g. "earpiece" on a
+      // phone/tablet without one): tell the call screen what stays on
+      _routeCtl.add(active!);
     }
     notifyListeners();
   }

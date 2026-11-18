@@ -556,6 +556,15 @@ class CallController extends ChangeNotifier {
   bool _started = false;
   bool _peerReady = false;
   int _preConnectRestarts = 0;
+
+  /// calls-quality (calls2emu 44261908414, Wi-Fi -> mobile data): two ICE
+  /// restarts in quick succession; the answer to the OLD offer was applied
+  /// to the new one (wrong ICE credentials -> 8 s frozen video until the
+  /// next restart) and the real answer then failed ("wrong state: stable").
+  /// Every restart offer carries a number the callee echoes; an answer for
+  /// an older offer is dropped. Callees without the echo (older apps) still
+  /// work: an answer with no number is applied as before.
+  int restartSeq = 0;
   final List<Map<String, dynamic>> _early = [];
   bool _remoteSet = false;
   bool _offerHandled = false;
@@ -992,13 +1001,23 @@ class CallController extends ChangeNotifier {
           final ans = await media.acceptOffer(data);
           _remoteSet = true;
           await _flushCandidates();
+          final rseq = data['rseq'];
           await signaling.signal(
-              callId!, kind == 'offer' ? 'answer' : 'restart_answer', ans);
+              callId!,
+              kind == 'offer' ? 'answer' : 'restart_answer',
+              rseq == null ? ans : {...ans, 'rseq': rseq});
           log.add('${kind == 'offer' ? 'answer' : 'restart_answer'}-sent');
           break;
         case 'answer':
         case 'restart_answer':
           if (!outgoing) return;
+          if (kind == 'restart_answer') {
+            final rseq = data['rseq'];
+            if (rseq is num && rseq.toInt() != restartSeq) {
+              log.add('restart_answer-stale:$rseq');
+              return;
+            }
+          }
           await media.setAnswer(data);
           _remoteSet = true;
           await _flushCandidates();
@@ -1266,7 +1285,8 @@ class CallController extends ChangeNotifier {
     if (!outgoing || isEnded || callId == null) return;
     try {
       final offer = await media.createOffer(iceRestart: true);
-      await signaling.signal(callId!, 'restart_offer', offer);
+      final seq = ++restartSeq;
+      await signaling.signal(callId!, 'restart_offer', {...offer, 'rseq': seq});
       log.add('restart_offer-sent');
     } catch (e) {
       log.add('restart-failed:$e');

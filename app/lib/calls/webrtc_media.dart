@@ -254,6 +254,11 @@ class WebRtcCallMedia
       // circle-screenshare: the screen stays on the sender; the camera is
       // put back by stopScreenShare
     } else if (sender != null) {
+      // calls-quality: the size / bitrate caps BEFORE the first frame — a
+      // 720p first keyframe at full size on a low estimate took 3.4 s to the
+      // other phone (calls2emu 44261908414 18w_b b_on)
+      final plan = _plan;
+      if (plan != null) await _capVideo(plan);
       // used before (video -> voice -> video): same m-line, same stream id
       await sender.replaceTrack(track);
     } else {
@@ -318,8 +323,16 @@ class WebRtcCallMedia
   @override
   Future<void> setAudioRoute(AudioRoute r) => _audio.select(r);
 
+  /// calls-quality: starts with the route in use NOW — the controller
+  /// listens only after open(), when the first route was already chosen
+  /// (calls2emu 44261908414: the screen said "earpiece", Android played on
+  /// the speaker).
   @override
-  Stream<AudioRoute> get routeChanges => _audio.routeChanges;
+  Stream<AudioRoute> get routeChanges async* {
+    final now = _audio.active;
+    if (now != null) yield now;
+    yield* _audio.routeChanges;
+  }
 
   @override
   Future<void> setVideoMode(bool on) => _audio.setVideo(on);

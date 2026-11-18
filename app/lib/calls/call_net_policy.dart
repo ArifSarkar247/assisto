@@ -118,6 +118,7 @@ class CallNetPolicy {
   CallNetPolicy({
     this.lowData = false,
     this.pauseBelowKbps = 120,
+    this.hardPauseKbps = 50,
     this.pauseLossPct = 15,
     this.resumeAboveKbps = 250,
     this.pauseAfter = 3,
@@ -171,6 +172,10 @@ class CallNetPolicy {
   /// The person chose "Low-data calls" (or the other phone asked for it).
   bool lowData;
   final double pauseBelowKbps;
+
+  /// calls-quality: under this the uplink can't carry any picture — pause
+  /// whatever the RTT / loss say.
+  final double hardPauseKbps;
   final double pauseLossPct;
   final double resumeAboveKbps;
   final int pauseAfter;
@@ -298,7 +303,16 @@ class CallNetPolicy {
     }
     final b = s.availableKbps;
     final l = s.lossPct ?? 0;
-    final bad = (b != null && b < pauseBelowKbps) || l > pauseLossPct;
+    // calls-quality (calls2emu 44261908414): on a 3G-like path (RTT ~350 ms,
+    // ~3 % random loss) libwebrtc's loss-based estimate under-reads (~60
+    // kbit/s) and video was paused for 20 s although the link had room. Below
+    // [pauseBelowKbps] video pauses only on a really bad path (RTT > 500 ms
+    // or loss > 5 %) or under [hardPauseKbps]; otherwise it keeps adapting.
+    final r = s.rttMs ?? 0;
+    final bad = (b != null &&
+            (b < hardPauseKbps ||
+                (b < pauseBelowKbps && (r > 500 || l > 5)))) ||
+        l > pauseLossPct;
     final good = (b == null || b >= resumeAboveKbps) && l < 5;
     if (!videoPaused) {
       _badRun = bad ? _badRun + 1 : 0;

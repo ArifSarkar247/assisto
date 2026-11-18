@@ -540,15 +540,15 @@ extension _Quality on _TwoEmu {
     }
   }
 
-  Future<void> waitLive(String what, {int seconds = 30}) async {
+  Future<void> waitLive(String what, {int seconds = 30, CallController? call}) async {
     final end = DateTime.now().add(Duration(seconds: seconds));
     while (DateTime.now().isBefore(end)) {
-      final c = CallRuntime.instance.currentCall;
+      final c = call ?? CallRuntime.instance.currentCall;
       if (c != null && c.phase == CallPhase.connected) return;
       if (c == null || c.isEnded) throw TestFailure('$what: the call ENDED (${c?.endReason}, log ${c?.log})');
       await f.tester.pump(const Duration(milliseconds: 300));
     }
-    final c = CallRuntime.instance.currentCall;
+    final c = call ?? CallRuntime.instance.currentCall;
     throw TestFailure('$what: not connected again in $seconds s (phase ${c?.phase}, log ${c?.log})');
   }
 
@@ -740,7 +740,8 @@ void registerCallsQualityFlows() {
     final e = _TwoEmu(f);
     await e.reset();
     Future<void> switchAndSurvive(String label, bool wifiOn) async {
-      final before = e.a.log.length;
+      final call = e.a; // this call object, whatever the screens do
+      final before = call.log.length;
       final n0 = await e.host('net', {'side': 'A'});
       final sw = Stopwatch()..start();
       final h = await e.host('wifi', {'side': 'A', 'on': wifiOn});
@@ -749,15 +750,15 @@ void registerCallsQualityFlows() {
       // the phone reports the switch (Android default-network callback) ->
       // "Reconnecting" + ICE restart; then the call must be connected again
       final seenBy = DateTime.now().add(const Duration(seconds: 12));
-      while (DateTime.now().isBefore(seenBy) && !e.a.log.skip(before).any((x) => x.startsWith('net:'))) {
+      while (DateTime.now().isBefore(seenBy) && !call.log.skip(before).any((x) => x.startsWith('net:'))) {
         await f.tester.pump(const Duration(milliseconds: 250));
       }
-      await e.waitLive(label, seconds: 45);
-      final wa = await watchQuality(() => f.net(e.aMedia.debugQuality), const Duration(seconds: 8),
+      await e.waitLive(label, seconds: 45, call: call);
+      final wa = await watchQuality(() => f.net((call.media as WebRtcCallMedia).debugQuality), const Duration(seconds: 8),
           tick: () => f.tester.pump(const Duration(milliseconds: 250)));
       final wb = await e.result(id, 'watch $label', seconds: 70);
       final n1 = await e.host('net', {'side': 'A'});
-      final newLog = e.a.log.skip(before).toList();
+      final newLog = call.log.skip(before).toList();
       final restarted = newLog.any((x) => x.startsWith('restart_offer') || x.startsWith('restart_request') ||
           x.contains('restart'));
       final line = '$label: wifi ${wifiOn ? 'ON' : 'OFF'} (${h['svc']}) default ${n0['lines']} -> ${n1['lines']}; '
@@ -822,14 +823,21 @@ void registerCallsQualityFlows() {
 
     await e.kase('q_audio', () async {
       await f.step('A voice-calls B; B answers', () => e.qCall(video: false));
-      await f.step('a voice call starts on the earpiece', () => expectRoute('q_audio_start', AudioRoute.earpiece));
+      // calls-quality: the CI emulator (like a tablet) has NO earpiece in
+      // Android's communication devices — then the honest result is "speaker,
+      // and the screen says speaker" (run 44261908414: the screen said
+      // earpiece while Android played on the speaker).
+      final hasEar = AudioRouteService.instance.has(AudioRoute.earpiece);
+      final quiet = hasEar ? AudioRoute.earpiece : AudioRoute.speaker;
+      f.note('q_audio: Android communication outputs ${AudioRouteService.instance.outputs.map((o) => o.route.name).toList()}');
+      await f.step('a voice call starts on the ${quiet.name} (screen = Android)', () => expectRoute('q_audio_start', quiet));
       await f.step('tap Speaker: the loudspeaker', () async {
         await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);
         await expectRoute('q_audio_speaker', AudioRoute.speaker);
       });
-      await f.step('tap again: back to the earpiece', () async {
+      await f.step('tap again: back to the ${quiet.name}', () async {
         await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);
-        await expectRoute('q_audio_earpiece', AudioRoute.earpiece);
+        await expectRoute('q_audio_back', quiet);
       });
       await f.step('speaker once more, then audio still flows both ways', () async {
         await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);

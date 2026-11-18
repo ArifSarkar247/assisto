@@ -13,6 +13,14 @@ bool wantAutoPip(
         {required bool videoOn, required bool live, required bool ended}) =>
     videoOn && live && !ended;
 
+/// calls-quality (calls2emu 44261908414): Android shrinks the window the
+/// moment PiP starts, but its "PiP changed" callback can reach Dart seconds
+/// later — the full call screen was laid out in a 132x176 dp window and
+/// overflowed. A tiny window while the app is not in the foreground IS PiP
+/// for the layout. Split screen keeps the app resumed, so it never matches.
+bool looksLikePip({required double shortestSide, required AppLifecycleState? state}) =>
+    shortestSide < 300 && state != null && state != AppLifecycleState.resumed;
+
 /// The PiP window's shape (Android's Rational). Android accepts only
 /// 1:2.39 … 2.39:1; anything else throws, so we stay strictly inside.
 /// The native side clamps each number to 1..100.

@@ -17,7 +17,7 @@ import '../ads/after_call_ad.dart' show AfterCallReviewAd; // adwire
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
-import '../calls/call_pip.dart' show showPipOffHint; // callpip
+import '../calls/call_pip.dart' show showPipOffHint, looksLikePip; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
 import '../calls/group_add_people_sheet.dart'; // group-calls
 import '../calls/group_call_api.dart'; // group-calls
@@ -646,7 +646,11 @@ class _CircleCallScreenState extends State<CircleCallScreen>
         !c.remoteVideoPausedNet &&
         surface != null &&
         surface.hasRemoteVideo.value;
-    if (_pip && c != null) {
+    final pipNow = _pip ||
+        looksLikePip(
+            shortestSide: MediaQuery.sizeOf(context).shortestSide,
+            state: WidgetsBinding.instance.lifecycleState);
+    if (pipNow && c != null) {
       // callpip: the same PiP layout as a minimized call — their video
       // large, my camera small in the corner, avatar when paused
       return Scaffold(
