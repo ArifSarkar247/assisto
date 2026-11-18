@@ -102,7 +102,9 @@ def _can_shop(user):
         return True
     try:
         from . import cctv_plan_service as CPS
-        return CPS.plan_cameras(user) > 0
+        # a fresh read (not the 60-s cache): a purchase or an expiry shows
+        # at once, and one user's cached count can never answer for another
+        return CPS.plan_cameras(user, now=timezone.now()) > 0
     except Exception:
         return False
 
