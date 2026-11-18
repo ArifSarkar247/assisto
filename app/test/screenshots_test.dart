@@ -2057,6 +2057,7 @@ class _Tr2Timeline extends StatelessWidget {
       ]),
     );
   }
+}
 
 // gap-kidswatch: shows KidsWatchScreen with a live watch SOS, then turns the
 // fake back to normal (no other shot sees the SOS)
