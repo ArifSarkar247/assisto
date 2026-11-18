@@ -173,6 +173,9 @@ void main() {
       await t.tap(find.byKey(const ValueKey('sos-numbers-retry')));
       await _settle(t);
       expect(find.byKey(const ValueKey('sos-numbers-unavailable')), findsNothing);
+      // back to the top of the lazy list, where the SOS panel lives
+      await t.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+      await _settle(t);
       expect(_panelPhones(t), contains('01700000011'));
     });
 
