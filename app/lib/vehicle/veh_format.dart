@@ -56,7 +56,10 @@ String vehAgo(BuildContext context, AppLocalizations tr, DateTime? t) {
 
 /// Localized text for a server `reason` code (ApiException.message).
 String vehReasonText(AppLocalizations tr, Object e) {
-  final code = e is ApiException ? e.message : '$e';
+  // vehicle-e2e: the server's machine reason first. The emulator E2E (run
+  // 44283117702) showed "Something went wrong" for an engine cut refused
+  // because the car was MOVING: e.message is not guaranteed to be the code.
+  final code = e is ApiException ? (e.reason ?? e.message) : '$e';
   switch (code) {
     case 'moving':
       return tr.vehErrMoving;

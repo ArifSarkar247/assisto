@@ -60,7 +60,8 @@ class _Api extends ApiClient {
     posted.add({'path': path, ...body});
     if (path == '/vehicle/trackers/7/commands') {
       if (moving && body['when_stopped'] != true) {
-        throw ApiException('moving', 409, null, 'moving',
+        // the message is NOT the code (as on the emulator run); the reason is
+        throw ApiException('The vehicle is moving', 409, null, 'moving',
             {'reason': 'moving', 'ok': false, 'max_speed_kmh': 5});
       }
       return {'ok': true, 'confirm_token': 'tok', 'wait_stop': body['when_stopped'] == true,
