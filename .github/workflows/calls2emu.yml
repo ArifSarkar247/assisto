@@ -96,6 +96,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           cache: true
       - name: CI-only dev deps + a real build number
         working-directory: app
