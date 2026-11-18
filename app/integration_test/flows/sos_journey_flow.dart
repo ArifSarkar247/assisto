@@ -81,7 +81,11 @@ void registerSosJourneyFlows() {
       // on screen, no /resolve was sent)
       await f.pumpFor(const Duration(milliseconds: 1500));
       final m2 = f.httpMark;
-      await f.tap(safe, settleSeconds: 3);
+      // sosfam-crm-proof: tap the button the USER sees — with an older
+      // Emergency page still under this one, `first` was the hidden copy
+      // (runs 44213469898 + 44226928480: button on screen, no /resolve)
+      f.note('safe buttons: ${safe.evaluate().length}, on screen: ${safe.hitTestable().evaluate().length}');
+      await f.tap(safe.hitTestable(), settleSeconds: 3);
       await f.shot('safe');
       f.expectHttp('POST', '/family/sos/resolve', since: m2);
       await f.eventually('B: no active SOS from A', () async {
