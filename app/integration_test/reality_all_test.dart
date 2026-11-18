@@ -19,6 +19,7 @@ import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
 import 'flows/circle_screenshare_flow.dart'; // circle-screenshare
 import 'flows/group_call_flow.dart'; // group-calls
+import 'flows/calls_two_emu_flow.dart'; // calls-2emu
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/offline_first_flow.dart'; // offline1st
@@ -66,7 +67,6 @@ void main() {
   if (on('family')) registerSosJourneyFlows(); // qjourney
   if (on('family')) registerJourneyV2Flows(); // qjourney
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
-  if (on('family')) registerKidsWatchFlows(); // gap-kidswatch: simulated watch over TCP
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.
   if (on('circle')) registerMyCircleAddFlows(); // m3-circle
@@ -97,6 +97,11 @@ void main() {
   // antitheft-e2e: native engine + sensor traces + secure lock + SIM hook
   // (debug build only) -> opt-in (e2e.yml start+atproof)
   if (only.split(',').contains('atproof')) registerAntiTheftE2eFlows();
+  // gap-kidswatch: kids watch + a simulated watch over TCP (tracker :5023) -> opt-in (reality.yml only=kidswatch)
+  if (only.split(',').contains('kidswatch')) registerKidsWatchFlows();
+  // calls-2emu: needs the SECOND emulator running the call peer + the control
+  // channel (calls2emu.yml / tools/calls2emu/run.sh) -> opt-in only
+  if (only.split(',').contains('calls2emu')) registerCallsTwoEmuFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {
