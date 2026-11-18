@@ -54,6 +54,22 @@ Future<List<Map<String, dynamic>>> _outbox(ApiClient api, String kind, double si
     _rows(await api.getJson(
         '/ci-e2e/outbox?since=$since&kind=$kind${user.isEmpty ? '' : '&user=$user'}'), 'rows');
 
+/// Types a code like a person: focus the (invisible) code field, then type.
+/// A second code after a wrong one needs the focus again (the screen clears
+/// the field); if the auto-submit did not fire, tap "Verify".
+Future<void> _typeCode(RFlow f, String code) async {
+  final field = find.byKey(const Key('otp-code-field'));
+  await f.tester.tap(field, warnIfMissed: false);
+  await f.pumpFor(const Duration(milliseconds: 400));
+  await f.tester.enterText(field, code);
+  await f.pumpFor(const Duration(seconds: 4));
+  final verify = find.widgetWithText(FilledButton, f.t.otpVerify);
+  if (verify.evaluate().isNotEmpty &&
+      f.tester.widget<FilledButton>(verify.first).onPressed != null) {
+    await f.tap(verify.first, settleSeconds: 4);
+  }
+}
+
 void registerRecoveryFlows() {
   realityFlow('rec1_lost_phone_email_code', 'Account recovery',
       'Lost phone -> new phone signs in with the EMAIL code (read from the test mailbox) -> old phones signed out -> keys restored with the PIN -> My Circle history opens',
@@ -146,9 +162,7 @@ void registerRecoveryFlows() {
 
     await f.step('a wrong code first -> honest error with tries left', () async {
       final wrong = code == '000000' ? '111111' : '000000';
-      final box = find.descendant(of: find.byType(OtpCodeInput), matching: find.byType(TextField));
-      await f.tester.enterText(box.first, wrong);
-      await f.pumpFor(const Duration(seconds: 4));
+      await _typeCode(f, wrong);
       final err = await f.waitFor(find.byKey(const Key('otp-error')), what: 'wrong-code error');
       final txt = f.tester.widget<Text>(err).data ?? '';
       if (txt != f.t.recovOtpInvalid('4')) throw TestFailure('wrong-code text: "$txt"');
@@ -156,9 +170,7 @@ void registerRecoveryFlows() {
     });
 
     await f.step('the mailed code -> signed in on the new phone', () async {
-      final box = find.descendant(of: find.byType(OtpCodeInput), matching: find.byType(TextField));
-      await f.tester.enterText(box.first, code);
-      await f.pumpFor(const Duration(seconds: 6));
+      await _typeCode(f, code);
       await f.eventually('signed in as A', () async => f.app.loggedIn, seconds: 25);
       f.expectHttp('POST', '/auth/otp/verify');
       f.expectHttp('POST', '/auth/otp/login');
