@@ -555,7 +555,7 @@ class FlnMsgSink implements MsgNotifSink {
       await _plugin.show(
         kMsgSummaryId,
         'Assisto',
-        // notif-nine: "New messages in ৩ chats" (Bangla digits; it used to
+        // notif-nine: "New messages in N chats" (Bangla digits in bn; it used to
         // read just "3 chats")
         notifDigits(t.localeName.startsWith('bn') ? 'bn' : 'en',
             t.nnMsgSummary('$convs')),

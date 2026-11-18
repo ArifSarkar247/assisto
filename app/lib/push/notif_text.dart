@@ -1,7 +1,7 @@
 /// notif-nine: shade text helpers (pure; any isolate).
 ///
-/// Bangla shade text uses Bangla digits (০-৯): a count formatted from an int
-/// placeholder came out as "3টি চ্যাট" before.
+/// Bangla shade text uses Bangla digits (U+09E6..U+09EF): a count formatted
+/// from an int placeholder came out with Latin digits before.
 String notifDigits(String lang, String s) {
   if (lang != 'bn') return s;
   final b = StringBuffer();
