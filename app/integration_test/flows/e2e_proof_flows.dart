@@ -670,9 +670,6 @@ void registerE2eProofFlows() {
       // (that put it 6 h away: nightly 43783087111 'carecall_tick made 0').
       await f.net(() => api.postJson('/family/brain/ping',
           {'tz_offset_min': DateTime.now().timeZoneOffset.inMinutes}));
-      final q = DateTime.now().add(const Duration(hours: 12));
-      await f.net(() => api.postJson('/carecall/quiet',
-          {'start': _hhmm(q), 'end': _hhmm(q.add(const Duration(minutes: 1)))}));
       final at = DateTime.now().add(const Duration(minutes: 2));
       final r = await f.net(() => apiB.postJson('/carecall', {
             'receiver_id': aId,
@@ -681,6 +678,12 @@ void registerE2eProofFlows() {
             'repeat': 'once',
             'date': _ymd(at),
           }));
+      // gap-carecall: quiet hours AFTER the call made the B -> A link (a new
+      // link starts with A's default 22:00-07:00; on a UTC emulator between
+      // 22:00 and 07:00 the ring was held to 07:00 and this flow went red)
+      final q = DateTime.now().add(const Duration(hours: 12));
+      await f.net(() => api.postJson('/carecall/quiet',
+          {'start': _hhmm(q), 'end': _hhmm(q.add(const Duration(minutes: 1)))}));
       ccId = ((r['care_call'] as Map)['id'] as num).toInt();
       // the server must agree: the slot is ~2 min ahead (not hours)
       final next = DateTime.tryParse('${(r['care_call'] as Map)['next_at'] ?? ''}');
