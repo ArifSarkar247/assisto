@@ -14,6 +14,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'guide_data.dart';
 import 'local_digits.dart'; // p3guides
+import 'adaptive_button_pair.dart'; // design3
 
 /// Opens [url] in the external browser if non-empty. Kept dependency-free:
 /// uses url_launcher only if present via a late import at the call site; here
@@ -88,27 +89,29 @@ class GuideServiceCard extends StatelessWidget {
         ),
         children: [
           // ---- quick actions row ----
-          Row(children: [
-            Expanded(
+          // design3 (2.0x): side by side (stacked at big text), labels wrap
+          if (service.url.isNotEmpty)
+            AdaptiveButtonPair(
+              first: OutlinedButton.icon(
+                onPressed: onWhatDoINeed,
+                icon: const Icon(Icons.checklist_rtl_rounded, size: 18),
+                label: Text(tr.guideWhatDoINeed, textAlign: TextAlign.center),
+              ),
+              second: FilledButton.tonalIcon(
+                onPressed: () => onOpenLink(service.url),
+                icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                label: Text(tr.guideOfficialSite, textAlign: TextAlign.center),
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: onWhatDoINeed,
                 icon: const Icon(Icons.checklist_rtl_rounded, size: 18),
-                label: Text(tr.guideWhatDoINeed,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                label: Text(tr.guideWhatDoINeed, textAlign: TextAlign.center),
               ),
             ),
-            if (service.url.isNotEmpty) ...[
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: () => onOpenLink(service.url),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: Text(tr.guideOfficialSite,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-            ],
-          ]),
           const SizedBox(height: Gap.md),
 
           // ---- steps ----

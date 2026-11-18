@@ -61,6 +61,10 @@ jobs:
       # retention-days 1-30 (test 2, screenshots/reports 5, release 30).
       - name: Artifact retention guard
         run: python3 tools/ci/check_artifact_retention.py
+      # lead 17 Nov: ONE pinned Flutter toolchain (tools/ci/flutter_version.txt)
+      # in every workflow; an unpinned `channel: stable` fails here.
+      - name: Flutter toolchain pin guard
+        run: python3 tools/ci/check_flutter_pin.py
 
   backend:
     needs: changes
@@ -102,7 +106,7 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.ref }}
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.7'
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
       - name: pub get + gen-l10n
@@ -133,7 +137,7 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.ref }}
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.7'
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
       - name: pub get + gen-l10n

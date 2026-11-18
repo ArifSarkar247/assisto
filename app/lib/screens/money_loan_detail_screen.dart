@@ -6,6 +6,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../ds/ds.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -110,6 +111,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final principal = dbl(_data['amount']);
@@ -154,7 +156,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         color: given ? AssistoTokens.of(context).warning : scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Text(given ? t.moneyLoanGiven : t.moneyLoanTaken,
-                        style: TextStyle(color: DsTokens.of(context).muted)),
+                        style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                     const Spacer(),
                     if (_settled)
                       Chip(
@@ -164,8 +166,8 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   ]),
                   const SizedBox(height: Gap.md),
                   Text(t.moneyLoanBalance,
-                      style: TextStyle(color: DsTokens.of(context).muted)),
-                  Text(tkFmt(_balance),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
+                  Text(tkOf(context, _balance),
                       style: AType.headlineLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.bold)),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(
@@ -176,7 +178,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         color: AssistoTokens.of(context).success),
                   ),
                   const SizedBox(height: Gap.xs),
-                  Text(t.moneyLoanPaidOf(tkFmt(_paid), tkFmt(principal)),
+                  Text(t.moneyLoanPaidOf(tkOf(context, _paid), tkOf(context, principal)),
                       style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                 ]),
           ),
@@ -219,9 +221,9 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(tkFmt(e['amount']),
-                        style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
-                    Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
+                    Text(tkOf(context, e['amount']),
+                        style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
+                    Text(t.moneyLoanBalanceLabel(tkOf(context, e['balance'])),
                         style:
                             AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                   ])),

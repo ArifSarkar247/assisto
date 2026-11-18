@@ -10,6 +10,8 @@ import '../services/action_feedback.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../widgets/remote_switches_card.dart';
 import 'always_on_protection_screen.dart' show AntiTheftTimelineScreen;
 
@@ -80,31 +82,26 @@ class _WatchedPhonesScreenState extends State<WatchedPhonesScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList(count: 3)
             : _failed
                 ? ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-                    const SizedBox(height: Gap.xxl),
-                    Text(honestFailText(tr, _cause, otherwise: tr.at100LoadFailed),
-                        textAlign: TextAlign.center),
-                    const SizedBox(height: Gap.md),
-                    Center(
-                        child: FilledButton(
-                            key: const Key('at100-watch-retry'),
-                            style: FilledButton.styleFrom(
-                                minimumSize: const Size(48, 48)),
-                            onPressed: _load,
-                            child: Text(tr.retry))),
+                    DsEmptyState(
+                      icon: Icons.cloud_off_rounded,
+                      danger: true,
+                      title: honestFailText(tr, _cause, otherwise: tr.at100LoadFailed),
+                      actionKey: const Key('at100-watch-retry'),
+                      actionLabel: tr.retry,
+                      onAction: _load,
+                    ),
                   ])
                 : _phones.isEmpty
                     ? ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-                        const SizedBox(height: Gap.xxl),
-                        Icon(Icons.shield_outlined,
-                            size: 56,
-                            color: Theme.of(context).colorScheme.ds.muted),
-                        const SizedBox(height: Gap.md),
-                        Text(tr.at100WatchEmpty,
-                            key: const Key('at100-watch-empty'),
-                            textAlign: TextAlign.center),
+                        DsEmptyState(
+                          key: const Key('at100-watch-empty'),
+                          icon: Icons.shield_outlined,
+                          title: tr.at100WatchEmpty,
+                        ),
+
                       ])
                     : ListView(
                         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
@@ -126,8 +123,7 @@ class _PhoneTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final id = (phone['phone_id'] as num?)?.toInt();
-    return Card(
-      child: ListTile(
+    return DsCard(padding: EdgeInsets.zero, child: ListTile(
         key: id == null ? null : Key('at100-watch-$id'),
         minVerticalPadding: Gap.md,
         leading: const Icon(Icons.phone_android_rounded),
@@ -139,8 +135,7 @@ class _PhoneTile extends StatelessWidget {
           MaterialPageRoute(
               builder: (_) => WatchedPhoneScreen(phone: phone, onRefresh: onRefresh)),
         ),
-      ),
-    );
+      ));
   }
 }
 
@@ -188,10 +183,7 @@ class WatchedPhoneScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(Gap.md),
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(
+            DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(watchStatusLine(context, tr, phone),
@@ -231,15 +223,12 @@ class WatchedPhoneScreen extends StatelessWidget {
                       ),
                     ],
                   ],
-                ),
-              ),
-            ),
+                )),
             // theftalerts: a nominee may VIEW the phone but has no switches
             if (id != null && phone['can_command'] != false)
               RemoteSwitchesCard(phoneId: id),
             if (id != null)
-              Card(
-                child: ListTile(
+              DsCard(padding: EdgeInsets.zero, child: ListTile(
                   key: const Key('at100-watch-timeline'),
                   minVerticalPadding: Gap.md,
                   leading: const Icon(Icons.history_rounded),
@@ -250,8 +239,7 @@ class WatchedPhoneScreen extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (_) => AntiTheftTimelineScreen(phoneId: id)),
                   ),
-                ),
-              ),
+                )),
           ],
         ),
       ),

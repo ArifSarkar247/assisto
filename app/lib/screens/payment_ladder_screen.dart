@@ -9,6 +9,7 @@ import '../widgets/ladder_common.dart';
 import '../widgets/ladder_cards.dart';
 import '../widgets/ladder_builder_sheet.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -315,10 +316,10 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
             icon: receivable ? Icons.volunteer_activism_rounded : Icons.receipt_long_rounded,
             title: receivable ? t.plEmptyReceivableTitle : t.plEmptyPayableTitle,
             message: receivable ? t.plEmptyReceivableBody : t.plEmptyPayablebody,
-            action: FilledButton.icon(
+            action: DsButton(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(receivable ? t.plAddReceivable : t.plAddPayable),
+              icon: Icons.add_rounded,
+              label: receivable ? t.plAddReceivable : t.plAddPayable,
             ),
           ),
         ],
@@ -429,7 +430,7 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
                   ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(dueRelative(context, t, row['due_date']),
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.md),
           for (final s in steps) LadderStepRow(step: s),
           const SizedBox(height: Gap.md),
@@ -502,7 +503,7 @@ class _SharePreview extends StatelessWidget {
             color: Theme.of(context).colorScheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
-          child: Text(message, style: const TextStyle(height: 1.4)),
+          child: Text(message, style: AType.bodyMedium.copyWith(height: 1.4)),
         ),
         const SizedBox(height: Gap.md),
         Text(t.plShareHint,

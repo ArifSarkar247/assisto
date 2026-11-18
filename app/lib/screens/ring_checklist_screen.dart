@@ -4,6 +4,7 @@ import '../calls/ring_checklist.dart';
 import '../l10n/app_localizations.dart';
 import '../services/oem_guide.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'battery_guidance_screen.dart' show oemStepBody, oemStepTitle;
 
 /// ring-everywhere: "Calls ring setup" — the checklist (logic in
@@ -111,10 +112,7 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
       ),
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-          Card(
-            color: allOk ? scheme.ds.primarySoft : scheme.ds.successBg,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
+          DsHeroCard(
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(allOk ? Icons.check_circle_rounded : Icons.ring_volume_rounded,
                     color: allOk
@@ -125,28 +123,30 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
                   child: Text(
                     key: const Key('ring-check-summary'),
                     allOk ? t.ringCheckAllOk : t.ringCheckIntro,
-                    style: TextStyle(
+                    style: AType.bodyLarge.copyWith(
                         color: allOk
                             ? scheme.ds.primaryInk
                             : scheme.ds.successInk),
                   ),
                 ),
               ]),
-            ),
           ),
           if ((f?.oem?.label ?? '').isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(f!.oem!.label,
-                style: TextStyle(
+                style: AType.titleSmall.copyWith(
                     fontWeight: FontWeight.w700,
                     color: scheme.ds.muted)),
           ],
           const SizedBox(height: Gap.md),
           if (_loading)
-            const Padding(
-              padding: EdgeInsets.all(Gap.xl),
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Column(children: [
+              DsSkeleton(height: 88),
+              SizedBox(height: Gap.md),
+              DsSkeleton(height: 88),
+              SizedBox(height: Gap.md),
+              DsSkeleton(height: 88),
+            ])
           else
             for (final r in rows)
               _RowCard(
@@ -163,10 +163,11 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (widget.firstRun) ...[
             const SizedBox(height: Gap.lg),
-            FilledButton(
+            DsButton(
               key: const Key('ring-check-done'),
               onPressed: () => Navigator.of(context).maybePop(),
-              child: Text(t.done),
+              expand: true,
+              label: t.done,
             ),
             const SizedBox(height: Gap.xs),
             TextButton(
@@ -213,9 +214,9 @@ class _RowCard extends StatelessWidget {
         row.step != null &&
         !row.step!.checkable;
     final byHandOnly = row.step != null && row.step!.nativeStep == null;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           ExcludeSemantics(child: Icon(icon, color: color, size: 28)),
@@ -227,7 +228,7 @@ class _RowCard extends StatelessWidget {
               const SizedBox(height: Gap.xs),
               Text(label,
                   key: Key('ring-state-${row.key}'),
-                  style: TextStyle(color: color, fontWeight: FontWeight.w700)),
+                  style: AType.labelLarge.copyWith(color: color, fontWeight: FontWeight.w700)),
               if (row.state != RingCheckState.ok) ...[
                 const SizedBox(height: Gap.xs),
                 Text(body),
@@ -247,18 +248,19 @@ class _RowCard extends StatelessWidget {
                 const SizedBox(height: Gap.sm),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                   if (!byHandOnly)
-                    FilledButton.tonalIcon(
+                    DsButton.secondary(
                       key: Key('ring-fix-${row.key}'),
                       onPressed: onFix,
-                      icon: const Icon(Icons.build_rounded, size: 18),
-                      label: Text(t.ringCheckFix),
+                      icon: Icons.build_rounded,
+                      label: t.ringCheckFix,
                     ),
                   if (confirmable)
-                    OutlinedButton.icon(
+                    DsButton(
+                      kind: DsButtonKind.ghost,
                       key: Key('ring-confirm-${row.key}'),
                       onPressed: () => onConfirm(true),
-                      icon: const Icon(Icons.check_rounded, size: 18),
-                      label: Text(t.ringCheckMarkDone),
+                      icon: Icons.check_rounded,
+                      label: t.ringCheckMarkDone,
                     ),
                 ]),
               ] else if (confirmable) ...[
@@ -310,11 +312,11 @@ class _RingCheckBannerState extends State<RingCheckBanner> {
         if (!need) return const SizedBox.shrink();
         final t = AppLocalizations.of(context);
         final scheme = Theme.of(context).colorScheme;
-        return Card(
+        return Padding(
           key: const Key('ring-check-banner'),
-          margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xs),
-          color: scheme.ds.dangerBg,
-          child: Padding(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xs),
+          child: DsCard(
+            tone: DsTone.danger,
             padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.xs),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -323,7 +325,7 @@ class _RingCheckBannerState extends State<RingCheckBanner> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.ringCheckBanner,
-                      style: TextStyle(color: scheme.ds.dangerInk)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
                 ),
               ]),
               Wrap(alignment: WrapAlignment.end, spacing: Gap.xs, children: [
@@ -334,7 +336,8 @@ class _RingCheckBannerState extends State<RingCheckBanner> {
                     if (mounted) setState(() => _allowed = false);
                   },
                   child: Text(t.ringCheckLater,
-                      style: TextStyle(color: scheme.ds.dangerInk)),
+                      style: AType.labelLarge.copyWith(color: scheme.ds.dangerInk)),
+
                 ),
                 FilledButton(
                   key: const Key('ring-banner-fix'),

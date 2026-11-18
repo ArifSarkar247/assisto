@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/social_engine.dart';
 import '../widgets/social_cards.dart';
@@ -246,7 +247,6 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           decoration: InputDecoration(
             labelText: t.socialTopic,
             hintText: t.socialTopicHint,
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: Gap.lg),
@@ -276,28 +276,37 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
         ),
         const SizedBox(height: Gap.lg),
 
-        FilledButton.icon(
-          onPressed: _generate,
-          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-          label: Text(_hasDraft ? t.socialRegenerate : t.socialGenerate),
-        ),
+        // design3: one glowing button — Generate first, Share once a draft exists
+        if (_hasDraft)
+          DsButton.secondary(
+            onPressed: _generate,
+            icon: Icons.auto_awesome_rounded,
+            expand: true,
+            label: t.socialRegenerate,
+          )
+        else
+          DsButton(
+            onPressed: _generate,
+            icon: Icons.auto_awesome_rounded,
+            expand: true,
+            label: t.socialGenerate,
+          ),
 
         if (_hasDraft) ...[
           const SizedBox(height: Gap.xl),
           Text(t.socialCaption,
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _caption,
             maxLines: 2,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
           const SizedBox(height: Gap.lg),
 
           Row(children: [
             Expanded(
               child: Text(t.socialPost,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
             ),
             CharCounter(count: count),
           ]),
@@ -307,7 +316,6 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
             maxLines: null,
             minLines: 5,
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(border: OutlineInputBorder()),
           ),
           const SizedBox(height: Gap.md),
 
@@ -325,31 +333,30 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
           ],
 
           const SizedBox(height: Gap.xl),
-          Row(children: [
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: count.over ? null : _share,
-                icon: const Icon(Icons.ios_share_rounded, size: 18),
-                label: Text(t.socialShare),
-              ),
-            ),
-            const SizedBox(width: Gap.sm),
-            OutlinedButton.icon(
+          DsButton(
+            onPressed: count.over ? null : _share,
+            icon: Icons.ios_share_rounded,
+            expand: true,
+            label: t.socialShare,
+          ),
+          const SizedBox(height: Gap.sm),
+          // design3: copy + save side by side, wrap under each other at a big font
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            DsButton.secondary(
               onPressed: _copy,
-              icon: const Icon(Icons.copy_rounded, size: 18),
-              label: Text(t.copy),
+              icon: Icons.copy_rounded,
+              label: t.copy,
+            ),
+            DsButton.secondary(
+              onPressed: _saveDraft,
+              icon: Icons.bookmark_outline_rounded,
+              label: t.save,
             ),
           ]),
-          const SizedBox(height: Gap.sm),
-          OutlinedButton.icon(
-            onPressed: _saveDraft,
-            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
-            label: Text(t.save),
-          ),
           if (count.over) ...[
             const SizedBox(height: Gap.sm),
             Text(t.socialOverLimit,
-                style: AType.bodySmall.copyWith(color: Brand.danger)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
           ],
         ],
       ],
@@ -361,25 +368,28 @@ class _SocialComposeScreenState extends State<SocialComposeScreen>
   Widget _savedTab() {
     if (_loading) return const SkeletonList(count: 4);
     if (_error != null) {
-      return StateMessage(
-        icon: Icons.cloud_off_rounded,
-        tint: Brand.danger,
-        title: t.socialLoadError,
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: t.socialLoadError,
+          actionLabel: t.retry,
+          onAction: _load,
+        ),
+      ]);
     }
     if (_saved.isEmpty) {
-      return StateMessage(
-        icon: Icons.bookmark_border_rounded,
-        title: t.socialSavedEmptyTitle,
-        message: t.socialSavedEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.edit_rounded, size: 18),
-          label: Text(t.socialTabCompose),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.bookmark_border_rounded,
+          title: t.socialSavedEmptyTitle,
+          benefit: t.socialSavedEmptyBody,
+          actionLabel: t.socialTabCompose,
+          onAction: () => _tabs.animateTo(0),
         ),
-      );
+      ]);
     }
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(

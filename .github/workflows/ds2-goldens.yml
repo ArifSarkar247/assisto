@@ -1,0 +1,84 @@
+# design3 (design lane): write the Design System V2 golden PNG baselines
+# (test/goldens/ds2/*.png) on the same GitHub runner image the checks use, and
+# upload them as an artifact. The design lane downloads the artifact and
+# commits the PNGs, so ds2_golden_test starts comparing. Re-run after an
+# intended visual change of a screen in ds2Screens.
+# Trigger: every design-lane push (ci/design3-*-arb) or a manual run.
+name: ds2-goldens
+
+on:
+  push:
+    branches: ['ci/design3-*-arb']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag or SHA'
+        required: true
+
+concurrency:
+  group: ds2-goldens-${{ github.event.inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  goldens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
+          channel: stable
+          cache: true
+      - name: pub get + gen-l10n
+        working-directory: app
+        run: flutter pub get && flutter gen-l10n
+      - name: write goldens
+        working-directory: app
+        env:
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub --update-goldens test/ds2_golden_test.dart
+      - name: check the baselines pass
+        working-directory: app
+        run: flutter test --no-pub test/ds2_golden_test.dart
+      - name: 2.0x font sweep, every gallery screen, bn + en (design3)
+        if: always()
+        working-directory: app
+        env:
+          DS2_XL: '1'
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub test/ds2_xl_sweep_test.dart
+      - name: owner mockups (design3, MOCK_SHOTS=1)
+        if: always()
+        continue-on-error: true
+        working-directory: app
+        env:
+          MOCK_SHOTS: '1'
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub test/tracker_wizard_mock_test.dart
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owner-mockups
+          path: ${{ runner.temp }}/shots/tracker_wizard
+          if-no-files-found: ignore
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ds2-xl-sweep
+          path: ${{ runner.temp }}/shots/xl_sweep
+          if-no-files-found: ignore
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ds2-goldens
+          path: app/test/goldens/ds2
+          if-no-files-found: error
+          retention-days: 7

@@ -43,6 +43,7 @@ from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.views import APIView
 
 from . import ai
@@ -437,6 +438,12 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     from . import ai_guard
     from . import ai_tools as AT
     n_money = 0
+    cut = bool(truncated)
+    if cut:
+        # gap-aichat (e2e e2e2c_ai_continue, run 44036417926): the cut must
+        # come FIRST — the money guard appends a complete "estimate" sentence,
+        # after which end_at_sentence kept the mid-word cut ("২. সরঞ্জাম কি")
+        reply = end_at_sentence(reply)
     try:
         reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
         reply, n_money = ai_guard.scrub_ungrounded_money(
@@ -445,11 +452,12 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     except Exception:  # noqa: BLE001 — a guard bug never costs the answer
         log.exception("chat: answer guard failed")
     reply, proposal = AT.extract(reply)
+    if proposal is None:
+        # gap-aichat2: the model skipped the ACTION line on an unambiguous
+        # "log X taka spent / earned" -> the same proposal (still needs Yes)
+        proposal = AT.money_safety_net(text)
     reply = scrub_internal(reply)
     reply = tables_to_lists(reply)
-    cut = bool(truncated)
-    if cut:
-        reply = end_at_sentence(reply)
     if lang == "bn":
         reply = bangla_digits(reply)
     return reply, proposal, cut, n_money
@@ -475,6 +483,21 @@ def follow_kind(request, text, session):
         if last is not None and (last.meta or {}).get("cut"):
             free = free_chain(session) < MAX_FREE_CONTINUES
     return f, free
+
+
+def follow_lang_source(text, history, follow):
+    """gap-aichat (e2e run 44056647414): a Continue / More detail tap sends
+    the BUTTON label ("Continue" in an English app), so the rest of a Bangla
+    answer came back in English. Such a turn answers in the language of the
+    user's last real question in this chat."""
+    if follow not in ("continue", "more"):
+        return text
+    for h in reversed(history or []):
+        c = str(h.get("content") or "") if h.get("role") == "user" else ""
+        if c and not c.startswith("[Summary") and not (
+                len(c) < 80 and _INCOMPLETE.search(c)):
+            return c
+    return text
 
 
 def free_chain(session):
@@ -583,7 +606,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
     # tell family. Nothing else is answered in this turn.
     from .agentcore import crisis_guard as CG
     from . import ai_prompt as AP
-    lang = AP.reply_lang(text, lang)   # ailang: answer in the user's language
+    lang = AP.reply_lang(follow_lang_source(text, history, follow), lang)   # ailang
     crisis = CG.detect(text)
     if crisis["crisis"]:
         reply, card = CG.respond(user, crisis, lang, surface="chat")
@@ -1139,6 +1162,29 @@ class ChatSendView(APIView):
 # ---------------------------------------------------------------------------
 # GET/POST /chat/sessions/<id>/stream  — SSE token stream of the reply
 # ---------------------------------------------------------------------------
+class EventStreamRenderer(BaseRenderer):
+    """gap-aichat2: lets DRF content negotiation accept `Accept:
+    text/event-stream` (the app's stream requests). Without it every stream
+    request was answered 406 Not Acceptable before the view ran, so home-chat
+    and Assisto AI streaming never started and every turn fell back to the
+    non-stream POST. The stream itself is a StreamingHttpResponse (not
+    rendered); an error Response (402 / 429 / 400) is rendered as JSON text so
+    the app still reads its reason."""
+    media_type = "text/event-stream"
+    format = "sse"
+    charset = "utf-8"
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        if data is None:
+            return b""
+        import json as _j
+        return _j.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
+
+
+# JSON first (a client without an Accept header still gets JSON errors)
+STREAM_RENDERERS = (JSONRenderer, EventStreamRenderer)
+
+
 class ChatStreamView(APIView):
     """Server-Sent-Events stream of the reply. We compute the full reply via the
     same `_produce_reply` path (so credits/kill-switch/Brain-fallback are all
@@ -1146,6 +1192,8 @@ class ChatStreamView(APIView):
     lib doesn't support real token streaming we simply chunk the final text — the
     app handles both. Robust by construction: a chunked final answer is always a
     valid SSE stream."""
+    renderer_classes = STREAM_RENDERERS   # gap-aichat2: no 406 on Accept: text/event-stream
+
     def get(self, request, sid):
         return self._run(request, sid, (request.query_params.get("text") or "").strip())
 

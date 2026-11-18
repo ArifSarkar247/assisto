@@ -28,6 +28,13 @@ def env_list(key, default=""):
 
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-change-me")
+
+# staging (owner order 17 Nov): server-side TEST ENTITLEMENT for the owner's
+# "Assisto Test" app, where nothing can be bought. Allow-listed account ids
+# only, e.g. "12:business,34:premium" (plans: premium | business). Empty =
+# off (default). Never a purchase: no order, no payment row, no Play token;
+# /plans/me shows "test_plan" so the app never presents it as paid.
+ASSISTO_TEST_PLAN_USERS = os.getenv("ASSISTO_TEST_PLAN_USERS", "")
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
 # The one setting every link that LEAVES the server derives from (vendor

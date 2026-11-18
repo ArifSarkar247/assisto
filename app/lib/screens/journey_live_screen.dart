@@ -33,6 +33,7 @@ import 'safe_journey/sj_during_panel.dart'; // sjduring
 import 'safe_journey/sj_danger_audio.dart' show sjRecordDangerClip; // sjproof
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// journey100 — the LIVE journey screen.
 ///
@@ -58,7 +59,7 @@ class JourneyLiveScreen extends StatefulWidget {
 }
 
 class _JourneyLiveScreenState extends State<JourneyLiveScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<JourneyLiveScreen>, WidgetsBindingObserver {
   late final JourneyTracker _tr = widget.tracker ?? JourneyTracker.I;
   Map<String, dynamic> _journey = {};
   bool _asked = false; // "Are you OK?" showing
@@ -871,7 +872,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           _bgCard(t),
         ],
         const SizedBox(height: Gap.lg),
-        SosButton(label: t.emergencySosButton, onPressed: _openSos),
+        SosButton(label: t.sosgapSosButtonLine, onPressed: _openSos),
         const SizedBox(height: Gap.lg),
         // sjlive: a "share for a while" has no destination to arrive at
         if (!_share)
@@ -908,7 +909,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           first: OutlinedButton.icon(
               key: const ValueKey('j100_sms_any'),
               icon: const Icon(Icons.sms_rounded),
-              label: Text(t.j100SendSms),
+              // design3: short label so the pair stays one line at 1.0–1.3
+              label: Text(t.d3SendSmsShort),
               onPressed: _sms),
           second: OutlinedButton.icon(
               key: const ValueKey('j100_stop'),

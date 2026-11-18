@@ -80,6 +80,7 @@ th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-ali
 </main>
 <footer class="ft wrap">
   <a href="/about{{ q }}">{{ T.about }}</a><a href="/help{{ q }}">{{ T.help }}</a><a href="/privacy{{ q }}">{{ T.privacy }}</a><a href="/terms{{ q }}">{{ T.terms }}</a>
+  {% if play %}<p><a class="badge" href="{{ play.url }}" rel="noopener" data-play><img src="{{ play.badge }}" width="160" height="62" alt="{{ play.alt }}" loading="lazy" decoding="async"></a></p>{% endif %}
   <p class="small">© {{ year }} Axon Dynamics · Cha-63/3, Uttar Badda, Badda, Dhaka 1212, Bangladesh · assistoaiagent@gmail.com</p>
 </footer>
 </body>

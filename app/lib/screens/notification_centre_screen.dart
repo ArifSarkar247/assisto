@@ -134,6 +134,8 @@ class _NotificationCentreScreenState extends State<NotificationCentreScreen>
         title: Text(t.notifCentreTitle),
         bottom: TabBar(
           controller: _tabs,
+          isScrollable: true, // design3: full labels at 2.0x, never cut
+          tabAlignment: TabAlignment.start,
           tabs: [
             Tab(child: _TabLabel(t.notifTabReminders, _badges[0])),
             Tab(child: _TabLabel(t.notifTabNotifications, _badges[1])),
@@ -171,12 +173,8 @@ class _TabLabel extends StatelessWidget {
       builder: (_, n, __) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: Text(text,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis),
-          ),
+          // design3 (2.0x): the tab bar scrolls, so the full name shows
+          Text(text, softWrap: false),
           if (n > 0) ...[
             const SizedBox(width: Gap.xs),
             Badge(

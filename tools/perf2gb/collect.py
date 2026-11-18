@@ -111,6 +111,61 @@ def parse_cold(out):
     return {"runs": rows, "summary": summary}
 
 
+def parse_route_cold(cold):
+    """speedproof: process-cold route opens (run_perf.sh cold_route): app
+    killed -> launcher -> ~2.5 s on home -> ao_open <route>. frame = the
+    pushed screen's first frame after the push (ao_frame - ao_open)."""
+    per = {}
+    for r in cold["runs"]:
+        lab = r["label"]
+        if not lab.startswith("route_"):
+            continue
+        route = lab[len("route_"):]
+        o, fr = r.get("ao_open_%s_ms" % route), r.get("ao_frame_%s_ms" % route)
+        per.setdefault(route, []).append({"n": r["n"], "push_at_ms": o,
+                                          "frame_ms": (fr - o) if (o is not None and fr is not None) else None,
+                                          "from_icon_ms": fr})
+    summary = {}
+    for route, rows in per.items():
+        v = [x["frame_ms"] for x in rows if x["frame_ms"] is not None]
+        w = [x["from_icon_ms"] for x in rows if x["from_icon_ms"] is not None]
+        summary[route] = {"runs": len(rows),
+                          "frame_ms_median": int(statistics.median(v)) if v else None,
+                          "from_icon_ms_median": int(statistics.median(w)) if w else None}
+    return {"runs": per, "summary": summary}
+
+
+_ID = re.compile(r"/(?:[0-9a-f]{8,}|\d+)(?=/|$)")
+
+
+def parse_server(out):
+    """speedproof: CITIMING lines (backend core/ci_timing.py) -> per endpoint
+    n, p50, p95, max server ms and max SQL queries per request."""
+    by = {}
+    for line in _read(out / "server_timing.log").splitlines():
+        p = line.split()
+        if len(p) != 7 or p[0] != "CITIMING":
+            continue
+        try:
+            ms, q = float(p[5]), int(p[6])
+        except ValueError:
+            continue
+        key = p[2] + " " + _ID.sub("/<id>", p[3].replace("/api/v1", "", 1))
+        by.setdefault(key, []).append((ms, q, int(p[4])))
+    rows = {}
+    allms = []
+    for k, v in by.items():
+        ms = sorted(x[0] for x in v)
+        allms += ms
+        rows[k] = {"n": len(v), "p50_ms": round(statistics.median(ms), 1),
+                   "p95_ms": round(ms[int(0.95 * (len(ms) - 1))], 1), "max_ms": round(ms[-1], 1),
+                   "max_queries": max(x[1] for x in v),
+                   "errors": sum(1 for x in v if x[2] >= 500)}
+    allms.sort()
+    return {"endpoints": rows, "n": len(allms),
+            "p95_ms": round(allms[int(0.95 * (len(allms) - 1))], 1) if allms else None}
+
+
 # ------------------------------------------------------------------ memory
 def parse_meminfo(text):
     if not text.strip():
@@ -293,6 +348,8 @@ def main():
         "lmk_ok": not lmk["lmkd_kills"] and not lmk["exit_info_low_memory"],
         "battery_bg": parse_battery(out), "apk": apk,
         "reality": parse_reality_errors(out),
+        "route_cold": parse_route_cold(cold),
+        "server": parse_server(out),
     }
     (out / "perf2gb.json").write_text(json.dumps(res, indent=1, ensure_ascii=False))
     md = render_md(res)
@@ -340,6 +397,21 @@ def render_md(r):
         for k, o in (f.get("opens") or {}).items():
             L.append(f"| {f['id']} | {k} | {_fmt(o.get('first_frame_ms'), ' ms')} | "
                      f"{_fmt(o.get('ready_ms'), ' ms')}{' TIMEOUT' if o.get('timed_out') else ''} |")
+    rc = (r.get("route_cold") or {}).get("summary") or {}
+    if rc:
+        L += ["", "### Process-cold route opens (app killed -> home -> screen, median)", "",
+              "| route | runs | push -> first frame | icon -> screen frame |", "|---|---|---|---|"]
+        for k, v in sorted(rc.items()):
+            L.append(f"| {k} | {v['runs']} | {_fmt(v['frame_ms_median'], ' ms')} | "
+                     f"{_fmt(v['from_icon_ms_median'], ' ms')} |")
+    sv = r.get("server") or {}
+    if sv.get("endpoints"):
+        L += ["", f"### Server (CI Django, {sv['n']} API calls, all p95 {_fmt(sv['p95_ms'], ' ms')})", "",
+              "| endpoint | n | p50 | p95 | max | max SQL | 5xx |", "|---|---|---|---|---|---|---|"]
+        top = sorted(sv["endpoints"].items(), key=lambda kv: -kv[1]["p95_ms"])[:60]
+        for k, e in top:
+            L.append(f"| {k} | {e['n']} | {e['p50_ms']} | {e['p95_ms']} | {e['max_ms']} | "
+                     f"{e['max_queries']} | {e['errors']} |")
     L += ["", "## Memory snapshots (dumpsys meminfo)", "",
           "| when | PSS | RSS | Java heap | Native heap | Graphics |", "|---|---|---|---|---|---|"]
     for k, m in r["mem"].items():

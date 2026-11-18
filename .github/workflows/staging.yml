@@ -1,0 +1,120 @@
+name: Assisto Test (staging app, daily)
+
+# staging (owner order 17 Nov 10:10): the owner's TEST APP outside Google Play.
+#   * applicationId com.assisto.assisto.staging, name "Assisto Test", orange
+#     TEST badge, LIVE server; installs next to the Play app.
+#   * Built by the SAME pipeline as the real app (android.yml, flavor=staging).
+#   * Delivered once a day (and on demand) through Firebase App Distribution
+#     to the tester group "owner" — NEVER Google Play (Play freeze stays).
+# Owner one-time steps + the 3 install steps: owner_actions/TEST_APP_INSTALL_BN.md
+#
+# Secrets: STAGING_KEYSTORE_B64 / STAGING_KEYSTORE_PASSWORD (signing; set),
+# FIREBASE_APPDIST_SA_JSON + FIREBASE_STAGING_APP_ID (distribution; owner),
+# STAGING_GOOGLE_SERVICES_JSON (push in the test app; owner, optional).
+
+# Owner 17 Nov: staging / Assisto Test / App Distribution STOPPED. Manual
+# dispatch only (no daily schedule, no branch pushes); nothing requires the
+# Firebase App Distribution secrets unless someone runs it by hand.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/android.yml
+    with:
+      flavor: staging
+    secrets: inherit
+
+  # Both apps on ONE emulator at the same time: production (latest main
+  # x86_64 smoke APK) + Assisto Test; each cold-starts with no crash/ANR.
+  side-by-side:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-staging-apk-emu
+          path: stg
+      - name: Latest production emulator APK (main)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          ID=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=assisto-apk-emu&per_page=50" \
+                --jq '[.artifacts[] | select(.expired == false and .workflow_run.head_branch == "main")][0].id')
+          [ -n "$ID" ] && [ "$ID" != "null" ] || { echo "::error::no unexpired production emulator APK from main"; exit 1; }
+          gh api "repos/${{ github.repository }}/actions/artifacts/$ID/zip" > prod.zip
+          mkdir -p prod && unzip -o -q prod.zip -d prod
+          ls -la stg prod
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install + launch both apps (API 33)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: bash tools/ci/staging/side_by_side.sh "$(ls stg/*.apk | head -1)" "$(ls prod/*.apk | head -1)"
+      - name: Upload side-by-side evidence (always)
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-side-by-side
+          path: sbs/
+          retention-days: 14
+          if-no-files-found: warn
+
+  distribute:
+    needs: [build, side-by-side]
+    # proof runs on ci/** never upload; the daily/on-demand run on main does
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-staging-apk
+          path: stg
+      - name: Release notes
+        run: |
+          {
+            echo "Assisto Test — daily test build ${{ github.run_number }} (main ${GITHUB_SHA::8}, $(TZ=Asia/Dhaka date '+%d %b %Y %H:%M') Dhaka)"
+            echo "Test app: live server, purchases off, test ads only. Not from Google Play."
+            echo
+            cat .phaseB/release_notes_en.txt 2>/dev/null || echo "- Latest main build."
+          } > notes.txt
+          cat notes.txt
+      - name: Upload to Firebase App Distribution (group "owner")
+        env:
+          APPDIST_SA_JSON: ${{ secrets.FIREBASE_APPDIST_SA_JSON }}
+          APPDIST_APP_ID: ${{ secrets.FIREBASE_STAGING_APP_ID }}
+          APPDIST_TESTERS: assistoaiagent@gmail.com,axonadmin001@gmail.com
+          APPDIST_GROUP: owner
+        run: |
+          if [ -z "$APPDIST_SA_JSON" ] || [ -z "$APPDIST_APP_ID" ]; then
+            MSG="Assisto Test was built and passed the side-by-side test, but NOT distributed: secret FIREBASE_APPDIST_SA_JSON and/or FIREBASE_STAGING_APP_ID is not set yet (owner one-time steps: owner_actions/TEST_APP_INSTALL_BN.md). The APK is in the run's assisto-staging-apk artifact."
+            echo "::warning::$MSG"
+            printf '### Assisto Test\n\n%s\n' "$MSG" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          python3 -m pip install -q google-auth requests
+          python3 tools/ci/staging/appdist_upload.py "$(ls stg/*.apk | head -1)" notes.txt

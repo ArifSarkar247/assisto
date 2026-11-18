@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import '../services/action_feedback.dart' show openForUser;
@@ -231,17 +232,7 @@ class _VoiceMoodScreenState extends State<VoiceMoodScreen> {
       ),
       body: _logs.isEmpty
           ? ListView(children: [
-              StateMessage(
-                icon: Icons.self_improvement_rounded,
-                tint: Brand.purple,
-                title: tr.moodWelcomeTitle,
-                message: tr.moodWelcomeBody,
-                action: FilledButton.icon(
-                  onPressed: _checkIn,
-                  icon: const Icon(Icons.mood_rounded),
-                  label: Text(tr.moodCheckIn),
-                ),
-              ),
+              ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.self_improvement_rounded, title: tr.moodWelcomeTitle, benefit: tr.moodWelcomeBody, actionLabel: tr.moodCheckIn, onAction: _checkIn)]),
               const Padding(
                 padding: EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.lg),
                 child: Column(children: [_PrivacyNote(), _SafetyNote()]),
@@ -308,17 +299,18 @@ class _OptInGate extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(tr.moodOptInBody2,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.45)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.45)),
           const SizedBox(height: Gap.lg),
           _Bullet(icon: Icons.phonelink_lock_rounded, text: tr.moodOptInPoint1),
           _Bullet(icon: Icons.mic_off_rounded, text: tr.moodOptInPoint2),
           _Bullet(icon: Icons.delete_outline_rounded, text: tr.moodOptInPoint3),
           _Bullet(icon: Icons.spa_rounded, text: tr.moodOptInPoint4b),
           const SizedBox(height: Gap.lg),
-          FilledButton.icon(
+          DsButton(
             onPressed: onOptIn,
-            icon: const Icon(Icons.check_rounded),
-            label: Text(tr.moodOptInButton),
+            icon: Icons.check_rounded,
+            expand: true,
+            label: tr.moodOptInButton,
           ),
           const SizedBox(height: Gap.md),
           const _SafetyNote(),
@@ -342,7 +334,7 @@ class _Bullet extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(color: scheme.ds.text, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
         ),
       ]),
     );
@@ -360,11 +352,7 @@ class _TodayCard extends StatelessWidget {
     final mood = row?['mood']?.toString();
     final energy = _Mood.intOf(row?['energy'], 0);
     final note = row?['note']?.toString() ?? '';
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.moodTodayTitle,
               style: Theme.of(context)
                   .textTheme
@@ -373,7 +361,7 @@ class _TodayCard extends StatelessWidget {
           const SizedBox(height: Gap.md),
           if (mood == null)
             Text(tr.moodNotLoggedYet,
-                style: TextStyle(color: scheme.ds.muted))
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
           else
             Row(children: [
               Text(_Mood.emoji(mood), style: AType.displayLarge),
@@ -398,9 +386,7 @@ class _TodayCard extends StatelessWidget {
                     ]),
               ),
             ]),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -412,11 +398,7 @@ class _TrendCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.moodTrend7d,
               style: Theme.of(context)
                   .textTheme
@@ -476,9 +458,7 @@ class _TrendCard extends StatelessWidget {
               ],
             ),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   String _dayLetter(BuildContext context, String iso) {
@@ -499,16 +479,12 @@ class _SuggestionsCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final visible = keys.where((k) => k != 'support').toList();
     if (visible.isEmpty) return const SizedBox.shrink();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.favorite_outline_rounded, size: 18, color: Brand.purple),
             const SizedBox(width: Gap.sm),
             Text(tr.moodSuggestionsTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
           const SizedBox(height: Gap.sm),
           for (final k in visible)
@@ -521,16 +497,14 @@ class _SuggestionsCard extends StatelessWidget {
                     const SizedBox(width: Gap.sm),
                     Expanded(
                         child: Text(_suggestionText(tr, k),
-                            style: TextStyle(
+                            style: AType.bodyMedium.copyWith(
                                 color: scheme.ds.text, height: 1.4))),
                   ]),
             ),
           const SizedBox(height: Gap.xs),
           Text(tr.moodSuggestionsNote,
               style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -545,13 +519,7 @@ class _SupportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const Key('mood-support-card'),
-      margin: EdgeInsets.zero,
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('mood-support-card'), padding: const EdgeInsets.all(Gap.lg), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.volunteer_activism_rounded, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -559,12 +527,12 @@ class _SupportCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.moodSupportTitle,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
                           color: scheme.ds.primaryInk)),
                   const SizedBox(height: Gap.xs),
                   Text(tr.moodSupportBody,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           color: scheme.ds.primaryInk, height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   FilledButton.tonalIcon(
@@ -575,9 +543,7 @@ class _SupportCard extends StatelessWidget {
                   ),
                 ]),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -638,23 +604,18 @@ class _BreathingCardState extends State<_BreathingCard> {
     final scheme = Theme.of(context).colorScheme;
     final inhale = (_elapsed ~/ _phase).isEven;
     final left = _total - _elapsed;
-    return Card(
-      key: const Key('mood-breathing-card'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('mood-breathing-card'), padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.air_rounded, size: 20, color: Brand.blue),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.moodBreathTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: Gap.xs),
           Text(_done ? tr.moodBreathDone : tr.moodBreathBody,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           if (_running) ...[
             const SizedBox(height: Gap.md),
             Center(
@@ -691,9 +652,7 @@ class _BreathingCardState extends State<_BreathingCard> {
                   onPressed: _start,
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: Text(tr.moodBreathStart)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -704,12 +663,7 @@ class _PrivacyNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.phonelink_lock_rounded, size: 18, color: Brand.blue),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -717,9 +671,7 @@ class _PrivacyNote extends StatelessWidget {
                 style:
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -729,12 +681,7 @@ class _SafetyNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -742,9 +689,7 @@ class _SafetyNote extends StatelessWidget {
                 style:
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -784,7 +729,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.xs),
             Text(tr.moodPickPrompt,
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -810,7 +755,6 @@ class _CheckInSheetState extends State<_CheckInSheet> {
               decoration: InputDecoration(
                 labelText: tr.moodNoteLabel,
                 hintText: tr.moodNoteHint,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: Gap.md),
@@ -822,7 +766,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.moodVoiceToggle,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 ),
                 Icon(_voiceExpanded
                     ? Icons.expand_less_rounded
@@ -837,7 +781,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
               Row(children: [
                 Expanded(
                   child: Text(tr.moodEnergyLabel,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 ),
                 Text(
                     _energy == 0
@@ -907,11 +851,12 @@ class _MoodChoice extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           decoration: BoxDecoration(
             color: selected
-                ? Brand.purple.withValues(alpha: 0.16)
+                ? scheme.ds.primarySoft
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(Radii.md),
             border: Border.all(
-                color: selected ? Brand.purple : scheme.ds.border,
+                color: selected ? scheme.ds.primary : scheme.ds.border,
+
                 width: selected ? 2 : 1),
           ),
           child: Column(children: [
@@ -921,7 +866,7 @@ class _MoodChoice extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2, // lifebar: was clipped at 200% font
                 overflow: TextOverflow.ellipsis,
-                style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? Brand.purple : scheme.ds.muted)),
+                style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? scheme.ds.primaryInk : scheme.ds.muted)),
           ]),
         ),
       ),

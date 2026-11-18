@@ -100,8 +100,7 @@ class _CircleExtrasBroadcastScreenState
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.circleExtrasBroadcastHint,
-                      style: TextStyle(
-                          fontSize: 12, color: DsTokens.of(context).muted)),
+                      style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                 ),
               ],
             ),
@@ -115,7 +114,7 @@ class _CircleExtrasBroadcastScreenState
                 const Spacer(),
                 if (_chosen.isNotEmpty)
                   Text('${_chosen.length}',
-                      style: TextStyle(color: scheme.primary)),
+                      style: AType.bodyMedium.copyWith(color: scheme.primary)),
               ],
             ),
           ),
@@ -164,8 +163,7 @@ class _CircleExtrasBroadcastScreenState
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(t.circleExtrasBroadcastNotGroup,
-                          style: TextStyle(
-                              fontSize: 11, color: DsTokens.of(context).muted)),
+                          style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted)),
                     ),
                   ],
                 ),

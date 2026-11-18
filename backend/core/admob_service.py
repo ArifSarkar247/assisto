@@ -75,6 +75,22 @@ def _purge_old(now, odds=None):
         pass
 
 
+def is_test_event(user):
+    """ads-guard (owner 17 Nov): this event came from a Google TEST ad —
+    real unit ids are off (`admob_real_ids`), or the account only ever gets
+    test units (owner / staff / tester / Play reviewer, core.views_ads).
+    Test events are counted apart and NEVER shown as revenue. Fails safe:
+    an error -> test."""
+    try:
+        from . import billing, integrations
+        from .views_ads import test_ads_account
+        if not (billing.cfg().get("ad_rewards") or {}).get("admob_real_ids", False):
+            return True
+        return test_ads_account(user, integrations.get("admob") or {})
+    except Exception:
+        return True
+
+
 def record_event(user, data):
     """-> (http_status, body). body["counted"] says whether a counter moved.
 
@@ -112,7 +128,8 @@ def record_event(user, data):
     today = timezone.localdate()
     cur = ev["currency"] if kind == "paid" else ""
     key = dict(date=today, placement=pl,
-               fmt="exit" if kind == "exit" else ev["format"], currency=cur)
+               fmt="exit" if kind == "exit" else ev["format"], currency=cur,
+               test=is_test_event(user))
     if kind == "click":
         # never more clicks than impressions (no row = no impression yet)
         n = AdPlacementStat.objects.filter(clicks__lt=F("impressions"), **key).update(
@@ -138,17 +155,44 @@ def record_event(user, data):
     return 200, {"ok": True, "counted": True}
 
 
-def placement_stats(days=7):
-    """Owner Admin: per-placement totals for the last `days` local days."""
+def placement_stats(days=7, test=False):
+    """Owner Admin: per-placement totals for the last `days` local days —
+    REAL ads only (test=False) unless asked for the test rows."""
     from .models import AdPlacementStat
     days = max(1, min(90, int(days or 7)))
     since = timezone.localdate() - timedelta(days=days - 1)
-    rows = (AdPlacementStat.objects.filter(date__gte=since)
+    rows = (AdPlacementStat.objects.filter(date__gte=since, test=bool(test))
             .values("placement", "fmt", "currency")
             .annotate(impressions=Sum("impressions"), clicks=Sum("clicks"),
                       paid_events=Sum("paid_events"),
                       revenue_micros=Sum("revenue_micros")))
     return A.placement_report([dict(r, format=r["fmt"]) for r in rows])
+
+
+def stats_source(days=7):
+    """ads-guard: where the Owner Admin ad numbers come from, honestly.
+    Source = the app's own SDK events (impression / click / onPaidEvent value
+    = Google's ESTIMATE per impression); there is NO AdMob Reporting API sync
+    (it needs an OAuth client the owner authorises), so no "last sync".
+    -> {source, api_connected, last_event_at, real_impressions,
+        test_impressions, real_ids_on}"""
+    from django.db.models import Max
+    from .models import AdEventSeen, AdPlacementStat
+    days = max(1, min(90, int(days or 7)))
+    since = timezone.localdate() - timedelta(days=days - 1)
+    out = {"source": "app_events", "api_connected": False, "last_event_at": None,
+           "real_impressions": 0, "test_impressions": 0, "real_ids_on": False}
+    try:
+        for r in (AdPlacementStat.objects.filter(date__gte=since).exclude(fmt="exit")
+                  .values("test").annotate(n=Sum("impressions"))):
+            out["test_impressions" if r["test"] else "real_impressions"] = int(r["n"] or 0)
+        out["last_event_at"] = AdEventSeen.objects.aggregate(m=Max("at"))["m"]
+        from . import billing
+        out["real_ids_on"] = bool((billing.cfg().get("ad_rewards") or {})
+                                  .get("admob_real_ids", False))
+    except Exception:
+        pass
+    return out
 
 
 def placement_on(key):

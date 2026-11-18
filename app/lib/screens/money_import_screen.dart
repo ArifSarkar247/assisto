@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../ds/ds.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// Import transactions from a pasted/forwarded wallet or bank SMS. The raw text
@@ -93,6 +94,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.moneyImportTitle)),
@@ -109,8 +111,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             ),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.moneyImportHint,
-            style: TextStyle(
-                color: DsTokens.of(context).muted)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.md),
         TextField(
           controller: _input,
@@ -132,7 +133,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             label: Text(t.moneyImportParse)),
         if (_error != null) ...[
           const SizedBox(height: Gap.md),
-          Text(_error!, style: TextStyle(color: DsTokens.of(context).dangerInk)),
+          Text(_error!, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
         ],
         const SizedBox(height: Gap.lg),
         for (int i = 0; i < _parsed.length; i++) _reviewCard(context, t, i),
@@ -158,10 +159,9 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             Expanded(
               child: Text(
                   parsed
-                      ? '${credit ? '+' : '-'}${tkFmt(p['amount'])}'
+                      ? '${credit ? '+' : '-'}${tkOf(context, p['amount'])}'
                       : t.moneyImportUnrecognised,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                       color: !parsed
                           ? null
                           : credit

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../widgets/money_digits.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// Shared formatting + small UI helpers for the My Account (money) module.
@@ -12,13 +13,13 @@ final _tk = NumberFormat('#,##,###.##', 'en');
 /// Format a numeric value as Bangladeshi Taka, e.g. ৳1,23,456.78.
 String tkFmt(dynamic v) {
   final d = dbl(v);
-  return '৳${_tk.format(d)}';
+  return moneyDigits('৳${_tk.format(d)}'); // design3: Bangla digits in bn
 }
 
 /// Signed Taka, e.g. +৳500 / -৳500 (used in ledgers / deltas).
 String tkSigned(dynamic v) {
   final d = dbl(v);
-  final s = '৳${_tk.format(d.abs())}';
+  final s = moneyDigits('৳${_tk.format(d.abs())}'); // design3
   if (d > 0) return '+$s';
   if (d < 0) return '-$s';
   return s;
@@ -244,7 +245,7 @@ Widget deltaChip(BuildContext context, double delta, {bool upIsBad = true}) {
                 : Icons.arrow_downward_rounded,
         size: 13,
         color: color),
-    Text(tkFmt(delta.abs()),
+    Text(tkOf(context, delta.abs()),
         style: AType.labelMedium.copyWith(
             color: color, fontFeatures: AFonts.tabular)),
   ]);

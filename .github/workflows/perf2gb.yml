@@ -29,7 +29,13 @@ on:
         default: ""
   push:
     # ci/photoperf*: Photo Studio proxy/export work — 2 GB profile, flow p07 only
-    branches: ["ci/perf2gb*", "ci/photoperf*"]
+    # ci/speedproof*: every top feature's screen cold + warm (flows p02 + s..),
+    #   2 GB only, and ONLY when the commit message has [speedproof] (CI budget)
+    branches: ["ci/perf2gb*", "ci/photoperf*", "ci/speedproof*"]
+  schedule:
+    # speedproof nightly guard on main (02:40 Dhaka): 2 GB, flows p02 + s..;
+    # fails when a screen got > 20% slower than tools/speedproof/baseline.json
+    - cron: '40 20 * * *'
 
 concurrency:
   group: perf2gb-${{ github.ref }}
@@ -41,6 +47,9 @@ permissions:
 
 jobs:
   plan:
+    if: >-
+      github.event_name != 'push' || !contains(github.ref, 'ci/speedproof') ||
+      contains(github.event.head_commit.message, '[speedproof]')
     runs-on: ubuntu-latest
     outputs:
       profiles: ${{ steps.p.outputs.profiles }}
@@ -53,7 +62,8 @@ jobs:
           import json, os
           # a push to ci/perf2gb-before* (the baseline) measures only the 2 GB profile
           ref = os.environ.get("GITHUB_REF", "")
-          dflt = "2gb" if (ref.endswith("-before") or "/ci/photoperf" in ref) else "2gb,mid"
+          speed = "/ci/speedproof" in ref or os.environ.get("GITHUB_EVENT_NAME") == "schedule"
+          dflt = "2gb" if (ref.endswith("-before") or "/ci/photoperf" in ref or speed) else "2gb,mid"
           want = [x.strip() for x in (os.environ.get("P") or dflt).split(",") if x.strip()]
           print("profiles=" + json.dumps([w for w in want if w in ("2gb", "mid")] or ["2gb"]))
           PY
@@ -82,7 +92,9 @@ jobs:
       ASSISTO_CI_PG_NAME: assisto_ci
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       PERF_OUT: ${{ github.workspace }}/perf_out
-      PERF_ONLY: ${{ github.event.inputs.only || (contains(github.ref, 'ci/photoperf') && 'p07') || '' }}
+      PERF_ONLY: ${{ github.event.inputs.only || (contains(github.ref, 'ci/photoperf') && 'p07') || ((contains(github.ref, 'ci/speedproof') || github.event_name == 'schedule') && 'p02,s') || '' }}
+      # speedproof: the CI Django logs server ms + SQL count per API call
+      ASSISTO_CI_TIMING_LOG: ${{ github.workspace }}/perf_out/server_timing.log
     steps:
       - uses: actions/checkout@v4
 
@@ -118,6 +130,7 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
       - name: Dev deps + a real build number
@@ -177,6 +190,21 @@ jobs:
           mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_test.apk"
           timeout 1800 flutter build apk --profile --target-platform=android-x64 $D
           mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_app.apk"
+          # speedproof: the two APKs came out with DIFFERENT signatures (run
+          # 44002942576: INSTALL_FAILED_UPDATE_INCOMPATIBLE -> clean install ->
+          # sign-in lost, so the "signed-in" cold starts ran logged out). Both
+          # re-signed with one throw-away key made here (never a real key).
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          export PERF_KS_PASS=$(openssl rand -hex 16)
+          keytool -genkeypair -keystore "$RUNNER_TEMP/perf.p12" -storetype PKCS12 \
+            -storepass:env PERF_KS_PASS -alias perf -keyalg RSA -keysize 2048 \
+            -validity 3650 -dname "CN=Assisto CI perf" -noprompt
+          for a in perf_test perf_app; do
+            "$BT/apksigner" sign --ks "$RUNNER_TEMP/perf.p12" --ks-pass env:PERF_KS_PASS \
+              --ks-key-alias perf "$RUNNER_TEMP/$a.apk"
+          done
+          "$BT/apksigner" verify --print-certs "$RUNNER_TEMP/perf_test.apk" | grep -i "SHA-256" | head -1
+          "$BT/apksigner" verify --print-certs "$RUNNER_TEMP/perf_app.apk" | grep -i "SHA-256" | head -1
           ls -la "$RUNNER_TEMP"/*.apk
           echo "PERF_TEST_APK=$RUNNER_TEMP/perf_test.apk" >> "$GITHUB_ENV"
           echo "PERF_APP_APK=$RUNNER_TEMP/perf_app.apk" >> "$GITHUB_ENV"
@@ -222,6 +250,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           PERF_TOTAL_SECONDS: "3000"
+          # speedproof: process-cold opens of each top feature's screen
+          PERF_COLD_ROUTES: ${{ (contains(github.ref, 'ci/speedproof') || github.event_name == 'schedule') && 'circle journey emergency family notifications plans khata watchman shop_box quran city ai_chat' || '' }}
         with:
           api-level: 33
           arch: x86_64
@@ -244,6 +274,8 @@ jobs:
         run: |
           python3 tools/perf2gb/collect.py "$PERF_OUT" --profile ${{ matrix.profile }} --run-id ${{ github.run_id }} > /dev/null || true
           cat "$PERF_OUT/perf2gb.md" >> "$GITHUB_STEP_SUMMARY" || true
+          # speedproof: the per-screen table + slowest endpoints in the log too
+          sed -n '/### Every screen open/,/## Memory snapshots/p' "$PERF_OUT/perf2gb.md" | head -150 || true
           head -80 "$PERF_OUT/perf2gb.md" || true
           echo "::group::diagnostics (flow starts, failures, results)"
           tail -40 "$PERF_OUT/run.log" 2>/dev/null || true
@@ -255,6 +287,9 @@ jobs:
           echo "PERF2GB_JSON_BEGIN ${{ matrix.profile }}"
           gzip -9c "$PERF_OUT/perf2gb.json" | base64 -w 2000 || true
           echo "PERF2GB_JSON_END ${{ matrix.profile }}"
+      - name: Speed guard (any screen > 20% slower than tools/speedproof/baseline.json fails)
+        if: always() && matrix.profile == '2gb' && (contains(github.ref, 'ci/speedproof') || github.event_name == 'schedule' || github.event.inputs.only == 'p02,s')
+        run: python3 tools/speedproof/guard.py "$PERF_OUT/perf2gb.json" tools/speedproof/baseline.json
       - name: Stop Django
         if: always()
         run: kill "$(cat "$PERF_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true

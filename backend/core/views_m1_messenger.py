@@ -635,6 +635,8 @@ class GroupMessageActView(APIView):
             x.starred_by = sorted(starred)
             x.save(update_fields=["starred_by"])
             return Response({"ok": True, "starred": want})
+        if action == "edit":
+            return _group_edit(x, g, uid, d)
         if action == "delete":
             scope = str(d.get("scope", "me"))
             if scope == "everyone":
@@ -652,6 +654,41 @@ class GroupMessageActView(APIView):
             CA.delete_for_me(request.user, x)
             return Response({"ok": True, "deleted": "me"})
         return _bad("unknown action")
+
+
+def _group_edit(x, g, uid, d):
+    """gap-circle: edit MY group text inside the edit window (the 1:1 rule).
+    The phone re-seals the new text to every member (per_recipient), so the
+    server still only ever sees ciphertext; stale re-shared copies go."""
+    env = {"sender_id": x.sender_id, "created_at": x.created_at,
+           "content_type": x.content_type, "deleted": x.deleted or ""}
+    if x.view_once or not CMSG.can_edit(env, uid):
+        return Response({"ok": False, "detail": "edit_window"},
+                        status=status.HTTP_403_FORBIDDEN)
+    pr = d.get("per_recipient")
+    if not isinstance(pr, dict) or not pr:
+        return _bad("per_recipient required")
+    first = next(iter(pr.values()))
+    if not isinstance(first, dict):
+        return _bad("bad per_recipient")
+    check = {"content_type": "text", "group_id": g.id, "per_recipient": pr,
+             "recipient_ids": list(pr.keys()),
+             "ciphertext": str(first.get("ciphertext", "")),
+             "nonce": str(first.get("nonce", "")),
+             "sender_key_id": str(d.get("sender_key_id", x.sender_key_id))}
+    ok, reason = G.validate_group_envelope(check)
+    if not ok:
+        return _bad(reason)
+    x.per_recipient = pr
+    x.ciphertext, x.nonce = check["ciphertext"], check["nonce"]
+    x.sender_key_id = check["sender_key_id"][:64]
+    x.link_preview = None
+    x.edited_at = timezone.now()
+    x.save(update_fields=["per_recipient", "ciphertext", "nonce",
+                          "sender_key_id", "link_preview", "edited_at"])
+    from . import chat_actions as CA
+    CA.drop_all_copies(x)   # copies sealed the OLD text
+    return Response({"ok": True, "edited_at": x.edited_at.isoformat()})
 
 
 class GroupExportView(APIView):

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -409,7 +410,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _loadFailed
               ? _errorRetry(scheme)
               : Stack(
@@ -418,7 +419,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                     if (_busy)
                       const Positioned.fill(
                         child: ColoredBox(
-                          color: Color(0x33000000),
+                          color: Colors.black26,
                           child: Center(child: CircularProgressIndicator()),
                         ),
                       ),
@@ -439,7 +440,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
               const SizedBox(height: Gap.md),
               Text(honestFailText(_t, _failCause, otherwise: _t.grpInfoLoadError),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               FilledButton.icon(
                 icon: const Icon(Icons.refresh_rounded),
@@ -507,7 +508,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                         horizontal: Gap.lg, vertical: Gap.xl),
                     child: Text(_t.grpRosterEmpty,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
                   )
                 else
                   for (final m in _members)
@@ -528,7 +529,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
                 ListTile(
                   leading: Icon(Icons.logout_rounded, color: Brand.danger),
                   title: Text(_t.circleGroupLeave,
-                      style: const TextStyle(color: Brand.danger)),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
                   onTap: _leave,
                 ),
                 const SizedBox(height: Gap.xl),
@@ -552,7 +553,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
               const SizedBox(height: Gap.sm),
               Text('${_group['description']}',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ],
         ),

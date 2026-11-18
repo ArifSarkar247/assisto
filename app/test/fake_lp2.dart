@@ -192,7 +192,7 @@ Map<String, dynamic> fakeLp2Finish() => {
         {'tag': 'tfng', 'title_en': 'True / False / Not Given', 'title_bn': 'True / False / Not Given'},
       ],
       'result_id': 31,
-      'certificate_url': '',
+      'certificate_url': '/api/v1/lp/certificate/31', // gap-lp: full mock -> certificate offered
       'practice_label': _label,
     };
 

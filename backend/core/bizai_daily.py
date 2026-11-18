@@ -91,11 +91,14 @@ def khata_day(business, start, end, now):
     today = ents.filter(at__gte=start, at__lt=end)
     got = int(today.filter(direction="got").aggregate(s=Sum("amount_poisha"))["s"] or 0)
     gave = int(today.filter(direction="gave").aggregate(s=Sum("amount_poisha"))["s"] or 0)
+    # gap-bizai: one grouped query in the DB (was: every entry of the shop
+    # pulled into Python, capped at 200k — slow and wrong past the cap).
     bal = defaultdict(int)
-    for pid, d, a in ents.values_list("party_id", "direction", "amount_poisha")[:200000]:
-        bal[pid] += int(a) if d == "gave" else -int(a)
+    for pid, d, a in (ents.values("party_id", "direction").annotate(s=Sum("amount_poisha"))
+                      .values_list("party_id", "direction", "s")):
+        bal[pid] += int(a or 0) if d == "gave" else -int(a or 0)
     owed = {pid: b for pid, b in bal.items() if b > 0}
-    top = sorted(owed.items(), key=lambda kv: -kv[1])[:MAX_CHASE]
+    top = sorted(owed.items(), key=lambda kv: (-kv[1], kv[0]))[:MAX_CHASE]
     names = dict(parties.filter(pk__in=[p for p, _ in top]).values_list("pk", "name"))
     last_paid = dict(ents.filter(party_id__in=[p for p, _ in top], direction="got")
                      .values("party_id").annotate(m=Max("at")).values_list("party_id", "m"))
@@ -169,7 +172,7 @@ def summary(business, lang="bn", now=None):
         lines.append(L("আজ বিক্রি: %sটি, মোট %s।" % (_n(s["count"], "bn"), _tk(s["total"], "bn")),
                        "Sales today: %s, total %s." % (s["count"], _tk(s["total"], "en"))))
         parts = []
-        for key, bn_, en_ in (("cash", "নগদ", "cash"), ("bkash", "বিকাশ", "bKash"),
+        for key, bn_, en_ in (("cash", "ক্যাশ", "cash"), ("bkash", "বিকাশ", "bKash"),
                               ("nagad", "নগদ (Nagad)", "Nagad"), ("due", "বাকিতে", "on credit")):
             if s["split"].get(key):
                 parts.append(L("%s %s" % (bn_, _tk(s["split"][key], "bn")),
@@ -209,6 +212,8 @@ def summary(business, lang="bn", now=None):
         else:
             when = L(" · %s দিন ধরে বাকি" % _n(c["days"], "bn"),
                      " · owing for %s days" % c["days"])
+        # gap-bizai: party_id + due_poisha let the app open THIS customer's
+        # tagada in one tap (the server fills the phone; none in this payload)
         chase.append({"party_id": c["party_id"], "name": c["name"], "due_poisha": c["due"],
                       "line": "%s — %s%s" % (c["name"], _tk(c["due"], lang), when)})
     stock_rows = []
@@ -349,6 +354,9 @@ def view_payload(business, user, lang="bn", now=None):
     """GET bizai/daily: today's summary live (so the owner can look any time),
     plus the on/off switch state."""
     d = summary(business, lang, now)
+    # gap-bizai: the app opens this shop's tagada straight from a chase row
+    d["business_id"] = business.pk
+    d["shop"] = business.shop_name or ""
     d["enabled"] = enabled_for(user)
     d["switch_note"] = pick(lang, "প্রতিদিন রাত ৯টায় এই হিসাব একটি নোটিফিকেশনে আসে।",
                             "This summary comes as one notification every day at 9 pm.")

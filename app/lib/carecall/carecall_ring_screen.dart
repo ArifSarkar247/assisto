@@ -11,6 +11,7 @@ import '../ds/ds.dart';
 import '../train/dest_alarm_sound.dart';
 import 'carecall_alarms.dart';
 import 'carecall_api.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// carecall SCREEN 2 — the receiver's incoming Care Call, full screen like a
 /// real call (also over the lock screen: MainActivity allows it for a Care
@@ -67,7 +68,8 @@ class CareCallRingScreen extends StatefulWidget {
   State<CareCallRingScreen> createState() => _CareCallRingScreenState();
 }
 
-class _CareCallRingScreenState extends State<CareCallRingScreen> {
+class _CareCallRingScreenState extends State<CareCallRingScreen>
+    with AdBlockedState<CareCallRingScreen> {
   late final DestAlarmSound _sound = widget.sound ?? NativeDestAlarmSound();
   bool _busy = false;
   bool _ownVoice = false;

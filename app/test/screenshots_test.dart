@@ -252,6 +252,7 @@ import 'package:assisto/family_v3/fc_member_page.dart'; // fcscreen
 import 'package:assisto/family_v3/fc_fix_guide.dart'; // fcscreen
 import 'package:assisto/family_v3/fc_add_member.dart'; // fcscreen
 import 'fake_fcscreen.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_section_page.dart'; // gap-familycare
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/emergency_hub_screen.dart';
@@ -776,6 +777,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'mess_v2_empty': (build: (_) => const MessAccountingScreen(), mode: FakeMode.empty, full: true),
     'mess_v2_meals': (build: (_) => const MessDetailScreen(messId: 1), mode: FakeMode.data, full: true),
     'mess_v2_month': (build: (_) => const MessDetailScreen(messId: 1, initialTab: 3), mode: FakeMode.data, full: true),
+    // gap-money: edit history says WHAT changed (made-up sample rows)
+    'mess_v2_history': (build: (_) => Scaffold(body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(16), child: MessHistoryList(rows: const [
+      {'actor': 'Babu', 'action': 'bazar.edit', 'at': '2026-11-05T14:20:00+06:00', 'before': {'amount': 50000, 'date': '2026-11-05'}, 'after': {'amount': 500000, 'date': '2026-11-05'}},
+      {'actor': 'Amin', 'action': 'charge.add', 'at': '2026-11-03T09:05:00+06:00', 'before': {}, 'after': {'amount': 70000, 'date': '2026-11-03', 'kind': 'wifi'}},
+      {'actor': 'Chaya', 'action': 'meal.set', 'at': '2026-11-02T23:40:00+06:00', 'before': {'date': '2026-11-03'}, 'after': {'date': '2026-11-03', 'b': 0, 'l': 1, 'd': 1, 'offline_saved_at': '2026-11-02T21:30:00+06:00'}},
+      {'actor': 'Amin', 'action': 'deposit.delete', 'at': '2026-11-02T10:00:00+06:00', 'before': {'amount': 12345678, 'date': '2026-11-02'}, 'after': {}},
+    ])))), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
     'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),
@@ -876,6 +884,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- o1-otp ----
     'otp_verify': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
     'otp_sms_off': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
+    // signup-otp: emailed code — Spam hint, countdown, "Create an account"
+    'otp_email_new_user': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), purpose: 'login', email: 'new@example.com', emailFirst: true, title: 'Assisto', onLeave: (_) {}), mode: FakeMode.data, full: true),
     'otp_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
@@ -950,6 +960,12 @@ Map<String, GallerySpec> gallerySpecs() {
     // fcrest: Probashi both clocks (top of the board), member page settings
     // (Where I live / name / remove), area + 15 % battery last place
     'fcr_board_top_abroad': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true), // fcrest
+    // gap-familycare: paused line, "could not refresh" banner, undo/delete tasks
+    'fcg_board_paused': (build: (_) => const FcScene(scene: 'paused', child: FamilyV3Screen()), mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_board_stale': (build: (_) => FamilyV3Screen(debugStaleAt: DateTime(2026, 11, 17, 9, 40)), mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_ledger_goals': (build: (l) => FcSectionPage(section: FcSection.ledger, title: l == 'bn' ? '\u09aa\u09b0\u09bf\u09ac\u09be\u09b0\u09c7\u09b0 \u09b9\u09bf\u09b8\u09be\u09ac' : 'Family ledger', familyId: 10, familyMembers: const [{'id': 'u5', 'name': 'Sakib'}], debugLedgerTab: 1), mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_ledger_shared': (build: (l) => FcSectionPage(section: FcSection.ledger, title: l == 'bn' ? '\u09aa\u09b0\u09bf\u09ac\u09be\u09b0\u09c7\u09b0 \u09b9\u09bf\u09b8\u09be\u09ac' : 'Family ledger', familyId: 10, familyMembers: const [{'id': 'u5', 'name': 'Sakib'}]), mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_board_tasks': (build: (_) => const FcScene(scene: 'tasks', child: FamilyV3Screen(debugScrollOffset: 1400)), mode: FakeMode.data, full: true), // gap-familycare
     'fcr_member_me': (build: (l) => FcMemberPage(familyId: 10, userId: 1, seed: fcFakeMembers(bn: l == 'bn').last, myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     'fcr_member_admin': (build: (l) => FcMemberPage(familyId: 10, userId: 5, seed: fcFakeMembers(bn: l == 'bn')[1], myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen

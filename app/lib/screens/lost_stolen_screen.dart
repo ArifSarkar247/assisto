@@ -22,6 +22,9 @@ import '../feature_gates.dart' show kLostActionSwitchesWired; // f6
 import '../widgets/remote_switches_card.dart'; // at100
 import '../widgets/at_disclosure.dart'; // at100
 import '../widgets/permission_reason.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// #80 — Lost / stolen phone protection (device-admin).
 ///
@@ -55,7 +58,7 @@ class LostStolenScreen extends StatefulWidget {
 }
 
 class _LostStolenScreenState extends State<LostStolenScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<LostStolenScreen>, WidgetsBindingObserver {
   static const _channel = MethodChannel('com.assisto/device_admin');
   static const _secure = FlutterSecureStorage();
 
@@ -342,7 +345,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(error!,
-                      style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                      style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.error)),
                 ),
             ],
           ),
@@ -449,7 +452,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     return Scaffold(
       appBar: AppBar(title: Text(tr.lostStolenTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
               children: [
@@ -533,11 +536,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
     final fg = active
         ? AssistoTokens.of(context).success
         : Brand.warnInk(context);
-    return Card(
-      color: bg,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -585,17 +584,14 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                     ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   /// Anti-theft Batch 5 links — the server-side view of this phone and the
   /// Recovery toolkit. Placed here (not duplicated) so they're reachable from
   /// the existing Lost/Stolen hub as well as the sidebar.
   Widget _lostPhoneLinks(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      child: Column(
+    return DsCard(padding: EdgeInsets.zero, child: Column(
         children: [
           ListTile(
             leading: const Icon(Icons.shield_moon_rounded),
@@ -631,15 +627,11 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             ),
           ),
         ],
-      ),
-    );
+      ));
   }
 
   Widget _intro(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.lostStolenIntroTitle,
@@ -656,9 +648,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             Text(tr.lostStolenPrivacyNote,
                 style: Theme.of(context).textTheme.bodySmall),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _bullet(String text) => Padding(
@@ -673,8 +663,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
       );
 
   Widget _recoveryPinCard(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      child: ListTile(
+    return DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: const Icon(Icons.pin_rounded),
         title: Text(tr.lostStolenRecoveryPin),
         subtitle: Text(
@@ -683,15 +672,11 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           onPressed: _setPin,
           child: Text(_hasPin ? tr.lostStolenPinChange : tr.safetyCheckinSet),
         ),
-      ),
-    );
+      ));
   }
 
   Widget _actionsCard(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.sm),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.sm), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -790,9 +775,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               },
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   /// f6: the real, working tests of each protection action (no switches
@@ -808,10 +791,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               ? null
               : TextButton(key: key, onPressed: onPressed, child: Text(cta)),
         );
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.sm),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.sm), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -833,15 +813,12 @@ class _LostStolenScreenState extends State<LostStolenScreen>
                 tr.lostStolenActionLocateBody, tr.lostStolenReportNow,
                 _reportLocation, const Key('f6-ls-report')),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _lostMessageCard(AppLocalizations tr, ColorScheme scheme) {
     final hasContact = _ownerPhone.isNotEmpty || _lostMsg.isNotEmpty;
-    return Card(
-      child: ListTile(
+    return DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: const Icon(Icons.contact_phone_rounded),
         title: Text(tr.lostStolenLostMessage),
         subtitle: Text(hasContact
@@ -854,15 +831,11 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           onPressed: _editOwnerContact,
           child: Text(tr.edit),
         ),
-      ),
-    );
+      ));
   }
 
   Widget _triggersCard(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.lostStolenTriggersTitle,
@@ -875,17 +848,11 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             // SHOWPIECES: the disabled "coming soon" toggle is hidden until
             // the receiver ships — never pretend remote SMS control is live.
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _uninstallCard(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -900,8 +867,6 @@ class _LostStolenScreenState extends State<LostStolenScreen>
             Text(tr.lostStolenUninstallBody,
                 style: Theme.of(context).textTheme.bodySmall),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }

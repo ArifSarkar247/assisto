@@ -123,6 +123,9 @@ DEFAULT_TEMPLATES = {
 }
 
 _VAR_RE = re.compile(r"\{([a-zA-Z_]+)\}")
+# gap-bizai: ANY {...} the owner types (a Bangla "{দাম}" too) must be a known
+# variable — otherwise the customer would get the raw braces.
+_ANY_VAR_RE = re.compile(r"\{([^{}\n]{1,40})\}")
 
 
 def _int(v, fb):
@@ -153,7 +156,7 @@ def template_problems(kind, text):
     if len(t) > MAX_TEMPLATE:
         out.append("template_too_long")
     allowed = set(CATALOG[kind]["vars"])
-    for v in _VAR_RE.findall(t):
+    for v in _ANY_VAR_RE.findall(t):
         if v not in allowed:
             out.append("unknown_variable")
             break

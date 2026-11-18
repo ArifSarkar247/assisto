@@ -756,11 +756,9 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             padding: const EdgeInsetsDirectional.only(end: Gap.sm),
             child: ActionChip(
               avatar: Icon(_quickIcon('${r['kind']}'), size: 18),
-              label: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 240),
-                child: Text(bd(context, _quickLabel(t, r)),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-              ),
+              // design3 (2.0x): the row scrolls sideways, so the full
+              // product name + price shows (it was cut at 240 dp)
+              label: Text(bd(context, _quickLabel(t, r)), softWrap: false),
               tooltip: t.s2QuickReplyHint,
               onPressed: _busy ? null : () => _useQuick(r),
             ),

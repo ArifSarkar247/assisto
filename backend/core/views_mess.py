@@ -200,7 +200,8 @@ def compute_month(mess, start, end, until=None):
                 "members": (e.data or {}).get("members") or []}
                for e in ent if e.kind == "charge"]
     deposits = [{"member": e.member_id, "amount": e.amount} for e in ent if e.kind == "deposit"]
-    s = M.settle(members, meals, bazar, charges, deposits, _carry_in(mess, start))
+    s = M.settle(members, meals, bazar, charges, deposits, _carry_in(mess, start),
+                 period=(start, end))
     s["counted_until"] = last.isoformat() if last >= start else None
     for r in s["members"]:
         for k in ("meal_cost", "service", "deposits", "carry_in"):
@@ -653,12 +654,34 @@ class MessMealsOffView(APIView):
         return _set_meal_days(request, mess, mm, who, list(M.days(a, b)), data, lang)
 
 
+def _saved_at(request):
+    """The phone's saved-at time of an OFFLINE-queued write (aware ->
+    Dhaka local), or None. Only sent by the outbox (with a client_id)."""
+    d = request.data or {}
+    if not d.get("client_id") or not d.get("saved_at"):
+        return None
+    from django.utils.dateparse import parse_datetime
+    try:
+        t = parse_datetime(str(d.get("saved_at"))[:40])
+    except (TypeError, ValueError):
+        return None
+    if t is None or timezone.is_naive(t):
+        return None
+    return timezone.localtime(t)
+
+
 def _set_meal_days(request, mess, mm, who, day_list, data, lang):
     staff = _is_staff(mm)
     now = _now_local()
+    saved = _saved_at(request)
+    late_ok = False
     for day in day_list:
         if _closed_key(mess, day) is not None:
             return _locked(lang)
+        if not staff and not M.can_member_edit_day(day, now, mess.cutoff_hour) \
+                and M.offline_saved_ok(day, saved, now, mess.cutoff_hour):
+            late_ok = True      # saved offline before the cut-off (gap-money)
+            continue
         if not staff and not M.can_member_edit_day(day, now, mess.cutoff_hour):
             return _err(lang, "cutoff",
                         "সময় শেষ — এই দিনের মিল আগের দিন %s:০০-এর মধ্যে বদলাতে হয়। ম্যানেজারকে বলুন।"
@@ -683,10 +706,14 @@ def _set_meal_days(request, mess, mm, who, day_list, data, lang):
                 row.updated_by = request.user
                 row.save(update_fields=["data", "updated_by", "updated_at"])
             changed += 1
-            if who.id != mm.id or before:
+            if who.id != mm.id or before or late_ok:
+                after = {"date": day.isoformat(), "member_id": who.id, **data}
+                if late_ok:
+                    # trust: everyone sees it arrived after the cut-off
+                    after["offline_saved_at"] = saved.isoformat()
                 _log(mess, request.user, "meal.set", entry_id=row.id,
                      before={"date": day.isoformat(), "member_id": who.id, **before},
-                     after={"date": day.isoformat(), "member_id": who.id, **data})
+                     after=after)
     return Response({"ok": True, "changed": changed, "days": len(day_list)})
 
 
@@ -1062,6 +1089,10 @@ def _pdf(mess, key, s, lang, closed=False):
     d.meta(L("হিসাব: মিল × মিল রেট + সার্ভিস চার্জ − জমা − আগের মাসের জমা = দেবেন / ফেরত পাবেন।",
              "Formula: meals × meal rate + service charges − deposits − last month's credit "
              "= will pay / gets back."))
+    d.meta(L("সার্ভিস বিল (Wi-Fi, খালা, ভাড়া…) ভাগ হয় মেসে থাকা দিনের হিসাবে: মাসের মাঝে এলে বা "
+             "চলে গেলে শুধু থাকা দিনগুলোর ভাগ; ভাড়া সিটের ভাগ × দিন।",
+             "Service bills (Wi-Fi, khala, rent…) are shared by days in the mess: joining or leaving "
+             "mid-month pays only for the days present; rent by seat share × days."))
     if s.get("reconciles"):
         d.meta(L("মিলের খরচ মিলিয়ে ঠিক মোট বাজার, সার্ভিসের ভাগ মিলিয়ে ঠিক মোট বিল — এক পয়সাও এদিক-ওদিক নেই।",
                  "Meal costs add up exactly to the bazar and service shares exactly to the bills — "

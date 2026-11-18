@@ -7,6 +7,7 @@ from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_gap_circle as gapc  # noqa: E402  gap-circle
 from . import views_sjduring as sjd  # sjduring
 from . import views_maps as vmaps   # mapscost
 from . import views_guardian as vg
@@ -548,6 +549,7 @@ urlpatterns = [
     path("circle/messages/<int:pk>/<slug:action>", m5.CircleMessageActionView.as_view()),
     # --- build-61: Messenger M1 calls + privacy ---
     path("circle/calls", b61.CircleCallsView.as_view()),
+    path("circle/calls/hide", gapc.CallLogHideView.as_view()),  # gap-circle
     path("circle/<int:pk>/call", b61.CirclePlaceCallView.as_view()),
     path("circle/<int:pk>/call/answer", b61.CircleAnswerCallView.as_view()),
     path("circle/calls/<int:call_id>/event", b61.CircleCallEventView.as_view()),
@@ -1026,6 +1028,9 @@ urlpatterns[:0] = [
     path("family/accounting/pool/contribute",
          m1r.FamPoolContributeView.as_view()),
     path("family/accounting/settle", m1r.FamSettleView.as_view()),
+    # gap-familycare: named goals of a shared family ledger
+    path("family/accounting/goals", m1r.FamGoalsView.as_view()),
+    path("family/accounting/goals/<int:gid>/<str:action>", m1r.FamGoalActionView.as_view()),
     # notification centre, journey, disaster, medicine-db
     path("notif/reminders/<str:item_id>/done",
          m1r.NotifReminderDoneView.as_view()),
@@ -1977,6 +1982,7 @@ urlpatterns += [
     path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
     path("bizai/prochar", bzai.ProcharView.as_view()),
     path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/prochar/remind", bzai.ProcharRemindView.as_view()),  # gap-bizai
     path("bizai/daily", bzai.BizDailyView.as_view()),   # bizai2
     path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
     path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),

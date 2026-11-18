@@ -179,7 +179,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         ]),
         const SizedBox(height: Gap.xs),
         Text(_audienceN == 0 ? t.p3AudienceNone : t.p3AudienceN(n),
-            style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
+            style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.xs),
         _note(Icons.schedule_rounded, t.statusExpiresIn24h, scheme),
         const SizedBox(height: Gap.xs),
@@ -207,14 +207,14 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
                 maxLength: 700,
                 textAlign: TextAlign.center,
                 onChanged: (_) => setState(() {}),
-                style: const TextStyle(color: Colors.white, fontSize: 22, height: 1.35),
+                style: AType.headlineSmall.copyWith(color: Colors.white, height: 1.35),
                 cursorColor: Colors.white,
                 buildCounter: (ctx, {required currentLength, required isFocused, required maxLength}) =>
                     Text(notifLocalizeDigits(ctx, '$currentLength/${maxLength ?? ''}'),
-                        style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: AType.bodySmall.copyWith(color: Colors.white70)),
                 decoration: InputDecoration(
                   hintText: t.statusTypeSomething,
-                  hintStyle: const TextStyle(color: Colors.white70),
+                  hintStyle: AType.bodyMedium.copyWith(color: Colors.white70),
                   border: InputBorder.none,
                 ),
               ),
@@ -308,7 +308,7 @@ class _CircleStatusComposerScreenState extends State<CircleStatusComposerScreen>
         Icon(icon, size: 16, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
-          child: Text(text, style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted, height: 1.3)),
+          child: Text(text, style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted, height: 1.3)),
         ),
       ]);
 }

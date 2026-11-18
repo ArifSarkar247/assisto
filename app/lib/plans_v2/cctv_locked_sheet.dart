@@ -267,8 +267,22 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                       .textTheme
                       .bodySmall
                       ?.copyWith(color: scheme.ds.muted)),
-              if (_trial)
+              if (_trial) ...[
                 Text(t.biCctvTrialNote,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: scheme.ds.muted)),
+                // cctvprice (owner 17 Nov 12:35): honest — EZVIZ is not in the trial
+                Text(t.biCctvTrialNoEzviz,
+                    key: const Key('bi-cctv-trial-no-ezviz'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: scheme.ds.muted)),
+              ] else if (!_active && _d?['trial_block'] == 'ezviz')
+                Text(t.cplTrialEzvizYou,
+                    key: const Key('bi-cctv-trial-ezviz-you'),
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall

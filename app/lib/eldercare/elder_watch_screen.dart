@@ -9,6 +9,7 @@ import '../widgets/app_sheet.dart';
 import 'elder_common.dart';
 import 'elder_join_screen.dart';
 import 'elder_setup_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// fcelder — the FAMILY's view of Silent Watch (push "Check on Ammu" opens
 /// it): every parent whose phone is watched, an alert first. HONEST: with no
@@ -25,7 +26,8 @@ class ElderWatchScreen extends StatefulWidget {
   State<ElderWatchScreen> createState() => _ElderWatchScreenState();
 }
 
-class _ElderWatchScreenState extends State<ElderWatchScreen> {
+class _ElderWatchScreenState extends State<ElderWatchScreen>
+    with AdBlockedState<ElderWatchScreen> {
   Map<String, dynamic>? _s;
   String? _error;
   final Set<int> _busy = {};

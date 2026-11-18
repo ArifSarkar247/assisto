@@ -329,6 +329,8 @@ class EventLogTests(_Base):
         return self.client.post("/api/v1/ads/event", d, format="json")
 
     def test_impression_click_paid_aggregate_per_placement(self):
+        # ads-guard: only REAL-ad events are the owner's numbers
+        self.caps(admob_real_ids=True)
         for _ in range(3):
             self.assertEqual(self.post(kind="impression", format="banner",
                                        placement="banner_dictionary").status_code, 200)

@@ -461,7 +461,9 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
             for (final e in examples)
               ActionChip(
                 avatar: Icon(Icons.mic_none_rounded, size: 18, color: scheme.primary),
-                label: Text(e, softWrap: true),
+                // design3 (2.0x): a chip label is one line by default — let a
+                // long example wrap instead of being cut
+                label: Text(e, softWrap: true, maxLines: 4, textAlign: TextAlign.center),
                 onPressed: () => _handle(e),
               ),
           ],

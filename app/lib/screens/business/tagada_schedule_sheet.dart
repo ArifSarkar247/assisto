@@ -8,6 +8,7 @@ import '../../services/action_feedback.dart';
 import '../../services/error_kind.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/a11y_prefs.dart' show a11yMaxLines; // a11ysweep
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// ledger100 — schedule a tagada for ONE customer: a date + time, once or
@@ -193,7 +194,7 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.event_rounded),
                   label: Text(fmtDate('d MMM y', _when, _lang),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                      maxLines: a11yMaxLines(context, 1), overflow: TextOverflow.ellipsis),
                   onPressed: _pickDate,
                 ),
               ),
@@ -203,7 +204,7 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
                   icon: const Icon(Icons.schedule_rounded),
                   label: Text(
                       localDigits(TimeOfDay.fromDateTime(_when).format(context), _lang),
-                      maxLines: 1,
+                      maxLines: a11yMaxLines(context, 1),
                       overflow: TextOverflow.ellipsis),
                   onPressed: _pickTime,
                 ),

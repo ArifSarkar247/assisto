@@ -396,6 +396,9 @@ class CircleGroupMessagesView(APIView):
             "created_at": x.created_at.isoformat(),
             "mine": x.sender_id == request.user.id,
             "forwarded": x.forwarded, "forward_hops": x.forward_hops,
+            # gap-circle: the quoted-reply link + "edited" label in groups
+            "reply_to": x.reply_to_id,
+            "edited_at": x.edited_at.isoformat() if x.edited_at else None,
             # md2: in-place swap of my local bubble (same client_msg_id).
             "client_msg_id": (x.client_msg_id
                               if x.sender_id == request.user.id else ""),
@@ -501,6 +504,16 @@ class CircleGroupMessagesView(APIView):
             client_msg_id=cmid,
             # viewonce: groups too — each member opens once
             view_once=_vo_wants(env))
+        # gap-circle: keep the quoted-reply link (the phone sent reply_to but
+        # it was dropped, so a group reply showed no quote). Only a message
+        # of THIS group.
+        try:
+            rid = int(env.get("reply_to") or 0)
+        except (TypeError, ValueError):
+            rid = 0
+        if rid and CircleMessage.objects.filter(pk=rid, group=g).exists():
+            x.reply_to_id = rid
+            x.save(update_fields=["reply_to"])
         if md1_blob is not None:   # md1: every active member must download
             from . import circle_blobs as CB
             CB.add_recipients(md1_blob, CircleGroupMember.objects.filter(

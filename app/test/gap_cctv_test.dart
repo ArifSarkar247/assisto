@@ -662,6 +662,9 @@ void main() {
       expect(find.text(en.gcvReportYesterday), findsOneWidget);
       expect(find.byKey(const ValueKey('gcv-clip-501')), findsOneWidget);
       expect(find.byKey(const ValueKey('gcv-clip-503')), findsOneWidget);
+      // design3: the camera chips are one scrolling row — bring it into view
+      await tester.ensureVisible(find.byKey(const ValueKey('gcv-clips-cam-12')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('gcv-clips-cam-12')));
       await _settle(tester);
       expect(src.asked.last, 12);

@@ -77,11 +77,19 @@ final Map<String, Widget Function(String)> cityShots = {
       dest: (name: l == 'bn' ? 'শাপলা চত্বর' : 'Shapla Chattar', address: '', lat: 23.7290, lng: 90.4210)),
   'city_which_gate': (l) => CityTripScreen(
       option: _opt('fastest'), debugPositions: Stream.value((lat: 23.7284, lon: 90.4197))),
-  'city_around': (l) => const CityAroundScreen(debugHere: _here),
+  // gap-city: as City Service opens them — each place has "Go by bus / metro"
+  'city_around': (l) => const CityAroundScreen(debugHere: _here, routeHere: true),
   'city_live': (l) => const CityReportsScreen(debugHere: _here),
   'city_women': (l) => const CityWomenScreen(),
-  'city_long': (l) => const CityDirectoryScreen(kinds: ['terminals', 'ghats']),
-  'city_offices': (l) => const CityDirectoryScreen(kinds: ['offices']),
+  'city_long': (l) => CityDirectoryScreen(kinds: const ['terminals', 'ghats'], routeHere: true, store: _store()),
+  'city_offices': (l) => CityDirectoryScreen(kinds: const ['offices'], routeHere: true, store: _store()),
+  // gap-city: no GPS + no start chosen -> what is missing + two real buttons
+  'city_need_start': (l) => CityServiceScreen(
+      debugTo: (name: l == 'bn' ? 'মতিঝিল' : 'Motijheel', address: '', lat: 23.7270, lng: 90.4180),
+      debugSimple: false,
+      debugLocate: () async => null,
+      store: _store(),
+      debugNow: _now),
   'city_map_stop': (l) => const CityFieldScreen(debugHere: _here), // citycov
 };
 

@@ -69,7 +69,7 @@ class ApiBizaiSource implements BizaiSource {
     final tok = api.token;
     if (tok != null) req.headers['Authorization'] = 'Token $tok';
     req.headers['Accept-Language'] = api.lang ?? 'bn';
-    if (AppConfig.playStore) req.headers['X-Assisto-Flavour'] = 'play';
+    if (AppConfig.playLike) req.headers['X-Assisto-Flavour'] = 'play';
     req.fields['type'] = kind;
     req.files.add(await http.MultipartFile.fromPath('file', path));
     final r = await http.Response.fromStream(await req.send());
@@ -101,3 +101,8 @@ Future<String?> Function(String itemId) bizaiTrackedText(ApiClient api) => (id) 
       final t = r['text'];
       return t is String ? t : null;
     };
+
+/// gap-bizai: remind me to post this at the shop's best hour (POST
+/// bizai/prochar/remind) -> {detail, when, why, due_at}.
+Future<Map<String, dynamic>> Function(String itemId) bizaiRemindPost(ApiClient api) =>
+    (id) => api.postJson('/bizai/prochar/remind', {'item_id': id});

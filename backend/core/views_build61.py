@@ -878,6 +878,8 @@ class CircleCallsView(APIView):
                              "events": A1.call_events(request.user, edge)})
         rows = CallRecord.objects.filter(
             caller=request.user) | CallRecord.objects.filter(callee=request.user)
+        from .views_gap_circle import visible_calls   # gap-circle
+        rows = visible_calls(request.user, rows)
         out = []
         for r in rows.distinct().select_related("caller", "callee", "circle",
                                                "session")[:100]:

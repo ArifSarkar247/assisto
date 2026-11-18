@@ -202,7 +202,10 @@ REGISTRY = {
                    # adcontrol (owner 10 Nov part F): mediation partners' own
                    # app-ads.txt lines (Meta Audience Network, AppLovin), one per line
                    _f("app_ads_extra", "app-ads.txt অতিরিক্ত লাইন (Meta / AppLovin; প্রতি লাইনে একটি বা ; দিয়ে আলাদা)", "app-ads.txt extra lines (Meta / AppLovin; one per line or separated by ;)", secret=False),
-                   _f("ump_test_devices", "UMP টেস্ট ডিভাইস আইডি (কমা দিয়ে, শুধু পরীক্ষা)", "UMP test device IDs (comma-separated, testing only)", secret=False)],
+                   _f("ump_test_devices", "UMP টেস্ট ডিভাইস আইডি (কমা দিয়ে, শুধু পরীক্ষা)", "UMP test device IDs (comma-separated, testing only)", secret=False),
+                   # admob-connect (owner 17 Nov): these accounts (and the
+                   # owner/staff) always get Google TEST ads — no invalid clicks
+                   _f("ad_test_phones", "শুধু টেস্ট বিজ্ঞাপন পাবে এমন ফোন নম্বর (টেস্টার; কমা দিয়ে)", "Phones that only ever get TEST ads (testers; comma-separated)", secret=False)],
         "test": "test_admob",
     },
     # pay1: Google Play Billing — server verification + RTDN (core/payments/play.py)

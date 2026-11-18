@@ -31,6 +31,7 @@ import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/emergency_sos_panel.dart';
+import 'package:assisto/widgets/sos_button.dart';
 import 'package:assisto/widgets/sos_ladder_card.dart';
 
 import 'fcsos_fakes.dart';
@@ -279,6 +280,38 @@ void main() {
     });
   });
 
+  group('G12 SosButton never reads "SOS SOS"', () {
+    test('a leading SOS + dash is dropped from the visible line', () {
+      expect(SosButton.visibleLine('SOS — জরুরি কল'), 'জরুরি কল');
+      expect(SosButton.visibleLine('SOS - Emergency call'), 'Emergency call');
+      expect(SosButton.visibleLine('Emergency — alert my family'), 'Emergency — alert my family');
+      expect(SosButton.visibleLine('SOS'), 'SOS');
+    });
+
+    for (final lang in ['bn', 'en']) {
+      testWidgets('Safe Journey / Safety label ($lang): one SOS (the icon) + a clear line',
+          (tester) async {
+        await tester.pumpWidget(_app(Builder(
+            builder: (c) => SosButton(
+                label: AppLocalizations.of(c).sosgapSosButtonLine, onPressed: () {})),
+            lang: lang));
+        await tester.pump();
+        final line = tester.widget<Text>(find.byKey(const ValueKey('sos-button-line'))).data!;
+        expect(line.contains('SOS'), isFalse);
+        expect(line, lang == 'bn' ? 'জরুরি — পরিবারকে জানান' : 'Emergency — alert my family');
+        // the old label also renders without the doubled word
+        await tester.pumpWidget(_app(Builder(
+            builder: (c) => SosButton(
+                label: AppLocalizations.of(c).emergencySosButton, onPressed: () {})),
+            lang: lang));
+        await tester.pump();
+        expect(
+            tester.widget<Text>(find.byKey(const ValueKey('sos-button-line'))).data!.contains('SOS'),
+            isFalse);
+      });
+    }
+  });
+
   group('G4 alarm page without internet', () {
     testWidgets('the place from the push is shown (not "no location")', (tester) async {
       final api = _FailingEventApi();
@@ -286,11 +319,13 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(
-          SosAlarmScreen(data: fcsPush('en'), api: api, sound: FakeAlarmSound()),
+          SosAlarmScreen(data: fcsPush('en'), api: api, sound: FakeAlarmSound(), country: 'BD'),
           scroll: false));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byKey(const ValueKey('fcs-where')), findsOneWidget);
+      // this phone is in Bangladesh: 999, never the generic 112
+      expect(find.text('Call 999'), findsOneWidget);
       expect(find.byKey(const ValueKey('fcs-open-map')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 1));

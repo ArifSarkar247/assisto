@@ -1,0 +1,107 @@
+{
+  "_comment": "gap-familycare (Family Care gap lane, 17 Nov): elder Talk answers, location preselect, paused line, task delete, stale banner, members subtitle. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_gap-familycare_arb.json",
+  "en": {
+    "fceYouAsked": "You asked: {q}",
+    "@fceYouAsked": {
+      "placeholders": {
+        "q": {
+          "type": "String"
+        }
+      }
+    },
+    "fceHearAgain": "Hear again",
+    "fceTalkOffline": "Talking to Assisto needs the internet. Calls and the Danger button still work without it.",
+    "fcgNotInCircle": "This person is not in your My Circle yet, so you cannot ask for their location. Add them in My Circle first, or pick someone below.",
+    "fcgLinePaused": "{name} has paused sharing for now",
+    "@fcgLinePaused": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgLinePausedSub": "This is their choice, not a problem. SOS still reaches everyone.",
+    "fcgTaskDeleteQ": "Delete this task for everyone?",
+    "fcgStaleBanner": "Couldn't get new news. What you see is from {time}.",
+    "@fcgStaleBanner": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone",
+    "fcgTimeOf": "{name}'s time",
+    "@fcgTimeOf": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgGoalsTab": "Goals",
+    "fcgGoalsEmpty": "No savings goal yet",
+    "fcgGoalsEmptySub": "Save together for Eid, a wedding, school fees or a hospital fund. Everyone in the family sees it and can add what they gave.",
+    "fcgGoalNew": "New goal",
+    "fcgGoalNameHint": "Goal name, like Eid fund",
+    "fcgGoalTarget": "How much do you want to save?",
+    "fcgGoalAdd": "Add money",
+    "fcgGoalClose": "Close goal",
+    "fcgGoalReopen": "Open again",
+    "fcgGoalCloseQ": "Close this goal? What everyone gave stays in the record.",
+    "fcgGoalReached": "Reached!",
+    "fcgGoalDone": "Closed goals",
+    "fcgGoalProgress": "{collected} of {target} · {pct}%",
+    "@fcgGoalProgress": {
+      "placeholders": {
+        "collected": {
+          "type": "String"
+        },
+        "target": {
+          "type": "String"
+        },
+        "pct": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgLedgerShared": "{family} — everyone sees and adds",
+    "@fcgLedgerShared": {
+      "placeholders": {
+        "family": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgLedgerFamily": "Family (shared)",
+    "fcgLedgerMine": "Only mine"
+  },
+  "bn": {
+    "fceYouAsked": "আপনি জিজ্ঞেস করেছেন: {q}",
+    "fceHearAgain": "আবার শুনুন",
+    "fceTalkOffline": "Assisto-র সাথে কথা বলতে ইন্টারনেট লাগে। কল আর বিপদ বোতাম ইন্টারনেট ছাড়াও চলে।",
+    "fcgNotInCircle": "এই মানুষটি এখনো আমার সার্কেল-এ নেই, তাই তাঁর লোকেশন চাওয়া যাবে না। আগে তাঁকে আমার সার্কেল-এ যোগ করুন, অথবা নিচে থেকে অন্য কাউকে বেছে নিন।",
+    "fcgLinePaused": "{name} এখন শেয়ারিং সাময়িক বন্ধ রেখেছেন",
+    "fcgLinePausedSub": "এটা তাঁর নিজের ইচ্ছা, বিপদের কিছু নয়। SOS তবুও সবার কাছে পৌঁছায়।",
+    "fcgTaskDeleteQ": "কাজটি সবার তালিকা থেকে মুছে ফেলবেন?",
+    "fcgStaleBanner": "নতুন খবর আনা যায়নি। যা দেখছেন তা {time}-এর।",
+    "fcgMembersSub": "রক্তের গ্রুপ, জন্মদিন, ওষুধের রিমাইন্ডার — এই ফোনে আপনার নিজের খাতা",
+    "fcgTimeOf": "{name}-এর সময়",
+    "fcgGoalsTab": "লক্ষ্য",
+    "fcgGoalsEmpty": "এখনো কোনো জমানোর লক্ষ্য নেই",
+    "fcgGoalsEmptySub": "ঈদ, বিয়ে, স্কুলের ফি বা হাসপাতালের জন্য সবাই মিলে টাকা জমান। পরিবারের সবাই দেখবেন আর কে কত দিলেন লিখে রাখতে পারবেন।",
+    "fcgGoalNew": "নতুন লক্ষ্য",
+    "fcgGoalNameHint": "লক্ষ্যের নাম, যেমন ঈদের তহবিল",
+    "fcgGoalTarget": "কত টাকা জমাতে চান?",
+    "fcgGoalAdd": "টাকা যোগ করুন",
+    "fcgGoalClose": "লক্ষ্য বন্ধ করুন",
+    "fcgGoalReopen": "আবার খুলুন",
+    "fcgGoalCloseQ": "লক্ষ্যটি বন্ধ করবেন? কে কত দিয়েছেন, সেই হিসাব থেকে যাবে।",
+    "fcgGoalReached": "লক্ষ্য পূরণ!",
+    "fcgGoalDone": "বন্ধ করা লক্ষ্য",
+    "fcgGoalProgress": "{target}-এর মধ্যে {collected} · {pct}%",
+    "fcgLedgerShared": "{family} — সবাই দেখেন ও যোগ করেন",
+    "fcgLedgerFamily": "পরিবারের (সবার)",
+    "fcgLedgerMine": "শুধু আমার"
+  }
+}

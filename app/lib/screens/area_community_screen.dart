@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -167,11 +168,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.areaLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -237,30 +234,20 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
         icon: Icons.filter_alt_off_rounded,
         title: tr.areaNoneInFilterTitle,
         message: tr.areaNoneInFilterBody(_categoryLabel(tr, _filter)),
-        action: FilledButton.tonalIcon(
-          onPressed: () => setState(() => _filter = 'all'),
-          icon: const Icon(Icons.clear_all_rounded),
-          label: Text(tr.areaShowAll),
-        ),
+        action: DsButton(onPressed: () => setState(() => _filter = 'all'), icon: Icons.clear_all_rounded, label: tr.areaShowAll),
       );
     }
     return StateMessage(
       icon: Icons.holiday_village_rounded,
       title: _area.isEmpty ? tr.areaWelcomeTitle : tr.areaEmptyAreaTitle(_area),
       message: _area.isEmpty ? tr.areaWelcomeBody : tr.areaEmptyAreaBody,
-      action: FilledButton.icon(
-        onPressed: _add,
-        icon: const Icon(Icons.campaign_rounded),
-        label: Text(tr.areaPostNotice),
-      ),
+      action: DsButton(onPressed: _add, icon: Icons.campaign_rounded, label: tr.areaPostNotice),
     );
   }
 
   Widget _privacyNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(Icons.shield_rounded, size: 18, color: scheme.primary),
@@ -270,8 +257,7 @@ class _AreaCommunityScreenState extends State<AreaCommunityScreen> {
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -297,7 +283,7 @@ class _AreaBar extends StatelessWidget {
             area.isEmpty ? tr.areaAllAreas : area,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
+            style: AType.titleSmall.copyWith(
                 color: scheme.ds.primaryInk,
                 fontWeight: FontWeight.w700),
           ),
@@ -372,8 +358,7 @@ class _PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,7 +382,7 @@ class _PostCard extends StatelessWidget {
             if (post.body.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(post.body,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.ds.muted, height: 1.35)),
             ],
             const SizedBox(height: Gap.sm),
@@ -416,8 +401,7 @@ class _PostCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _meta(BuildContext context, IconData icon, String text) {
@@ -601,8 +585,7 @@ Future<Map<String, dynamic>?> _postSheet(
               const SizedBox(height: Gap.lg),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
+                child: DsButton(onPressed: () {
                     if (titleC.text.trim().isEmpty) {
                       ScaffoldMessenger.of(ctx)
                         ..clearSnackBars()
@@ -625,9 +608,7 @@ Future<Map<String, dynamic>?> _postSheet(
                       'contact': contactC.text.trim(),
                       'price': showPrice ? priceC.text.trim() : '',
                     });
-                  },
-                  child: Text(tr.save),
-                ),
+                  }, label: tr.save),
               ),
             ]),
           ),
@@ -699,8 +680,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
         TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(tr.cancel)),
-        FilledButton(
-            onPressed: () => Navigator.pop(ctx, true), child: Text(tr.delete)),
+        DsButton.danger(onPressed: () => Navigator.pop(ctx, true), label: tr.delete),
       ],
     ),
   );

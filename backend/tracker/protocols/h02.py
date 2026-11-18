@@ -230,8 +230,11 @@ def parse_frame(frame: bytes) -> dict:
     if typ in ("V1", "V2", "V19", "V6"):
         if len(f) < 12:
             raise FrameError("short_v1")
-        if not f[3] and f[4].upper() == "V":
-            # no GPS time at all (cold start, no fix): alive, nothing to store
+        if f[4].upper() == "V" and (not f[3] or not f[5].strip() or not f[7].strip()):
+            # no GPS time / no coordinates (cold start, indoors, no fix):
+            # alive, nothing to store. flag-vehicle: a first frame like this
+            # must still PAIR the device (it was dropped as bad_coord before,
+            # so a tracker switched on indoors never connected).
             return {"kind": "heartbeat", "imei": imei}
         # date = first 6-digit field after course; a few firmwares insert one
         # extra field before it ("...,047,4,080918,EEE7FBDF").

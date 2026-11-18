@@ -80,7 +80,7 @@ class _JourneyMapPickScreenState extends State<JourneyMapPickScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 color: Colors.white.withValues(alpha: 0.85),
                 child: Text(widget.config.attribution,
-                    style: const TextStyle(fontSize: 11, color: Colors.black87)),
+                    style: AType.labelSmall.copyWith(color: Colors.black87)),
               ),
             ),
           ],

@@ -1,6 +1,17 @@
 name: Build Assisto APK
 
 on:
+  # staging (owner order 17 Nov): staging.yml calls this SAME build with
+  # flavor=staging -> the "Assisto Test" app (com.assisto.assisto.staging,
+  # Firebase App Distribution, never Google Play). Every staging-only step is
+  # gated on inputs.flavor == 'staging'; with no input (push / manual run)
+  # inputs.flavor is empty and the production build is byte-for-byte unchanged.
+  workflow_call:
+    inputs:
+      flavor:
+        type: string
+        required: false
+        default: ''
   workflow_dispatch:
     inputs:
       api_base:
@@ -14,7 +25,8 @@ on:
       - '.github/workflows/android.yml'
 
 concurrency:
-  group: apk-${{ github.ref }}
+  # staging: its own group, so a daily staging run never cancels a main build
+  group: apk-${{ inputs.flavor }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -58,7 +70,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.50.0'  # pinned 17 Nov: the release toolchain b324/b325 went fully green on (was unpinned stable)
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
 
@@ -102,6 +114,7 @@ jobs:
       # not applied, Firebase.initializeApp() fails inside its try/catch and the
       # app builds + launches with push silently off.
       - name: Firebase config (google-services.json from secret)
+        if: inputs.flavor != 'staging'
         working-directory: app
         env:
           GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
@@ -133,6 +146,42 @@ jobs:
           else
             echo "no GOOGLE_SERVICES_JSON_B64 secret - push stays OFF in this build"
           fi
+
+      # staging: Firebase needs a client for com.assisto.assisto.staging (the
+      # owner registers it once in the SAME Firebase project and stores the
+      # new google-services.json as STAGING_GOOGLE_SERVICES_JSON (pasted as is,
+      # or base64); the
+      # production secret is never changed). The main secret is used only if
+      # it already holds the staging client. Neither -> no file -> push OFF in
+      # the test app (honest: the app's push setup says so), build still green.
+      - name: Firebase config (staging app)
+        if: inputs.flavor == 'staging'
+        working-directory: app
+        env:
+          STG_GSJ_B64: ${{ secrets.STAGING_GOOGLE_SERVICES_JSON }}
+          GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          for SRC in STG_GSJ_B64 GSJ_B64; do
+            V="${!SRC:-}"
+            [ -n "$V" ] || continue
+            case "$V" in
+              \{*) printf '%s' "$V" > /tmp/gsj.json ;;   # pasted JSON
+              *) printf '%s' "$V" | base64 -d > /tmp/gsj.json 2>/dev/null || continue ;;
+            esac
+            if python3 - <<'PY2'
+          import json, sys
+          d = json.load(open("/tmp/gsj.json"))
+          pk = [c["client_info"]["android_client_info"]["package_name"] for c in d.get("client", [])]
+          sys.exit(0 if "com.assisto.assisto.staging" in pk else 1)
+          PY2
+            then
+              mv /tmp/gsj.json android/app/google-services.json
+              echo "staging google-services.json OK (from $SRC)"
+              exit 0
+            fi
+          done
+          rm -f /tmp/gsj.json
+          echo "::warning::no Firebase client for com.assisto.assisto.staging yet - push is OFF in Assisto Test (owner step: owner_actions/TEST_APP_INSTALL_BN.md)"
 
       - name: Pub get
         working-directory: app
@@ -193,6 +242,12 @@ jobs:
         # default = one rotating bn/en x light/dark combo per screen + the bn 1.3
         # pass; the full matrix runs locally with A11Y_FULL=1.
         run: flutter test test/language_flow_test.dart test/widget_test.dart test/swallowed_catch_test.dart test/dead_button_sweep_test.dart test/a11y_guidelines_test.dart
+
+      - name: Staging icon (orange TEST badge)
+        if: inputs.flavor == 'staging'
+        run: |
+          python3 -m pip install -q pillow
+          python3 tools/ci/staging/icon_badge.py app/assets/icon
 
       - name: Generate launcher icons (adaptive)
         working-directory: app
@@ -1056,6 +1111,10 @@ jobs:
       # and assets/maps/sdk.json stays {"android_key": false}, so the app never
       # creates a GoogleMap (it would crash without a key) and keeps its old map.
       - name: Maps SDK key (mapscost)
+        # staging: the key is restricted to com.assisto.assisto -> the test
+        # app keeps the keyless map path (owner may add the staging package +
+        # SHA-1 to the key later, see TEST_APP_INSTALL_BN.md)
+        if: inputs.flavor != 'staging'
         working-directory: app
         env:
           MAPS_ANDROID_KEY: ${{ secrets.MAPS_ANDROID_KEY }}
@@ -1295,6 +1354,41 @@ jobs:
           print("release lint-vital off in", p)
           PY
 
+      # ---- staging ---- the "Assisto Test" app. Runs after EVERY other
+      # manifest/Gradle patch so it sees the final production manifest.
+      - name: Staging flavor (applicationId, name, no App Links, test ads)
+        if: inputs.flavor == 'staging'
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import glob, re
+          # 1) own applicationId; namespace (Kotlin package / R class) stays
+          g = [f for f in glob.glob("android/app/build.gradle*")][0]
+          s = open(g).read()
+          s, n = re.subn(r'applicationId\s*=?\s*"com\.assisto\.assisto"',
+                         'applicationId = "com.assisto.assisto.staging"', s)
+          assert n == 1, "applicationId line not found in " + g
+          open(g, "w").write(s)
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          # 2) name on the home screen + notification access list
+          x = x.replace('android:label="Assisto"', 'android:label="Assisto Test"')
+          # 3) NO App Links: assetlinks.json names the Play package only; the
+          #    test app must never claim https://lifeassisto.com/... links
+          x, n = re.subn(r'\s*<intent-filter android:autoVerify="true">.*?</intent-filter>', '', x, flags=re.S)
+          print("App Link filters removed:", n)
+          assert 'android:autoVerify' not in x
+          # 4) Google's public TEST AdMob app id (never real ads in a test build)
+          x, n = re.subn(r'ca-app-pub-2506398550427515~\d+', 'ca-app-pub-3940256099942544~3347511713', x)
+          assert n >= 1, "AdMob APPLICATION_ID not found"
+          # 5) own task affinity (never share a task with the Play app)
+          x = x.replace('android:taskAffinity="com.assisto.assisto.callentry"',
+                        'android:taskAffinity="com.assisto.assisto.staging.callentry"')
+          open(m, "w").write(x)
+          print("staging flavor applied:", g)
+          PY
+      # ---- /staging ----
+
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |
@@ -1310,7 +1404,7 @@ jobs:
             --build-number=${{ github.run_number }} \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="$API_BASE" \
-            --dart-define=BUILD_TIME="$BUILD_TIME"
+            --dart-define=BUILD_TIME="$BUILD_TIME" ${{ inputs.flavor == 'staging' && '--dart-define=ASSISTO_STAGING=true --dart-define=ADMOB_APP_ID=ca-app-pub-3940256099942544~3347511713' || '' }}
           rm -f android/app/abi_filters.txt
           REL=build/app/outputs/flutter-apk/app-release.apk
           unzip -l "$REL" | grep -q "lib/arm64-v8a/libflutter.so" || { echo "::error::no arm64 Flutter engine in the APK"; exit 1; }
@@ -1371,7 +1465,7 @@ jobs:
           flutter build apk --release --target-platform=android-x64 \
             --dart-define=ASSISTO_SMOKE=true \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
-            --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+            --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)" ${{ inputs.flavor == 'staging' && '--dart-define=ASSISTO_STAGING=true --dart-define=ADMOB_APP_ID=ca-app-pub-3940256099942544~3347511713' || '' }}
           rm -f android/app/abi_filters.txt
           cp "$REL" emu-x64.apk
           cp /tmp/arm64-release.apk "$REL"
@@ -1414,11 +1508,12 @@ jobs:
         continue-on-error: true  # ghstore: storage quota never fails a green build
         uses: actions/upload-artifact@v4
         with:
-          name: assisto-apk-emu
+          name: ${{ inputs.flavor == 'staging' && 'assisto-staging-apk-emu' || 'assisto-apk-emu' }}
           path: app/emu-x64.apk
           retention-days: 2
 
       - name: Sign APK with permanent release key
+        if: inputs.flavor != 'staging'
         working-directory: app
         env:
           KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -1478,11 +1573,54 @@ jobs:
           echo "size: $(du -h "$OUT" | cut -f1)"
 
       - name: Upload APK artifact
+        if: inputs.flavor != 'staging'
         uses: actions/upload-artifact@v4
         with:
           name: assisto-apk
           path: app/out/*.apk
           retention-days: 30
+
+      # ---- staging ---- sign the test app with its OWN stable key (repo
+      # secret STAGING_KEYSTORE_B64/_PASSWORD, alias "staging"; never the
+      # Play/website release key) so each daily build installs as an update.
+      - name: Sign staging APK (own key)
+        if: inputs.flavor == 'staging'
+        working-directory: app
+        env:
+          STG_KS_B64: ${{ secrets.STAGING_KEYSTORE_B64 }}
+          STG_KS_PASS: ${{ secrets.STAGING_KEYSTORE_PASSWORD }}
+        run: |
+          set -e
+          [ -n "$STG_KS_B64" ] || { echo "::error::STAGING_KEYSTORE_B64 secret missing"; exit 1; }
+          mkdir -p out
+          printf '%s' "$STG_KS_B64" | base64 -d > /tmp/stg.p12
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+          "${BT}zipalign" -f -p 4 build/app/outputs/flutter-apk/app-release.apk /tmp/aligned.apk
+          OUT="out/assisto-test-build${{ github.run_number }}.apk"
+          "${BT}apksigner" sign --ks /tmp/stg.p12 --ks-type PKCS12 \
+            --ks-pass pass:"$STG_KS_PASS" --ks-key-alias staging --key-pass pass:"$STG_KS_PASS" \
+            --out "$OUT" /tmp/aligned.apk
+          rm -f /tmp/stg.p12 /tmp/aligned.apk
+          "${BT}apksigner" verify --print-certs "$OUT" | head -3
+          PKG=$("${BT}aapt2" dump badging "$OUT" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")
+          LBL=$("${BT}aapt2" dump badging "$OUT" | sed -n "s/^application-label:'\(.*\)'/\1/p" | head -1)
+          echo "package=$PKG label=$LBL"
+          [ "$PKG" = "com.assisto.assisto.staging" ] || { echo "::error::staging APK package is $PKG"; exit 1; }
+          [ "$LBL" = "Assisto Test" ] || { echo "::error::staging APK label is $LBL"; exit 1; }
+          MAN=$("${BT}aapt2" dump xmltree --file AndroidManifest.xml "$OUT")
+          echo "$MAN" | grep -q "ca-app-pub-3940256099942544~3347511713" || { echo "::error::staging APK lacks the TEST AdMob app id"; exit 1; }
+          if echo "$MAN" | grep -q "ca-app-pub-2506398550427515"; then echo "::error::real AdMob app id in the staging APK"; exit 1; fi
+          if echo "$MAN" | grep -q "autoVerify"; then echo "::error::staging APK claims App Links"; exit 1; fi
+          echo "staging APK OK: $OUT ($(du -h "$OUT" | cut -f1))"
+
+      - name: Upload staging APK artifact
+        if: inputs.flavor == 'staging'
+        uses: actions/upload-artifact@v4
+        with:
+          name: assisto-staging-apk
+          path: app/out/*.apk
+          retention-days: 14
+      # ---- /staging ----
 
       # ---- l1-launch: Google Play release bundle ----
       # Runs AFTER the website APK is built, signed and uploaded, so nothing
@@ -1491,7 +1629,39 @@ jobs:
       # removed from the merged manifest. Signed with the Play UPLOAD key when
       # the PLAY_UPLOAD_* secrets exist, else with the existing release key
       # (see owner_actions/PLAY_APP_SIGNING.md for which to choose).
+      # gatefix (lead, 17 Nov): the runner died silently INSIDE the AAB step
+      # 3x (b325, b326 first try, b327: steps null, no log, rerun passes) since
+      # the bundle became arm+arm64 with --split-debug-info. Before it: stop
+      # the Gradle/Kotlin daemons the APK builds above left resident (8 GB
+      # template heap each), free disk the build never uses (the emulator legs
+      # are separate jobs), cap Gradle for this task, and log RAM/disk so a
+      # next death is diagnosable. Nothing is skipped or loosened.
+      - name: Room for the AAB (stop daemons, free disk, cap Gradle, log RAM/disk)
+        working-directory: app
+        run: |
+          echo "== before"; free -m; df -h / "$RUNNER_TEMP" | sed 1d || true
+          (cd android && ./gradlew --stop >/dev/null 2>&1) || true
+          pkill -f 'KotlinCompileDaemon' 2>/dev/null || true
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL \
+            /usr/local/share/boost /usr/share/swift /usr/local/lib/node_modules \
+            "$AGENT_TOOLSDIRECTORY/PyPy" "$AGENT_TOOLSDIRECTORY/go" "$AGENT_TOOLSDIRECTORY/Ruby" || true
+          if [ -n "${ANDROID_HOME:-}" ]; then
+            sudo rm -rf "$ANDROID_HOME/system-images" "$ANDROID_HOME/emulator" || true
+          fi
+          sudo fallocate -l 6G /mnt/aab.swap 2>/dev/null \
+            && sudo chmod 600 /mnt/aab.swap && sudo mkswap /mnt/aab.swap >/dev/null \
+            && sudo swapon /mnt/aab.swap || echo "swap not added"
+          f=android/gradle.properties
+          sed -i '/^org.gradle.jvmargs=/d;/^kotlin.daemon.jvm.options=/d;/^org.gradle.workers.max=/d;/^kotlin.compiler.execution.strategy=/d' "$f"
+          printf '%s\n' 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError' \
+            'org.gradle.workers.max=2' 'kotlin.compiler.execution.strategy=in-process' >> "$f"
+          cat "$f"
+          echo "== after"; free -m; df -h / "$RUNNER_TEMP" | sed 1d || true
+          # sample RAM/disk every 30 s while the AAB builds (ends with the job)
+          nohup sh -c 'while :; do echo "$(date -u +%H:%M:%S) $(free -m | awk "/Mem:/{print \"mem used \"\$3\" avail \"\$7}") $(free -m | awk "/Swap:/{print \"swap used \"\$3}") disk $(df -h / | awk "NR==2{print \$4}") free"; sleep 30; done' > "$RUNNER_TEMP/aab_res.log" 2>&1 &
+
       - name: Build + sign release AAB (Google Play)
+        if: inputs.flavor != 'staging'
         id: aab
         continue-on-error: true      # first rollout: never block the APK release
         working-directory: app
@@ -1635,6 +1805,13 @@ jobs:
       # (armeabi-v7a) Bangladesh phone (bn, 320 dpi). Guard: > 5 % (+1 MB)
       # above tools/startspeed/size_baseline.json fails; no baseline yet =
       # report only (the first numbers are then committed as the baseline).
+      - name: RAM/disk during the AAB build (gatefix diagnostics)
+        if: always()
+        run: |
+          echo "aab step outcome: ${{ steps.aab.outcome }}"
+          tail -n 60 "$RUNNER_TEMP/aab_res.log" 2>/dev/null || echo "no sampler log"
+          free -m; df -h / | sed 1d
+
       - name: Phone download size per ABI (bundletool, faststart)
         if: steps.aab.outcome == 'success'
         working-directory: app
@@ -1713,6 +1890,7 @@ jobs:
   # never publishes a broken-launch build. (Added after the build-99 launch ANR.)
   launch-smoke-test:
     needs: build-apk
+    if: inputs.flavor != 'staging'   # staging: staging.yml runs its own side-by-side launch
     runs-on: ubuntu-latest
     # A hung adb call once held runs for 6h (builds 145/146: `adb logcat -d`
     # never returned). Healthy runs finish in ~5 min; cap the job.
@@ -1815,6 +1993,7 @@ jobs:
   # shows the regression without blocking the ship (ship_watch).
   start-time-guard:
     needs: build-apk
+    if: inputs.flavor != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1862,7 +2041,7 @@ jobs:
     needs: build-apk
     # CI minutes (repo private 25 Oct): optional proof job runs only on a
     # manual run (gh workflow run android.yml), not on every push.
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.flavor != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     continue-on-error: true
@@ -1933,7 +2112,7 @@ jobs:
     needs: build-apk
     # CI minutes (repo private 25 Oct): optional proof job runs only on a
     # manual run (gh workflow run android.yml), not on every push.
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.flavor != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     continue-on-error: true

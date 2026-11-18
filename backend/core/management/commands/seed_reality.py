@@ -38,7 +38,16 @@ USERS = {
     # run removes any A<->C edge so the flow always starts from "not added".
     "c": {"name": "Reality Nadia", "phone": os.getenv("REALITY_C_PHONE", "01711000777"),
           "email": "nadia@reality.test"},
+    # flagproof: A's brother who runs a small salon (booking_bot flow 33) and
+    # posts a missing alert about A (missing_alert flow 36: A says "I am safe").
+    # Not in A's circle unless the drive includes the flagproof group.
+    "d": {"name": "Reality Selim", "phone": "01700000004",
+          "email": "selim@reality.test"},
 }
+
+FLAGPROOF_KEYS = ("vault_e2e", "ps_secretary", "ai_daily_planner", "booking_bot",
+                  "official_corners", "blood_donors", "missing_alert")
+ALL_WEEK = {str(d): [["09:00", "21:00"]] for d in range(7)}
 
 
 class Command(BaseCommand):
@@ -68,6 +77,59 @@ class Command(BaseCommand):
         self.steps.append({"step": label, "method": method.upper(), "path": path,
                            "status": code, "ok": 200 <= code < 300})
         return code, data
+
+    # ------------------------------------------------------------ flagproof
+    def _flagproof(self, users, tokens, now):
+        """Allow-list the demo users (CI DB only) for the hidden features whose
+        reality flows prove them. The two-account set-up (A<->D family link,
+        D's salon page, B as a blood donor, C opted in to nearby alerts) runs
+        only when the drive includes the flagproof group, so no other group's
+        circle or data changes."""
+        from core import feature_flags as FF
+        from core.models import FeatureFlag
+        FF.ensure_seeded()
+        for key in FLAGPROOF_KEYS:
+            row = FeatureFlag.objects.filter(key=key).first()
+            if row is not None:
+                ids = list(row.allow_user_ids or [])
+                for k in ("a", "b", "c", "d"):
+                    if users[k].id not in ids:
+                        ids.append(users[k].id)
+                row.allow_user_ids = ids
+                row.save(update_fields=["allow_user_ids", "updated_at"])
+            self.steps.append({"step": "allow-list A-D for %s" % key, "method": "DB",
+                               "path": "feature_flags", "status": 200, "ok": row is not None})
+        FF.invalidate()
+        if "flagproof" not in os.environ.get("REALITY_DRIVE", ""):
+            return
+        from core.models import BusinessProfile, CircleMember
+        a, d = users["a"], users["d"]
+        B, C, D = (self._client(tokens[k]) for k in ("b", "c", "d"))
+        # A and D are brothers (both edges, as My Circle stores an accepted pair)
+        for u, peer, rel in ((a, d, "brother"), (d, a, "brother")):
+            CircleMember.objects.update_or_create(
+                user=u, peer_user=peer,
+                defaults={"name": peer.name, "relation": rel, "state": "accepted"})
+        self.steps.append({"step": "family link A<->D", "method": "DB", "path": "circle",
+                           "status": 200, "ok": True})
+        # D's salon takes bookings (Business plan on this throw-away DB only)
+        d.plan, d.plan_until = "business", now + timedelta(days=30)
+        d.save(update_fields=["plan", "plan_until"])
+        BusinessProfile.objects.get_or_create(user=d, defaults={"shop_name": "Flagproof Salon"})
+        code, svc = self._call("booking service D", D, "post", "/booking/biz/services",
+                               {"name": "Haircut", "duration_min": 30, "buffer_min": 10,
+                                "price_bdt": 300})
+        self._call("booking page D", D, "put", "/booking/biz",
+                   {"weekly_hours": ALL_WEEK, "capacity": 1, "auto_confirm": False,
+                    "slug": "flagproof-salon", "enabled": True, "cancel_hours": 2,
+                    "min_notice_min": 60})
+        # B is an O+ blood donor in Dhaka (district only, private by default)
+        self._call("blood donor B", B, "post", "/blood-panel/me",
+                   {"consent": True, "enabled": True, "blood_group": "O+", "sex": "m",
+                    "district": "dhaka", "area_text": "Mirpur"})
+        # C gets missing-person alerts for Dhaka
+        self._call("missing nearby C", C, "post", "/missing-alerts/nearby",
+                   {"enabled": True, "district": "dhaka"})
 
     # ------------------------------------------------------------ main
     def handle(self, *args, **opts):
@@ -173,6 +235,9 @@ class Command(BaseCommand):
                                "path": "feature_flags", "status": 200, "ok": row is not None})
         # qjourney: same allow-list for the Safe Journey cards 2 + 3 (default
         # OFF in a fresh DB) so flow 16c can open them as user A.
+        # flagproof: + the hidden features whose reality flows prove them
+        # (vault_e2e -> flow 21; ps_secretary / ai_daily_planner /
+        # booking_bot / official_corners / blood_donors -> flows 31-36).
         for key in ("dest_alarm", "train_tracker"):
             ff = FeatureFlag.objects.filter(key=key).first()
             if ff is not None:
@@ -181,6 +246,25 @@ class Command(BaseCommand):
                 ff.save(update_fields=["allow_user_ids", "updated_at"])
             self.steps.append({"step": f"allow-list A for {key}", "method": "DB",
                                "path": "feature_flags", "status": 200, "ok": ff is not None})
+        # gap-lp: Language Partner courses + IELTS (flag language_packs, OFF in
+        # a fresh DB) — allow-list ONLY demo user A and import Assisto's own
+        # original content (lp_seed: no Cambridge / published material).
+        ff = FeatureFlag.objects.filter(key="language_packs").first()
+        if ff is not None and users["a"].id not in (ff.allow_user_ids or []):
+            ff.allow_user_ids = list(ff.allow_user_ids or []) + [users["a"].id]
+            ff.save(update_fields=["allow_user_ids", "updated_at"])
+        self.steps.append({"step": "allow-list A for language_packs", "method": "DB",
+                           "path": "feature_flags", "status": 200, "ok": ff is not None})
+        try:
+            from django.core.management import call_command
+            call_command("lp_seed", verbosity=0)
+            lp_ok = True
+        except Exception:  # noqa: BLE001 — the other flows still run
+            lp_ok = False
+        # never fails the seed for the other flows: the lp1 flow itself shows it
+        self.steps.append({"step": "lp_seed (original IELTS mocks)", "method": "DB",
+                           "path": "lp_items", "status": 200 if lp_ok else 500, "ok": True,
+                           "note": "" if lp_ok else "lp_seed failed"})
         FF.invalidate()
 
         # gap-cctv (lead, 17 Nov): user A runs a shop on the CCTV plan's free
@@ -259,6 +343,19 @@ class Command(BaseCommand):
                              {"name": "Selim (khata)", "phone": "01700000021", "book": "customer"})
         if d and isinstance(d, dict):
             biz["khata_party_id"] = d.get("id")
+
+        # --- gap-city: a tiny made-up Dhaka transit sample so the emulator
+        # City Service flow plans a real route (CI DB only — see the guard above)
+        try:
+            from core.city_sample import import_sample
+            got = import_sample()
+            self.steps.append({"step": "city sample (gap-city)", "method": "DB", "path": "city_dataset",
+                               "status": 200, "ok": bool(got.get("stops"))})
+        except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
+            self.steps.append({"step": "city sample (gap-city): %s" % e, "method": "DB",
+                               "path": "city_dataset", "status": 500, "ok": False})
+        # --- flagproof: hidden features proven by reality flows 21 + 31-36
+        self._flagproof(users, tokens, now)
 
         # --- read-backs: the data must come back through the GET side too
         for label, path in (("notes list", "/notes/"), ("family list", "/family/"),

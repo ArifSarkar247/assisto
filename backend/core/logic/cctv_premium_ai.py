@@ -1,6 +1,9 @@
-"""cctvroles (CCTV Guard V3 L) — the Premium AI tier PROPOSAL and its 40 %
-worst-case profit check. Pure (no DB, no I/O). NOT a live price: nothing in
-the app sells it; the owner decides (owner_actions/CCTV_PRICING_V3_BN.md).
+"""cctvroles (CCTV Guard V3 L) — the Premium AI tier and its 40 % worst-case
+profit check. Pure (no DB, no I/O). OWNER-DECIDED 17 Nov 2026 12:35: 400 Tk
+per camera per month (30-day clips, smart alerts), installer commission 10 %
+of the NET Premium AI part only (owner_actions/CCTV_PRICING_V3_BN.md). It is
+sold only after the owner creates the Play product after launch (Play freeze;
+cctv_plan DEFAULTS premium_ai_on_sale).
 
 One source of numbers, never forked:
   * base plan, extra camera, clip size / count, traffic, storage, server,
@@ -16,13 +19,15 @@ small thumbnail, (2) "ask in Bangla" questions over event metadata, (3) the
 closing-time daily report text. Each is CAPPED per camera / site / month.
 """
 from . import cctv_plan as CP
+from . import plan_book as PB
 
-# ---- the proposal (owner decides) ----
-AI_ADDON_BDT_PER_CAMERA = 400        # per camera per month, on top of the base plan
-# (350 passes alone at 42.6 % but leaves no room for the installer commission;
-#  400 keeps >= 40 % WITH the 5 % commission: 41.3 % worst case)
-TRIAL_DAYS_PROPOSED = 14             # live code today: cctv_plan.TRIAL_DAYS (7)
-CLIP_KEEP_DAYS = 30                  # Premium: event clips in the cloud 30 days
+# ---- owner-decided 17 Nov 12:35 (numbers live in plan_book.CCTV_DECIDED) ----
+AI_ADDON_BDT_PER_CAMERA = PB.CCTV_DECIDED["premium_ai_bdt_per_camera"]   # 400
+CLIP_KEEP_DAYS = PB.CCTV_DECIDED["premium_ai_clip_days"]                 # 30
+COMMISSION_PCT = PB.CCTV_DECIDED["installer_commission_pct"]            # 10
+# 10 % of the NET Premium AI part keeps the worst row at 40.4 % (2 cameras);
+# 10 % of the WHOLE site net would drop it to 37.6 % — so the commission base
+# is the Premium AI part only, never the base plan.
 
 # ---- caps that make the worst case finite ----
 DESCRIBE_PER_CAMERA_DAY = 30         # Bangla alert descriptions (Haiku)
@@ -73,10 +78,13 @@ def clip_cost_per_camera_bdt(cfg=None):
     return CP.addon_cost_bdt(CP.normalize_cfg(cfg), CLIP_KEEP_DAYS)
 
 
-def profit_table(cfg=None, prices=None, target_pct=40.0, commission_pct_of_net=0.0):
+def profit_table(cfg=None, prices=None, target_pct=40.0, commission_pct_of_net=0.0,
+                 commission_pct_of_addon_net=0.0):
     """Per camera count 1..10: base plan + AI add-on price vs worst-case cost
     (base camera cost + Claude + 30-day clips), after Play fee + VAT, and
-    optionally after an installer commission (% of net)."""
+    optionally after an installer commission: `commission_pct_of_net` = % of
+    the whole site net (old proposal math), `commission_pct_of_addon_net` =
+    % of the NET Premium AI part only (the owner's decision)."""
     c = CP.normalize_cfg(cfg)
     share = CP.net_share(c)
     base_cam = CP.worst_camera_cost_bdt(c)
@@ -87,7 +95,9 @@ def profit_table(cfg=None, prices=None, target_pct=40.0, commission_pct_of_net=0
     for n in range(1, CP.MAX_CAMERAS + 1):
         price = CP.monthly_price(n) + AI_ADDON_BDT_PER_CAMERA * n
         net = price * share
-        commission = net * commission_pct_of_net / 100.0
+        addon_net = AI_ADDON_BDT_PER_CAMERA * n * share
+        commission = (net * commission_pct_of_net / 100.0
+                      + addon_net * commission_pct_of_addon_net / 100.0)
         # the base plan bills at least BASE_CAMERAS, so cost does too (worst)
         cost = (base_cam + ai + clip) * n + site
         profit = net - cost - commission
@@ -117,3 +127,36 @@ def base_with_commission(cfg=None, commission_pct_of_net=10.0, target_pct=40.0):
         rows.append({"cameras": n, "price": price, "pct": round(100.0 * profit / price, 1)})
     low = min(r["pct"] for r in rows)
     return {"rows": rows, "min_pct": low, "ok": low >= target_pct}
+
+
+def decided_table(cfg=None, prices=None, target_pct=40.0):
+    """The OWNER-DECIDED Premium AI rows: 400 Tk per camera WITH the 10 %
+    installer commission on the net Premium AI part (worst case: every site
+    has an installer)."""
+    return profit_table(cfg, prices, target_pct,
+                        commission_pct_of_addon_net=COMMISSION_PCT)
+
+
+def forty_check(cfg=None, prices=None, target_pct=40.0):
+    """The CCTV 40 % CI check (owner 17 Nov 12:35). `ok` only when EVERY row
+    of every part is >= 40 %:
+      * premium_ai  — Premium AI 400 Tk/camera with the 10 % commission,
+      * base        — the base plan (500 / 2 cameras, 250 each extra) with NO
+                      commission (base_plan_commission_pct = 0),
+      * trial       — the 7-day trial rows, with NO EZVIZ row any more."""
+    prem = decided_table(cfg, prices, target_pct)
+    base = base_with_commission(cfg, PB.CCTV_DECIDED["base_plan_commission_pct"],
+                                target_pct)
+    trial = CP.trial_profit_rows(cfg, target_pct)
+    trial_low = min(r["pct"] for r in trial["rows"]) if trial["rows"] else 100.0
+    ezviz_rows = [r for r in trial["rows"]
+                  if r["vendor"] in PB.CCTV_DECIDED["trial_excluded_vendors"]]
+    ok = (prem["ok"] and base["ok"] and not trial["below"] and not ezviz_rows
+          and trial_low >= target_pct)
+    return {"ok": ok, "target_pct": target_pct,
+            "premium_ai": {"min_pct": prem["min_pct"], "rows": prem["rows"],
+                           "commission_pct_of_ai_net": COMMISSION_PCT},
+            "base": {"min_pct": base["min_pct"], "rows": base["rows"],
+                     "commission_pct": PB.CCTV_DECIDED["base_plan_commission_pct"]},
+            "trial": {"min_pct": trial_low, "rows": trial["rows"],
+                      "ezviz_rows": len(ezviz_rows)}}

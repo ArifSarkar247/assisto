@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../safety/ad_block_context.dart' show AdBlockContext;
 import '../ads/ads_service.dart' show AdsService;
 import '../ads/hero_ad.dart';
 import '../ads/hero_binding.dart';
@@ -132,6 +133,8 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // ads-guard: hide the ad at once on a call / safety screen / plan change
+    AdBlockContext.listenable.addListener(_onAdBlock);
     // lazy: nothing ad-related before the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) => _start());
   }
@@ -163,7 +166,13 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
   }
 
   @override
+  void _onAdBlock() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
+    AdBlockContext.listenable.removeListener(_onAdBlock);
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _disposeAd();
@@ -435,7 +444,7 @@ class _HomeHeroState extends State<HomeHero> with WidgetsBindingObserver {
                         alignment: AlignmentDirectional.centerEnd,
                         child: RemoveAdsLink(onTap: _openPlans)),
                 ]))
-        : (ad == null || widget.collapsed || !room)
+        : (ad == null || widget.collapsed || !room || AdBlockContext.blockedNow)
         ? KeyedSubtree(key: const ValueKey('hero-logo'), child: widget.fallback)
         : compact
         ? CompactAdFrame(

@@ -191,28 +191,39 @@ class _FamMembersSectionState extends State<FamMembersSection> {
         children: [
           if (widget.header != null) widget.header!,
           const SizedBox(height: Gap.md),
-          Row(children: [
-            Expanded(
-              child: SizedBox(
-                height: 48,
-                child: FilledButton.icon(
-                  key: const ValueKey('fc-pick-btn'),
-                  onPressed: _pick,
-                  icon: const Icon(Icons.group_add_rounded),
-                  label: Text(t.fcPickFromCircle, maxLines: 2, textAlign: TextAlign.center),
-                ),
+          // a11ysweep: min (not fixed) 48 dp, and the two buttons stack at
+          // large text so "Pick from My Circle" is never cut
+          Builder(builder: (context) {
+            final pick = ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: FilledButton.icon(
+                key: const ValueKey('fc-pick-btn'),
+                onPressed: _pick,
+                icon: const Icon(Icons.group_add_rounded),
+                label: Text(t.fcPickFromCircle, textAlign: TextAlign.center),
               ),
-            ),
-            const SizedBox(width: Gap.sm),
-            SizedBox(
-              height: 48,
+            );
+            final hand = ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
               child: OutlinedButton(
                 key: const ValueKey('fc-hand-btn'),
                 onPressed: _addByHand,
-                child: Text(t.fcAddByHandShort),
+                child: Text(t.fcAddByHandShort, textAlign: TextAlign.center),
               ),
-            ),
-          ]),
+            );
+            if (MediaQuery.textScalerOf(context).scale(14) / 14 > 1.4) {
+              return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                pick,
+                const SizedBox(height: Gap.sm),
+                hand,
+              ]);
+            }
+            return Row(children: [
+              Expanded(child: pick),
+              const SizedBox(width: Gap.sm),
+              hand,
+            ]);
+          }),
           const SizedBox(height: Gap.sm),
           Text(
             _limit == null

@@ -68,8 +68,10 @@ class _GoogleCityViewState extends State<GoogleCityView> {
       return ColoredBox(
         key: const ValueKey('city_gview_nosdk'),
         color: s.surfaceContainerHighest,
+        // design3 (2.0x font): the note + button scroll inside the map area
+        // when the route list below leaves it short (never overflows)
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.public_rounded, size: 40, color: s.onSurfaceVariant),

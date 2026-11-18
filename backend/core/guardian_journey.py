@@ -273,6 +273,7 @@ def as_dict(req, viewer, lang="bn"):
     out = {
         "id": req.id, "role": "requester" if mine else "traveller",
         "name": _name(viewer, other), "status": req.status, "outcome": req.outcome,
+        "other_user_id": other.pk if other is not None else None,   # gap-familycare
         "destination": req.destination or {}, "note": req.note,
         "window_start": req.window_start.isoformat(), "window_end": req.window_end.isoformat(),
         "standing": req.standing, "schedule": req.schedule or {},

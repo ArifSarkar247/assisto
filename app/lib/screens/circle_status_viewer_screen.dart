@@ -306,7 +306,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
                 if (anon > 0) ...[
                   const SizedBox(height: Gap.xs),
                   Text(s.statusReceiptsOff,
-                      style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.ds.muted)),
+                      style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
                 ],
                 const SizedBox(height: Gap.sm),
                 for (final v in named)
@@ -344,7 +344,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
       return Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(backgroundColor: Colors.transparent, foregroundColor: Colors.white),
-        body: Center(child: Text(s.statusNoUpdates, style: const TextStyle(color: Colors.white70))),
+        body: Center(child: Text(s.statusNoUpdates, style: AType.bodyMedium.copyWith(color: Colors.white70))),
       );
     }
     final c = _cur;
@@ -392,19 +392,19 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
                   backgroundColor: Colors.white24,
                   child: Text(
                       widget.authorName.isEmpty ? '?' : widget.authorName.characters.first.toUpperCase(),
-                      style: const TextStyle(color: Colors.white)),
+                      style: AType.bodyMedium.copyWith(color: Colors.white)),
                 ),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(widget.authorName,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                        style: AType.titleSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
                     Text(
                         MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(
                             DateTime.tryParse('${_stories[_index]['created_at']}')?.toLocal() ??
                                 DateTime.now())),
-                        style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: AType.bodySmall.copyWith(color: Colors.white70)),
                   ]),
                 ),
                 PopupMenuButton<String>(
@@ -445,7 +445,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.xxl),
           child: Text(s.p3StoryCantOpen,
-              textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
+              textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: Colors.white70)),
         ),
       );
     }
@@ -468,7 +468,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
               color: Colors.black54,
               child: Text(c.text,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  style: AType.bodyLarge.copyWith(color: Colors.white)),
             ),
           ),
       ]);
@@ -479,7 +479,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
       padding: const EdgeInsets.all(Gap.xxl),
       child: Text(c.text,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600, height: 1.35)),
+          style: AType.headlineSmall.copyWith(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w600, height: 1.35)),
     );
   }
 

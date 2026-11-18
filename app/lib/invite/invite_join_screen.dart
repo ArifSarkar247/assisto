@@ -17,6 +17,7 @@ import '../screens/login_screen.dart';
 import '../screens/otp/otp_verify_screen.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'invite_api.dart';
 import 'invite_link.dart';
 import 'invite_router.dart';
@@ -349,8 +350,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
           radius: 40,
           backgroundColor: scheme.ds.primarySoft,
           child: Text(initial.isEmpty ? '?' : initial,
-              style: TextStyle(
-                  fontSize: 34,
+              style: AType.displaySmall.copyWith(
                   fontWeight: FontWeight.w800,
                   color: scheme.ds.primaryInk)),
         ),
@@ -366,13 +366,13 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
       const SizedBox(height: Gap.xs),
       Text(t.ijJoinSub,
           textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+          style: AType.bodyLarge.copyWith(color: scheme.ds.muted, height: 1.4)),
     ]);
   }
 
   Widget _confirmCard(AppLocalizations t) {
     return _scroll([
-      _header(t),
+      DsHeroCard(child: _header(t)),
       const SizedBox(height: Gap.xl),
       _primary(t.ijJoinButton, _joinSignedIn, key: const Key('ij-join')),
       const SizedBox(height: Gap.sm),
@@ -388,7 +388,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
   Widget _form(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     return _scroll([
-      _header(t),
+      DsHeroCard(child: _header(t)),
       const SizedBox(height: Gap.lg),
       TextField(
         key: const Key('ij-name'),
@@ -445,7 +445,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
       const SizedBox(height: Gap.xs),
       Text(t.ijNoPassword,
           textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.ds.muted)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       _errorText(),
       TextButton(
         key: const Key('ij-switch-email'),
@@ -480,19 +480,17 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         child: Text(e,
             key: const Key('ij-error'),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
       ),
     );
   }
 
-  Widget _primary(String label, VoidCallback onTap, {Key? key}) => FilledButton(
+  Widget _primary(String label, VoidCallback onTap, {Key? key}) => DsButton(
         key: key,
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-        onPressed: _busy ? null : onTap,
-        child: _busy
-            ? const SizedBox(
-                width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-            : Text(label, style: const TextStyle(fontSize: 17)),
+        expand: true,
+        busy: _busy,
+        onPressed: onTap,
+        label: label,
       );
 
   Widget _scroll(List<Widget> children) => Center(
@@ -508,21 +506,17 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
 
   Widget _message(IconData icon, String text,
       {String? title, required (String, VoidCallback) primary, Key? key}) {
-    final scheme = Theme.of(context).colorScheme;
+    // design3: the DS state card (drawn illustration, one big button)
     return KeyedSubtree(
       key: key,
       child: _scroll([
-        Icon(icon, size: 56, color: scheme.primary),
-        const SizedBox(height: Gap.md),
-        if (title != null) ...[
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: Gap.sm),
-        ],
-        Text(text, textAlign: TextAlign.center, style: const TextStyle(height: 1.4)),
-        const SizedBox(height: Gap.lg),
-        _primary(primary.$1, primary.$2),
+        DsEmptyState(
+          icon: icon,
+          title: title ?? text,
+          benefit: title == null ? null : text,
+          actionLabel: primary.$1,
+          onAction: _busy ? null : primary.$2,
+        ),
       ]),
     );
   }

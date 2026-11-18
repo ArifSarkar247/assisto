@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config.dart'; // staging
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -46,6 +47,12 @@ class CheckoutSheet extends StatefulWidget {
   static Future<bool> Function(Uri) launcher =
       (u) => launchUrl(u, mode: LaunchMode.externalApplication);
 
+  /// staging: true in the "Assisto Test" app — nothing can be bought there
+  /// (no Play Billing outside Play; the gateway stays off so a test build
+  /// never takes real money). Plans are tested with the server's
+  /// allow-listed test entitlement instead. Tests flip it.
+  static bool Function() purchasesDisabled = () => AppConfig.staging;
+
   static Future<bool?> show(BuildContext context, String sku,
       {PaymentsBackend? backend, String? flavour}) {
     final b = backend ??
@@ -64,7 +71,16 @@ class CheckoutSheet extends StatefulWidget {
   State<CheckoutSheet> createState() => _CheckoutSheetState();
 }
 
-enum _Step { loading, loadFailed, choose, busy, waitingGateway, done, failed }
+enum _Step {
+  loading,
+  loadFailed,
+  choose,
+  busy,
+  waitingGateway,
+  done,
+  failed,
+  stagingOff, // staging: no purchases in the owner's test app
+}
 
 class _CheckoutSheetState extends State<CheckoutSheet>
     with WidgetsBindingObserver {
@@ -99,6 +115,10 @@ class _CheckoutSheetState extends State<CheckoutSheet>
   }
 
   Future<void> _load() async {
+    if (CheckoutSheet.purchasesDisabled()) {
+      setState(() => _step = _Step.stagingOff);
+      return;
+    }
     setState(() => _step = _Step.loading);
     try {
       final c = await widget.backend.config(widget.flavour);
@@ -390,6 +410,13 @@ class _CheckoutSheetState extends State<CheckoutSheet>
         ]);
       case _Step.choose:
         return _choose(t, scheme);
+      case _Step.stagingOff:
+        return _state(scheme, Icons.science_rounded, scheme.primary,
+            t.stagingPurchasesOffTitle, t.stagingPurchasesOffBody, [
+          FilledButton.tonal(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(t.stagingPurchasesOffOk)),
+        ]);
     }
   }
 

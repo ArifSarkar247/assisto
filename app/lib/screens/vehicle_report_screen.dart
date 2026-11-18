@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
@@ -172,7 +173,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 child: Text(periodLabel,
                     textAlign: TextAlign.center,
                     maxLines: 2,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               ),
             ),
             IconButton(
@@ -185,16 +186,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
           if (_loading && _rep == null)
             const SkeletonList()
           else if (_error)
-            StateMessage(
-              icon: Icons.cloud_off_rounded,
-              tint: scheme.error,
-              title: tr.loadFailed,
-              message: tr.vehLoadError,
-              action: FilledButton.tonalIcon(
-                  onPressed: _load,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(tr.retry)),
-            )
+            ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: tr.vehLoadError, actionLabel: tr.retry, onAction: _load)])
           else
             ..._content(tr, scheme),
         ]),
@@ -214,7 +206,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
           Flexible(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(value,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               Text(label,
@@ -244,12 +236,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     final empty = km <= 0 && trips == 0;
     final out = <Widget>[];
     if (empty) {
-      out.add(StateMessage(
-        icon: Icons.directions_car_outlined,
-        tint: scheme.primary,
-        title: tr.v100ReportEmptyTitle,
-        message: r['in_retention'] == false ? tr.v100ReportOld : tr.v100ReportEmptyBody,
-      ));
+      out.add(ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.directions_car_outlined, title: tr.v100ReportEmptyTitle, benefit: r['in_retention'] == false ? tr.v100ReportOld : tr.v100ReportEmptyBody)]));
       return out;
     }
     out.add(Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -274,11 +261,8 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
             Icons.event_available_rounded, scheme),
     ]));
     out.add(const SizedBox(height: Gap.md));
-    out.add(Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    // design3: the driving score is the summary — the soft hero, first
+    out.insert(0, DsHeroCard( child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Semantics(
             label: tr.v100ScoreA11y(score == null ? '-' : vehNumStr(context, score),
                 _band(tr, band)),
@@ -296,7 +280,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                           : (band == 'improve' ? scheme.error : scheme.ds.muted)),
                 ),
                 child: Text(score == null ? '-' : vehNumStr(context, score),
-                    style: const TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
               ),
             ),
@@ -305,7 +289,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.v100ScoreTitle, style: Theme.of(context).textTheme.titleMedium),
-              Text(_band(tr, band), style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(_band(tr, band), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               const SizedBox(height: Gap.xs),
               Text(tr.v100ScoreHow,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
@@ -323,9 +307,8 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 ),
             ]),
           ),
-        ]),
-      ),
-    ));
+        ])));
+    out.insert(1, const SizedBox(height: Gap.md));
     if (!_month) {
       final list = vehList(r['trips']);
       if (list.isNotEmpty) {
@@ -338,7 +321,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 tp['night'] == true ? Icons.nightlight_round_rounded : Icons.route_rounded),
             title: Text(
                 '${vehTime(context, vehDate(tp['start']))} – ${vehTime(context, vehDate(tp['end']))}',
-                style: const TextStyle(fontFeatures: AFonts.tabular)),
+                style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
             subtitle: Text(
                 '${tr.vehKm(vehNumStr(context, vehNum(tp['km']) ?? 0, decimals: 1))} · '
                 '${tr.vehKmh(vehNumStr(context, vehNum(tp['max_kmh']) ?? 0))}',

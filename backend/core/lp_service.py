@@ -17,9 +17,10 @@ or returns unreadable JSON: a failed or cut score is never charged.
 Gates (part I): Free = daily lesson + life English + vocabulary + ONE mock
 section per rolling 7 days; Premium = full mocks, AI scoring, tracks, levels.
 
-Cambridge companion (part B): only the user's own typed answers and own
-typed key are stored (40 short cells each) — never a question, passage, key
-from us or audio.
+Cambridge companion (part B): the user's own typed key is used to mark the
+sheet and then DROPPED (gap-lp): only his own answers, the right/wrong per
+cell and the mistake counts are kept — never a question, passage, answer key
+(not even the one he typed from his book) or audio.
 """
 import datetime
 import json
@@ -275,7 +276,7 @@ def issue_ad_ticket(user, unlock):
         # adcontrol: the owner switched this placement off (Ad control)
         return 409, {"ok": False, "reason": "not_offered"}
     from .photo_studio_service import _ad_units
-    units = _ad_units()
+    units = _ad_units(user)
     if not units.get("_configured"):
         return 409, {"ok": False, "reason": "ads_not_live"}
     day = timezone.now() - datetime.timedelta(days=1)
@@ -770,20 +771,53 @@ def rule_comment(bands, overall):
     return en, bn
 
 
+VERIFY_WINDOW = datetime.timedelta(days=2)
+
+
+def verified_bands(user, mock, now=None):
+    """gap-lp: the section bands the SERVER gave this user for this mock in the
+    last VERIFY_WINDOW (latest attempt wins). A result / certificate is built
+    only from these — a band the phone merely sends is never trusted."""
+    from .models import LpAttempt
+    since = (now or timezone.now()) - VERIFY_WINDOW
+    rows = LpAttempt.objects.filter(user=user, item_key=mock.key, created_at__gte=since,
+                                    kind__in=("mark", "writing", "speaking")).order_by("id")
+    out, tasks, parts = {}, {}, {}
+    for r in rows:
+        if r.band is None:
+            continue
+        d = r.data or {}
+        if r.kind == "mark" and r.section in OBJECTIVE:
+            out[r.section] = float(r.band)
+        elif r.kind == "writing":
+            tasks[int(d.get("task") or 2)] = float(r.band)
+        elif r.kind == "speaking":
+            parts[int(d.get("part") or 1)] = float(r.band)
+    if tasks:
+        out["writing"] = B.writing_band(tasks.get(1), tasks.get(2))
+    if parts:
+        out["speaking"] = B.round_band(sum(parts.values()) / len(parts))
+    return out
+
+
 def finish_mock(user, mock, bands, weak):
-    clean = {k: B.round_band(float(v)) for k, v in (bands or {}).items()
-             if k in SECTIONS and isinstance(v, (int, float)) and 0 <= v <= 9}
+    asked = [k for k in (bands or {}) if k in SECTIONS]
+    server = verified_bands(user, mock)
+    clean = {k: server[k] for k in asked if server.get(k) is not None}
     ov = B.overall(clean)
     en, bn = rule_comment(clean, ov)
     tags = [str(t)[:40] for t in (weak or [])][:10]
+    full = len(clean) == 4
     from .models import LpAttempt
     att = LpAttempt.objects.create(user=user, kind="result", item_key=mock.key, band=ov,
                                    data={"bands": clean, "weak": tags, "variant": variant_of(mock),
                                          "title_en": mock.data.get("title_en", ""),
-                                         "full": len(clean) == 4})
+                                         "full": full,
+                                         "unverified": sorted(set(asked) - set(clean))})
     return {"ai_state": "rules", "overall": ov, "bands": clean, "comment_en": en, "comment_bn": bn,
             "weak_areas": weak_areas(tags), "result_id": att.id,
-            "certificate_url": "/api/v1/lp/certificate/%d" % att.id,
+            # a certificate only for a FULL mock whose four bands the server gave
+            "certificate_url": "/api/v1/lp/certificate/%d" % att.id if full else None,
             "practice_label": B.PRACTICE_LABEL}
 
 
@@ -824,10 +858,13 @@ def companion_mark(user, book, test, section, variant, answers, key):
           for n, k in sorted(key.items(), key=lambda x: int(x[0]))]
     res = B.mark(qs, answers, section, variant)
     from .models import LpAttempt
+    # gap-lp: the typed key is NOT kept (a Cambridge answer key must never be
+    # stored) — only which cells were right and the mistake types
     att = LpAttempt.objects.create(
         user=user, kind="companion", item_key="book%d-test%d" % (book, test), section=section,
         band=res["band"], data={"book": book, "test": test, "variant": variant,
-                                "answers": answers, "key": key, "raw": res["raw"],
+                                "answers": answers, "raw": res["raw"],
+                                "right": sorted(int(i["n"]) for i in res["items"] if i.get("correct")),
                                 "total": res["total"], "mistake_counts": res["mistake_counts"]})
     for i in res["items"]:
         i.pop("explain_en", None)

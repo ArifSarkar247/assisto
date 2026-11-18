@@ -1,0 +1,30 @@
+{
+  "en": {
+    "lp2gDraftBack": "Your unfinished answers are back. Carry on from where you stopped.",
+    "@lp2gDraftBack": {"description": "gap-lp: toast when a mock reopens with answers saved on the phone after the app closed"},
+    "lp2gSubmitTitle": "Submit this section?",
+    "@lp2gSubmitTitle": {"description": "gap-lp: title of the confirm sheet before a mock section is submitted"},
+    "lp2gUnanswered": "{count} questions are not answered yet.",
+    "@lp2gUnanswered": {"description": "gap-lp: confirm sheet line, count = unanswered questions or tasks (already in local digits)", "placeholders": {"count": {"type": "String"}}},
+    "lp2gNoReturn": "In a full mock you cannot come back to this section, like the real exam.",
+    "@lp2gNoReturn": {"description": "gap-lp: confirm sheet line in a full mock"},
+    "lp2gSubmitNow": "Submit",
+    "@lp2gSubmitNow": {"description": "gap-lp: confirm sheet button that submits the section"},
+    "lp2gCert": "Practice certificate (PDF)",
+    "@lp2gCert": {"description": "gap-lp: button under a full mock result that opens the Assisto Practice Certificate PDF"},
+    "lp2gCertFail": "The certificate did not open. Check the internet and try again.",
+    "@lp2gCertFail": {"description": "gap-lp: toast when the certificate PDF could not be downloaded or opened"},
+    "lp2gSavedOffline": "No internet. Tests saved on this phone are below — you can take them now; marking needs internet.",
+    "@lp2gSavedOffline": {"description": "gap-lp: banner on the IELTS page when the mock list cannot load but downloaded mocks exist"}
+  },
+  "bn": {
+    "lp2gDraftBack": "আপনার অসমাপ্ত উত্তরগুলো ফিরে এসেছে। যেখানে থেমেছিলেন সেখান থেকে চালিয়ে যান।",
+    "lp2gSubmitTitle": "এই অংশ জমা দেবেন?",
+    "lp2gUnanswered": "{count}টি প্রশ্নের উত্তর এখনো দেওয়া হয়নি।",
+    "lp2gNoReturn": "পূর্ণ মকে আসল পরীক্ষার মতো এই অংশে আর ফেরা যাবে না।",
+    "lp2gSubmitNow": "জমা দিন",
+    "lp2gCert": "অনুশীলন সনদ (PDF)",
+    "lp2gCertFail": "সনদ খোলেনি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "lp2gSavedOffline": "ইন্টারনেট নেই। এই ফোনে সেভ করা টেস্টগুলো নিচে আছে — এখনই দিতে পারবেন; মূল্যায়নের জন্য ইন্টারনেট লাগবে।"
+  }
+}

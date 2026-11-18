@@ -233,6 +233,27 @@ def hero_refresh_sec(value):
     return max(HERO_MIN_REFRESH_SEC, min(3600, v))
 
 
+_PHONE_SPLIT_RE = re.compile(r"[\s,;]+")
+
+
+def phone_key(raw):
+    """The last 10 digits of a BD phone (01XXXXXXXXX / +8801XXXXXXXXX -> the
+    same key); '' when it is not a phone."""
+    d = "".join(ch for ch in _s(raw) if ch.isdigit())[-10:]
+    return d if len(d) == 10 else ""
+
+
+def ad_test_phones(value):
+    """Owner Admin -> Integrations -> AdMob "ad test phones" (comma / space /
+    newline separated) -> set of 10-digit keys (max 50)."""
+    out = []
+    for part in _PHONE_SPLIT_RE.split(_s(value)):
+        k = phone_key(part)
+        if k and k not in out:
+            out.append(k)
+    return set(out[:50])
+
+
 _DEVICE_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
 
 
@@ -255,14 +276,17 @@ def _csv(value, allowed):
     return out
 
 
-def serving_units(caps, admob_cfg=None, admob_working=False):
+def serving_units(caps, admob_cfg=None, admob_working=False, force_test=False):
     """(real, app_id, units) — what the app may load right now.
 
     real=False (default until the owner turns `admob_real_ids` on): Google's
     public TEST units (any app id may load them). real=True: the owner's
-    saved Integrations ids when they validate, else Assisto's OWNER ids."""
+    saved Integrations ids when they validate, else Assisto's OWNER ids.
+    admob-connect (owner 17 Nov): `force_test` (the owner's / a tester's
+    account) -> always Google's TEST units, so the owner never makes an
+    invalid impression or click on his own real ads."""
     caps = caps or {}
-    if not caps.get("admob_real_ids", False):
+    if force_test or not caps.get("admob_real_ids", False):
         return False, "", dict(TEST_UNITS)
     admob_cfg = admob_cfg or {}
     ok, _ = validate_admob_ids(admob_cfg)
@@ -277,7 +301,8 @@ def serving_units(caps, admob_cfg=None, admob_working=False):
 
 
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
-                  flag_app_open, ad_caps, hero_refresh=90, ad_control=None):
+                  flag_app_open, ad_caps, hero_refresh=90, ad_control=None,
+                  test_ads_only=False):
     """The /ads/config payload.
 
     `configured` (= `real_ids`) is True only after the owner turned
@@ -287,7 +312,8 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     admob_cfg = admob_cfg or {}
     caps = ad_caps or {}
     paid = bool(paid)
-    real, app_id, units = serving_units(caps, admob_cfg, admob_working)
+    real, app_id, units = serving_units(caps, admob_cfg, admob_working,
+                                        force_test=test_ads_only)
     gap = int(caps.get("appopen_min_gap_sec", 10800) or 0)
     from . import ad_control as AC
     ctl = AC.normalize(ad_control)
@@ -322,6 +348,8 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     return {
         "configured": real,
         "real_ids": real,
+        # admob-connect: owner / tester account -> Google TEST ads only
+        "test_ads_only": bool(test_ads_only),
         "ads_enabled": not paid,
         "app_id": app_id,
         "units": units,

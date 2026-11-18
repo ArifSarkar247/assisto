@@ -536,6 +536,8 @@ class _OfflineSheetState extends State<_OfflineSheet> {
   Future<void> _load() async {
     final have = await CityMapStyle.I.offlineFiles();
     final m = have == null ? await CityMapStyle.I.offlineManifest(widget.api) : null;
+    // gap-city: an older pack without fonts/sprites gets them now (names offline)
+    if (have != null && have.assets.isEmpty) unawaited(CityMapStyle.I.ensureAssets(widget.api));
     if (!mounted) return;
     setState(() {
       _ready = have != null;

@@ -3030,9 +3030,12 @@ class AdPlacementStat(models.Model):
     paid_events = models.PositiveIntegerField(default=0)
     precise_events = models.PositiveIntegerField(default=0)
     revenue_micros = models.BigIntegerField(default=0)
+    # ads-guard (owner 17 Nov): a Google TEST ad (real ids off, or an owner /
+    # staff / tester / Play-reviewer account) — never counted as revenue
+    test = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = [("date", "placement", "fmt", "currency")]
+        unique_together = [("date", "placement", "fmt", "currency", "test")]
         indexes = [models.Index(fields=["date", "placement"])]
 
 
@@ -4001,9 +4004,49 @@ class FamExpense(models.Model):
     shared = models.BooleanField(default=True)
     ai_captured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # gap-familycare: a SHARED family ledger (Family Care v3 family). Null =
+    # the owner's own household ledger (members 'self' + FamilyMember ids);
+    # set = every active member of that family sees and adds rows, members
+    # are 'u<user id>'. created_by = who wrote the row (delete rights, audit).
+    family = models.ForeignKey("FcFamily", null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="fam_expenses")
+    created_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
 
     class Meta:
         ordering = ["-date", "-id"]
+
+
+class FamGoal(models.Model):
+    """gap-familycare: a NAMED family savings goal ("Eid fund", "Hajj",
+    "school fees") of a Family Care v3 family. INTEGER POISHA. Money is never
+    held or moved by Assisto — gifts are records of what each person put in."""
+    family = models.ForeignKey("FcFamily", on_delete=models.CASCADE,
+                               related_name="fam_goals")
+    name = models.CharField(max_length=60)
+    target_poisha = models.BigIntegerField()
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["closed_at", "-id"]
+
+
+class FamGoalGift(models.Model):
+    """One recorded contribution to a FamGoal: `member` gave `amount_poisha`
+    (recorded by `added_by`)."""
+    goal = models.ForeignKey(FamGoal, on_delete=models.CASCADE, related_name="gifts")
+    member = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    amount_poisha = models.BigIntegerField()
+    added_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
 
 
 class FamPool(models.Model):
@@ -5070,6 +5113,9 @@ class AntiTheftEngine(models.Model):
     # SIM change, protection turn-off) also go to the owner's nominee(s)
     # who have an Assisto account. Off by default; the owner's switch.
     alert_nominee = models.BooleanField(default=False)
+    # flag-antitheft: the owner's grab sensitivity: low (never while in the
+    # hand) / normal / high. Sent to the engine; re-checked on the server.
+    snatch_sensitivity = models.CharField(max_length=8, default="normal")
     updated_at = models.DateTimeField(auto_now=True)
 
 
@@ -8115,6 +8161,34 @@ class CctvInstallerLink(models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "status"], name="cctv_inst_site_idx")]
+
+
+class CctvCommissionEntry(models.Model):
+    """cctvprice (owner-decided 17 Nov 12:35): the installer-commission LEDGER.
+    ONE row per paid Premium AI Play order (order_id unique -> a renewal or a
+    replayed RTDN can never pay twice): 10 % of the NET Premium AI part only,
+    never the base plan (core/logic/plan_book.CCTV_DECIDED). Starts "owed";
+    a person marks it "paid" (or "void") in Owner Admin — never automatic."""
+    STATUSES = [("owed", "owed"), ("paid", "paid"), ("void", "void")]
+    partner = models.ForeignKey(CctvPartner, on_delete=models.CASCADE,
+                                related_name="commissions")
+    site = models.ForeignKey(ShopSite, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    order_id = models.CharField(max_length=64, unique=True)
+    month = models.CharField(max_length=7, default="")        # "2026-12"
+    cameras = models.PositiveSmallIntegerField(default=0)
+    premium_ai_net_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    pct = models.PositiveSmallIntegerField(default=10)
+    amount_bdt = models.PositiveIntegerField(default=0)
+    paid_month_no = models.PositiveSmallIntegerField(default=1)
+    status = models.CharField(max_length=5, choices=STATUSES, default="owed")
+    created = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    paid_ref = models.CharField(max_length=80, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["partner", "status"], name="cctv_comm_partner_idx")]
 
 
 class CctvWatchPost(models.Model):

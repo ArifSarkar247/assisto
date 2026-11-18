@@ -77,7 +77,7 @@ def real_income(now=None, c=None):
     from .models import AdPlacementStat
     now = now or timezone.now()
     since = timezone.localdate(now) - timedelta(days=AM.WINDOW_DAYS)
-    rows = list(AdPlacementStat.objects.filter(date__gte=since, fmt="rewarded")
+    rows = list(AdPlacementStat.objects.filter(date__gte=since, fmt="rewarded", test=False)
                 .values("fmt", "currency")
                 .annotate(paid_events=Sum("paid_events"), revenue_micros=Sum("revenue_micros")))
     lv, c = _levels(c)
@@ -204,7 +204,7 @@ def money_table(days=14, now=None):
     usd_bdt = float(c.get("usd_bdt") or 125.0)
     # ad income per ad type (AdMob paid events; ৳ per currency)
     ad_income = {}
-    for r in (AdPlacementStat.objects.filter(date__gte=first)
+    for r in (AdPlacementStat.objects.filter(date__gte=first, test=False)
               .values("date", "fmt", "currency").annotate(m=Sum("revenue_micros"))):
         cur = (r["currency"] or "").upper()
         if cur not in ("BDT", "USD"):

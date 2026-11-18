@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/dict_store.dart';
@@ -245,7 +247,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
   }
 
   Widget _searchBody(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 5);
     if (_error) {
       return DictStateView(
         icon: Icons.error_outline_rounded,
@@ -342,7 +344,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
           const SizedBox(height: Gap.xs),
           Text(t.dictionaryIntroBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ],
     );
@@ -379,7 +381,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
       future: _store.saved(),
       builder: (context, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const SkeletonList(count: 5);
         }
         final saved = snap.data ?? [];
         if (saved.isEmpty) {
@@ -424,7 +426,7 @@ class _DictionaryScreenState extends State<DictionaryScreen>
         child: Row(children: [
           Expanded(
             child: Text(t.dictSearchHistory,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           ),
           TextButton.icon(
             onPressed: () async {
@@ -479,13 +481,13 @@ class _NeedsData extends StatelessWidget {
             child: Text(
               t.dictionaryNeedsOpenData,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Brand.warnInk(context)),
+              style: AType.bodyMedium.copyWith(color: Brand.warnInk(context)),
             ),
           ),
           const SizedBox(height: Gap.md),
           Text(t.dictionarySampleNote,
               textAlign: TextAlign.center,
-              style: AType.bodySmall.copyWith(color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         ]),
       ),
     );

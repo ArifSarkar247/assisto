@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 // fcscreen — fake /family/v3/* answers for the gallery, fake_api.dart and
 // fcscreen_test.dart. Server-shaped (backend/core/family_v3.py board()).
 // FcFake.scene picks the state set: 'mixed' (default: SOS-free, one gray
@@ -6,6 +8,10 @@
 
 class FcFake {
   static String scene = 'mixed';
+
+  /// gap-familycare: a gallery shot's own scene (set by [FcScene] while it
+  /// is on screen; wins over [scene], which the gallery resets per shot).
+  static String? sceneOverride;
   static final List<String> posts = [];
 }
 
@@ -74,7 +80,13 @@ List<Map<String, dynamic>> fcFakeMembers({bool bn = false, String? scene, DateTi
       chip: {'kind': 'arrived', 'at': _iso(n.subtract(const Duration(minutes: 40))),
           'place': bn ? 'স্কুল' : 'School', 'auto': true},
       now: n);
-  if (s == 'ok') return [ammu, son, me];
+  if (s == 'paused') { // gap-familycare: Rafi paused sharing (not "no news")
+    final until = _iso(n.add(const Duration(hours: 2)));
+    (son['brain'] as Map)['paused_until'] = until;
+    son['status'] = {'state': 'paused', 'reason': 'paused', 'fresh_until': null};
+    son['chip'] = {'kind': 'paused', 'until': until};
+  }
+  if (s == 'ok' || s == 'paused') return [ammu, son, me];
   final abbu = fcFakeMember(4, bn ? 'করিম উদ্দিন' : 'Karim Uddin',
       label: bn ? 'আব্বু' : 'Abbu', relation: 'father', role: 'elder',
       ago: const Duration(hours: 5, minutes: 10), battery: 4, net: 'cell',
@@ -113,6 +125,10 @@ Map<String, dynamic> fcFakeBoard({bool bn = false, String? scene, DateTime? now}
             {'id': 72, 'title': bn ? 'ডেসকো বিদ্যুৎ বিল' : 'DESCO electricity bill', 'kind': 'bill',
              'due_date': '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}',
              'taken_by': 5, 'taken_by_name': bn ? 'সাকিব' : 'Sakib', 'mine': false, 'done': false},
+            if (s == 'tasks') // gap-familycare: a done task can be taken back
+              {'id': 73, 'title': bn ? 'গ্যাস বিল দেওয়া' : 'Pay the gas bill', 'kind': 'bill',
+               'due_date': null, 'taken_by': 1, 'taken_by_name': bn ? 'রিনা' : 'Rina', 'mine': true,
+               'done': true, 'done_by_name': bn ? 'রিনা' : 'Rina', 'created_by': 1},
           ],
     'today': {
       'carecalls': s == 'empty' ? {'done': 0, 'missed': 0, 'pending': 0} : {'done': 1, 'missed': 0, 'pending': 1},
@@ -166,8 +182,47 @@ Map<String, dynamic> fcFakeMemberPage(int uid, {bool bn = false}) {
 /// fake_api.dart hook: null = not a Family v3 path.
 Map<String, dynamic>? fakeFcGet(String path, {bool bn = false, bool empty = false}) {
   final p = path.startsWith('/') ? path.substring(1) : path;
+  // gap-familycare: the SHARED family ledger (only calls with family=<id>)
+  if (p.startsWith('family/accounting/') && p.contains('family=')) {
+    if (p.startsWith('family/accounting/expenses')) {
+      return {'expenses': [
+        {'id': 81, 'payer': 'u5', 'payer_name': bn ? 'সাকিব' : 'Sakib', 'total_poisha': 240000,
+         'category': 'groceries', 'mode': 'equal', 'note': bn ? 'মাসের বাজার' : 'Monthly bazar',
+         'date': '2026-11-15', 'shared': true, 'ai_captured': false, 'can_delete': false,
+         'shares': [
+           {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'share_poisha': 120000},
+           {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'share_poisha': 120000},
+         ]},
+      ]};
+    }
+    if (p.startsWith('family/accounting/summary')) {
+      return {
+        'total_poisha': 240000, 'expense_count': 1, 'by_category': {},
+        'family': {'id': 10, 'name': bn ? 'আমার পরিবার' : 'My family'}, 'pool': {},
+        'members': [
+          {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'paid_poisha': 0, 'share_poisha': 120000, 'net_poisha': -120000},
+          {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'paid_poisha': 240000, 'share_poisha': 120000, 'net_poisha': 120000},
+        ],
+        'settlements': [],
+        'goals': [
+          {'id': 5, 'name': bn ? 'ঈদের তহবিল' : 'Eid fund', 'target_poisha': 2000000,
+           'collected_poisha': 1250000, 'remaining_poisha': 750000, 'pct': 62, 'state': 'open',
+           'closed': false, 'can_close': true, 'breakdown': [
+             {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'amount_poisha': 500000},
+             {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'amount_poisha': 750000},
+           ]},
+          {'id': 6, 'name': bn ? 'রাফির স্কুলের ফি' : "Rafi's school fees", 'target_poisha': 600000,
+           'collected_poisha': 600000, 'remaining_poisha': 0, 'pct': 100, 'state': 'met',
+           'closed': false, 'can_close': true, 'breakdown': [
+             {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'amount_poisha': 600000},
+           ]},
+        ],
+      };
+    }
+    return {};
+  }
   if (!p.startsWith('family/v3/')) return null;
-  final scene = empty ? 'empty' : FcFake.scene;
+  final scene = empty ? 'empty' : (FcFake.sceneOverride ?? FcFake.scene);
   if (p == 'family/v3/families') return fcFakeFamilies(bn: bn, scene: scene);
   if (RegExp(r'^family/v3/families/\d+/board$').hasMatch(p)) {
     return fcFakeBoard(bn: bn, scene: scene);
@@ -190,4 +245,30 @@ Map<String, dynamic>? fakeFcPost(String path, Map<String, dynamic> body) {
   }
   if (p.endsWith('/invite')) return {'ok': true, 'state': 'invited', 'membership_id': 40};
   return {'ok': true};
+}
+
+/// gap-familycare: wraps a gallery screen so its fake board uses [scene].
+class FcScene extends StatefulWidget {
+  final String scene;
+  final Widget child;
+  const FcScene({super.key, required this.scene, required this.child});
+  @override
+  State<FcScene> createState() => _FcSceneState();
+}
+
+class _FcSceneState extends State<FcScene> {
+  @override
+  void initState() {
+    super.initState();
+    FcFake.sceneOverride = widget.scene;
+  }
+
+  @override
+  void dispose() {
+    if (FcFake.sceneOverride == widget.scene) FcFake.sceneOverride = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

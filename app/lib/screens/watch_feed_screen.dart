@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../api.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/skeleton.dart';
@@ -461,23 +462,14 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                   const SizedBox(width: Gap.sm),
                   Flexible( // qa1: wraps at large font
                     child: Text(t.watchLoadingTitle,
-                        style: TextStyle(color: scheme.ds.muted)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   ),
                 ]),
               ),
               const Expanded(child: SkeletonList()),
             ])
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
-                  title: t.watchErrorTitle,
-                  message: honestFailText(t, _failCause, otherwise: t.watchErrorBody),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.watchRetry)),
-                )
+              ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: t.watchErrorTitle, benefit: honestFailText(t, _failCause, otherwise: t.watchErrorBody), actionLabel: t.watchRetry, onAction: _load)])
               : RefreshIndicator(
                   onRefresh: _load,
                   child: _buildFeed(t, scheme, visible),
@@ -494,17 +486,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
       return ListView(
         padding: withNavBarInset(context, const EdgeInsets.only(top: Gap.xl, bottom: 96)),
         children: [
-          StateMessage(
-            icon: Icons.verified_rounded,
-            tint: Brand.success,
-            title: t.watchAllClearTitle,
-            message: '${t.watchAllClearBody2}\n\n${t.lbDWatchEmptyHow}',
-            action: FilledButton.tonalIcon(
-              onPressed: _addUsdWatcher,
-              icon: const Icon(Icons.add_alert_rounded),
-              label: Text(t.qa1WatchAddRateAlert),
-            ),
-          ),
+          ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.verified_rounded, title: t.watchAllClearTitle, benefit: '${t.watchAllClearBody2}\n\n${t.lbDWatchEmptyHow}', actionLabel: t.qa1WatchAddRateAlert, onAction: _addUsdWatcher)]),
         ],
       );
     }
@@ -524,7 +506,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           _n(needs.length),
           _n(todayItems.length),
           _n(upcoming.length),
-        ), style: TextStyle(color: scheme.ds.muted)),
+        ), style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         // Always show the three groups so the digest structure is legible;
         // empty groups show honest per-group copy.
@@ -589,7 +571,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           Icon(icon, size: 18, color: tint),
           const SizedBox(width: Gap.sm),
           Text(title,
-              style: TextStyle(fontWeight: FontWeight.w700, color: tint)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: tint)),
         ]),
         const SizedBox(height: Gap.xxs),
         Padding(
@@ -601,7 +583,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
             child: Text(AppLocalizations.of(context).watchNoneInGroup,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted)),
           )
         else
@@ -622,12 +604,10 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(t.watchActiveWatchersTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         for (final w in _watchers)
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               dense: true,
               leading: Icon(watchSourceIcon(WatchSource.watchers)),
               title: Text((w['label'] ?? w['kind'] ?? '').toString()),
@@ -644,8 +624,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                   _load();
                 }),
               ),
-            ),
-          ),
+            ))),
       ],
     );
   }

@@ -1,0 +1,159 @@
+{
+  "en": {
+    "cityGRouteHere": "Go by bus / metro",
+    "@cityGRouteHere": {
+      "description": "gap-city: button on a place (office, terminal, hospital...) that plans the trip there in City Service"
+    },
+    "cityGLoadFailed": "Could not load right now. Check the internet and try again.",
+    "@cityGLoadFailed": {
+      "description": "gap-city: a City Service list failed to load; a Try again button follows"
+    },
+    "cityGNoMatch": "Nothing matches \"{q}\". Try a shorter name.",
+    "@cityGNoMatch": {
+      "description": "gap-city: search in offices / terminals found nothing",
+      "placeholders": {
+        "q": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGNeedStart": "Where are you starting from? Location is off, so choose your start point or turn location on.",
+    "@cityGNeedStart": {
+      "description": "gap-city: destination chosen but no GPS and no start point"
+    },
+    "cityGUseMyLocation": "Use my location",
+    "@cityGUseMyLocation": {
+      "description": "gap-city: button: ask for the phone's location again"
+    },
+    "cityGSearchAll": "Search all places for \"{place}\"",
+    "@cityGSearchAll": {
+      "description": "gap-city: voice ask: the name is not in our bus/metro data; open the full place search",
+      "placeholders": {
+        "place": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGOfflineAlarmOnly": "No internet, so your family was not told. The get-off alarm is on and the steps are below.",
+    "@cityGOfflineAlarmOnly": {
+      "description": "gap-city: Start as Safe Journey failed offline; only the on-phone get-off alarm started"
+    },
+    "cityGLeaveNow": "Leave now",
+    "@cityGLeaveNow": {
+      "description": "gap-city: chip: plan for leaving now"
+    },
+    "cityGLeaveAt": "Leave at {time}",
+    "@cityGLeaveAt": {
+      "description": "gap-city: chip: the chosen later departure time",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGForLeaving": "Fare and time if you leave at {time}",
+    "@cityGForLeaving": {
+      "description": "gap-city: results are for a later departure",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtDawn": "{time} AM",
+    "@cityGAtDawn": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtMorning": "{time} AM",
+    "@cityGAtMorning": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtNoon": "{time} PM",
+    "@cityGAtNoon": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtAfternoon": "{time} PM",
+    "@cityGAtAfternoon": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtEvening": "{time} PM",
+    "@cityGAtEvening": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGAtNight": "{time} PM",
+    "@cityGAtNight": {
+      "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGGetOffAtN": "Get off at: {stop} ({n, plural, =1{1 stop} other{{n} stops}})",
+    "@cityGGetOffAtN": {
+      "description": "gap-city: replaces cityGetOffAt (fixes '(1 stops)')",
+      "placeholders": {
+        "stop": {
+          "type": "String"
+        },
+        "n": {
+          "type": "int"
+        }
+      }
+    },
+    "cityGChangesN": "{n, plural, =1{1 change} other{{n} changes}}",
+    "@cityGChangesN": {
+      "description": "gap-city: replaces cityChanges (fixes '1 change(s)')",
+      "placeholders": {
+        "n": {
+          "type": "int"
+        }
+      }
+    }
+  },
+  "bn": {
+    "cityGRouteHere": "বাস / মেট্রোতে যাওয়ার পথ",
+    "cityGLoadFailed": "এখন আনা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+    "cityGNoMatch": "\"{q}\" নামে কিছু পাওয়া যায়নি। ছোট করে নাম লিখে দেখুন।",
+    "cityGNeedStart": "কোথা থেকে যাবেন? লোকেশন বন্ধ আছে, তাই শুরুর জায়গা বেছে নিন বা লোকেশন চালু করুন।",
+    "cityGUseMyLocation": "আমার লোকেশন ব্যবহার করুন",
+    "cityGSearchAll": "সব জায়গার মধ্যে \"{place}\" খুঁজুন",
+    "cityGOfflineAlarmOnly": "ইন্টারনেট নেই, তাই পরিবারকে জানানো যায়নি। নামার অ্যালার্ম চালু আছে, নিচে ধাপগুলো দেখুন।",
+    "cityGLeaveNow": "এখনই রওনা",
+    "cityGLeaveAt": "রওনা {time}",
+    "cityGForLeaving": "{time}-এ রওনা দিলে ভাড়া ও সময়",
+    "cityGAtDawn": "ভোর {time}",
+    "cityGAtMorning": "সকাল {time}",
+    "cityGAtNoon": "দুপুর {time}",
+    "cityGAtAfternoon": "বিকাল {time}",
+    "cityGAtEvening": "সন্ধ্যা {time}",
+    "cityGAtNight": "রাত {time}",
+    "cityGGetOffAtN": "নামবেন: {stop} ({n, plural, other{{n} স্টপ পরে}})",
+    "cityGChangesN": "{n, plural, other{{n} বার বদল}}"
+  }
+}

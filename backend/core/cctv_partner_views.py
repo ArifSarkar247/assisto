@@ -174,6 +174,26 @@ def paying(site, now=None):
         return False, False, 0
 
 
+def _commission_json(p):
+    """cctvprice (owner-decided 17 Nov 12:35): the rule + the partner's OWN
+    ledger totals (owed / paid, taka). Never another partner's numbers."""
+    rules = CPT.COMMISSION_RULES
+    out = {"status": "decided", "approved": bool(rules["approved"]),
+           "pct": rules["pct_of_net"], "months": rules["months"],
+           "applies_to": rules["applies_to"], "owed_bdt": 0, "paid_bdt": 0}
+    if p is None:
+        return out
+    try:
+        from django.db.models import Sum
+        from .models import CctvCommissionEntry
+        for k in ("owed", "paid"):
+            out[k + "_bdt"] = int(CctvCommissionEntry.objects.filter(partner=p, status=k)
+                                  .aggregate(s=Sum("amount_bdt"))["s"] or 0)
+    except Exception:
+        pass
+    return out
+
+
 class PartnerMeView(CTV._TeamBase):
     def get(self, request):
         lang = req_lang(request)
@@ -190,8 +210,7 @@ class PartnerMeView(CTV._TeamBase):
                 row.update(site_setup(s, now))
                 sites.append(row)
         return Response({"partner": _partner_json(p), "sites": sites,
-                         "commission": {"status": "proposal",
-                                        "approved": CPT.COMMISSION_PROPOSAL["approved"]},
+                         "commission": _commission_json(p),
                          "note": pick(lang, *STATUS_NOTE)})
 
 

@@ -13,7 +13,9 @@ import '../services/journey_tracker.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/sos_location.dart'; // qjourney
+import '../widgets/sos_a11y.dart'; // a11ysweep
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
 ///
@@ -57,9 +59,11 @@ class JourneySosScreen extends StatefulWidget {
 
 enum _Phase { counting, fired, cancelled }
 
-class _JourneySosScreenState extends State<JourneySosScreen> {
+class _JourneySosScreenState extends State<JourneySosScreen>
+    with AdBlockedState<JourneySosScreen> {
   late int _remaining;
   Timer? _timer;
+  bool _sr = false; // a11ysweep: screen reader on when the SOS opened
   _Phase _phase = _Phase.counting;
   bool _siren = false;
   bool _sending = false;
@@ -76,10 +80,19 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
   void initState() {
     super.initState();
     _siren = widget.sirenDefault;
-    _remaining = widget.countdownSeconds;
+    // a11ysweep: TalkBack users get at least 10 s to reach Cancel
+    _sr = sosScreenReaderOn();
+    _remaining = sosCountdownSeconds(widget.countdownSeconds, screenReader: _sr);
     if (_remaining <= 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _fire());
     } else {
+      if (_sr) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _phase != _Phase.counting) return;
+          sosAnnounce(context, AppLocalizations.of(context)
+              .a11ySosTalkBackIntro(notifLocalizeDigits(context, '$_remaining')));
+        });
+      }
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
         setState(() => _remaining--);
@@ -267,6 +280,13 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
       where: 'journey.sosSearch',
       mode: LaunchMode.externalApplication);
 
+  Widget _sirenTile(AppLocalizations t) => SwitchListTile(
+        value: _siren,
+        onChanged: (v) => setState(() => _siren = v),
+        title: Text(t.sosSiren, style: const TextStyle(color: Colors.white)),
+        activeThumbColor: Colors.white,
+      );
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -274,9 +294,12 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
       return Scaffold(
         backgroundColor: Brand.dangerFill,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
+          // a11ysweep: scrolls at 200% text (the 80 dp digit grows too)
+          child: LayoutBuilder(builder: (ctx, c) => SingleChildScrollView(
+            padding: withNavBarInset(context, const EdgeInsets.all(28)),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: c.maxHeight - 56),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.sos_rounded, color: Colors.white, size: 56),
@@ -285,21 +308,22 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                       style: AType.headlineSmall.copyWith(color: Colors.white,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
-                  Text(notifLocalizeDigits(context, '$_remaining'), // sosat: bn digits
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 80, // countdown hero digit, above the scale
-                          fontFeatures: AFonts.tabular,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  SwitchListTile(
-                    value: _siren,
-                    onChanged: (v) => setState(() => _siren = v),
-                    title: Text(t.sosSiren,
-                        style: const TextStyle(color: Colors.white)),
-                    activeThumbColor: Colors.white,
+                  SosCountdownSemantics(
+                    label: t.a11ySosSecondsLeft(notifLocalizeDigits(context, '$_remaining')),
+                    child: Text(notifLocalizeDigits(context, '$_remaining'), // sosat: bn digits
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 80, // countdown hero digit, above the scale
+                            fontFeatures: AFonts.tabular,
+                            fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 10),
+                  // a11ysweep: with TalkBack, Cancel comes before the siren
+                  // switch so a mis-tap is undone in one swipe
+                  if (!_sr) ...[
+                    _sirenTile(t),
+                    const SizedBox(height: 10),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
@@ -316,8 +340,13 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                   Text(t.sosCancelNeedsPin,
                       textAlign: TextAlign.center,
                       style: AType.bodyMedium.copyWith(color: Colors.white)),
+                  if (_sr) ...[
+                    const SizedBox(height: 10),
+                    _sirenTile(t),
+                  ],
                 ]),
-          ),
+            ),
+          )),
         ),
       );
     }

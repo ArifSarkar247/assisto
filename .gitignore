@@ -69,10 +69,12 @@ owner_actions/photo_bench/.media_tmp/
 !tools/testlab/
 !tools/ringproof/
 !tools/perf2gb/
+!tools/speedproof/
 !tools/e2e/
 !tools/cashguard/
 !tools/play_pack/
 !tools/places/
+!tools/relgate/
 !tools/playvideos/
 !tools/owner_shots/
 !tools/notifproof/

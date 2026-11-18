@@ -11,6 +11,7 @@ import '../widgets/jobs_filters.dart';
 import '../widgets/jobs_detail.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/subs_common.dart' show fmtInt;
+import '../ds/ds.dart';
 import '../feature_gates.dart' show kJobsFeedConnected; // f6
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
@@ -279,7 +280,7 @@ class _JobsScreenState extends State<JobsScreen> {
                     child: Text(tr.crrJobsFindEntry,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600)),
                   ),
                   Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
                 ]),
@@ -391,7 +392,7 @@ class _JobsScreenState extends State<JobsScreen> {
             Icon(Icons.payments_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Text(tr.jobsSalaryInsight,
-                style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurface)),
           ]),
           const SizedBox(height: Gap.xs),
           // NB: generated signature order is (median, min, max, count) even
@@ -399,9 +400,9 @@ class _JobsScreenState extends State<JobsScreen> {
           // in the SIGNATURE order so each placeholder gets its intended value
           // and the range reads ascending (min ≤ median ≤ max).
           Text(tr.jobsSalaryRange(_n(ins['median']), _n(ins['min']), _n(ins['max']), _n(ins['count'])),
-              style: TextStyle(color: scheme.onSurface)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurface)),
           Text(tr.jobsSalarySourceNote,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
       );
 
@@ -446,8 +447,10 @@ class _JobsScreenState extends State<JobsScreen> {
         icon: Icons.work_outline_rounded,
         title: tr.noJobsYet,
         message: tr.addAJobDescriptionI,
-        action: FilledButton.icon(
-            onPressed: () => _add(tr), icon: const Icon(Icons.add_rounded), label: Text(tr.addJob)),
+        action: DsButton(
+          onPressed: () => _add(tr),
+          icon: Icons.add_rounded,
+          label: tr.addJob),
       );
     }
     // group by pipeline stage for a kanban-ish read
@@ -462,7 +465,7 @@ class _JobsScreenState extends State<JobsScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm, left: Gap.xs),
           child: Text(tr.iNeverAutoApplyYou,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
         for (final stage in order)
           if ((byStage[stage] ?? []).isNotEmpty) ...[
@@ -472,7 +475,7 @@ class _JobsScreenState extends State<JobsScreen> {
                 StageBadge(status: stage),
                 const SizedBox(width: Gap.sm),
                 Text(ld(context, byStage[stage]!.length),
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
               ]),
             ),
             for (final j in byStage[stage]!)

@@ -29,6 +29,7 @@ def _row_dict(f):
 def features(request):
     from core import feature_audit as FA
     from core import feature_flags as FF
+    from core import feature_where as FW
     from core.models import FeatureFlag, OwnerAudit
     lang = getattr(request, "owner_lang", "bn")
     FF.ensure_seeded()
@@ -69,6 +70,7 @@ def features(request):
                 "reason": a.get("reason_en" if lang == "en" else "reason_bn", ""),
                 "codes": a.get("codes", ""),
                 "routes": ", ".join(m["routes"]),
+                "where": FW.where(key, lang),     # preview-testers
             })
         if items:
             sections.append({"id": sid, "title": s_en if lang == "en" else s_bn,
@@ -78,7 +80,9 @@ def features(request):
     ctx = {"sections": sections, "totals": totals, "n_checks": FF.N_CHECKS,
            "section_choices": [(sid, en if lang == "en" else bn)
                                for sid, en, bn in FF.SECTIONS],
-           "section": sec_filter, "q": q, "log": log, "dod_labels": labels}
+           "section": sec_filter, "q": q, "log": log, "dod_labels": labels,
+           # preview-testers: masked list + the limit
+           "testers": FF.tester_rows(), "max_testers": FF.MAX_PREVIEW_TESTERS}
     return page(request, "owner/features.html", ctx, nav="features")
 
 
@@ -112,3 +116,41 @@ def feature_save(request, key):
     b, a = diff(old, new)
     S.audit(request, request.owner, AUDIT_ACTION, key, before=b, after=a)
     return done(back)
+
+
+# preview-testers (owner 17 Nov): ONE global list of tester accounts who see
+# every OFF feature as a preview, like the owner. The owner types phones /
+# emails here himself; only user ids are stored, the page shows them masked
+# and the audit log keeps ids only (no phone / email).
+TESTERS_AUDIT_TARGET = "preview_testers"
+
+
+@require_http_methods(["POST"])
+@owner_view()
+def preview_testers_save(request):
+    from core import feature_flags as FF
+    back = "/owner/features#preview-testers"
+    old = list(FF.preview_testers())
+    remove = set()
+    for v in request.POST.getlist("remove"):
+        try:
+            remove.add(int(v))
+        except (TypeError, ValueError):
+            continue
+    add, missing = FF.find_accounts(request.POST.get("add", ""))
+    if missing:
+        S.audit(request, request.owner, AUDIT_ACTION, TESTERS_AUDIT_TARGET,
+                after={"rejected": "not_found", "count": missing}, ok=False)
+        return done("/owner/features", "ff_pt_notfound")
+    new = [i for i in old if i not in remove]
+    new += [i for i in add if i not in new]
+    if len(new) > FF.MAX_PREVIEW_TESTERS:
+        S.audit(request, request.owner, AUDIT_ACTION, TESTERS_AUDIT_TARGET,
+                after={"rejected": "too_many"}, ok=False)
+        return done("/owner/features", "invalid")
+    if new == old:
+        return done("/owner/features", "nothing")
+    FF.save_preview_testers(new, by=request.owner)
+    S.audit(request, request.owner, AUDIT_ACTION, TESTERS_AUDIT_TARGET,
+            before={"user_ids": old}, after={"user_ids": new})
+    return done("/owner/features")

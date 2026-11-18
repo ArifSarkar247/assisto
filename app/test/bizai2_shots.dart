@@ -24,7 +24,7 @@ Map<String, dynamic> fakeDaily({bool bn = false, bool empty = false, bool on = t
     : {
         'title': bn ? 'আজকের দোকানের হিসাব' : "Today's shop summary",
         'lines': bn
-            ? ['আজ বিক্রি: ২টি, মোট ৳৮০০.০০।', 'ভাগ: নগদ ৳৫০০.০০, বিকাশ ৳৩০০.০০।',
+            ? ['আজ বিক্রি: ২টি, মোট ৳৮০০.০০।', 'ভাগ: ক্যাশ ৳৫০০.০০, বিকাশ ৳৩০০.০০।',
                'গত সপ্তাহের এই দিনের চেয়ে ১০০% বেশি।', 'আজ খাতায় বাকি আদায়: ৳২০০.০০।',
                'মোট পাওনা: ৳১৩০০.০০ (২ জনের কাছে)।']
             : ['Sales today: 2, total ৳800.00.', 'Split: cash ৳500.00, bKash ৳300.00.',
@@ -65,6 +65,22 @@ class FakeWinbackFree extends FakeWinback {
       };
 }
 
+// gap-bizai: win-back with an honest in-app reach (2 of 4 use Assisto)
+class FakeWinbackReach extends FakeWinback {
+  FakeWinbackReach({super.bn});
+  Map<String, dynamic> _reach(Map<String, dynamic> r) => {
+        'stages': [
+          for (final s in (r['stages'] as List).cast<Map<String, dynamic>>())
+            {...s, 'on_assisto': s['stage'] == 'wb30' ? 2 : 0}
+        ]
+      };
+  @override
+  Future<Map<String, dynamic>> ladder() async => _reach(await super.ladder());
+  @override
+  Future<Map<String, dynamic>> approve(Map<String, dynamic> body) async =>
+      _reach(await super.approve(body));
+}
+
 final Map<String, Widget Function(String)> bizai2Shots = {
   'bizai2_daily': (l) => BizDailyScreen(
       load: () async => fakeDaily(bn: l == 'bn'), setOn: (on) async => {'enabled': on}),
@@ -72,4 +88,17 @@ final Map<String, Widget Function(String)> bizai2Shots = {
       load: () async => fakeDaily(bn: l == 'bn', empty: true),
       setOn: (on) async => {'enabled': on}),
   'bizai2_winback_free': (l) => WinbackScreen(source: FakeWinbackFree(bn: l == 'bn')),
+  // gap-bizai
+  'gbz_winback_reach': (l) => WinbackScreen(source: FakeWinbackReach(bn: l == 'bn')),
+  'gbz_daily_actions': (l) => BizDailyScreen(
+      load: () async => {
+            ...fakeDaily(bn: l == 'bn'),
+            'chase': [
+              {'party_id': 1, 'name': l == 'bn' ? 'করিম' : 'Karim', 'due_poisha': 100000,
+               'line': l == 'bn' ? 'করিম — ৳১০০০.০০ · ১৫ দিন ধরে বাকি' : 'Karim — ৳1000.00 · owing for 15 days'},
+              {'party_id': 2, 'name': l == 'bn' ? 'সেলিম' : 'Selim', 'due_poisha': 50000,
+               'line': l == 'bn' ? 'সেলিম — ৳৫০০.০০ · ৩ দিন ধরে বাকি' : 'Selim — ৳500.00 · owing for 3 days'},
+            ],
+          },
+      setOn: (on) async => {'enabled': on}),
 };

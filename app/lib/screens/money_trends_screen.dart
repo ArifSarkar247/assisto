@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'money_report_screen.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -45,6 +46,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
@@ -64,8 +66,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                   icon: Icons.cloud_off_rounded,
                   title: t.moneyTrendsTitle,
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
-                  action: FilledButton(
-                      onPressed: _load, child: Text(t.retry)),
+                  action: DsButton(label: t.retry, onPressed: _load),
                 )
               : _body(context, t),
     );
@@ -92,16 +93,13 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       Text(t.moneyMonthlyFlow,
           style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.md),
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final m in months)
-                Expanded(child: _monthBars(context, t, m, maxVal)),
-            ],
-          ),
+      DsHeroCard(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (final m in months)
+              Expanded(child: _monthBars(context, t, m, maxVal)),
+          ],
         ),
       ),
       const SizedBox(height: Gap.lg),
@@ -115,11 +113,12 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       Text(t.moneyCategoryTrends,
           style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.sm),
+      if (cats.isNotEmpty)
+        DsGroup(margin: EdgeInsets.zero, children: [
       for (final c in cats)
-        Card(
-          child: ListTile(
+        ListTile(
             title: Text('${c['category']}'),
-            subtitle: Text(t.moneyVsLastMonth(tkFmt(c['previous']))),
+            subtitle: Text(t.moneyVsLastMonth(tkOf(context, c['previous']))),
             isThreeLine: MediaQuery.textScalerOf(context).scale(10) > 12, // qa1
             // qa1: scale down (never clip) the 2-line amount at large font
             trailing: FittedBox(fit: BoxFit.scaleDown, child: Column(
@@ -127,12 +126,12 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(tkFmt(c['current']),
-                      style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
+                  Text(tkOf(context, c['current']),
+                      style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                   deltaChip(context, dbl(c['delta'])),
                 ])),
           ),
-        ),
+        ]),
     ]);
   }
 

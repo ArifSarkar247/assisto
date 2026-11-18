@@ -35,6 +35,11 @@ def money(amount, cur, lang):
     return txt + " " + cur
 
 
+# seolive (17 Nov, Assisto is live on Google Play): the canonical listing URL
+# (no hl=) for JSON-LD sameAs / downloadUrl.
+PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=%s" % PLAY_ID
+
+
 def play_url(lang):
     return "https://play.google.com/store/apps/details?id=%s&hl=%s" % (PLAY_ID, "bn" if lang == "bn" else "en")
 

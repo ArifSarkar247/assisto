@@ -178,11 +178,10 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.mbTaxNewYearTitle,
-                style: TextStyle(
-                    fontWeight: FontWeight.w800, color: DsTokens.of(context).dangerInk)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800, color: DsTokens.of(context).dangerInk)),
             const SizedBox(height: Gap.xs),
             Text(t.mbTaxNewYearBody,
-                style: TextStyle(height: 1.4, color: DsTokens.of(context).dangerInk)),
+                style: AType.bodyMedium.copyWith(height: 1.4, color: DsTokens.of(context).dangerInk)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
@@ -359,8 +358,7 @@ class _BandsTable extends StatelessWidget {
         dataRowMinHeight: 36,
         dataRowMaxHeight: 40,
         columnSpacing: Gap.xl,
-        headingTextStyle: TextStyle(
-            fontWeight: FontWeight.w700, color: DsTokens.of(context).primaryInk),
+        headingTextStyle: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: DsTokens.of(context).primaryInk),
         columns: [
           DataColumn(label: Text(t.taxBandSlab)),
           DataColumn(label: Text(t.taxBandRate)),
@@ -462,7 +460,7 @@ class _ZakatTabState extends State<_ZakatTab> {
       const TaxDisclaimerBanner(),
       TaxSectionTitle(t.zakatNisabTitle),
       Text(t.zakatNisabHint,
-          style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
       const SizedBox(height: Gap.md),
       SwitchListTile(
         key: const ValueKey('mb-zakat-per-vori'),
@@ -551,7 +549,7 @@ class _ZakatTabState extends State<_ZakatTab> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                     child: Text(t.zakatNisabUnset,
-                        style: TextStyle(color: AssistoTokens.of(context).warning)),
+                        style: AType.bodyMedium.copyWith(color: AssistoTokens.of(context).warning)),
                   ),
                 if (r.nisabSet)
                 FinanceResultRow(
@@ -609,8 +607,7 @@ class _FileReturnTab extends StatelessWidget {
       const EReturnReminderCard(),
       const SizedBox(height: Gap.lg),
       Text(t.taxFileHonestNote,
-          style: TextStyle(
-              height: 1.4,
+          style: AType.bodyMedium.copyWith(height: 1.4,
               color: DsTokens.of(context).muted)),
     ]);
   }

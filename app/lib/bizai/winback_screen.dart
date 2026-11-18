@@ -9,7 +9,9 @@ import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText,
 import '../state.dart';
 import '../theme.dart';
 import '../ds/ds.dart';
-import '../widgets/app_sheet.dart' show withNavBarInset;
+import '../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
+import '../widgets/local_counter.dart'; // gap-bizai
+import '../screens/crm/customer_list_screen.dart' show CustomerListScreen; // gap-bizai
 import '../widgets/business_ui.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/subs_common.dart' show fmtInt, taka;
@@ -99,7 +101,7 @@ class _WinbackScreenState extends State<WinbackScreen> {
         _ => t.bizaiStage90,
       };
 
-  Future<void> _approve(bool on) async {
+  Future<bool> _approve(bool on) async {
     final t = AppLocalizations.of(context);
     final bn = Localizations.localeOf(context).languageCode == 'bn';
     setState(() => _busy = true);
@@ -117,15 +119,84 @@ class _WinbackScreenState extends State<WinbackScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(on ? t.bizaiLadderOnDone : t.bizaiLadderOffDone)));
       }
+      return true;
     } catch (e) {
       // buyinside: out of AI credits -> the credits sheet right here (the
       // drafts stay as typed)
-      if (mounted && await BuyInside.handle(context, e, 'bizai_winback')) return;
+      if (mounted && await BuyInside.handle(context, e, 'bizai_winback')) return false;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(baErrorText(t, e))));
       }
+      return false;
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// gap-bizai: the owner can write the message in their own words. The
+  /// placeholders show as "(customer's name)" / "(your shop)" / "(days)" in
+  /// the box and go back to {name} / {shop} / {days} on save.
+  Future<void> _editDraft(String stage) async {
+    final t = AppLocalizations.of(context);
+    String toUi(String x) => x
+        .replaceAll('{name}', t.bizaiPhName)
+        .replaceAll('{shop}', t.bizaiPhShop)
+        .replaceAll('{days}', t.bizaiPhDays);
+    String fromUi(String x) => x
+        .replaceAll(t.bizaiPhName, '{name}')
+        .replaceAll(t.bizaiPhShop, '{shop}')
+        .replaceAll(t.bizaiPhDays, '{days}');
+    final c = TextEditingController(text: toUi(_drafts[stage] ?? ''));
+    final saved = await showAppSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            Gap.lg, 0, Gap.lg, Gap.lg + MediaQuery.of(ctx).viewInsets.bottom),
+        child: SingleChildScrollView(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(t.gbzWbEditTitle, style: AType.titleMedium),
+                const SizedBox(height: Gap.xs),
+                Text(t.gbzWbEditHint(t.bizaiPhName, t.bizaiPhShop), style: AType.bodySmall),
+                const SizedBox(height: Gap.md),
+                TextField(
+                  key: const ValueKey('gbz-wb-edit-field'),
+                  controller: c,
+                  minLines: 3,
+                  maxLines: 8,
+                  maxLength: 400,
+                  buildCounter: localCounter,
+                  decoration: const InputDecoration(border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: Gap.sm),
+                FilledButton(
+                  key: const ValueKey('gbz-wb-edit-save'),
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  onPressed: () => Navigator.of(ctx).pop(c.text),
+                  child: Text(t.gbzWbSave),
+                ),
+              ]),
+        ),
+      ),
+    );
+    // (the controller is left to the GC: disposing it here races the
+    // sheet's closing animation)
+    if (saved == null || !mounted) return;
+    final txt = fromUi(saved.trim());
+    if (txt.isEmpty || txt == _drafts[stage]) return;
+    final before = _drafts[stage];
+    setState(() => _drafts[stage] = txt);
+    // A ladder that is already running saves the new words at once (the
+    // server checks them); otherwise they are kept for "Approve".
+    final stages = _list(_lad?['stages']);
+    final allOn = stages.isNotEmpty && stages.every((s) => s['enabled'] == true);
+    if (allOn) {
+      final ok = await _approve(true);
+      if (!ok && mounted) setState(() => _drafts[stage] = before ?? '');
     }
   }
 
@@ -246,20 +317,55 @@ class _WinbackScreenState extends State<WinbackScreen> {
                     .replaceAll('{days}', t.bizaiPhDays)),
                     style: AType.bodyMedium.copyWith(color: DsTokens.of(context).text)),
               ),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
+              // gap-bizai: the in-app path reaches only Assisto users — say
+              // how many, and where to message the rest yourself.
+              if (s['on_assisto'] is num &&
+                  ((s['audience'] as num?) ?? 0) > ((s['on_assisto'] as num?) ?? 0)) ...[
+                const SizedBox(height: Gap.xs),
+                Text(
+                    t.gbzWbReach(fmtInt(context, (s['on_assisto'] as num).toInt()),
+                        fmtInt(context, (s['audience'] as num).toInt())),
+                    key: ValueKey('gbz-wb-reach-${s['stage']}'),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
+              ],
+              Wrap(spacing: Gap.xs, children: [
+                TextButton.icon(
+                  key: ValueKey('gbz-wb-edit-${s['stage']}'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: _busy || lad['plan_ok'] == false
+                      ? null
+                      : () => _editDraft('${s['stage']}'),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(t.gbzWbEdit),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: _busy || allOn || lad['plan_ok'] == false
                       ? null
                       : () => _ai('${s['stage']}'),
                   icon: const Icon(Icons.auto_awesome_rounded),
                   label: Text(t.bizaiAiRewrite),
                 ),
-              ),
+              ]),
               const Divider(),
             ],
             BizNote(text: t.bizaiLadderSafety, icon: Icons.verified_user_rounded),
             const SizedBox(height: Gap.sm),
+            // gap-bizai: customers not on Assisto — message them yourself
+            // (own WhatsApp / SMS, one card each; STOP is respected there too)
+            if (stages.any((s) =>
+                s['on_assisto'] is num &&
+                ((s['audience'] as num?) ?? 0) > ((s['on_assisto'] as num?) ?? 0))) ...[
+              OutlinedButton.icon(
+                key: const ValueKey('gbz-wb-others'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CustomerListScreen())),
+                icon: const Icon(Icons.chat_rounded),
+                label: Text(t.gbzWbMessageOthers),
+              ),
+              const SizedBox(height: Gap.sm),
+            ],
             // bizai2: reading is free; switching on needs Business — say so
             // and open the plans instead of a button that only fails (402).
             if (lad['plan_ok'] == false) ...[

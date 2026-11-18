@@ -11,6 +11,7 @@ import '../widgets/elderly_tile.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_command_sheet.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SPEC v2.1 feature 29 — ELDERLY SIMPLE-MODE home.
@@ -50,7 +51,7 @@ class ElderlyHomeScreen extends StatefulWidget {
 }
 
 class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<ElderlyHomeScreen>, WidgetsBindingObserver {
   bool _loading = true;
   bool _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
@@ -383,13 +384,13 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               ElderlyTile(
                 icon: Icons.chat_bubble_rounded,
                 label: t.elderlyTileMessages,
-                color: const Color(0xFF4A148C),
+                color: Brand.elderPurple,
                 onTap: () => _open('messages'),
               ),
               ElderlyTile(
                 icon: Icons.account_balance_wallet_rounded,
                 label: t.elderlyTileMoney,
-                color: const Color(0xFF004D40),
+                color: Brand.elderTeal,
                 onTap: () => _open('money'),
               ),
             ],
@@ -403,7 +404,7 @@ class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
               icon: Icons.help_outline_rounded,
               label: t.elderlyTileHelp,
               sublabel: t.elderlyTileHelpSub,
-              color: const Color(0xFF37474F),
+              color: Brand.elderSlate,
               wide: true,
               onTap: () => _open('guide'),
             ),

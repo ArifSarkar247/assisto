@@ -6,7 +6,10 @@ OWNER'S NUMBERS (never change them here without a written owner order):
   extra camera  250 tk / month each (3 = 750 ... 10 = 2,500)
   more than 10  "contact us" (not sold in the app)
   yearly        exactly 12 x monthly (no free months)
-  free trial    7 days on the BASE plan, once per Google account
+  free trial    7 days on the BASE plan, once per Google account / shop;
+                EZVIZ cameras are NOT in the trial (owner 17 Nov 12:35)
+  Premium AI    400 tk per camera per month on top (owner 17 Nov 12:35;
+                the number lives in plan_book.CCTV_DECIDED)
   video add-on  per camera per month: 7-day clips 100 tk, 30-day clips 150 tk
   phone cameras count as cameras
 
@@ -33,12 +36,16 @@ COST GUARDS (owner_actions/CCTV_DEVICES_COST_BN.md, "pending owner yes"):
 import math
 import re
 
+from . import plan_book as _PB
+
 # ---------------------------------------------------------------- prices
 BASE_PRICE_BDT = 500
 BASE_CAMERAS = 2
 EXTRA_CAMERA_BDT = 250
 MAX_CAMERAS = 10                 # above this: "contact us"
-TRIAL_DAYS = 7
+TRIAL_DAYS = _PB.CCTV_DECIDED["trial_days"]          # owner-decided 17 Nov: stays 7
+TRIAL_EXCLUDED_VENDORS = tuple(_PB.CCTV_DECIDED["trial_excluded_vendors"])  # ("ezviz",)
+PREMIUM_AI_BDT_PER_CAMERA = _PB.CCTV_DECIDED["premium_ai_bdt_per_camera"]   # 400
 PERIODS = ("monthly", "yearly")
 PERIOD_MONTHS = {"monthly": 1, "yearly": 12}
 ADDON_DAYS = (7, 30)
@@ -46,6 +53,7 @@ ADDON_PRICE_BDT = {7: 100, 30: 150}      # per camera per month
 
 _PLAN_RE = re.compile(r"^c(\d{2})-(monthly|yearly)$")
 _ADDON_RE = re.compile(r"^d(7|30)-c(\d{2})$")
+_PREMIUM_RE = re.compile(r"^ai-c(\d{2})$")
 
 
 def billed_cameras(cameras):
@@ -115,6 +123,38 @@ def parse_addon_plan(bp):
     return int(m.group(1)), n
 
 
+def premium_ai_price(cameras):
+    """Premium AI part only (the base plan is billed separately)."""
+    n = int(cameras)
+    if not 1 <= n <= MAX_CAMERAS:
+        raise ValueError("premium ai cameras")
+    return PREMIUM_AI_BDT_PER_CAMERA * n
+
+
+def premium_plan_id(cameras):
+    n = int(cameras)
+    if not 1 <= n <= MAX_CAMERAS:
+        raise ValueError("premium ai cameras")
+    return "ai-c%02d" % n
+
+
+def parse_premium_plan(bp):
+    """'ai-c03' -> 3; None when not ours."""
+    m = _PREMIUM_RE.match(str(bp or ""))
+    if not m:
+        return None
+    n = int(m.group(1))
+    return n if 1 <= n <= MAX_CAMERAS else None
+
+
+def premium_sku(cameras):
+    return "cctvai_c%02d" % int(cameras)
+
+
+def all_premium_plans():
+    return [premium_plan_id(n) for n in range(1, MAX_CAMERAS + 1)]
+
+
 def plan_sku(cameras, period):
     return "cctv_c%02d_%s" % (cameras, "m" if period == "monthly" else "y")
 
@@ -148,6 +188,11 @@ DEFAULTS = {
     "on_sale": False,
     "product_id": "cctv_plan",
     "addon_product_id": "cctv_video",
+    # Premium AI (owner-decided 17 Nov 12:35): its own Play product with base
+    # plans ai-c01 ... ai-c10. Not sold until the owner creates it in Play
+    # Console AFTER launch (Play freeze) and flips this switch.
+    "premium_ai_product_id": "cctv_premium_ai",
+    "premium_ai_on_sale": False,
     "trial_offer_id": "trial-7d",
     # cost guards (pending owner yes)
     "limits_owner_confirmed": False,
@@ -246,9 +291,9 @@ def normalize_cfg(raw):
         elif k in _NUM_BOUNDS:
             lo, hi = _NUM_BOUNDS[k]
             out[k] = max(lo, min(hi, _num(v, d)))
-        elif k in ("on_sale", "limits_owner_confirmed"):
+        elif k in ("on_sale", "limits_owner_confirmed", "premium_ai_on_sale"):
             out[k] = v if isinstance(v, bool) else d
-        elif k in ("product_id", "addon_product_id"):
+        elif k in ("product_id", "addon_product_id", "premium_ai_product_id"):
             out[k] = _pid(v, d)
         elif k == "trial_offer_id":
             s = str(v or "").strip()
@@ -257,6 +302,8 @@ def normalize_cfg(raw):
         out["addon_product_id"] = DEFAULTS["addon_product_id"]
         if out["product_id"] == out["addon_product_id"]:
             out["product_id"] = DEFAULTS["product_id"]
+    if out["premium_ai_product_id"] in (out["product_id"], out["addon_product_id"]):
+        out["premium_ai_product_id"] = DEFAULTS["premium_ai_product_id"]
     return out
 
 
@@ -384,10 +431,15 @@ def profit_table(cfg=None, target_pct=40.0):
 
 
 # ---------------------------------------------------------------- trial cost
-# buyinside: rows the owner has to decide (shown in Owner Admin and in
-# owner_actions/PLAY_TRIAL_OFFER_BN.md). The CI check fails on any OTHER row
+# buyinside: rows the owner has to decide. The owner DECIDED the only one
+# (EZVIZ 2-camera trial, 38.2 %) on 17 Nov 12:35: EZVIZ is out of the trial,
+# so its rows are gone and the set is empty. The CI check fails on ANY row
 # under 40 % — a new failure can never slip in silently.
-TRIAL_OWNER_DECISION = {("ezviz", 2)}
+TRIAL_OWNER_DECISION = set()
+
+
+def trial_vendor_ok(vendor):
+    return _PB.cctv_trial_vendor_ok(vendor)
 
 
 def trial_camera_cost_bdt(c, vendor):
@@ -424,6 +476,8 @@ def trial_profit_rows(cfg=None, target_pct=40.0):
     per_month_pay = c["trial_conv_worst"] * c["trial_paid_months_worst"]
     rows = []
     for v in VENDORS:
+        if not trial_vendor_ok(v):
+            continue        # owner 17 Nov: EZVIZ is not in the free trial
         cam = camera_cost_bdt(c, v)["total"]
         tcam = trial_camera_cost_bdt(c, v)
         for n in (1, BASE_CAMERAS):
@@ -440,6 +494,7 @@ def trial_profit_rows(cfg=None, target_pct=40.0):
             "conv_worst": c["trial_conv_worst"],
             "paid_months_worst": c["trial_paid_months_worst"],
             "below": [(r["vendor"], r["cameras"]) for r in bad],
+            "excluded_vendors": list(TRIAL_EXCLUDED_VENDORS),
             "ok": all(r["owner_decision"] for r in bad)}
 
 

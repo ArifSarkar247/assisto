@@ -1,6 +1,8 @@
 """crm100 — send a message to ONE customer from the CRM. Never automatic.
 
 Three ways, all started by the seller's own tap:
+  (gap-bizai) A customer who said STOP gets NO path at all — the free
+  ones included; bulk skips them with reason "opted_out".
   whatsapp_link  a wa.me link with the text filled in — the seller's own
                  WhatsApp sends it. Free. We log "opened", never "sent".
   sms_app        the phone's own SMS composer (sms: link). Free. "opened".
@@ -108,11 +110,33 @@ def _balance(user):
         return int(getattr(user, "ai_credits", 0) or 0)
 
 
-def links(person, text):
+def opted_out(scope, person):
+    """gap-bizai P0: did this customer say STOP to this shop (any path —
+    an SMS stop link, an in-app Stop, a STOP reply)? Then NO path is offered:
+    not Assisto SMS and not the seller's own WhatsApp / SMS app either."""
+    if scope is None or scope.business is None or person is None:
+        return False
+    key = getattr(person, "key", "") or ""
+    if not key:
+        return False
+    try:
+        from core.logic import msg_guard as MG
+        return bool(MG.is_opted_out(scope.business.pk, key))
+    except Exception:  # noqa: BLE001 — the check never breaks the sheet
+        return False
+
+
+def links(person, text, stopped=False):
     K = _khata()
     phone = person.phone or person.key
+    if stopped:
+        # gap-bizai P0: the customer said STOP — no one-tap way to message
+        # them from Assisto, on any path.
+        return {"phone_ok": bool(K.bd_msisdn(phone)), "wa_url": "", "sms_uri": "",
+                "opted_out": True}
     return {"phone_ok": bool(K.bd_msisdn(phone)),
-            "wa_url": K.wa_link(phone, text), "sms_uri": K.sms_uri(phone, text)}
+            "wa_url": K.wa_link(phone, text), "sms_uri": K.sms_uri(phone, text),
+            "opted_out": False}
 
 
 def log(scope, person, channel, status, text, *, purpose="message", reason="",

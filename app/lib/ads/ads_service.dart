@@ -11,6 +11,7 @@ import '../calls/call_runtime.dart' show CallRuntime;
 import '../push/push_service.dart' show appNavigatorKey;
 import '../state.dart';
 import '../screens/offers_screens.dart' show syncPendingOfferPrefs;
+import '../safety/ad_block_context.dart';
 import 'ad_placements.dart';
 import 'ad_rules.dart';
 import 'ad_telemetry.dart';
@@ -145,6 +146,23 @@ class AdsService with WidgetsBindingObserver {
   String? _impactPlacement;
   DateTime? _impactClosedAt;
 
+  static bool _callListening = false;
+
+  /// ads-guard: the central no-ad context follows the call state (ring,
+  /// answer, minimised, hang-up -> cooldown) and the plan (a purchase
+  /// re-reads /ads/config at once).
+  void _wireBlockContext() {
+    AdBlockContext.callProbe = _callActive;
+    AdBlockContext.onPlanMaybeChanged =
+        () => unawaited(refreshConfig(force: true));
+    if (_callListening) return;
+    try {
+      CallRuntime.instance.ongoing
+          .addListener(() => AdBlockContext.noteCall(_callActive()));
+      _callListening = true;
+    } catch (_) {}
+  }
+
   /// main.dart: the login screen is showing (logout, first sign-in...).
   void noteSignedOut() => _sawSignedOut = true;
 
@@ -157,6 +175,7 @@ class AdsService with WidgetsBindingObserver {
     } catch (_) {}
     AdTelemetry.sink = _report;
     AdExit.sink = (p) => unawaited(maybeInterstitial(p.id));
+    _wireBlockContext();
     try {
       // the accidental-click guard needs every pointer-down
       GestureBinding.instance.pointerRouter.addGlobalRoute(_onPointer);
@@ -233,6 +252,9 @@ class AdsService with WidgetsBindingObserver {
     try {
       final j = await app.api.getJson('/ads/config');
       config = AdConfig.fromJson(j);
+      // ads-guard: Premium / Plus / Business / minor -> the SDK is never
+      // initialised and every on-screen slot hides at once
+      AdBlockContext.planAllowsAds = config.adsEnabled && !config.paid;
       AdConsent.instance.applyServerConfig(j);
       AdmobSdk.personalized = config.personalized;
       _configAt = DateTime.now();
@@ -280,6 +302,8 @@ class AdsService with WidgetsBindingObserver {
     try {
       // Cheap gates first — no network for signed-out / external entry.
       if (!app.loggedIn) return;
+      // ads-guard: safety / call screen, a call, right after one, paid plan
+      if (AdBlockContext.blocked) return;
       final entry = AppEntry.current();
       // read BOTH flags every time so a stale one never leaks into later
       final dartSuppressed = AppEntry.consumeSuppression() || AppEntry.blocked();
@@ -329,7 +353,10 @@ class AdsService with WidgetsBindingObserver {
       final slot = await sb
           .slot('app_open', screen: 'home', entry: entry)
           .timeout(const Duration(milliseconds: 1500));
-      if (!slot.show || currentScreen() != 'home' || AppEntry.blocked()) return;
+      if (!slot.show || currentScreen() != 'home' || AppEntry.blocked() ||
+          AdBlockContext.blocked) {
+        return;
+      }
       var shown = false;
       if (slot.isDirect) {
         // faststart: a sponsor card is never preloaded on a cold start, so
@@ -356,7 +383,7 @@ class AdsService with WidgetsBindingObserver {
         );
         if (!d.allowed) return;
         final unit = cfg.unitFor(AdKind.appOpen, builtAppId: builtAppId);
-        if (unit == null) return;
+        if (unit == null || AdBlockContext.blocked) return;
         // UMP consent + lazy SDK init happen inside the bridge
         shown = await bridge.showAppOpen(unit);
       }
@@ -408,6 +435,7 @@ class AdsService with WidgetsBindingObserver {
     if (_showing) return false;
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) return false;
+    if (AdBlockContext.blocked) return false; // ads-guard
     try {
       if (!interstitials.linked) return false;
       final cfg = await refreshConfig();
@@ -430,7 +458,7 @@ class AdsService with WidgetsBindingObserver {
           firstUseDay: DateTime.tryParse(prefs.getString(_kFirstUse) ?? ''));
       if (!d.allowed) return false;
       final unit = cfg.unitFor(AdKind.interstitial, builtAppId: builtAppId);
-      if (unit == null) return false;
+      if (unit == null || AdBlockContext.blocked) return false;
       _showing = true;
       final shown = await interstitials.showInterstitial(unit,
           placement: 'interstitial_$moment');
@@ -495,7 +523,7 @@ class AdsService with WidgetsBindingObserver {
       );
       if (!d.allowed) return RewardOutcome.unavailable;
       final u = cfg.unitFor(AdKind.rewarded, builtAppId: builtAppId);
-      if (u == null) return RewardOutcome.unavailable;
+      if (u == null || AdBlockContext.blocked) return RewardOutcome.unavailable;
       _showing = true;
       if (!await AdConsent.instance.allowsAds()) {
         return RewardOutcome.unavailable;
@@ -528,7 +556,7 @@ class AdsService with WidgetsBindingObserver {
       );
       if (!d.allowed) return RewardOutcome.unavailable;
       final unit = cfg.unitFor(AdKind.rewarded, builtAppId: builtAppId);
-      if (unit == null) return RewardOutcome.unavailable;
+      if (unit == null || AdBlockContext.blocked) return RewardOutcome.unavailable;
       _showing = true;
       if (!await AdConsent.instance.allowsAds()) {
         return RewardOutcome.unavailable;
@@ -561,6 +589,7 @@ class AdsService with WidgetsBindingObserver {
       final c = AdConsent.instance;
       if (c.active && !c.bridge.linked) return false;
       if (!bridge.linked) return false;
+      if (AdBlockContext.blocked) return false; // ads-guard
       return d.allowed &&
           cfg.unitFor(AdKind.rewarded, builtAppId: builtAppId) != null;
     } catch (_) {
@@ -605,6 +634,7 @@ class AdsService with WidgetsBindingObserver {
     rootScreen = 'home';
     debugNativeSuppressed = null;
     debugOnline = null; // faststart
+    AdBlockContext.resetForTest(planAllowsAds: null); // ads-guard
     AdTelemetry.sink = null;
     AdExit.sink = null;
     AdExit.resetForTest();
@@ -621,5 +651,6 @@ class AdsService with WidgetsBindingObserver {
     _firstLaunchSession = firstLaunch;
     _sawSignedOut = afterLogin;
     AdTelemetry.sink = _report;
+    _wireBlockContext();
   }
 }

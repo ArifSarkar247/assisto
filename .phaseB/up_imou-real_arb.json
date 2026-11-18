@@ -1,0 +1,171 @@
+{
+ "en": {
+  "crfTitleImou": "First remove the camera from Imou Life",
+  "@crfTitleImou": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfTitleEzviz": "First remove the camera from the EZVIZ app",
+  "@crfTitleEzviz": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfTitleDmss": "First remove the device from DMSS",
+  "@crfTitleDmss": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfWhy": "A camera can be in only one cloud account at a time. Removing it from that app is safe: the camera usually keeps its Wi-Fi.",
+  "@crfWhy": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepOpenApp": "Open {app} and tap your camera.",
+  "@crfStepOpenApp": {
+   "description": "imou-real: remove-from-vendor-app guide",
+   "placeholders": {
+    "app": {
+     "type": "String"
+    }
+   }
+  },
+  "crfStepSettings": "Tap the settings gear at the top right.",
+  "@crfStepSettings": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepEncryption": "Turn Image Encryption OFF — otherwise Assisto cannot show live view or pictures.",
+  "@crfStepEncryption": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDelete": "Scroll to the bottom, tap Delete Device and confirm.",
+  "@crfStepDelete": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDmssMore": "Open DMSS, go to the device list and tap ⋮ next to your device.",
+  "@crfStepDmssMore": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDmssDelete": "Tap Delete and confirm.",
+  "@crfStepDmssDelete": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelImou": "Find the SN and the Safety Code on the camera sticker — you type them next.",
+  "@crfStepLabelImou": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelEzviz": "Find the serial number and the 6-letter Verification Code on the sticker — you type them next.",
+  "@crfStepLabelEzviz": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelDmss": "Keep the SN and the device's admin password ready — you type them next.",
+  "@crfStepLabelDmss": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfNotInApp": "Never added it to {app}? Just continue.",
+  "@crfNotInApp": {
+   "description": "imou-real: remove-from-vendor-app guide",
+   "placeholders": {
+    "app": {
+     "type": "String"
+    }
+   }
+  },
+  "crfContinue": "I removed it — continue",
+  "@crfContinue": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfCancel": "Not now",
+  "@crfCancel": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfLeadChip": "Recommended — no need to delete it from your app",
+  "@crfLeadChip": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfBrandSubRemove": "Serial number + label code (remove it from the brand app first)",
+  "@crfBrandSubRemove": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDevices": "My devices",
+  "@crfSkDevices": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCamera": "Front door camera",
+  "@crfSkCamera": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCamera2": "Shop camera",
+  "@crfSkCamera2": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkLive": "Live",
+  "@crfSkLive": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkSettings": "Settings",
+  "@crfSkSettings": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkEncryption": "Image Encryption",
+  "@crfSkEncryption": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkAlerts": "Alarm notifications",
+  "@crfSkAlerts": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDeviceInfo": "Device info",
+  "@crfSkDeviceInfo": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDelete": "Delete Device",
+  "@crfSkDelete": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDeleteShort": "Delete",
+  "@crfSkDeleteShort": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeImou": "Safety Code",
+  "@crfSkCodeImou": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeEzviz": "Verification Code",
+  "@crfSkCodeEzviz": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeDmss": "Password",
+  "@crfSkCodeDmss": {
+   "description": "imou-real: remove-from-vendor-app guide"
+  }
+ },
+ "bn": {
+  "crfTitleImou": "আগে Imou Life থেকে ক্যামেরাটি সরান",
+  "crfTitleEzviz": "আগে EZVIZ অ্যাপ থেকে ক্যামেরাটি সরান",
+  "crfTitleDmss": "আগে DMSS থেকে ডিভাইসটি সরান",
+  "crfWhy": "একটি ক্যামেরা একসাথে শুধু একটি ক্লাউড অ্যাকাউন্টে থাকতে পারে। ওই অ্যাপ থেকে সরানো নিরাপদ — ক্যামেরার ওয়াই-ফাই সাধারণত থেকেই যায়।",
+  "crfStepOpenApp": "{app} খুলুন, আপনার ক্যামেরাটি চাপুন।",
+  "crfStepSettings": "উপরে ডানে সেটিংসের চাকা (⚙) চাপুন।",
+  "crfStepEncryption": "\"Image Encryption\" বন্ধ করুন — না হলে Assisto লাইভ ও ছবি দেখাতে পারবে না।",
+  "crfStepDelete": "একদম নিচে \"Delete Device\" চাপুন, তারপর নিশ্চিত করুন।",
+  "crfStepDmssMore": "DMSS খুলুন, ডিভাইসের তালিকায় আপনার ডিভাইসের পাশে ⋮ চাপুন।",
+  "crfStepDmssDelete": "\"Delete\" চাপুন, তারপর নিশ্চিত করুন।",
+  "crfStepLabelImou": "ক্যামেরার স্টিকারে SN আর Safety Code দেখুন — পরের ধাপে লিখবেন।",
+  "crfStepLabelEzviz": "স্টিকারে সিরিয়াল নম্বর আর ৬ অক্ষরের Verification Code দেখুন — পরের ধাপে লিখবেন।",
+  "crfStepLabelDmss": "SN আর ডিভাইসের admin পাসওয়ার্ড হাতের কাছে রাখুন — পরের ধাপে লিখবেন।",
+  "crfNotInApp": "কখনো {app}-এ যোগ করেননি? সরাসরি এগিয়ে যান।",
+  "crfContinue": "সরিয়েছি — এগিয়ে যান",
+  "crfCancel": "এখন নয়",
+  "crfLeadChip": "সুপারিশ — আপনার অ্যাপ থেকে মুছতে হবে না",
+  "crfBrandSubRemove": "সিরিয়াল নম্বর + স্টিকারের কোড (আগে ব্র্যান্ডের অ্যাপ থেকে সরান)",
+  "crfSkDevices": "আমার ডিভাইস",
+  "crfSkCamera": "সামনের দরজার ক্যামেরা",
+  "crfSkCamera2": "দোকানের ক্যামেরা",
+  "crfSkLive": "লাইভ",
+  "crfSkSettings": "সেটিংস",
+  "crfSkEncryption": "Image Encryption (ছবি এনক্রিপশন)",
+  "crfSkAlerts": "সতর্কতার নোটিফিকেশন",
+  "crfSkDeviceInfo": "ডিভাইসের তথ্য",
+  "crfSkDelete": "Delete Device (মুছুন)",
+  "crfSkDeleteShort": "Delete (মুছুন)",
+  "crfSkCodeImou": "Safety Code (সেফটি কোড)",
+  "crfSkCodeEzviz": "Verification Code (যাচাই কোড)",
+  "crfSkCodeDmss": "পাসওয়ার্ড"
+ }
+}

@@ -63,12 +63,17 @@ class CityServiceScreen extends StatefulWidget {
   /// Offline package store (prod: files on the phone).
   final CityStore? store;
 
+  /// Test (gap-city): the phone's GPS answer (null = location off) instead
+  /// of asking the platform.
+  @visibleForTesting
+  final Future<CityLatLon?> Function()? debugLocate;
+
   /// Test: "now" for the Safer-at-night default.
   @visibleForTesting
   final DateTime? debugNow;
 
   const CityServiceScreen(
-      {super.key, this.debugHere, this.debugTo, this.debugSimple, this.debugPick, this.store, this.debugNow});
+      {super.key, this.debugHere, this.debugTo, this.debugSimple, this.debugPick, this.store, this.debugNow, this.debugLocate});
 
   @override
   State<CityServiceScreen> createState() => _CityServiceScreenState();
@@ -91,6 +96,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   List<CityReport> _reports = const [];
   bool? _learnOn; // trip learning consent (null = unknown / offline)
   int _verifiedStops = 0; // mapapp: "You verified N stops"
+  TimeOfDay? _leaveAt; // gap-city: null = leave now
 
   // adwire: "More routes (Google)" on the results — one Google transit
   // request behind one rewarded ad (Free; Premium / Plus no ad). Offered only
@@ -123,6 +129,8 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     }
     if (widget.debugHere != null) {
       _here = widget.debugHere;
+    } else if (widget.debugLocate != null) {
+      _here = await widget.debugLocate!();
     } else if (mounted) {
       final p = await placeHereNow(context);
       if (p != null) _here = (lat: p.lat, lon: p.lng);
@@ -238,10 +246,12 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       _gTried = false;
       _gSel = 0;
     });
-    final key = CityStore.planKey(o.lat, o.lon, d.lat, d.lng);
+    final la = _leaveAt;
+    final at = la == null ? '' : '${la.hour.toString().padLeft(2, '0')}:${la.minute.toString().padLeft(2, '0')}';
+    final key = CityStore.planKey(o.lat, o.lon, d.lat, d.lng) + (at.isEmpty ? '' : '@$at');
     CityPlan? plan;
     try {
-      final m = await _api.cityPlan(o.lat, o.lon, d.lat, d.lng);
+      final m = await _api.cityPlan(o.lat, o.lon, d.lat, d.lng, at: at);
       plan = CityPlan.from(m);
       if (plan.ok) unawaited(_store.rememberPlan(key, m));
     } catch (_) {
@@ -254,7 +264,8 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
         for (final city in const ['dhaka', 'chattogram']) {
           final r = await _store.router(city);
           if (r != null && r.covers(o.lat, o.lon)) {
-            plan = CityPlan.from(r.plan(o.lat, o.lon, d.lat, d.lng), offline: true);
+            plan = CityPlan.from(r.plan(o.lat, o.lon, d.lat, d.lng, minute: la == null ? null : la.hour * 60 + la.minute),
+                offline: true);
             break;
           }
         }
@@ -315,6 +326,28 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     _planNow();
   }
 
+  /// gap-city: "Leave at…" — fares and times for a later trip (the server
+  /// plans for that time of day; night -> Safer at night first).
+  Future<void> _pickLeaveAt() async {
+    final now = TimeOfDay.fromDateTime(_now);
+    final v = await showTimePicker(context: context, initialTime: _leaveAt ?? now);
+    if (v == null || !mounted) return;
+    setState(() {
+      _leaveAt = v;
+      _pick = (v.hour >= 20 || v.hour < 6) ? CityPick.saferNight : CityPick.cheapest;
+    });
+    await _planNow();
+  }
+
+  Future<void> _leaveNow() async {
+    final h = _now.hour;
+    setState(() {
+      _leaveAt = null;
+      _pick = (h >= 20 || h < 6) ? CityPick.saferNight : CityPick.cheapest;
+    });
+    await _planNow();
+  }
+
   Future<void> _setSimple(bool v) async {
     setState(() => _simple = v);
     try {
@@ -340,7 +373,34 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     _open(CityMapScreen(here: o, to: _to, plan: _plan != null && !_plan!.offline ? _plan : null, city: city, store: _store));
   }
 
-  void _open(Widget screen) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  Future<T?> _open<T>(Widget screen) => Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => screen));
+
+  /// gap-city: a guide screen (Around me, offices, terminals) hands back a
+  /// place -> it becomes the destination and the trip is planned at once.
+  Future<void> _openForDest(Widget screen) async {
+    final p = await _open<PlacePick>(screen);
+    if (p == null || !mounted) return;
+    setState(() => _to = p);
+    await _planNow();
+  }
+
+  /// gap-city: location was off / denied -> ask again (the From field stays
+  /// "Choose where you start" until one of the two works).
+  Future<void> _retryHere() async {
+    setState(() => _locating = true);
+    final p = widget.debugLocate != null
+        ? await widget.debugLocate!().then((h) => h == null ? null : (lat: h.lat, lng: h.lon))
+        : await placeHereNow(context);
+    if (!mounted) return;
+    setState(() {
+      if (p != null) _here = (lat: p.lat, lon: p.lng);
+      _locating = false;
+    });
+    if (_here != null) {
+      await _loadWhere();
+      await _planNow();
+    }
+  }
 
   // ------------------------------------------------------------------ UI
   @override
@@ -515,6 +575,30 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
 
   List<Widget> _results(AppLocalizations t) {
     if (_to == null) return [_emptyHint(t)];
+    // gap-city: no GPS and no start chosen -> say what is missing (it used
+    // to say "Could not find the way" with a Try again that did nothing)
+    if (_locating && _plan == null) {
+      return const [Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))];
+    }
+    if (_origin == null) {
+      return [
+        CityRetryCard(
+          key: const ValueKey('city_need_start'),
+          icon: Icons.location_off_rounded,
+          text: t.cityGNeedStart,
+          buttonText: t.cityGUseMyLocation,
+          buttonKey: const ValueKey('city_need_start_gps'),
+          onPressed: _retryHere,
+          extra: OutlinedButton.icon(
+            key: const ValueKey('city_need_start_pick'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _pickFrom,
+            icon: const Icon(Icons.trip_origin_rounded),
+            label: Text(t.cityChooseStart),
+          ),
+        )
+      ];
+    }
     if (_planning) {
       return const [Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))];
     }
@@ -552,10 +636,29 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       final picks = _simple ? [CityPick.fewestChanges] : CityPick.values;
       final shown = _simple && p.options.containsKey(CityPick.fewestChanges) ? CityPick.fewestChanges : _pick;
       final opt = p.options[shown] ?? p.options.values.first;
+      final la = _leaveAt;
+      final laText = la == null ? '' : _timeText(DateTime(2000, 1, 1, la.hour, la.minute));
       out.add(Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
-        child: Text(cityD(context, t.cityForNow(_timeText(_now))),
-            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          // gap-city: plan a later trip (fares + times for that hour)
+          ActionChip(
+            key: const ValueKey('city_leave_at'),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            avatar: const Icon(Icons.schedule_rounded, size: 18),
+            label: Text(cityD(context, la == null ? t.cityGLeaveNow : t.cityGLeaveAt(laText))),
+            onPressed: _pickLeaveAt,
+          ),
+          if (la != null)
+            TextButton(
+              key: const ValueKey('city_leave_now'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _leaveNow,
+              child: Text(t.cityGLeaveNow),
+            ),
+          Text(cityD(context, la == null ? t.cityForNow(_timeText(_now)) : t.cityGForLeaving(laText)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ]),
       ));
       if (!_simple) {
         out.add(Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -747,6 +850,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   Widget _exploreGrid(AppLocalizations t) {
     final city = _where?.city.isNotEmpty == true ? _where!.city : 'dhaka';
     final o = _origin;
+    // gap-city: "around me", live reports and mapping a stop are about where
+    // the phone IS — never the typed start (a jam report at the chosen From
+    // place would be filed at the wrong spot)
+    final me = _here;
     final tiles = <(Key, IconData, Color, String, String, VoidCallback)>[
       // mapapp: the City map (our map + layers; Google view switch)
       if (o != null)
@@ -755,18 +862,21 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       (const ValueKey('city_tile_metro'), Icons.subway_rounded, Brand.success, t.cityMetroGuide,
           t.cityMetroGuideSub, () => _open(CityMetroScreen(city: city, store: _store, dest: _to))),
       (const ValueKey('city_tile_around'), Icons.near_me_rounded, Brand.info, t.cityAroundMe, t.cityAroundMeSub,
-          () => _open(CityAroundScreen(debugHere: o))),
+          () => _openForDest(CityAroundScreen(debugHere: me, routeHere: true))),
       (const ValueKey('city_tile_live'), Icons.campaign_rounded, Brand.warning, t.cityLiveReports,
-          t.cityLiveReportsSub, () => _open(CityReportsScreen(debugHere: o))),
+          t.cityLiveReportsSub, () => _open(CityReportsScreen(debugHere: me))),
       (const ValueKey('city_tile_women'), Icons.woman_rounded, Brand.danger, t.cityWomen, t.cityWomenSub,
           () => _open(CityWomenScreen(city: city))),
       (const ValueKey('city_tile_long'), Icons.directions_boat_rounded, Brand.blue, t.cityLongDistance,
-          t.cityLongDistanceSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats']))),
+          t.cityLongDistanceSub,
+          () => _openForDest(
+              CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats'], routeHere: true, store: _store))),
       (const ValueKey('city_tile_offices'), Icons.account_balance_rounded, Brand.blueDeep, t.cityOffices,
-          t.cityOfficesSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['offices']))),
+          t.cityOfficesSub,
+          () => _openForDest(CityDirectoryScreen(city: city, kinds: const ['offices'], routeHere: true, store: _store))),
       // citycov: field collection
       (const ValueKey('city_tile_mapstop'), Icons.add_location_alt_rounded, Brand.success, t.cityMapStop,
-          t.cityMapStopSub, () => _open(CityFieldScreen(debugHere: o))),
+          t.cityMapStopSub, () => _open(CityFieldScreen(debugHere: me))),
     ];
     return LayoutBuilder(builder: (context, c) {
       final cols = c.maxWidth > 560 ? 3 : (MediaQuery.textScalerOf(context).scale(14) > 22 ? 1 : 2);
@@ -807,6 +917,17 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
     final m = d.minute.toString().padLeft(2, '0');
     final t = AppLocalizations.of(context);
+    if (cityBn(context)) {
+      // gap-city: a real Bangla time of day (dawn ... night, from the ARB)
+      final x = d.hour;
+      final hm = '$h:$m';
+      if (x >= 4 && x < 6) return t.cityGAtDawn(hm);
+      if (x >= 6 && x < 12) return t.cityGAtMorning(hm);
+      if (x >= 12 && x < 15) return t.cityGAtNoon(hm);
+      if (x >= 15 && x < 18) return t.cityGAtAfternoon(hm);
+      if (x >= 18 && x < 20) return t.cityGAtEvening(hm);
+      return t.cityGAtNight(hm);
+    }
     return d.hour < 12 ? t.cityTimeAm('$h:$m') : t.cityTimePm('$h:$m');
   }
 

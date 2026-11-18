@@ -158,7 +158,15 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.updateTitle)),
       body: SafeArea(
-          child: AppConfig.playStore
+          child: AppConfig.staging
+              // staging: the test app gets every new build through App Tester.
+              ? StateMessage(
+                  icon: Icons.science_rounded,
+                  title: t.updateTitle,
+                  message: t.stagingUpdatesViaTester,
+                  tint: Brand.blue,
+                )
+              : AppConfig.playStore
               // l1-launch: Play builds never download/install an APK.
               ? StateMessage(
                   icon: Icons.shop_rounded,

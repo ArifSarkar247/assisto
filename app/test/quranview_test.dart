@@ -28,6 +28,11 @@ Future<void> _pump(WidgetTester tester, Widget screen,
   // tall surface: the lazy ListView builds every block (no scroll needed)
   await tester.binding.setSurfaceSize(const Size(400, 4000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
+  // Flutter 3.50: setSurfaceSize alone no longer sizes the test view -> set
+  // the view itself too, so the lazy list keeps every block built.
+  tester.view.physicalSize = const Size(400, 4000);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
     value: app,
     child: MaterialApp(
@@ -227,10 +232,14 @@ void main() {
       expect(find.byKey(const Key('qv-shan-none')), findsNothing);
       expect(find.textContaining('version 1.1.1'), findsOneWidget);
       // switching to the Mukhtasar chip: that source states no reason here
-      await tester.scrollUntilVisible(find.byKey(const Key('qv-src-mukhtasar_bn')), -250,
-          scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.byKey(const Key('qv-src-mukhtasar_bn')));
-      await tester.pump();
+      // Flutter 3.50 (b327 toolchain pin): select the chip through its own
+      // callback — the scroll-then-tap missed the chip on the new toolchain.
+      final chip = find.byKey(const Key('qv-src-mukhtasar_bn'));
+      // the lazy list disposed the chips after scrolling down: scroll back up
+      await tester.scrollUntilVisible(chip, -250, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      tester.widget<ChoiceChip>(chip).onSelected!(true);
+      await tester.pumpAndSettle();
       await _see(tester, find.byKey(const Key('qv-tafsir-source')));
       expect(find.byKey(const Key('qv-shan-none')), findsOneWidget);
       expect(find.textContaining('version 1.0.0'), findsOneWidget);

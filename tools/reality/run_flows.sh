@@ -207,6 +207,7 @@ run_group() {  # $1 = group, $2 = attempt label
     "${bin[@]}" \
     --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
     --dart-define=REALITY_ONLY="${g//+/,}" \
+    --dart-define=REALITY_FLOW_IDS="${REALITY_FLOW_IDS:-}" \
     --keep-app-running \
     > "$att" 2>&1
   local rc=$?

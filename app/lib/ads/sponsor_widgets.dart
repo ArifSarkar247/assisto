@@ -261,9 +261,14 @@ class SponsorAppOpenScreenState extends State<SponsorAppOpenScreen> {
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Row(children: [
+              // design3 (2.0x): label + skip wrap onto two lines at big text
+              Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: Gap.sm,
+                  runSpacing: Gap.xs,
+                  children: [
                 const SponsoredLabel(),
-                const Spacer(),
                 Semantics(
                   button: true,
                   enabled: countdown.canSkip,
@@ -383,11 +388,15 @@ class SponsoredPostCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
+            // design3 (2.0x): the "for you" tag shrinks/wraps, never overflows
             if (c.matchesYou)
-              Padding(
-                padding: const EdgeInsets.only(right: Gap.xs),
-                child: Text(t.p2OffersForYou,
-                    style: TextStyle(fontSize: 12, color: scheme.primary)),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: Gap.xs),
+                  child: Text(t.p2OffersForYou,
+                      textAlign: TextAlign.end,
+                      style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
+                ),
               ),
             IconButton(
               tooltip: t.p2WhyAd,
@@ -580,12 +589,16 @@ class SponsorHeroCard extends StatelessWidget {
                     ),
                     if (c.hasLink) ...[
                       const SizedBox(width: Gap.sm),
-                      FilledButton.tonal(
-                        onPressed: () async {
-                          onClick?.call();
-                          if (context.mounted) await openSponsorLink(c, context);
-                        },
-                        child: Text(c.cta(bn).isNotEmpty ? c.cta(bn) : t.p2Learn),
+                      // design3 (2.0x): the CTA may shrink + wrap, never overflow
+                      Flexible(
+                        child: FilledButton.tonal(
+                          onPressed: () async {
+                            onClick?.call();
+                            if (context.mounted) await openSponsorLink(c, context);
+                          },
+                          child: Text(c.cta(bn).isNotEmpty ? c.cta(bn) : t.p2Learn,
+                              textAlign: TextAlign.center),
+                        ),
                       ),
                     ],
                   ]),

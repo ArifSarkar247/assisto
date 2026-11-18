@@ -263,7 +263,20 @@ class _X(_Base):
         return [" ".join(str(x) for x in a[2:6]) for a, k in self.pushes]
 
 
-class NoSaleTests(_X):
+
+class _MiddayClock:
+    """Run at 12:00 Dhaka today: tick() also sends the evening closing report
+    ('আজকের হিসাব') once the real clock passes the evening hour, which made
+    these window tests fail on CI runs after ~21:00 Dhaka (17 Nov)."""
+    def setUp(self):
+        noon = timezone.localtime(timezone.now()).replace(hour=12, minute=0, second=0, microsecond=0)
+        p = mock.patch("django.utils.timezone.now", return_value=noon)
+        p.start()
+        self.addCleanup(p.stop)
+        super().setUp()
+
+
+class NoSaleTests(_MiddayClock, _X):
     def test_no_sale_drawer_alert_after_the_window(self):
         from core.models import ShopEvent, ShopGuardTask
         self.records()
@@ -409,7 +422,7 @@ class GapCctvMidnightTests(_X):
         self.assertEqual(len(self.pushes), 1, self.pushes)
 
 
-class EscalationTests(_X):
+class EscalationTests(_MiddayClock, _X):
     def test_chain_only_from_the_circle(self):
         bad = self.client.put("/api/v1/shop/sites/%d/guard" % self.site["id"],
                               {"escalation": [self.family.id]}, format="json")

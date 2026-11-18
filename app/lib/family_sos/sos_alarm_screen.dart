@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../nearby/emergency_numbers.dart';
+import '../nearby/phone_country.dart'; // gap-sos
 import '../push/lock_screen_guard.dart';
 import '../push/push_notifier.dart';
 import '../services/action_feedback.dart';
@@ -17,8 +18,10 @@ import '../theme.dart';
 import '../train/dest_alarm_sound.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/sos_a11y.dart'; // a11ysweep
 import 'sos_api.dart';
 import 'sos_widgets.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// fcsos — Family Care v3 SCREEN 3: the SOS RECEIVER. Opens full screen from
 /// the SOS push (also over the lock screen, for that one launch — the same
@@ -38,7 +41,11 @@ class SosAlarmScreen extends StatefulWidget {
     this.openUri,
     this.pollEvery = const Duration(seconds: 5),
     this.autoAlarm = true,
+    this.country,
   });
+
+  /// gap-sos test seam: the country THIS phone is in (default: network/SIM).
+  final String? country;
 
   /// The push payload (delivery_id, from_name, lat, lng, alert_kind, ...).
   final Map<String, String> data;
@@ -95,7 +102,8 @@ class SosAlarmScreen extends StatefulWidget {
   State<SosAlarmScreen> createState() => _SosAlarmScreenState();
 }
 
-class _SosAlarmScreenState extends State<SosAlarmScreen> {
+class _SosAlarmScreenState extends State<SosAlarmScreen>
+    with AdBlockedState<SosAlarmScreen> {
   late final DestAlarmSound _sound = widget.sound ?? NativeDestAlarmSound();
   Map<String, dynamic>? _d;
   bool _failed = false;
@@ -103,6 +111,8 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
   bool _busyGoing = false;
   bool _playing = false;
   Timer? _poll;
+  String? _cc; // gap-sos: this phone's country, when the page cannot load
+  bool _ccAsked = false;
 
   int get _id => SosAlarmScreen.deliveryOf(widget.data);
   FcSosApi get _api => widget.api ?? HttpFcSosApi(context.read<AppState>().api);
@@ -120,6 +130,20 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
       _load();
     });
     _poll = Timer.periodic(widget.pollEvery, (_) => _load());
+  }
+
+  // gap-sos (P1): with no internet the page showed 112 (the generic
+  // fallback) in Bangladesh; now the phone's own country picks 999.
+  Future<void> _loadCountry() async {
+    if (widget.country != null) {
+      _cc = widget.country;
+      return;
+    }
+    try {
+      final p = await PhoneCountry.read();
+      final cc = pickEmergencyCountry(network: p.network, sim: p.sim);
+      if (mounted) setState(() => _cc = cc);
+    } catch (_) {/* best-effort: the server's country or 112 */}
   }
 
   Future<void> _startAlarm() async {
@@ -149,7 +173,15 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
         unawaited(_stopAlarm());
       }
     } catch (_) {
-      if (mounted && _d == null) setState(() => _failed = true);
+      if (mounted && _d == null) {
+        setState(() => _failed = true);
+        // gap-sos: only now (the page could not load) is this phone's own
+        // country needed for the emergency number
+        if (_cc == null && !_ccAsked) {
+          _ccAsked = true;
+          unawaited(_loadCountry());
+        }
+      }
     }
   }
 
@@ -216,8 +248,19 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final fall = '${d?['kind'] ?? widget.data['alert_kind'] ?? 'sos'}' == 'fall';
     final state = '${d?['state'] ?? 'active'}';
     final phone = '${(d?['sender'] as Map?)?['phone'] ?? ''}';
-    final em = emergencyFor('${d?['country'] ?? ''}'.isEmpty ? null : '${d?['country']}');
+    final em = emergencyFor('${d?['country'] ?? ''}'.isEmpty ? _cc : '${d?['country']}');
     final meGoing = d?['me_going'] == true;
+    // a11ysweep: the siren drowns TalkBack's voice, so with a screen reader
+    // "Silence" is the first control after the title (same button)
+    final sr = sosScreenReaderOn(context);
+    final silence = _alarm
+        ? TextButton.icon(
+            key: const ValueKey('fcs-alarm-silence'),
+            onPressed: _stopAlarm,
+            icon: const Icon(Icons.volume_off_rounded),
+            label: Text(t.fcsSilence),
+          )
+        : null;
     return Scaffold(
       key: const ValueKey('fcs-alarm'),
       backgroundColor: ds.bg,
@@ -247,6 +290,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                         color: Brand.warning,
                         title: t.fcsAlarmLoadFailed),
                   ),
+                if (sr && silence != null) ...[silence, const SizedBox(height: Gap.sm)],
                 if (state == 'active') ...[
                   SosBigButton(
                     key: const ValueKey('fcs-going-btn'),
@@ -279,14 +323,9 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                     onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
                   )),
                 ]),
-                if (_alarm) ...[
+                if (!sr && silence != null) ...[
                   const SizedBox(height: Gap.sm),
-                  TextButton.icon(
-                    key: const ValueKey('fcs-alarm-silence'),
-                    onPressed: _stopAlarm,
-                    icon: const Icon(Icons.volume_off_rounded),
-                    label: Text(t.fcsSilence),
-                  ),
+                  silence,
                 ],
                 const SizedBox(height: Gap.md),
                 _where(t, ds, d),
@@ -475,13 +514,14 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               trailing: Wrap(children: [
                 if ('${r['phone'] ?? ''}'.trim().isNotEmpty)
                   IconButton(
-                    tooltip: t.fcsCall,
+                    // a11ysweep: "Call <place>", not a bare "Call" x N
+                    tooltip: t.fcsCallName('${(bn ? r['name'] : r['name_en']) ?? r['name'] ?? ''}'),
                     icon: const Icon(Icons.call_rounded),
                     onPressed: () => _open(Uri.parse('tel:${'${r['phone']}'.replaceAll(RegExp(r'[^0-9+]'), '')}'),
                         'fcsos.nearby.call'),
                   ),
                 IconButton(
-                  tooltip: t.fcsDirections,
+                  tooltip: t.a11yDirectionsTo('${(bn ? r['name'] : r['name_en']) ?? r['name'] ?? ''}'),
                   icon: const Icon(Icons.directions_rounded),
                   onPressed: () => _open(
                       Uri.parse('https://maps.google.com/?daddr=${r['lat']},${r['lng']}'),
@@ -517,7 +557,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               title: Text('${c['name'] ?? ''}'),
               subtitle: Text(_dg('${c['phone'] ?? ''}')),
               trailing: IconButton(
-                tooltip: t.fcsCall,
+                tooltip: t.fcsCallName('${c['name'] ?? ''}'), // a11ysweep
                 icon: const Icon(Icons.call_rounded),
                 onPressed: () => _open(Uri.parse('tel:${c['phone']}'), 'fcsos.info.call'),
               ),

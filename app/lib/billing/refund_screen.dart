@@ -137,7 +137,7 @@ class _RefundScreenState extends State<RefundScreen> {
           padding: const EdgeInsets.symmetric(vertical: Gap.md),
           child: Text(t.billRefundNoPurchases,
               key: const Key('refund-empty'),
-              style: TextStyle(color: DsTokens.of(context).muted)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
         )
       else
         for (final p in page.purchases) _purchaseCard(t, scheme, p, page.windowHours),
@@ -176,7 +176,7 @@ class _RefundScreenState extends State<RefundScreen> {
             ),
             const SizedBox(width: Gap.sm),
             Text(money(context, p.price, p.currency),
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
           ]),
           const SizedBox(height: Gap.xxs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xxs, children: [
@@ -257,7 +257,7 @@ class RefundStatusTile extends StatelessWidget {
                     style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               Text(label,
                   key: ValueKey('refund-status-${r.id}'),
-                  style: TextStyle(fontWeight: FontWeight.w700, color: c)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: c)),
               if (r.requestedAt != null)
                 Text(t.billRefundRequestedOn(billDateTime(context, r.requestedAt!)),
                     style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
@@ -346,12 +346,12 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.xxs),
           Text('${purchaseName(t, p)} · ${money(context, p.price, p.currency)}',
-              style: TextStyle(color: DsTokens.of(context).muted)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.md),
           if (p.suggested != null)
             Text(t.billRefundSuggested(money(context, p.suggested!, p.currency)),
                 key: const Key('refund-suggested'),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           if (planned > 0)
             Text(t.billRefundUsageCredits(
                 fmtInt(context, n(u['credits_used'])), fmtInt(context, planned))),
@@ -398,7 +398,7 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
               ),
               child: Semantics(
                 liveRegion: true,
-                child: Text(_error, style: TextStyle(color: DsTokens.of(context).dangerInk)),
+                child: Text(_error, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
               ),
             ),
           ],
@@ -449,7 +449,7 @@ class _Box extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(title, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xxs),
             Text(body,
                 style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted, height: 1.4)),

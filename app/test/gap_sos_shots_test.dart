@@ -94,7 +94,7 @@ void main() {
     ),
     'gapsos_alarm_no_net': (
       (l) => SosAlarmScreen(
-          data: fcsPush(l), api: _NoEventApi(l), sound: FakeAlarmSound(), autoAlarm: false),
+          data: fcsPush(l), api: _NoEventApi(l), sound: FakeAlarmSound(), autoAlarm: false, country: 'BD'),
       null
     ),
   };

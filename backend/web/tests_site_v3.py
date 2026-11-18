@@ -319,7 +319,11 @@ class NavigationAndPlayTests(Base):
         m = re.search(r"flutter create --project-name (\S+) --org (\S+)", wf)
         self.assertIsNotNone(m)
         application_id = "%s.%s" % (m.group(2), m.group(1))
-        self.assertNotRegex(wf, r"applicationId\s*=?\s*['\"]")   # no override elsewhere
+        # staging (17 Nov): the "Assisto Test" app's own id lives only inside
+        # the flavor-gated "---- staging ----" blocks; the Play build has none
+        prod = re.sub(r"# ---- staging ----.*?# ---- /staging ----", "", wf, flags=re.S)
+        self.assertIn('applicationId = "com.assisto.assisto.staging"', wf)
+        self.assertNotRegex(prod, r"applicationId\s*=?\s*['\"]")   # no override elsewhere
         from web import site_content as SC
         self.assertEqual(SC.PLAY_ID, application_id)
         html = self.c.get("/preview/?lang=en").content.decode()

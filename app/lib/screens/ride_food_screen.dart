@@ -171,11 +171,8 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
-          const RideHonestNote(),
-          // p3life: our own Safe Journey for ANY ride + how to compare honestly
-          const SizedBox(height: Gap.sm),
+          // design3: the safety card first; the honesty notes sit at the end
           const RideShareMyRideCard(),
-          const RideCompareNote(),
           if (_error != null) ...[
             const SizedBox(height: Gap.sm),
             RideError(message: _error!, onRetry: () => setState(() => _error = null)),
@@ -192,7 +189,6 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
               helperText: t.rideFoodDestHelper,
               helperMaxLines: 2,
               prefixIcon: const Icon(Icons.place_rounded),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.xs),
@@ -284,7 +280,6 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
               helperText: t.rideFoodFoodHelper,
               helperMaxLines: 2,
               prefixIcon: const Icon(Icons.restaurant_rounded),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.xs),
@@ -330,6 +325,11 @@ class _RideFoodScreenState extends State<RideFoodScreen> {
                 onOpen: () => _openFood(p),
               ),
 
+          // p3life: how to compare honestly + what this screen does (notes last)
+          const SizedBox(height: Gap.lg),
+          const RideCompareNote(),
+          const SizedBox(height: Gap.sm),
+          const RideHonestNote(),
           // truth: no "in-app booking when a partner is connected" promise —
           // the screen opens the provider's own app, nothing more.
         ],

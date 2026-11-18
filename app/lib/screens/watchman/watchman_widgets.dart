@@ -31,7 +31,7 @@ String wmGatewayLine(AppLocalizations t, BuildContext context, Map<String, dynam
 
 String wmGatewayName(AppLocalizations t, String g) => switch (g) {
       'phone' => t.wmGwPhone,
-      'shopbox' => t.wmGwShopbox,
+      'shopbox' => t.d3GwShopboxTitle, // design3
       'pc' => t.wmGwPc,
       _ => t.wmGwNone,
     };
@@ -102,7 +102,7 @@ class WatchmanGuideCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(title, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Text(body),
             ])),
@@ -218,7 +218,7 @@ class WatchmanPairSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             SelectableText(token, textAlign: TextAlign.center,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 15)),
+                style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */, fontSize: 15)),
             const SizedBox(height: 8),
             Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
               OutlinedButton.icon(
@@ -328,7 +328,7 @@ class WmPill extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: fg),
         const SizedBox(width: 4),
-        Flexible(child: Text(label, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600))),
+        Flexible(child: Text(label, style: AType.bodySmall.copyWith(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600))),
       ]),
     );
   }

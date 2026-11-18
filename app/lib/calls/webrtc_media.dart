@@ -6,9 +6,21 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../audio/audio_route_service.dart' as ar;
 import '../audio/webrtc_audio_fallback.dart';
 import 'call_controller.dart';
+import 'call_log.dart';
 import 'call_net_policy.dart';
 import 'call_video.dart';
-import 'call_log.dart';
+
+/// gatefix: the SDP rule for an offer. A VIDEO call's offer must carry a
+/// video m-line even when this phone has no camera track (busy / failed /
+/// audio-only) — then as receive-only, so the other person's camera can still
+/// reach us. A voice call's offer gets none (a later camera switch
+/// renegotiates). Never added twice.
+@visibleForTesting
+bool offerNeedsRecvOnlyVideo(
+        {required bool videoCall,
+        required bool hasLocalVideo,
+        required bool alreadyAdded}) =>
+    videoCall && !hasLocalVideo && !alreadyAdded;
 
 /// [CallMedia] on flutter_webrtc — the ONLY call file that touches the
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
@@ -29,6 +41,24 @@ class WebRtcCallMedia
         CallVideoSurface,
         AdaptiveCallMedia,
         VideoSizeSource {
+  WebRtcCallMedia({this.cameraBlocked = false, this.facing = 'user'});
+
+  /// gatefix: behave as if the camera cannot open (busy / failed HAL) —
+  /// takes the REAL fallback below (join with the camera off,
+  /// cameraUnavailable). The release gate's second client uses it: one
+  /// emulator has one camera, and that is exactly the path whose video
+  /// m-line was missing (gate run 44133650344).
+  /// Not final: the gate turns the camera "back on" mid-call (case b).
+  bool cameraBlocked;
+
+  /// gatefix: which camera this side opens ('user' = front, the app's only
+  /// value; the gate's second client uses 'environment' so ONE emulator
+  /// with two emulated cameras can run a video call with both cameras on).
+  final String facing;
+
+  Map<String, dynamic> get _videoConstraints =>
+      {..._videoConstraintsBase, 'facingMode': facing};
+
   RTCPeerConnection? _pc;
   RTCRtpSender? _audioSender;
   MediaPlan? _plan;
@@ -83,6 +113,7 @@ class WebRtcCallMedia
 
   @override
   Future<void> open({required bool video}) async {
+    _videoCall = video;
     // BEFORE getUserMedia: the mic must come from the headset too, and the
     // plugin's own audio switch must be off before it would start.
     try {
@@ -100,6 +131,7 @@ class WebRtcCallMedia
       callLog('webrtc_media#2', e);
     }
     try {
+      if (video && cameraBlocked) throw StateError('camera blocked');
       _local = await navigator.mediaDevices.getUserMedia({
         'audio': _audioConstraints,
         'video': video ? _videoConstraints : false,
@@ -131,7 +163,7 @@ class WebRtcCallMedia
     'autoGainControl': true,
   };
 
-  static const Map<String, dynamic> _videoConstraints = {
+  static const Map<String, dynamic> _videoConstraintsBase = {
     'facingMode': 'user',
     'width': {'ideal': 640},
     'height': {'ideal': 480},
@@ -155,11 +187,17 @@ class WebRtcCallMedia
   @override
   bool cameraUnavailable = false;
 
+  /// gatefix: this is a VIDEO call (open(video: true)), and whether the
+  /// offer already carries a receive-only video m-line (see createOffer).
+  bool _videoCall = false;
+  bool _recvVideoAdded = false;
+
   @override
   Future<void> startVideo() async {
     final pc = _peer;
     MediaStream cam;
     try {
+      if (cameraBlocked) throw StateError('camera blocked');
       cam = await navigator.mediaDevices
           .getUserMedia({'audio': false, 'video': _videoConstraints});
     } catch (e) {
@@ -323,6 +361,27 @@ class WebRtcCallMedia
 
   @override
   Future<Map<String, dynamic>> createOffer({bool iceRestart = false}) async {
+    // gatefix (release gate run 44115922433): flutter_webrtc on Android drops
+    // the top-level offerToReceiveVideo below (it reads only mandatory /
+    // optional), so a VIDEO call whose caller has no camera track (camera
+    // busy / failed -> cameraUnavailable, or audio-only) offered NO video
+    // m-line — only MID 0 (audio) was negotiated and the other person's
+    // camera never reached the caller. A receive-only video transceiver
+    // gives the answerer's camera its m-line (startVideo's addTrack reuses it).
+    if (offerNeedsRecvOnlyVideo(
+        videoCall: _videoCall,
+        hasLocalVideo: _videoSender != null,
+        alreadyAdded: _recvVideoAdded)) {
+      try {
+        await _peer.addTransceiver(
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
+          init: RTCRtpTransceiverInit(direction: TransceiverDirection.RecvOnly),
+        );
+        _recvVideoAdded = true;
+      } catch (e) {
+        callLog('webrtc_media#16', e);
+      }
+    }
     final offer = await _peer.createOffer({
       'offerToReceiveAudio': true,
       'offerToReceiveVideo': true,
@@ -471,6 +530,8 @@ class WebRtcCallMedia
     var relayed = false;
     var lost = 0, recv = 0;
     int? sent, got;
+    int? aPk, aBy, vFr; // gatefix: inbound media actually received
+    int? vEnc, vOutPk; // gatefix: my outbound video (encoded frames, packets)
     // x1-calls: the standard way to find the pair in use is
     // transport.selectedCandidatePairId (Android libwebrtc has no
     // `selected` flag on candidate-pair) — so `relayed` is reported right.
@@ -504,11 +565,25 @@ class WebRtcCallMedia
         final bs = r.values['bytesSent'], br = r.values['bytesReceived'];
         if (bs is num) sent = bs.toInt();
         if (br is num) got = br.toInt();
+      } else if (r.type == 'outbound-rtp' &&
+          (v['kind'] ?? v['mediaType']) == 'video') {
+        final fe = v['framesEncoded'], ps = v['packetsSent'];
+        if (fe is num) vEnc = (vEnc ?? 0) + fe.toInt();
+        if (ps is num) vOutPk = (vOutPk ?? 0) + ps.toInt();
       } else if (r.type == 'inbound-rtp') {
         final pl = v['packetsLost'];
         final pr = v['packetsReceived'];
         if (pl is num) lost += pl.toInt();
         if (pr is num) recv += pr.toInt();
+        final mk = v['kind'] ?? v['mediaType'];
+        if (mk == 'audio') {
+          final by = v['bytesReceived'];
+          if (pr is num) aPk = (aPk ?? 0) + pr.toInt();
+          if (by is num) aBy = (aBy ?? 0) + by.toInt();
+        } else if (mk == 'video') {
+          final fd = v['framesDecoded'];
+          if (fd is num) vFr = (vFr ?? 0) + fd.toInt();
+        }
         // jitter (seconds) of the AUDIO stream — what people hear
         final j = v['jitter'];
         final kind = v['kind'] ?? v['mediaType'];
@@ -530,7 +605,12 @@ class WebRtcCallMedia
         availableKbps: avail,
         relayed: relayed,
         bytesSent: sent,
-        bytesReceived: got);
+        bytesReceived: got,
+        audioPacketsIn: aPk,
+        audioBytesIn: aBy,
+        videoFramesDecoded: vFr,
+        videoFramesEncoded: vEnc,
+        videoPacketsSent: vOutPk);
   }
 
   @override
@@ -546,11 +626,67 @@ class WebRtcCallMedia
           objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover)
       : const SizedBox.shrink();
 
+  /// gatefix (owner P0, video calls): the WHOLE negotiated state of this side
+  /// for the release gate's evidence — local/remote SDP, every transceiver
+  /// (mid, kind, direction, currentDirection, sender/receiver track) and the
+  /// video rtp stats. Read-only; never called by the app itself.
+  @visibleForTesting
+  Future<Map<String, dynamic>> debugEvidence() async {
+    final pc = _pc;
+    if (pc == null) return {'pc': null};
+    final out = <String, dynamic>{};
+    try {
+      out['local_sdp'] = (await pc.getLocalDescription())?.sdp;
+      out['remote_sdp'] = (await pc.getRemoteDescription())?.sdp;
+    } catch (e) {
+      out['sdp_error'] = '$e';
+    }
+    final tx = <Map<String, dynamic>>[];
+    try {
+      for (final t in await pc.getTransceivers()) {
+        String? dir, cur;
+        try {
+          dir = '${await t.getDirection()}';
+          cur = '${await t.getCurrentDirection()}';
+        } catch (_) {}
+        final st = t.sender.track, rt = t.receiver.track;
+        tx.add({
+          'mid': t.mid, 'direction': dir, 'current': cur,
+          'sender_track': st == null ? null : {'id': st.id, 'kind': st.kind, 'enabled': st.enabled},
+          'receiver_track': rt == null ? null : {'id': rt.id, 'kind': rt.kind},
+        });
+      }
+    } catch (e) {
+      out['transceivers_error'] = '$e';
+    }
+    out['transceivers'] = tx;
+    final rtp = <Map<String, dynamic>>[];
+    try {
+      for (final r in await pc.getStats()) {
+        if (r.type != 'inbound-rtp' && r.type != 'outbound-rtp') continue;
+        final v = r.values;
+        rtp.add({
+          'type': r.type, 'kind': v['kind'] ?? v['mediaType'], 'mid': v['mid'],
+          for (final k in const ['framesEncoded', 'framesSent', 'packetsSent', 'framesDecoded',
+              'framesReceived', 'packetsReceived', 'bytesReceived', 'frameWidth', 'frameHeight'])
+            if (v[k] != null) k: v[k],
+        });
+      }
+    } catch (e) {
+      out['stats_error'] = '$e';
+    }
+    out['rtp'] = rtp;
+    out['local_video_track'] = _videoTrack?.id;
+    out['has_remote_video'] = hasRemoteVideo.value;
+    return out;
+  }
+
   @override
   Future<void> dispose() async {
     await _releaseCamera();
     _videoSender = null;
     _audioSender = null;
+    _recvVideoAdded = false;
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();

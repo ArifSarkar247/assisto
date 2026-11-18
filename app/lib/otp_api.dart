@@ -1,3 +1,5 @@
+import 'dart:math' show Random;
+
 import 'api.dart';
 import 'models.dart';
 
@@ -147,9 +149,25 @@ class ApiOtpBackend implements OtpBackend {
     }
   }
 
+  /// signup-otp: wait before the one automatic retry (test seam).
+  static Duration retryDelay = const Duration(milliseconds: 1500);
+  static final _rnd = Random();
+
+  /// signup-otp: a code request carries a request id; when the network drops
+  /// the answer it is retried ONCE with the same id, and the server replays
+  /// the first answer instead of sending a second code (idempotent resend).
+  Future<OtpResult> _postOnce(String path, Map<String, dynamic> body) async {
+    final id = '${DateTime.now().microsecondsSinceEpoch}-${_rnd.nextInt(1 << 30)}';
+    final b = {...body, 'request_id': id};
+    final r = await _post(path, b);
+    if (r.reason != 'network') return r;
+    await Future<void>.delayed(retryDelay);
+    return _post(path, b);
+  }
+
   @override
   Future<OtpResult> request(String purpose, {String? phone}) =>
-      _post('/auth/otp/request', {
+      _postOnce('/auth/otp/request', {
         'purpose': purpose,
         if (phone != null && phone.isNotEmpty) 'phone': phone,
       });
@@ -196,7 +214,7 @@ class ApiOtpBackend implements OtpBackend {
 
   @override
   Future<OtpResult> requestEmail(String purpose, {String? phone, String? email}) =>
-      _post('/auth/otp/email/request', {
+      _postOnce('/auth/otp/email/request', {
         'purpose': purpose,
         if (phone != null && phone.isNotEmpty) 'phone': phone,
         if (email != null && email.isNotEmpty) 'email': email,

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../models.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import '../action_api.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/action_models.dart';
@@ -64,35 +66,14 @@ class _ActionCenterScreenState extends State<ActionCenterScreen> {
 
 // --------------------------------------------------------------------- shared
 
-Widget _centered(Widget child) => Center(
-      child: Padding(padding: const EdgeInsets.all(Gap.xl), child: child),
-    );
-
+// design3: every empty / error state is the DS state card (drawn
+// illustration, benefit line, one button) — StateMessage.
 Widget _emptyState(BuildContext context,
-    {required IconData icon,
-    required String title,
-    required String body,
-    Widget? action}) {
-  final cs = Theme.of(context).colorScheme;
-  return _centered(Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(icon, size: 48, color: cs.ds.muted),
-      const SizedBox(height: Gap.md),
-      Text(title,
-          textAlign: TextAlign.center,
-          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-      const SizedBox(height: Gap.xs),
-      Text(body,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: cs.ds.muted, height: 1.4)),
-      if (action != null) ...[
-        const SizedBox(height: Gap.md),
-        action,
-      ],
-    ],
-  ));
-}
+        {required IconData icon,
+        required String title,
+        required String body,
+        Widget? action}) =>
+    StateMessage(icon: icon, title: title, message: body, action: action);
 
 // -------------------------------------------------------------------- PENDING
 
@@ -168,7 +149,7 @@ class _PendingTabState extends State<_PendingTab> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonList(count: 5);
           }
           if (snap.hasError) {
             return ListView(children: [
@@ -180,11 +161,7 @@ class _PendingTabState extends State<_PendingTab> {
                   icon: Icons.cloud_off_rounded,
                   title: t.actionErrorTitle,
                   body: t.loadFailedBody,
-                  action: FilledButton.tonalIcon(
-                    onPressed: _reload,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(t.retry),
-                  )),
+                  action: DsButton(onPressed: _reload, icon: Icons.refresh_rounded, label: t.retry)),
             ]);
           }
           final items = snap.data ?? const <PendingAction>[];
@@ -261,7 +238,7 @@ class _DoneTabState extends State<_DoneTab> {
         future: _future,
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonList(count: 5);
           }
           if (snap.hasError) {
             return ListView(children: [
@@ -273,11 +250,7 @@ class _DoneTabState extends State<_DoneTab> {
                   icon: Icons.cloud_off_rounded,
                   title: t.actionErrorTitle,
                   body: t.loadFailedBody,
-                  action: FilledButton.tonalIcon(
-                    onPressed: _reload,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(t.retry),
-                  )),
+                  action: DsButton(onPressed: _reload, icon: Icons.refresh_rounded, label: t.retry)),
             ]);
           }
           final all = snap.data ?? const <AuditEntry>[];

@@ -248,7 +248,7 @@ def contact(business, phone):
     return BookingContact.objects.filter(business=business, phone=phone).first()
 
 
-def _check_limits(page, phone, ip_hash, now, actor):
+def _check_limits(page, phone, ip_hash, now, actor, user=None):
     from .models import Booking
     biz = page.business
     c = contact(biz, phone)
@@ -256,6 +256,12 @@ def _check_limits(page, phone, ip_hash, now, actor):
         raise BookingError("blocked", 403)
     if actor == "business":
         return
+    # bizassist B3: an app account with no verified phone used to skip the
+    # pending cap (phone ""); count the ACCOUNT's own pending bookings too.
+    if user is not None and Booking.objects.filter(
+            business=biz, customer_user=user, status__in=L.ACTIVE,
+            start__gt=now).count() >= page.max_pending_per_phone:
+        raise BookingError("too_many_pending", 429)
     if phone:
         pending = Booking.objects.filter(business=biz, customer_phone=phone,
                                          status__in=L.ACTIVE, start__gt=now).count()
@@ -284,9 +290,23 @@ def _valid_start(page, service, start, now, staff_id=None, exclude=None):
     return False
 
 
+def same_booking(page, service, start, *, user=None, phone="", actor="customer"):
+    """The customer's OWN active booking for this exact service + start, if
+    any. A retry after a lost reply (or a double tap) returns it instead of
+    taking a second seat when capacity > 1.
+    Signed-in accounts only: a web guest proves each booking with a fresh SMS
+    code and gets its manage link only from create()."""
+    from .models import Booking
+    if actor == "business" or user is None:
+        return None
+    return Booking.objects.filter(business=page.business, service=service, start=start,
+                                  status__in=L.ACTIVE, customer_user=user).first()
+
+
 def create(page, service, start, *, name="", phone="", user=None, staff_id=None,
            channel="web", thread=None, ip_hash="", actor="customer", note="", now=None):
-    """-> (booking, raw manage token). Raises BookingError(code)."""
+    """-> (booking, raw manage token). Raises BookingError(code). The token is
+    None when the customer already holds this exact booking (a retry)."""
     from .models import Booking
     now = now or timezone.now()
     if service is None or service.business_id != page.business_id or not service.active:
@@ -296,7 +316,10 @@ def create(page, service, start, *, name="", phone="", user=None, staff_id=None,
     if start.tzinfo is None:
         start = start.replace(tzinfo=L.TZ)
     start = start.astimezone(L.TZ)
-    _check_limits(page, phone, ip_hash, now, actor)
+    same = same_booking(page, service, start, user=user, phone=phone, actor=actor)
+    if same is not None:
+        return same, None          # bizassist B2: a retry, not a second seat
+    _check_limits(page, phone, ip_hash, now, actor, user=user)
     if not _valid_start(page, service, start, now, staff_id=staff_id):
         raise BookingError("slot_taken", 409)
     raw = secrets.token_urlsafe(18)
@@ -559,7 +582,32 @@ def reminder_guard(b, now, max_reminders=None):
         return None, False
     c = contact(b.business, b.customer_phone)
     stopped = bool(c and c.stop) or bool(b.thread and b.thread.opted_out)
+    if not stopped:
+        # gap-bizai: a STOP given on ANY path of this shop (an SMS stop link,
+        # an in-app Stop, a retention reply) also stops booking reminders
+        try:
+            from .logic import msg_guard as MG
+            from .logic.business_selling import normalize_phone
+            key = normalize_phone(b.customer_phone or "")
+            stopped = bool(key) and MG.is_opted_out(b.business_id, key)
+        except Exception:  # noqa: BLE001 — the guard never breaks the sweep
+            log.exception("booking reminder: opt-out check")
     return kind, not stopped
+
+
+def claim_reminder(b, kind):
+    """bizassist B1: compare-and-set the reminder counter so two overlapping
+    sweeps (cron overlap, a manual run) never send the same reminder twice —
+    the one whose UPDATE matches the counter it read sends; the other skips.
+    Sets b.reminded / b.reminders_sent on success."""
+    from .models import Booking
+    done = list(b.reminded or []) + [kind]
+    n = Booking.objects.filter(pk=b.pk, reminders_sent=b.reminders_sent).update(
+        reminders_sent=b.reminders_sent + 1, reminded=done)
+    if n != 1:
+        return False
+    b.reminded, b.reminders_sent = done, b.reminders_sent + 1
+    return True
 
 
 def send_due_reminders(now=None, limit=500):
@@ -580,8 +628,8 @@ def send_due_reminders(now=None, limit=500):
         kind, allowed = reminder_guard(b, now, maxr)
         if not kind:
             continue
-        b.reminded = list(b.reminded or []) + [kind]
-        b.reminders_sent += 1
+        if not claim_reminder(b, kind):
+            continue            # another sweep run took this reminder already
         if not allowed:
             _hist(b, "system", "reminder_skipped_stop", kind=kind)
             b.save(update_fields=["reminded", "reminders_sent", "history"])

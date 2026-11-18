@@ -432,11 +432,17 @@ void registerE2eProofFlows() {
       f.expectHttp('GET', '/maps/place');
     });
     await f.step('B as watcher -> Start -> live screen', () async {
-      final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      // gatefix: sjstart2 replaced the watcher checkboxes with FilterChips
+      // (Family first, several allowed) — find B's chip, tap it, and require
+      // it to be SELECTED (gate run 44061721110 looked for CheckboxListTile).
+      final b = find.widgetWithText(FilterChip, Seed.nameB);
       await f.scrollTo(b); // the watcher list is below the fold (lazy list)
       if (!await f.appears(b, seconds: 8)) throw TestFailure('watcher ${Seed.nameB} not listed');
       await f.tester.ensureVisible(b);
-      await f.tap(b);
+      if (!f.tester.widget<FilterChip>(b).selected) await f.tap(b);
+      if (!f.tester.widget<FilterChip>(b).selected) {
+        throw TestFailure('watcher ${Seed.nameB} chip did not select');
+      }
       await f.shot('form');
       final start = find.byKey(const ValueKey('j100_start'));
       await f.tester.ensureVisible(start);

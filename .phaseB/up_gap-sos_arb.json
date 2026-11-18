@@ -11,11 +11,16 @@
     "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
     "@sosgapOpenFull": {
       "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+    },
+    "sosgapSosButtonLine": "Emergency — alert my family",
+    "@sosgapSosButtonLine": {
+      "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
     }
   },
   "bn": {
     "sosgapStillTrying": "আপনার SOS এখনো পরিবারের কাছে পৌঁছায়নি। Assisto প্রতি ১৫ সেকেন্ডে আবার চেষ্টা করছে — নেট ফিরলেই চলে যাবে, এই পাতা বন্ধ করলেও।",
     "sosgapStopTrying": "চেষ্টা থামান",
-    "sosgapOpenFull": "কে আসছেন · লাইভ লোকেশন · ৩০ সে শব্দ"
+    "sosgapOpenFull": "কে আসছেন · লাইভ লোকেশন · ৩০ সে শব্দ",
+    "sosgapSosButtonLine": "জরুরি — পরিবারকে জানান"
   }
 }

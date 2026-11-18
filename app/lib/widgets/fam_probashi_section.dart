@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timezone/data/latest.dart' as tzdata; // gap-familycare
+import 'package:timezone/timezone.dart' as tz; // gap-familycare
+import '../l10n/fcrest_zones.dart'; // gap-familycare
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -23,7 +26,16 @@ import 'wrapped_share.dart';
 ///     never holds, moves, or transfers money. The amount is a free-form note.
 ///   • a probashi share card (reuses the RepaintBoundary->PNG flow).
 class FamProbashiSection extends StatefulWidget {
-  const FamProbashiSection({super.key});
+  /// gap-familycare: family members who live abroad [{name, tz}] (from the
+  /// Family board). On a phone in Bangladesh the left clock becomes THEIR
+  /// time (before: "My time" and "Bangladesh time" showed the same clock to
+  /// the parents at home) and the call slots are polite at their end.
+  final List<Map<String, String>> abroad;
+  const FamProbashiSection({super.key, this.abroad = const []});
+
+  /// Tests: the phone's UTC offset in minutes (null = the real one).
+  @visibleForTesting
+  static int? debugMyOffsetMin;
 
   @override
   State<FamProbashiSection> createState() => _FamProbashiSectionState();
@@ -74,7 +86,46 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     super.dispose();
   }
 
-  int get _myOffsetMin => DateTime.now().timeZoneOffset.inMinutes;
+  int get _myOffsetMin =>
+      FamProbashiSection.debugMyOffsetMin ?? DateTime.now().timeZoneOffset.inMinutes;
+
+  // gap-familycare: whose clock is on the left
+  int _who = 0;
+  static bool _tzReady = false;
+
+  /// The abroad member shown (parents' view), or null = my own clock.
+  Map<String, String>? get _them {
+    if (widget.abroad.isEmpty || _myOffsetMin != _bdOffsetMin) return null;
+    final m = widget.abroad[_who.clamp(0, widget.abroad.length - 1)];
+    return _zoneOffsetMin(m['tz'] ?? '') == null ? null : m;
+  }
+
+  static int? _zoneOffsetMin(String zone) {
+    if (zone.isEmpty) return null;
+    try {
+      if (!_tzReady) {
+        tzdata.initializeTimeZones();
+        _tzReady = true;
+      }
+      return tz.TZDateTime.now(tz.getLocation(zone)).timeZoneOffset.inMinutes;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  int get _otherOffsetMin {
+    final m = _them;
+    return m == null ? _myOffsetMin : (_zoneOffsetMin(m['tz']!) ?? _myOffsetMin);
+  }
+
+  String get _otherLabel {
+    final m = _them;
+    return m == null
+        ? famLabel(context, 'famProbashiMyTime')
+        : AppLocalizations.of(context).fcgTimeOf(m['name'] ?? '');
+  }
+
+  DateTime get _otherNow => DateTime.now().toUtc().add(Duration(minutes: _otherOffsetMin));
 
   DateTime get _bdNow => DateTime.now().toUtc().add(const Duration(minutes: _bdOffsetMin));
 
@@ -86,6 +137,18 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
       children: [
         _header(scheme),
         const SizedBox(height: Gap.md),
+        if (_them != null && widget.abroad.length > 1) ...[
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            for (final (i, m) in widget.abroad.indexed)
+              ChoiceChip(
+                key: ValueKey('fcg-probashi-who-$i'),
+                label: Text('${m['name']} · ${fcrZoneName(m['tz'] ?? '', Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en')}'),
+                selected: _who == i,
+                onSelected: (_) => setState(() => _who = i),
+              ),
+          ]),
+          const SizedBox(height: Gap.sm),
+        ],
         _twoTimeCard(scheme),
         const SizedBox(height: Gap.md),
         _callsCard(scheme),
@@ -129,14 +192,14 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
 
   // ---- two-timezone view ----
   Widget _twoTimeCard(ColorScheme scheme) {
-    final my = DateTime.now();
+    final my = _otherNow; // gap-familycare: mine, or theirs on a phone in Bangladesh
     final bd = _bdNow;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(children: [
           Row(children: [
-            Expanded(child: _clock(famLabel(context, 'famProbashiMyTime'), my, scheme)),
+            Expanded(child: _clock(_otherLabel, my, scheme)),
             Container(
                 width: 1, height: 56, color: scheme.outlineVariant),
             Expanded(child: _clock(famLabel(context, 'famProbashiBdTime'), bd, scheme)),
@@ -164,7 +227,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
 
   String _diffLabel() {
     // BD offset minus my offset, in minutes.
-    final diff = _bdOffsetMin - _myOffsetMin;
+    final diff = _bdOffsetMin - _otherOffsetMin;
     if (diff == 0) return famLabel(context, 'famProbashiDiffSame');
     final hours = (diff.abs() / 60);
     final hLabel = AppLocalizations.of(context).famProbashiHours(famNum(context, hours.round()));
@@ -184,7 +247,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
     base = base.add(const Duration(minutes: 30));
     for (int i = 0; i < 48; i++) {
       final utc = base.add(Duration(minutes: 30 * i));
-      final my = utc.toLocal();
+      final my = utc.add(Duration(minutes: _otherOffsetMin)); // gap-familycare
       final bd = utc.add(const Duration(minutes: _bdOffsetMin));
       final okMine = my.hour >= 8 && my.hour < 22;
       final okBd = bd.hour >= 8 && bd.hour < 22;
@@ -230,7 +293,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
   }
 
   Widget _slotRow(DateTime utc, ColorScheme scheme) {
-    final my = utc.toLocal();
+    final my = utc.add(Duration(minutes: _otherOffsetMin)); // gap-familycare
     final bd = utc.add(const Duration(minutes: _bdOffsetMin));
     String hm(DateTime d) =>
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
@@ -238,7 +301,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: const Icon(Icons.call_rounded, size: 18),
-      title: Text(famDigits(context, '${famLabel(context, 'famProbashiMyTime')} ${hm(my)}'
+      title: Text(famDigits(context, '$_otherLabel ${hm(my)}'
           '  ·  ${famLabel(context, 'famProbashiBdTime')} ${hm(bd)}')),
       trailing: TextButton(
         onPressed: () => _scheduleCall(utc),
@@ -359,7 +422,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
 
   // ---- probashi share card ----
   Widget _shareCard() {
-    final my = DateTime.now();
+    final my = _otherNow; // gap-familycare
     final bd = _bdNow;
     String hm(DateTime d) =>
         '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
@@ -392,7 +455,7 @@ class _FamProbashiSectionState extends State<FamProbashiSection> {
           child: Row(children: [
             Expanded(
               child: Column(children: [
-                Text(famLabel(context, 'famProbashiMyTime'),
+                Text(_otherLabel,
                     style: const TextStyle(color: Colors.black54, fontSize: 12)),
                 Text(famDigits(context, hm(my)),
                     style: const TextStyle(

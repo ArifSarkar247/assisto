@@ -222,7 +222,7 @@ class CityOptionSummary extends StatelessWidget {
           cityD(
               context,
               [
-                option.changes == 0 ? t.cityNoChange : t.cityChanges('${option.changes}'),
+                option.changes == 0 ? t.cityNoChange : t.cityGChangesN(option.changes),
                 t.cityWalkTotal(cityDistance(context, option.walkM)),
               ].join(' · ')),
           style: AType.bodyMedium.copyWith(color: s.ds.muted)),
@@ -270,7 +270,7 @@ class _Step extends StatelessWidget {
       if (towards.isNotEmpty) lines.add(Text(d(t.cityTowards(towards))));
       lines.add(Text(d(t.cityBoardAt(leg.board?.label(bn) ?? '')),
           style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
-      lines.add(Text(d(t.cityGetOffAt(leg.alight?.label(bn) ?? '', '${leg.stops}')),
+      lines.add(Text(d(t.cityGGetOffAtN(leg.alight?.label(bn) ?? '', leg.stops)),
           style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
       final via = bn && leg.viaBn.any((v) => v.isNotEmpty) ? leg.viaBn : leg.via;
       final viaClean = via.where((v) => v.isNotEmpty).toList();
@@ -530,5 +530,60 @@ class CitySection extends StatelessWidget {
           if (icon != null) ...[Icon(icon, size: 22), const SizedBox(width: Gap.sm)],
           Expanded(child: Text(title, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800))),
         ]),
+      );
+}
+
+// gap-city: a failed / needs-something state is never a dead end — the
+// message plus a real button (Try again, Choose start, ...).
+class CityRetryCard extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final String buttonText;
+  final VoidCallback onPressed;
+  final Key? buttonKey;
+  final Widget? extra;
+  const CityRetryCard(
+      {super.key,
+      required this.text,
+      required this.buttonText,
+      required this.onPressed,
+      this.icon = Icons.cloud_off_rounded,
+      this.buttonKey,
+      this.extra});
+  @override
+  Widget build(BuildContext context) => DsCard(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(text)),
+          ]),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            FilledButton.icon(
+              key: buttonKey,
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: onPressed,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(buttonText),
+            ),
+            if (extra != null) extra!,
+          ]),
+        ]),
+      );
+}
+
+/// gap-city: "Go by bus / metro" — plan this place in City Service (our own
+/// routes + fares) instead of leaving for another app.
+class CityRouteHereButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const CityRouteHereButton({super.key, required this.onPressed});
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: onPressed,
+        icon: const Icon(Icons.directions_bus_rounded, size: 18),
+        label: Text(AppLocalizations.of(context).cityGRouteHere),
       );
 }

@@ -174,7 +174,7 @@ void main() {
         final tr = lookupAppLocalizations(Locale(lang));
         // antitheft2: "Are you OK? / আপনি ঠিক আছেন?"
         expect(find.text(tr.at2OkTitle), findsOneWidget);
-        expect(find.text(tr.at2OkBody), findsOneWidget);
+        expect(find.text(tr.fatOkBody), findsOneWidget);
         await tester.tap(find.byKey(const Key('grab-yes')));
         await tester.pumpAndSettle();
         expect(sentPins, ['1234']);

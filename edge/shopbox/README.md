@@ -298,3 +298,15 @@ auto-update channel.
 * DVR health uses `shopbox.camlink.health_probe` when that library is in the
   build (off, and reported as off, otherwise).
 * CI proof: `.github/workflows/guardbox-linux.yml` (build amd64 + arm64, container E2E).
+
+## Models and licences (also in the app: "About & licences")
+
+* People: YOLOX-Nano by Megvii, Apache License 2.0 (https://github.com/Megvii-BaseDetection/YOLOX).
+* Vehicles (parking / no-parking / vehicle gate-line zones only): the Assisto Bangladesh vehicle
+  model, release `shopbox-vehicle-bd-1` (SHA-256 pinned in `shopbox/model_fetch.py`), built from
+  YOLOX-Nano + YOLOX 0.3.0 code (Apache License 2.0) and trained on "Multi-Class Vehicle Detection
+  Dataset for Dense and Heterogeneous Urban Traffic in Bangladesh" by Rahman A., Munim Shahriar S.,
+  Awsaf S.A., Jahan I., Ferdous J., Chowdhury M.J.U. (Leading University, Sylhet), Mendeley Data v2,
+  DOI 10.17632/tx6699m24b.2, CC BY 4.0 (photos resized and augmented; classes mapped; not endorsed by
+  the authors), plus vehicle-free COCO train2017 pictures (licensed images; annotations CC BY 4.0).
+  Until it is downloaded: YOLOX-Tiny by Megvii, Apache License 2.0.
