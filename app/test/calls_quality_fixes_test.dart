@@ -204,6 +204,44 @@ void main() {
       c.dispose();
     });
 
+    test('Wi-Fi back while mobile data still works: "Reconnecting" ends when media still flows (no false "lost")', () async {
+      final m = FakeCallMedia(), sg = FakeSignaling();
+      final c = mk(m, sg)..aliveProbe = const Duration(milliseconds: 60);
+      await c.start();
+      m.link.add(MediaLinkState.connected);
+      await settle();
+      c.onNetworkChanged('wifi'); // the old path keeps working: ICE never drops
+      await settle();
+      expect(c.phase, CallPhase.reconnecting);
+      m.nextStats = const MediaStats(rttMs: 80, lossPct: 0.5, bytesReceived: 1000);
+      sg.remoteSignal('restart_answer', {'type': 'answer', 'sdp': 'v=0 r', 'rseq': c.restartSeq});
+      await settle();
+      m.nextStats = const MediaStats(rttMs: 80, lossPct: 0.5, bytesReceived: 9000);
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      await settle();
+      expect(c.phase, CallPhase.connected);
+      expect(c.log, contains('reconnect:media-flowing'));
+      expect(c.isEnded, isFalse);
+      c.dispose();
+    });
+
+    test('no media while reconnecting: stays "Reconnecting" (never a false connected)', () async {
+      final m = FakeCallMedia(), sg = FakeSignaling();
+      final c = mk(m, sg)..aliveProbe = const Duration(milliseconds: 60);
+      await c.start();
+      m.link.add(MediaLinkState.connected);
+      await settle();
+      c.onNetworkChanged('lost');
+      await settle();
+      m.nextStats = const MediaStats(rttMs: 80, lossPct: 0.5, bytesReceived: 1000);
+      sg.remoteSignal('restart_answer', {'type': 'answer', 'sdp': 'v=0 r', 'rseq': c.restartSeq});
+      await settle();
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      await settle();
+      expect(c.phase, CallPhase.reconnecting);
+      c.dispose();
+    });
+
     test('the callee echoes the restart number in its answer', () async {
       final m = FakeCallMedia(), sg = FakeSignaling();
       final c = mk(m, sg, outgoing: false);

@@ -1006,6 +1006,7 @@ class CallController extends ChangeNotifier {
               callId!,
               kind == 'offer' ? 'answer' : 'restart_answer',
               rseq == null ? ans : {...ans, 'rseq': rseq});
+          if (kind == 'restart_offer') unawaited(_checkAlive());
           log.add('${kind == 'offer' ? 'answer' : 'restart_answer'}-sent');
           break;
         case 'answer':
@@ -1019,6 +1020,7 @@ class CallController extends ChangeNotifier {
             }
           }
           await media.setAnswer(data);
+          if (kind == 'restart_answer') unawaited(_checkAlive());
           _remoteSet = true;
           await _flushCandidates();
           break;
@@ -1154,8 +1156,49 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// calls-quality: the last ICE link state the media reported.
+  MediaLinkState? _lastLink;
+
+  /// calls-quality (calls2emu 44287325219, mobile data -> Wi-Fi back): the
+  /// network event put the call in "Reconnecting" and restarted ICE, but
+  /// the old path never broke — ICE stayed connected, so no "connected"
+  /// event ever came and the healthy call was hung up as "lost" after the
+  /// give-up timer. While reconnecting, a link that is still up AND media
+  /// bytes still arriving means the call is fine: back to connected.
+  @visibleForTesting
+  Duration aliveProbe = const Duration(milliseconds: 1500);
+
+  Timer? _aliveTimer;
+
+  Future<void> _checkAlive() async {
+    if (phase != CallPhase.reconnecting || isEnded) return;
+    if (_lastLink != MediaLinkState.connected || _aliveTimer != null) return;
+    try {
+      final a = await media.stats();
+      if (isEnded || _disposed) return;
+      _aliveTimer = Timer(aliveProbe, () async {
+        _aliveTimer = null;
+        try {
+          if (phase != CallPhase.reconnecting || isEnded || _disposed) return;
+          if (_lastLink != MediaLinkState.connected) return;
+          final b = await media.stats();
+          final got = (b.bytesReceived ?? 0) - (a.bytesReceived ?? 0);
+          if (got > 0 && phase == CallPhase.reconnecting && !isEnded) {
+            log.add('reconnect:media-flowing');
+            _onLink(MediaLinkState.connected);
+          }
+        } catch (e) {
+          callLog('call_controller#40', e);
+        }
+      });
+    } catch (e) {
+      callLog('call_controller#40', e);
+    }
+  }
+
   void _onLink(MediaLinkState s) {
     if (isEnded) return;
+    _lastLink = s;
     log.add('link:${s.name}');
     switch (s) {
       case MediaLinkState.connected:
@@ -1244,6 +1287,7 @@ class CallController extends ChangeNotifier {
     _restartTimer?.cancel();
     _restartTimer = Timer.periodic(restartEvery, (_) {
       if (phase == CallPhase.reconnecting) {
+        unawaited(_checkAlive());
         _kickRestart();
       } else {
         _restartTimer?.cancel();
@@ -2050,6 +2094,8 @@ class CallController extends ChangeNotifier {
     _statsTimer?.cancel();
     _reconnectTimer?.cancel();
     _giveUpTimer?.cancel();
+    _aliveTimer?.cancel(); // calls-quality
+    _aliveTimer = null;
     _evSub?.cancel();
     _evSub = null;
     _netSub?.cancel();

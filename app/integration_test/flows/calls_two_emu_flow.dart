@@ -698,8 +698,15 @@ void registerCallsQualityFlows() {
           // absolute 2 s sampled gap is the emulator's CPU, not the network).
           e.needMoving('q_lossy_3g', wa, wb, maxAudioGapMs: 2000);
           for (final (side, w, c) in [('A', wa, cleanW.$1), ('B', wb, cleanW.$2)]) {
-            final fz = (w['freeze_ms'] as num?)?.toInt() ?? 0;
-            if (fz > 2000) throw TestFailure('$side video froze $fz ms in 30 s on 3G (libwebrtc) (${qualityLine(w)})');
+            // libwebrtc counts a freeze only when a frame gap exceeds
+            // max(3 x average, average + 150 ms): every freeze is > 150 ms, so
+            // the LONGEST one is at most total - (count - 1) x 150 ms
+            final fz = (w['freeze_ms'] as num?)?.toInt() ?? 0, fc = (w['freezes'] as num?)?.toInt() ?? 0;
+            final longest = fc <= 1 ? fz : fz - (fc - 1) * 150;
+            f.note('q_lossy_3g $side: libwebrtc freezes $fc, total $fz ms, longest <= $longest ms');
+            if (longest > 2000) {
+              throw TestFailure('$side video froze up to $longest ms on 3G (libwebrtc $fc freezes / $fz ms) (${qualityLine(w)})');
+            }
             final g = (w['video_max_gap_ms'] as num).toInt(), g0 = (c['video_max_gap_ms'] as num).toInt();
             final allowed = (g0 * 1.5).round() + 500 < 2000 ? 2000 : (g0 * 1.5).round() + 500;
             if (g > allowed) {
