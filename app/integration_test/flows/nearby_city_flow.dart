@@ -25,6 +25,7 @@ import 'package:assisto/screens/city/city_metro_screen.dart';
 import 'package:assisto/screens/city/city_service_screen.dart';
 import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/train/dest_alarm_service.dart';
+import 'package:assisto/widgets/nearby_category_bar.dart';
 
 import '../support/harness.dart';
 
@@ -72,6 +73,12 @@ Future<void> _airplane(RFlow f, bool on) async {
 }
 
 Future<void> _pull(RFlow f) async {
+  // back to the top first (the numbers card is the first item), then pull
+  final list = find.descendant(
+      of: find.byKey(const ValueKey('nearby_refresh')).last, matching: find.byType(Scrollable)).first;
+  await f.tester.dragUntilVisible(
+      find.byKey(const ValueKey('nearby_emergency_numbers')), list, const Offset(0, 300), maxIteration: 15);
+  await f.pumpFor(const Duration(milliseconds: 800));
   await f.tester.fling(find.byKey(const ValueKey('nearby_emergency_numbers')).last, const Offset(0, 600), 1500);
   await f.pumpFor(const Duration(seconds: 1));
 }
@@ -92,15 +99,26 @@ void registerNearbyCityFlows() {
       await f.waitFor(find.byKey(const ValueKey('nearby_emergency_numbers')), what: 'official numbers');
       await f.shot('nearby_open');
     });
-    await f.step('the list loads from the server (nearest first, sourced number)', () async {
-      await f.waitFor(find.text('Sample Police Station'), seconds: 30, what: 'sample list');
-      await f.tap(find.text(f.t.nearbyCatPolice).last, settleSeconds: 2);
+    await f.step('the list loads from the server (nearest first, unnamed place titled, sourced number)', () async {
+      await f.waitFor(find.text('Sample Hospital One'), seconds: 30, what: 'sample hospitals');
+      await f.shot('nearby_list');
+      final list = find.descendant(
+          of: find.byKey(const ValueKey('nearby_refresh')).last, matching: find.byType(Scrollable)).first;
+      final unnamed = find.text(f.t.nearbyUnnamedPlace(f.t.nearbyCatHospital));
+      await f.tester.dragUntilVisible(unnamed, list, const Offset(0, -300), maxIteration: 15);
+      await f.pumpFor(const Duration(milliseconds: 600));
+      await f.shot('nearby_unnamed_titled');
+      // the category bar scrolls sideways: bring "Police" into view
+      final bar = find.descendant(of: find.byType(NearbyCategoryBar), matching: find.byType(Scrollable)).first;
+      final police = find.text(f.t.nearbyCatPolice);
+      await f.tester.dragUntilVisible(police, bar, const Offset(-250, 0), maxIteration: 10);
+      await f.tap(police.last, settleSeconds: 2);
+      await f.waitFor(find.text('Sample Police Station'), what: 'police list');
       await f.waitFor(find.text(f.t.nearbyPhoneSrcOsm), what: 'number source under Call');
       await f.shot('nearby_police_sourced');
+      await f.tester.dragUntilVisible(find.text(f.t.nearbyCatHospital), bar, const Offset(250, 0), maxIteration: 10);
       await f.tap(find.text(f.t.nearbyCatHospital).last, settleSeconds: 2);
-      await f.waitFor(find.text('Sample Hospital One'), what: 'hospitals');
-      expect(find.text(f.t.nearbyUnnamedPlace(f.t.nearbyCatHospital)), findsWidgets);
-      await f.shot('nearby_list');
+      await f.waitFor(find.text('Sample Hospital One'), what: 'hospitals again');
     });
     await f.step('pull-to-refresh really asks the server again', () async {
       final before = NearbyScreen.areaRequests;
