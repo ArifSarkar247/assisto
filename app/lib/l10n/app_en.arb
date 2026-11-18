@@ -55340,5 +55340,40 @@
   "uwSavedCopyTooOld": "the saved copy is too old — turn on the internet to update",
   "@uwSavedCopyTooOld": {
     "description": "homefeed: Today facts freshness"
+  },
+  "pcCctvFromLine": "From {price} a month for {cameras} cameras · {days} days free",
+  "@pcCctvFromLine": {
+    "description": "plans-credits: CCTV plan line on the Plans page; every number comes from the server's CCTV plan",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "cameras": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "pcCctvFromLineNoTrial": "From {price} a month for {cameras} cameras",
+  "@pcCctvFromLineNoTrial": {
+    "description": "plans-credits: CCTV plan line when no free trial is offered",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "cameras": {
+        "type": "String"
+      }
+    }
+  },
+  "pcCctvSeePrices": "Monthly plans for your shop cameras — open to see the prices.",
+  "@pcCctvSeePrices": {
+    "description": "plans-credits: CCTV plan line while the server's prices are not loaded (offline)"
+  },
+  "pcCctvNoStorePlain": "The CCTV plan is bought through Google Play. Open the CCTV plans to see the prices and how to buy.",
+  "@pcCctvNoStorePlain": {
+    "description": "plans-credits: CCTV locked sheet when the server's price is unknown"
   }
 }

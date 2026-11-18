@@ -26597,5 +26597,9 @@
   "uwPriceMayHaveChanged": "{ago} দেওয়া — দাম বদলে থাকতে পারে। আজকেরটা দেখতে সোর্সে চাপুন।",
   "uwPrayerForDate": "{date}-এর সময়",
   "uwSourceDownSince": "উৎস সাড়া দিচ্ছে না — শেষ সঠিক তথ্য {ago}",
-  "uwSavedCopyTooOld": "সেভ করা কপি অনেক পুরনো — হালনাগাদ করতে ইন্টারনেট চালু করুন"
+  "uwSavedCopyTooOld": "সেভ করা কপি অনেক পুরনো — হালনাগাদ করতে ইন্টারনেট চালু করুন",
+  "pcCctvFromLine": "{cameras}টি ক্যামেরা মাসে {price} থেকে · {days} দিন ফ্রি",
+  "pcCctvFromLineNoTrial": "{cameras}টি ক্যামেরা মাসে {price} থেকে",
+  "pcCctvSeePrices": "দোকানের ক্যামেরার মাসিক প্ল্যান — দাম দেখতে খুলুন।",
+  "pcCctvNoStorePlain": "সিসিটিভি প্ল্যান গুগল প্লে দিয়ে কেনা যায়। দাম ও কীভাবে কিনবেন দেখতে সিসিটিভি প্ল্যান খুলুন।"
 }
