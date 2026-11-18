@@ -55100,5 +55100,9 @@
   "caeAutoRetry": "No internet right now. The alerts will load by themselves when it's back.",
   "@caeAutoRetry": {
     "description": "flag-cctv-e2e: CCTV alerts list could not load; it retries automatically"
+  },
+  "ccErrPastTime": "That time has already passed on that day. Pick a later time, or change the date.",
+  "@ccErrPastTime": {
+    "description": "gap-carecall: Care Call New screen error when a one-time call's date + time is already in the past on the receiver's clock"
   }
 }
