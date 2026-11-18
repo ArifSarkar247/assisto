@@ -706,6 +706,16 @@ void registerCallsQualityFlows() {
           if ((n['errors'] as List?)?.isNotEmpty ?? true) throw TestFailure('netem not applied: $n');
           final (wa, wb) = await e.watchBoth('q_lossy_tight', 24);
           e.needMoving('q_lossy_tight', wa, wb); // still moving (no 2 s bar while it adapts)
+          // honest label on A's call screen while the picture is small
+          await f.tester.pump(const Duration(milliseconds: 300));
+          final lbl = find.byKey(const Key('call-quality-text'));
+          if (lbl.evaluate().isEmpty) {
+            throw TestFailure('no "weak connection" label on A while its video steps down (quality ${e.a.quality})');
+          }
+          final txt = (lbl.evaluate().first.widget as Text).data;
+          f.note('q_lossy_tight: A screen label "$txt" (quality ${e.a.quality}), video paused=${e.a.videoPausedForNet}');
+          if (e.a.videoPausedForNet) throw TestFailure('A paused its video at 400 kbit/s (should step down, not pause)');
+          await f.shot('q-lossy-weak-label');
           final (qa, qb) = await e.resolution('q_res_tight');
           final (ca, cb) = clean;
           for (final (side, c0, c1, w0, w1) in [('A', ca, qa, cleanW.$1, wa), ('B', cb, qb, cleanW.$2, wb)]) {
