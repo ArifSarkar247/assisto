@@ -158,7 +158,7 @@ jobs:
         if: always()
         run: |
           python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
-          python3 tools/e2e/career_proof.py "$REALITY_OUT"
+          python3 tools/career/career_proof.py "$REALITY_OUT"
       - name: Upload evidence
         continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()

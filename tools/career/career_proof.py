@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """career: the career-lane E2E verdict (career-proof.yml).
 
-usage: career_proof.py <reality_out_dir>
+usage: tools/career/career_proof.py <reality_out_dir> (not under tools/e2e: that path triggers Launch E2E)
 Every flow in app/integration_test/flows/career_flow.dart must be "pass" (a
 flow that never ran is "notrun", never green by omission). The Bangla /
 English CV PDFs the flow saved (device/**/career_cv_*.pdf) are rasterised
