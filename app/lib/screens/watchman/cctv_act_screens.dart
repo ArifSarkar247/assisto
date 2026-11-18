@@ -830,7 +830,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
                 controller: aid,
                 maxLength: 64,
                 buildCounter: localCounter,
-                decoration: const InputDecoration(labelText: 'Access ID', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: t.gcvTuyaAccessId, border: const OutlineInputBorder()),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -838,7 +838,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
                 maxLength: 64,
                 buildCounter: localCounter,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Access Secret', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: t.gcvTuyaAccessSecret, border: const OutlineInputBorder()),
               ),
             ],
           ]),

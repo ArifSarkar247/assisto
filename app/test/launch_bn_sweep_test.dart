@@ -97,6 +97,11 @@ const _launchPrefixes = <String>[
   'circle_search', 'farmer',
   'cc_', // carecall: Care Call SCREEN 1/2/3 (4 Nov)
   'cmn_', // callmoney (4 Nov): after-call note + money from notifications
+  // gap-cctv (18 Nov): every CCTV / Shop Box screen — watchman, brand clouds,
+  // detections, roles, Guard Box, gap-cctv, IP-camera guard, phone-camera
+  // preview / recording, AI check, cost cap, Shop Box
+  'wm_', 'ccn_', 'cdet_', 'ctr_', 'gb_', 'gcv_', 'icg_', 'pcp_', 'pcr_', 'caic_', 'cap_',
+  'shop_',
 ];
 
 /// Reviewed exceptions. Keep it tiny and say why.
