@@ -211,7 +211,7 @@ class OtpLoginView(APIView):
         if canon and row.channel == "sms":   # only an SMS code proves the phone
             otp.mark_verified(user, canon)
         from .device_sessions import login_token   # recovery: per-device
-        token_key = login_token(user, request)
+        token_key = login_token(user, request, method="code")   # gap-recovery
         _log(user, "account.login", method="otp", channel=row.channel)
         from .serializers import UserSerializer
         return Response({"token": token_key,

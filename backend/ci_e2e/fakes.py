@@ -204,6 +204,21 @@ def fake_push_to_user(user, kind, title_bn, title_en, body_bn="", body_en="",
     return 1
 
 
+# ------------------------------------------------------------------ email
+class _FakeMailSender:
+    """gap-recovery (E2E_FAKE_EMAIL=1): the company mail sender, captured.
+    The real email code path runs (limits, hashing, templates, suppression);
+    only the SMTP hop is replaced. The outbox row carries the full plain-text
+    mail so the flow can READ the code from it like a person reads the inbox.
+    Throw-away CI addresses only (seed_reality's *@reality.test)."""
+    name = "ci_fake_mail"
+
+    def send_ex(self, to, subject, body, html=None, headers=None):
+        record("email", to=str(to), subject=str(subject), text=str(body),
+               html_bytes=len((html or "").encode("utf-8")))
+        return True, "ok", "250", "250 2.0.0 OK (CI capture)"
+
+
 # ------------------------------------------------------------------ install
 def install():
     from core import ai, maps_cost, otp, push, sms_gateway, sms_service, vision_providers
@@ -229,6 +244,12 @@ def install():
     else:
         push.is_available = lambda: True
         push.push_to_user = fake_push_to_user
+    # gap-recovery: captured company email (the recovery proof only — the
+    # other proof flows keep "email not configured", as they were written for)
+    if os.environ.get("E2E_FAKE_EMAIL") == "1":
+        from core import email_sender
+        email_sender.configured = lambda: True
+        email_sender._sender = lambda: _FakeMailSender()
     # camflows: the fake vendor clouds (CCTV brand-cloud E2E only)
     import os
     if os.environ.get("E2E_VENDOR_SIM") == "1":

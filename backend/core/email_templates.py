@@ -18,6 +18,9 @@ from html import escape
 
 BRAND_GRAD = "linear-gradient(90deg,#06B6D4 0%,#3B82F6 50%,#8B5CF6 100%)"
 BRAND_SOLID = "#3B82F6"           # fallback where gradients are not drawn
+# gap-recovery: WCAG AA (4.5:1) for small text — the button was #3B82F6
+# (3.7:1 with white) and the footer #6B7280 on #F3F4F6 (4.4:1); now
+# #2563EB (5.2:1) and #4B5563 (6.9:1). The header wordmark is a logotype.
 FOOTER_BN = "Assisto — Axon Dynamics"
 FOOTER_EN = "Assisto by Axon Dynamics"
 AUTO_BN = "এটি স্বয়ংক্রিয় ইমেইল, উত্তর দেবেন না।"
@@ -39,8 +42,8 @@ body{margin:0;padding:0;background:#F3F4F6}
 .mut{color:#4B5563}
 .code{background:#EEF2FF;color:#1E1B4B;border:1px solid #C7D2FE}
 .hr{border-top:1px solid #E5E7EB}
-.btn{background:#3B82F6;color:#FFFFFF}
-.foot{color:#6B7280}
+.btn{background:#2563EB;color:#FFFFFF}
+.foot{color:#4B5563}
 a{color:#2563EB}
 @media (prefers-color-scheme: dark){
  body,.bg{background:#0B1220!important}
@@ -83,7 +86,7 @@ def _block(lang, title, body, code="", code_label="", action_url="", action="",
     if action_url and action and not secondary:
         h.append('<p style="margin:6px 0 14px"><a class="btn" href="%s" '
                  'style="display:inline-block;padding:12px 22px;border-radius:10px;'
-                 'background:#3B82F6;color:#FFFFFF;text-decoration:none;'
+                 'background:#2563EB;color:#FFFFFF;text-decoration:none;'
                  'font-weight:700;font-size:15px;min-height:24px">%s</a></p>'
                  % (escape(action_url, quote=True), escape(action)))
     elif action_url and secondary:
@@ -121,7 +124,7 @@ def _page(lang, preheader, first, second, unsubscribe_url=""):
         '%(second)s</td></tr>'
         '<tr><td class="bg" style="padding:14px 8px;font-family:%(font)s;'
         'text-align:center"><p class="foot" style="margin:0;font-size:12px;'
-        'line-height:1.6;color:#6B7280">%(fbn)s · %(fen)s<br>%(abn)s / %(aen)s</p>'
+        'line-height:1.6;color:#4B5563">%(fbn)s · %(fen)s<br>%(abn)s / %(aen)s</p>'
         '%(unsub)s</td></tr></table></td></tr></table></body></html>'
         % {"lang": "en" if lang == "en" else "bn", "css": _CSS,
            "pre": escape(preheader), "solid": BRAND_SOLID, "grad": BRAND_GRAD,

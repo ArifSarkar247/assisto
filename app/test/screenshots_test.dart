@@ -38,6 +38,7 @@ import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
+import 'package:assisto/screens/lost_phone_check_screen.dart'; // gap-recovery
 import 'fake_train.dart' show trainLive701; // sjalarm
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
@@ -898,6 +899,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'recov_support_form': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore()), mode: FakeMode.data, full: true),
     'recov_support_status': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore({'ref': 'AB12CD34', 'secret': 's', 'contact': '01611000004'})), mode: FakeMode.data, full: true),
     // ---- /recovery ----
+    // gap-recovery: "Is your old phone lost?" right after a code sign-in
+    'recov_lost_check': (build: (_) => LostPhoneCheckScreen(backend: FakeAccountSecurity(), others: FakeAccountSecurity.sample().devices.where((d) => !d.current).toList()), mode: FakeMode.data, full: true),
     // emailrel: saved sign-in email bounces -> "please check your email address"
     'emailrel_bouncing': (build: (_) => EmailVerifyScreen(backend: FakeOtpBackend(emailEnabled: true, verifiedEmail: 'rahim@example.com', emailBouncing: true)), mode: FakeMode.data, full: true),
     // framebar: SMS off at launch -> honest email-code sign-in

@@ -95,11 +95,15 @@ def create(user, request=None, reason="login"):
     return raw, s
 
 
-def login_token(user, request):
+def login_token(user, request, method="password"):
     """The token a sign-in view returns: a DeviceSession key for new builds
-    (header), the legacy single Token otherwise (unchanged behaviour)."""
+    (header), the legacy single Token otherwise (unchanged behaviour).
+    gap-recovery: a sign-in on a phone this account never used tells the
+    other phones + the verified email (core.signin_alert; never blocks)."""
     if wants_device_session(request):
         raw, _s = create(user, request)
+        from . import signin_alert
+        signin_alert.maybe_alert(user, _s, method)
         return raw
     from rest_framework.authtoken.models import Token
     token, _ = Token.objects.get_or_create(user=user)

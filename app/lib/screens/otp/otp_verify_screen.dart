@@ -133,14 +133,18 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
   String _errorText(AppLocalizations t, OtpResult r) {
     switch (r.reason) {
+      // gap-recovery: the int placeholders printed "আর 4 বার" / "30 মিনিট"
+      // (ASCII digits) in the Bangla UI — now the UI digits.
       case 'invalid_code':
         final left = r.attemptsLeft;
-        return left != null ? t.otpErrInvalid(left) : t.otpErrInvalidPlain;
+        return left != null
+            ? t.recovOtpInvalid(fmtInt(context, left))
+            : t.otpErrInvalidPlain;
       case 'expired':
         return t.otpErrExpired;
       case 'locked':
         final mins = ((r.retryAfter ?? 60) / 60).ceil();
-        return t.otpErrLocked(mins);
+        return t.recovOtpLocked(fmtInt(context, mins));
       case 'cooldown':
         return t.otpErrCooldown;
       case 'rate_limited':
@@ -438,7 +442,10 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                         onPressed: (_resendLeft > 0 || _busy)
                             ? null
                             : (_viaEmail ? _sendEmail : _send),
-                        child: Text(_resendLeft > 0
+                        child: Text(_resendLeft > 90
+                            // gap-recovery: a 30-min lockout counted "1800 সেকেন্ড"
+                            ? t.recovResendInMin(fmtInt(context, (_resendLeft / 60).ceil()))
+                            : _resendLeft > 0
                             // qa1: int placeholder printed "60" in the Bangla UI
                             ? t.qa1OtpResendIn(fmtInt(context, _resendLeft))
                             : t.otpResend),

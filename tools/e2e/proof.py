@@ -38,6 +38,8 @@ BOARD = {
     "sjp05_impossible_early_arrival": [4], "sjp06_danger_pin_silent_red": [4],
     "sjp07_two_journeys": [4], "sjp08_child_unknown_place": [4],
     "sjp09_train_three_passengers": [4], "sjp10_offline_destination_alarm": [4],
+    # gap-recovery: lost phone -> email code -> keys + My Circle (group=start+recovery)
+    "rec1_lost_phone_email_code": [52, 58, 2],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -52,6 +54,10 @@ def expected():
         # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
         files = ["app/integration_test/flows/sj_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "recovery" in os.environ.get("REALITY_ONLY", ""):
+        # gap-recovery: the account-recovery proof run (e2e.yml group=start+recovery)
+        files = ["app/integration_test/flows/recovery_flow.dart"]
+        pat = r"realityFlow\(\s*'(rec\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f

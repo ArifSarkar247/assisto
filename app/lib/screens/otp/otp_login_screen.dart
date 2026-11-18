@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited; // gap-recovery
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,8 @@ import '../../api.dart' show ApiException; // adminsafe
 import '../../models.dart' show AppUser; // adminsafe
 import '../account_standing_screen.dart'; // adminsafe
 import '../../theme.dart';
+import '../../account_security_api.dart'; // gap-recovery
+import '../lost_phone_check_screen.dart'; // gap-recovery
 
 /// o1-otp — phone entry shared by "Sign in with SMS" and "Reset by SMS".
 class _PhoneField extends StatelessWidget {
@@ -54,7 +57,11 @@ OtpBackend _defaultBackend(BuildContext context) =>
 class OtpLoginScreen extends StatefulWidget {
   final OtpBackend? backend;
   final bool emailMode;
-  const OtpLoginScreen({super.key, this.backend, this.emailMode = false});
+
+  /// gap-recovery: device list for "Is your old phone lost?" (tests inject).
+  final AccountSecurityBackend? securityBackend;
+  const OtpLoginScreen(
+      {super.key, this.backend, this.emailMode = false, this.securityBackend});
 
   @override
   State<OtpLoginScreen> createState() => _OtpLoginScreenState();
@@ -132,6 +139,10 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
     await app.adoptSession(res.token, res.user);
     if (!mounted) return;
     nav.popUntil((r) => r.isFirst);
+    // gap-recovery: a code sign-in is how people get back in after losing a
+    // phone — offer to sign the other (maybe lost) phones out at once.
+    unawaited(LostPhoneCheckScreen.maybeShow(
+        nav, widget.securityBackend ?? ApiAccountSecurityBackend(app.api)));
   }
 
   @override

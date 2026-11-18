@@ -26,9 +26,9 @@ on:
         type: boolean
         default: false
       group:
-        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof)"
+        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof); start+recovery = lost phone -> email code -> keys + My Circle back (gap-recovery)"
         type: choice
-        options: [e2e, offline, start+sjproof]
+        options: [e2e, offline, start+sjproof, start+recovery]
         default: e2e
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)
@@ -61,6 +61,9 @@ jobs:
       REALITY_OUT: ${{ github.workspace }}/reality_out
       E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
       E2E_GROUP: ${{ inputs.group || 'e2e' }}   # offline1st
+      # gap-recovery: the recovery proof only — captured company email + its seed
+      E2E_FAKE_EMAIL: ${{ contains(inputs.group, 'recovery') && '1' || '' }}
+      E2E_EXTRA_SEED: ${{ contains(inputs.group, 'recovery') && 'seed_recovery' || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Free runner disk (the emulator image needs ~8 GB)

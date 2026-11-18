@@ -712,6 +712,39 @@ def no_account_notice(addr, lang, purpose="login"):
     return "sent" if r["ok"] else (r.get("reason") or "failed")[:24]
 
 
+_BN_ASCII = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
+def _decoy_verify(canon, addr, purpose, now, lim):
+    """gap-recovery (enumeration): a code typed for an identity that got the
+    neutral "sent" answer but no code (no account / no verified email) used to
+    answer "no_active_code" at once, while a real account answered
+    "invalid_code, N tries left" — so two requests told a stranger which
+    emails / numbers have an account. The decoy row now answers exactly like
+    a real wrong code: tries left, then the same lockout, then "expired".
+    Always raises OtpError."""
+    from .models import OtpChallenge
+    d = (OtpChallenge.objects.filter(purpose=purpose, sent=False, locked_until__isnull=True,
+                                     detail__startswith="not sent",
+                                     created_at__gt=now - timedelta(hours=1),
+                                     **_ident(canon, addr))
+         .order_by("-created_at").first())
+    if d is None or " exp" in (d.detail or ""):
+        raise OtpError("no_active_code", 400)
+    if d.expires_at <= now:
+        d.detail = ((d.detail or "") + " exp")[:200]
+        d.save(update_fields=["detail"])
+        raise OtpError("expired", 400)
+    d.attempts += 1
+    left = lim["max_attempts"] - d.attempts
+    if left <= 0:
+        d.locked_until = now + timedelta(minutes=lim["lockout_minutes"])
+        d.save(update_fields=["attempts", "locked_until"])
+        raise OtpError("locked", 423, retry_after=_retry(d.locked_until, now))
+    d.save(update_fields=["attempts"])
+    raise OtpError("invalid_code", 400, attempts_left=left)
+
+
 def verify(phone, purpose, code, email=None):
     """Check `code` for phone+purpose (or, with phone=None, the email-only
     identity `email`). Returns the RAW otp_proof token (give it to the client
@@ -736,13 +769,15 @@ def verify(phone, purpose, code, email=None):
                                       sent=True, **_ident(canon, addr))
           .order_by("-created_at").first())
     if ch is None:
-        raise OtpError("no_active_code", 400)
+        _decoy_verify(canon, addr, purpose, now, lim)   # always raises
     if ch.expires_at <= now:
         ch.consumed_at = now
         ch.save(update_fields=["consumed_at"])
         raise OtpError("expired", 400)
 
-    supplied = re.sub(r"\D", "", str(code or ""))[:CODE_LENGTH]
+    # gap-recovery: a code typed on a Bangla keyboard (৪৮২৯১৩) used to keep
+    # the Bangla digits (\d matches them) and never matched.
+    supplied = re.sub(r"[^0-9]", "", str(code or "").translate(_BN_ASCII))[:CODE_LENGTH]
     good = (len(supplied) == CODE_LENGTH and
             hmac.compare_digest(_hash(ch.salt, _key(canon, addr), purpose, supplied),
                                 ch.code_hash))
