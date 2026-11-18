@@ -50,21 +50,23 @@ class GrabCheck {
       final mine = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
+        // antitheft-e2e: texts from the DIALOG's context, so they follow the
+        // app language (the E2E's Bangla shot was still English)
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.back_hand_outlined),
-          title: Text(tr.at2OkTitle),
-          content: SingleChildScrollView(child: Text(tr.fatOkBody)),
+          title: Text(AppLocalizations.of(ctx).at2OkTitle),
+          content: SingleChildScrollView(child: Text(AppLocalizations.of(ctx).fatOkBody)),
           actions: [
             TextButton(
                 key: const Key('grab-no'),
                 style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(tr.at2OkNo, softWrap: true)),
+                child: Text(AppLocalizations.of(ctx).at2OkNo, softWrap: true)),
             FilledButton(
                 key: const Key('grab-yes'),
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(tr.at2OkYes, softWrap: true)),
+                child: Text(AppLocalizations.of(ctx).at2OkYes, softWrap: true)),
           ],
         ),
       );

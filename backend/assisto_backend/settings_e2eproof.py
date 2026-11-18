@@ -47,3 +47,9 @@ if os.getenv("E2E_REAL_FCM") == "1":
     FCM_TOKEN_URI = os.environ["E2E_FCM_TOKEN_URI"]
     FCM_SEND_URL = os.environ["E2E_FCM_SEND_URL"]
     PUSH_SYNC = True
+
+# antitheft-e2e: this is a LIVE server for the proof flows, like production:
+# a held grab ("Are you OK?") is escalated by the in-process timer on time.
+# settings_test switches the timer off for unit tests; without it here the
+# grab waited for the next phone check-in (no cron runs in the CI runner).
+ANTITHEFT_ESCALATE_TIMER = True

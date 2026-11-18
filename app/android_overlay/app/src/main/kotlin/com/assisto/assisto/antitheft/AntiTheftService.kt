@@ -846,8 +846,14 @@ class AntiTheftService : Service(), SensorEventListener {
 
     private fun charging(): Boolean = try {
         val i = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        // antitheft-e2e: "on the charger" = PLUGGED (a cable is in). The
+        // status alone can still say CHARGING / FULL just after the cable is
+        // pulled — and a grab "on the charger" is ignored by design, so a
+        // stale status would hide a real snatch of a just-unplugged phone.
+        val plugged = i?.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) ?: -1
         val s = i?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        s == BatteryManager.BATTERY_STATUS_CHARGING || s == BatteryManager.BATTERY_STATUS_FULL
+        if (plugged >= 0) plugged != 0
+        else s == BatteryManager.BATTERY_STATUS_CHARGING || s == BatteryManager.BATTERY_STATUS_FULL
     } catch (_: Throwable) { false }
 
     private fun lostMode(): Boolean =
