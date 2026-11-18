@@ -167,11 +167,16 @@ class WebRtcCallMedia
     'autoGainControl': true,
   };
 
+  // calls-camfast: PLAIN numbers. flutter_webrtc 1.6 on Android reads an
+  // {'ideal': n} map from the wrong level (GetUserMediaImpl.getConstrainInt
+  // checks "ideal" on the OUTER map), so every call opened the camera at its
+  // 1280x720@30 default (calls2emu run 44216427178: "Target: 1280x720@30")
+  // — a slow first keyframe and needless CPU on a low-end phone.
   static const Map<String, dynamic> _videoConstraintsBase = {
     'facingMode': 'user',
-    'width': {'ideal': 640},
-    'height': {'ideal': 480},
-    'frameRate': {'ideal': 24},
+    'width': 640,
+    'height': 480,
+    'frameRate': 24,
   };
 
   static MediaOpenException _openError(Object e) {
@@ -196,6 +201,16 @@ class WebRtcCallMedia
   bool _videoCall = false;
   bool _recvVideoAdded = false;
 
+  /// calls-camfast: [_videoSender] sits on a video m-line that is ALREADY
+  /// negotiated as send-capable (a camera-less VIDEO call keeps a sendrecv
+  /// m-line with no track). Turning the camera on is then a replaceTrack —
+  /// no renegotiation round trips (calls2emu run 44216427178: those took
+  /// ~4.3 s of the 6-9.6 s before the other phone saw the picture).
+  bool _sendSlot = false;
+
+  @override
+  bool videoSendReady = false;
+
   @override
   Future<void> startVideo() async {
     final pc = _peer;
@@ -218,6 +233,7 @@ class WebRtcCallMedia
     final track = tracks.first;
     _videoTrack = track;
     final sender = _videoSender;
+    videoSendReady = sender != null && _sendSlot;
     if (_screenTrack != null && sender != null) {
       // circle-screenshare: the screen stays on the sender; the camera is
       // put back by stopScreenShare
@@ -232,6 +248,7 @@ class WebRtcCallMedia
       _videoSender = local != null
           ? await pc.addTrack(track, local)
           : await pc.addTrack(track, cam);
+      videoSendReady = false; // a NEW sender: the caller must re-offer
     }
     cameraUnavailable = false;
     if (_renderersReady) localRenderer.srcObject = cam;
@@ -376,16 +393,24 @@ class WebRtcCallMedia
     // m-line — only MID 0 (audio) was negotiated and the other person's
     // camera never reached the caller. A receive-only video transceiver
     // gives the answerer's camera its m-line (startVideo's addTrack reuses it).
+    // calls-camfast: the m-line is SEND-capable (sendrecv, no track yet,
+    // tagged with the audio stream id): a camera turned on later goes out
+    // with replaceTrack, no renegotiation. Nothing is sent until then.
     if (offerNeedsRecvOnlyVideo(
         videoCall: _videoCall,
         hasLocalVideo: _videoSender != null,
         alreadyAdded: _recvVideoAdded)) {
       try {
-        await _peer.addTransceiver(
+        final local = _local;
+        final t = await _peer.addTransceiver(
           kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
-          init: RTCRtpTransceiverInit(direction: TransceiverDirection.RecvOnly),
+          init: RTCRtpTransceiverInit(
+              direction: TransceiverDirection.SendRecv,
+              streams: local != null ? [local] : null),
         );
         _recvVideoAdded = true;
+        _videoSender = t.sender;
+        _sendSlot = true;
       } catch (e) {
         callLog('webrtc_media#16', e);
       }
@@ -482,9 +507,31 @@ class WebRtcCallMedia
   Future<Map<String, dynamic>> acceptOffer(Map<String, dynamic> offer) async {
     await _peer.setRemoteDescription(RTCSessionDescription(
         offer['sdp'] as String?, offer['type'] as String?));
+    if (_videoCall && _videoSender == null) await _keepVideoSendSlot();
     final ans = _tuned(await _peer.createAnswer({}));
     await _peer.setLocalDescription(ans);
     return {'type': ans.type, 'sdp': ans.sdp};
+  }
+
+  /// calls-camfast: a VIDEO call answered WITHOUT a camera (busy / refused /
+  /// unavailable) answers its video m-line sendrecv (no track yet, the audio
+  /// stream id) instead of recvonly, so the camera turned on later is a
+  /// replaceTrack — no reneg_request -> offer -> answer (3 signalling hops).
+  Future<void> _keepVideoSendSlot() async {
+    try {
+      for (final t in await _peer.getTransceivers()) {
+        if (t.receiver.track?.kind != 'video') continue;
+        if (t.sender.track != null) return;
+        await t.setDirection(TransceiverDirection.SendRecv);
+        final local = _local;
+        if (local != null) await t.sender.setStreams([local]);
+        _videoSender = t.sender;
+        _sendSlot = true;
+        return;
+      }
+    } catch (e) {
+      callLog('webrtc_media#30', e); // fall back to the renegotiation path
+    }
   }
 
   @override
@@ -697,6 +744,8 @@ class WebRtcCallMedia
     await _releaseScreen(); // circle-screenshare
     await _releaseCamera();
     _videoSender = null;
+    _sendSlot = false;
+    videoSendReady = false;
     _audioSender = null;
     _recvVideoAdded = false;
     try {

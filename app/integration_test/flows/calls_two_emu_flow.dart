@@ -240,6 +240,14 @@ class _TwoEmu {
     if (dec <= 0) {
       throw TestFailure('$kase: B turned its camera on but A decoded no frame of it in 12 s ($r)');
     }
+    // calls-camfast (lead, 18 Nov): the picture must reach A < 3 s after B's
+    // camera delivers its first frame (A's clock starts earlier than B's, so
+    // this gap is an upper bound).
+    final gap = sw.elapsedMilliseconds - ((r['firstFrameMs'] as num?)?.toInt() ?? 0);
+    f.note('$kase: camera first frame -> A first decoded frame <= $gap ms');
+    if (gap >= 3000) {
+      throw TestFailure('$kase: A saw B\'s picture $gap ms after B\'s camera started (target < 3000 ms)');
+    }
   }
 
   Future<void> aHangsUp() async {

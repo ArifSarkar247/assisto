@@ -350,6 +350,42 @@ void main() {
       c.dispose();
     });
 
+    // calls-camfast (calls2emu run 44216427178: 6-9.6 s to the first frame):
+    // a camera-less video call keeps a send-capable m-line, so turning the
+    // camera on is a replaceTrack — NO reneg_request / reneg_offer, only the
+    // media-state signal that makes the other screen show the picture.
+    test('camera on with a pre-negotiated send slot: no renegotiation', () async {
+      final m = FakeCallMedia()
+        ..cameraFailsAtOpen = true
+        ..sendSlotOnStart = true;
+      final s = FakeSignaling();
+      final c = mk(m, s, video: true, outgoing: false);
+      s.backlogItems.add({
+        'seq': 5,
+        'topic': 'call.signal',
+        'payload': {
+          'call_id': 42,
+          'kind': 'offer',
+          'data': {'type': 'offer', 'sdp': 'v=0 V'}
+        }
+      });
+      await c.start();
+      await settle();
+      m.link.add(MediaLinkState.connected);
+      await settle();
+      expect(c.cameraOn, isFalse);
+      s.signals.clear();
+      await c.toggleCamera();
+      await settle();
+      expect(m.log, contains('start-video'));
+      expect(c.cameraOn, isTrue);
+      expect(kinds(s), isNot(contains('reneg_request')));
+      expect(kinds(s), isNot(contains('reneg_offer')));
+      expect(s.signals.where((e) => e.$1 == 'media').last.$2['camera'], isTrue);
+      expect(c.log, contains('camera-on:replace-track'));
+      c.dispose();
+    });
+
     test('caller answers a reneg_request with a fresh offer', () async {
       final m = FakeCallMedia(), s = FakeSignaling();
       final c = await live(m, s, video: true);

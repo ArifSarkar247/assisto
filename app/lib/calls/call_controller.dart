@@ -272,6 +272,12 @@ abstract class CallMedia {
   /// Throws [MediaOpenException] when the camera can't start.
   Future<void> startVideo();
 
+  /// calls-camfast: after [startVideo] — true when the camera went onto a
+  /// video m-line that was already negotiated as send-capable (a camera-less
+  /// VIDEO call keeps one), so the other phone gets the picture without a
+  /// renegotiation; false = renegotiate as before.
+  bool get videoSendReady;
+
   /// b1-calls video -> voice: stop the camera; no renegotiation needed (the
   /// sender just stops sending). Remote video views are cleared too.
   Future<void> stopVideo();
@@ -1507,7 +1513,13 @@ class CallController extends ChangeNotifier {
       if (!await _openCamera()) return;
       cameraOn = true;
       notifyListeners();
-      await _renegotiateOrAsk();
+      // calls-camfast: the m-line already sends -> no reneg round trips (the
+      // media-state signal below tells the other screen to show the picture)
+      if (media.videoSendReady) {
+        log.add('camera-on:replace-track');
+      } else {
+        await _renegotiateOrAsk();
+      }
       unawaited(_sendMediaState());
       return;
     }
