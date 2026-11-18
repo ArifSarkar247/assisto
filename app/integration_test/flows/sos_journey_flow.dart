@@ -93,8 +93,24 @@ void registerSosJourneyFlows() {
       await f.tap(safe.hitTestable(), settleSeconds: 3);
       if (!f.h.recorder.hits.skip(m2).any((x) => x.path.startsWith('/family/sos/resolve'))) {
         // diagnostics for the owner report — a missed first tap is written down
-        f.note('FIRST TAP MISSED (snackbar: ${find.byType(SnackBar).evaluate().length})');
-        await f.tap(find.text(f.t.fa100SafeNow).hitTestable(), settleSeconds: 3);
+        f.note('FIRST TAP MISSED (snackbar: ${find.byType(SnackBar).evaluate().length}, '
+            'barriers: ${find.byType(ModalBarrier).evaluate().length}, '
+            'absorb: ${find.ancestor(of: safe.first, matching: find.byType(AbsorbPointer)).evaluate().length}, '
+            'ignore: ${find.ancestor(of: safe.first, matching: find.byType(IgnorePointer)).evaluate().length})');
+        // does ANY tap work on this page? the next button opens a page
+        final full = find.byKey(const ValueKey('sos-open-full'));
+        if (full.hitTestable().evaluate().isNotEmpty) {
+          final before = find.byType(Scaffold).evaluate().length;
+          await f.tester.tapAt(f.tester.getCenter(full.first));
+          await f.pumpFor(const Duration(seconds: 2));
+          f.note('open-full tap -> scaffolds $before -> ${find.byType(Scaffold).evaluate().length}');
+          if (find.byType(Scaffold).evaluate().length > before) {
+            await Navigator.of(f.tester.element(find.byType(Scaffold).last)).maybePop();
+            await f.pumpFor(const Duration(seconds: 2));
+          }
+        }
+        await f.tester.tapAt(f.tester.getCenter(safe.first));
+        await f.pumpFor(const Duration(seconds: 3));
       }
       await f.shot('safe');
       f.expectHttp('POST', '/family/sos/resolve', since: m2);
