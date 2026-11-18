@@ -1307,6 +1307,9 @@ class CircleMessageActionView(APIView):
             "id": x.id, "sender_id": x.sender_id, "created_at": x.created_at,
             "reactions": x.reactions or {}, "starred_by": x.starred_by or [],
             "deleted": x.deleted or "",
+            # circle-chat: can_edit() allows only TEXT — without the type
+            # every 1:1 edit was refused 403 "edit_window" (reality cc5).
+            "content_type": x.content_type or "text",
         }
         if action == "react":
             emoji = str(d.get("emoji", ""))[:8]

@@ -516,8 +516,10 @@ void registerCircleChatFlows() {
       await f.pumpFor(const Duration(seconds: 10)); // a late duplicate flush would land now
       final n = await f.net(() async => (await _fromA(b)).where((x) => x.$1 == text).length);
       if (n != 1) throw TestFailure('B has $n copies (want exactly 1)');
-      if (_sees(text).evaluate().length != 1) {
-        throw TestFailure('A shows ${_sees(text).evaluate().length} bubbles for one message');
+      // a Text builds its own RichText: count Text widgets only
+      final bubbles = find.byWidgetPredicate((w) => w is Text && (w.data ?? '') == text);
+      if (bubbles.evaluate().length != 1) {
+        throw TestFailure('A shows ${bubbles.evaluate().length} bubbles for one message');
       }
       await f.waitFor(find.byKey(const ValueKey('tick-sent')), seconds: 25, what: '✓ sent');
       await f.shot('online-sent');
@@ -561,7 +563,7 @@ void registerCircleChatFlows() {
             edgeAB);
         var sawRing = false;
         for (var i = 0; i < 120; i++) {
-          if (find.byKey(Key('md1-send-cancel-${job.id}')).evaluate().isNotEmpty) sawRing = true;
+          if (find.byKey(Key('cm-send-cancel-${job.id}')).evaluate().isNotEmpty) sawRing = true;
           if ((await f.net(() => MediaOutbox.instance.all())).every((j) => j.id != job.id)) break;
           if (i == 3) await f.shot('photo-uploading');
           await f.pumpFor(const Duration(milliseconds: 500));
@@ -640,20 +642,19 @@ void registerCircleChatFlows() {
         final ref = await _peerSendMedia(f, b, outB, 'photo', path,
             name: name, mime: 'image/png', w: 1300, h: 1300, thumb: thumb);
         await _openChatWith(f, Seed.nameB);
-        final any = find.byWidgetPredicate((w) =>
-            w.key == Key('md1-dl-${ref}') ||
-            w.key == Key('md1-dl-cancel-${ref}') ||
-            w.key == Key('md1-photo-${ref}'));
-        await f.waitFor(any, seconds: 40, what: 'B\'s photo bubble');
-        if (find.byType(ImageFiltered).evaluate().isEmpty &&
-            find.byKey(Key('md1-photo-${ref}')).evaluate().isEmpty) {
+        // photos render as the album/photo bubble (circlemedia): tile cm-tile-<ref>
+        await f.waitFor(find.byKey(ValueKey('cm-tile-$ref')), seconds: 60, what: 'B\'s photo bubble');
+        final cached = File('${MediaDirs.rootSync}/files/$ref.png');
+        if (find.byType(ImageFiltered).evaluate().isEmpty && !cached.existsSync()) {
           throw TestFailure('no blurred thumbnail before the download');
         }
         await f.shot('bphoto-thumb');
-        if (find.byKey(Key('md1-dl-${ref}')).evaluate().isNotEmpty) {
-          await f.tap(find.byKey(Key('md1-dl-${ref}')), settleSeconds: 1);
+        if (find.byKey(Key('cm-dl-$ref')).evaluate().isNotEmpty) {
+          await f.tap(find.byKey(Key('cm-dl-$ref')), settleSeconds: 1);
         }
-        await f.waitFor(find.byKey(Key('md1-photo-${ref}')), seconds: 90, what: 'photo opened');
+        await f.eventually('A downloaded + decrypted B\'s photo', () async =>
+            File('${MediaDirs.rootSync}/files/$ref.png').existsSync() &&
+            MediaCache.instance.states.value[ref] == null, seconds: 90);
         await f.shot('bphoto-open');
       });
 
@@ -667,7 +668,7 @@ void registerCircleChatFlows() {
             name: name, mime: 'video/mp4', w: 1280, h: 720, ms: 20000, thumb: thumb);
         slow.ranges.clear();
         await _openChatWith(f, Seed.nameB);
-        final dl = find.byKey(Key('md1-dl-${ref}'));
+        final dl = find.byKey(Key('cm-dl-$ref'));
         if (await f.appears(dl, seconds: 25)) await f.tap(dl, settleSeconds: 1);
         var p = 0.0;
         for (var i = 0; i < 240 && p < 0.3; i++) {
@@ -682,7 +683,7 @@ void registerCircleChatFlows() {
         await f.pumpFor(const Duration(seconds: 75));
         await f.shot('bvideo-cut');
         await _airplane(f, false);
-        final retry = find.byKey(Key('md1-dl-${ref}'));
+        final retry = find.byKey(Key('cm-dl-$ref'));
         if (await f.appears(retry, seconds: 10)) await f.tap(retry, settleSeconds: 1);
         await f.eventually('the video is downloaded + decrypted on A', () async {
           final root = MediaDirs.rootSync;

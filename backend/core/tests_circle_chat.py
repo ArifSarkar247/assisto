@@ -147,3 +147,28 @@ class StaleRosterTests(_Base):
         r = self.ca.post(self.p("messages/%d/edit" % mid),
                          {"per_recipient": new}, format="json")
         self.assertEqual(r.status_code, 409, r.content)
+
+
+class DirectEditTests(_Base):
+    """1:1 edit: refused for EVERY message (env had no content_type)."""
+    def send(self, ct="text", cmid="e1"):
+        r = self.ca.post("%s/circle/%d/messages" % (V, self.ab.id), {
+            "content_type": ct, "ciphertext": "Q1Q=", "nonce": "Tg==",
+            "sender_key_id": "kA", "client_msg_id": cmid}, format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        return r.json()["id"]
+
+    def test_sender_edits_own_text(self):
+        mid = self.send()
+        r = self.ca.post("%s/circle/messages/%d/edit" % (V, mid),
+                         {"ciphertext": "TkVX", "nonce": "Tg=="}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        x = CircleMessage.objects.get(pk=mid)
+        self.assertEqual(x.ciphertext, "TkVX")
+        self.assertIsNotNone(x.edited_at)
+
+    def test_peer_cannot_edit(self):
+        mid = self.send(cmid="e2")
+        r = self.cb.post("%s/circle/messages/%d/edit" % (V, mid),
+                         {"ciphertext": "TkVX", "nonce": "Tg=="}, format="json")
+        self.assertEqual(r.status_code, 403, r.content)
