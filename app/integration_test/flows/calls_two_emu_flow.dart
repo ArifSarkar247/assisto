@@ -209,7 +209,7 @@ class _TwoEmu {
         'B out enc ${s3.bEnc}->${s10.bEnc} -> A in dec ${s3.a.videoFramesDecoded}->${s10.a.videoFramesDecoded}; '
         'audio in A ${s3.a.audioPacketsIn}->${s10.a.audioPacketsIn}, B ${s3.bAudio}->${s10.bAudio}';
     // calls-2emu (gate 44256598783): a stalled direction is often the app's
-    // weak-network policy pausing the SENDER's video (estimate < 120 kbps on
+    // weak-network policy pausing the SENDER's video (estimate < 40 kbps since calls-quality; 120 on
     // an overloaded CI host) — say so in the failure, it is not a lost m-line.
     final aPaused = a.videoPausedForNet, bPaused = s10.b['pausedForNet'] == true;
     final why = (aPaused || bPaused)
