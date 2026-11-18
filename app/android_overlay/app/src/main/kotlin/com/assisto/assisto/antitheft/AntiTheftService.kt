@@ -511,7 +511,7 @@ class AntiTheftService : Service(), SensorEventListener {
                 EngineWake.hold(ctx, EngineWake.PUSH_MS)
                 val svc = instance
                 if (svc != null && running) {
-                    svc.postFlush()
+                    svc.postFlushFast()
                 } else {
                     restartFromBackground(ctx, RestartPolicy.PUSH)
                 }
@@ -599,6 +599,11 @@ class AntiTheftService : Service(), SensorEventListener {
     @Volatile private var criticalSent = false
     internal val flushRun = Runnable {
         try { doHeartbeat() } catch (_: Throwable) {}
+    }
+    // antitheft-nine: a check-in that does NOT first wait for a fresh fix
+    // (wake-up push for a remote switch: the command matters, not the fix)
+    private val flushFastRun = Runnable {
+        try { doHeartbeat(waitFix = false) } catch (_: Throwable) {}
     }
     private val offlineCheck = Runnable {
         try {
@@ -732,7 +737,9 @@ class AntiTheftService : Service(), SensorEventListener {
             // switched on again) or compare to it (re-arm after a restart).
             if (fresh || !hasSimBaseline()) scheduleSimCheck(2_000L)
             // Any start/flush intent kicks an immediate check-in + queue drain.
-            bg.post { try { doHeartbeat() } catch (_: Throwable) {} }
+            // antitheft-nine: coalesced (repeated flush intents = ONE check-in)
+            bg.removeCallbacks(flushRun)
+            bg.post(flushRun)
             if (intent?.action == ACTION_SNATCH) {
                 bg.post { onSnatchDetected() }
             }
@@ -928,7 +935,7 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     } catch (_: Throwable) { "none" }
 
-    private fun doHeartbeat() {
+    private fun doHeartbeat(waitFix: Boolean = true) {
         val item = JSONObject()
             .put("id", "hb-" + System.currentTimeMillis())
             .put("kind", "heartbeat")
@@ -941,7 +948,7 @@ class AntiTheftService : Service(), SensorEventListener {
             .put("charging", charging())
         // antitheft2: a real fix (fresh when the cached one is > 10 min
         // old) with its accuracy and the time it was taken.
-        currentFix(10 * 60_000L, 6_000L)?.let { f ->
+        currentFix(10 * 60_000L, if (waitFix) 6_000L else 0L)?.let { f ->
             item.put("lat", f.lat).put("lng", f.lng).put("fix_at", f.timeMs)
             f.acc?.let { a -> item.put("acc", a.toDouble()) }
         }
@@ -1103,14 +1110,29 @@ class AntiTheftService : Service(), SensorEventListener {
                 val wantFresh = kind == "low_battery" || kind == "snatch" ||
                     kind == "sim_change" || kind == "failed_unlock" ||
                     kind == "sos_lockscreen" || kind == "sos_power" || kind == "fall"
-                val fix = currentFix(if (wantFresh) 2 * 60_000L else 15 * 60_000L,
-                    if (wantFresh) 8_000L else 0L)
+                // antitheft-nine (speed bug): a grab / SOS used to wait up to
+                // 8 s for a fresh fix, then the check-in waited up to 6 s more
+                // -> the held grab reached the server ~14 s into its 15 s
+                // window (family alert late, "Are you OK?" nearly over). Now
+                // it goes AT ONCE with the best cached fix (its age is sent),
+                // and a fresh fix follows in a second check-in.
+                val urgent = kind == "snatch" || kind == "sos_lockscreen" ||
+                    kind == "sos_power" || kind == "fall"
+                val maxAge = if (wantFresh) 2 * 60_000L else 15 * 60_000L
+                val fix = currentFix(maxAge, if (wantFresh && !urgent) 8_000L else 0L)
                 if (fix != null) {
                     data.put("fix_at", fix.timeMs)
                     fix.acc?.let { a -> data.put("acc", a.toDouble()) }
                 }
                 queue?.add(cid, kind, atMs, fix?.lat, fix?.lng, batteryPct(), data)
-                doHeartbeat()
+                doHeartbeat(waitFix = !urgent)
+                if (urgent && (fix == null || System.currentTimeMillis() - fix.timeMs > maxAge)) {
+                    val f = LastLocation.fresh(applicationContext, 8_000L)
+                    if (f != null && (fix == null || f.timeMs > fix.timeMs)) {
+                        lastFix = f
+                        doHeartbeat(waitFix = false) // carries the fresh fix
+                    }
+                }
             } catch (_: Throwable) {}
         }
     }
@@ -1598,7 +1620,14 @@ class AntiTheftService : Service(), SensorEventListener {
     }
 
     fun postFlush() {
-        if (this::bg.isInitialized) bg.post(flushRun)
+        // antitheft-nine: coalesce — many asks in a row (app resume, pushes)
+        // used to queue one full check-in EACH (with a fix wait) and starve
+        // the worker (a photo / grab waited behind them)
+        if (this::bg.isInitialized) { bg.removeCallbacks(flushRun); bg.post(flushRun) }
+    }
+
+    fun postFlushFast() {
+        if (this::bg.isInitialized) { bg.removeCallbacks(flushFastRun); bg.post(flushFastRun) }
     }
 
     fun dropGrabTimer() {

@@ -141,13 +141,13 @@ void registerAntiTheftNineFlows() {
         // the host hands it to the phone as Play services would
         await AtKit.host(f, 'fcm_wake');
         Map? s;
-        await f.eventually('$kind ran on the sleeping phone', () async {
+        await AtKit.until(f, '$kind ran on the sleeping phone', () async {
           s = await atCh.invokeMethod<Map>('debugState');
           return ((s?['pushWakes'] as num?) ?? 0) > before && done(s!);
         }, seconds: 45);
         final ran = await AtKit.serverNow(f) - t0;
         Map? cmd;
-        await f.eventually('A sees the honest result of $kind', () async {
+        await AtKit.until(f, 'A sees the honest result of $kind', () async {
           final l = await AtKit.a!.getJson('/security/engine/commands?phone_id=${AtKit.phoneId}');
           cmd = ((l['commands'] as List?) ?? const []).cast<Map>()
               .where((c) => c['id'] == cmdId).firstOrNull;

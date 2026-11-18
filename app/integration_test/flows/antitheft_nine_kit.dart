@@ -136,6 +136,28 @@ class AtKit {
     return ((o['rows'] as List?) ?? const []).cast<Map>();
   }
 
+  /// Poll [probe] with runAsync ONLY (no tester.pump): with the screen OFF
+  /// there are no frames, and a pump would wait forever.
+  static Future<void> until(RFlow f, String what, Future<bool> Function() probe,
+      {int seconds = 45}) async {
+    Object? last;
+    final ok = await f.tester.runAsync(() async {
+      final end = DateTime.now().add(Duration(seconds: seconds));
+      while (DateTime.now().isBefore(end)) {
+        try {
+          if (await probe()) return true;
+        } catch (e) {
+          last = e;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 700));
+      }
+      return false;
+    });
+    if (ok != true) {
+      throw TestFailure('never happened: $what${last != null ? ' (last error: $last)' : ''}');
+    }
+  }
+
   static Future<void> waitNoPending(RFlow f) async {
     await f.eventually('no grab is pending on the phone', () async {
       final s = await atCh.invokeMethod<Map>('debugState');

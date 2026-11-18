@@ -10,7 +10,12 @@
 //   2. intruder photo / instant lock / wrong-unlock threshold from a check-in
 //      reach the running engine (like the sensitivity);
 //   3. the remote alarm keeps ringing on a sleeping phone (player wake mode);
-//   4. the intruder photo carries a fresh location fix.
+//   4. the intruder photo carries a fresh location fix;
+//   5. (found by the API 34 E2E) a grab / SOS waited up to 8 s for a fresh fix
+//      and the check-in up to 6 s more -> the held grab reached the server
+//      ~14 s into its 15 s window. Urgent events now go at once with the
+//      cached fix (fresh fix follows); check-ins are coalesced; the wake-up
+//      push checks in without a fix wait.
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -83,5 +88,24 @@ void main() {
     final s = _read('AntiTheftService.kt');
     final d = _after(s, 'fun debugState(ctx: Context)', 2500);
     expect(d.indexOf('if (!isDebuggable(ctx))'), lessThan(d.indexOf('"pushWakes"')));
+  });
+
+  test('urgent events go at once; a fresh fix follows', () {
+    final s = _read('AntiTheftService.kt');
+    final c = _after(s, 'val urgent = kind == "snatch"', 1200);
+    expect(c, contains('if (wantFresh && !urgent) 8_000L else 0L'));
+    expect(c, contains('doHeartbeat(waitFix = !urgent)'));
+    expect(c, contains('LastLocation.fresh(applicationContext, 8_000L)'));
+    expect(c.indexOf('doHeartbeat(waitFix = !urgent)'),
+        lessThan(c.indexOf('LastLocation.fresh(applicationContext, 8_000L)')));
+  });
+
+  test('check-ins are coalesced; the wake-up push does not wait for a fix', () {
+    final s = _read('AntiTheftService.kt');
+    expect(_after(s, 'fun postFlush()', 400),
+        contains('bg.removeCallbacks(flushRun); bg.post(flushRun)'));
+    expect(_after(s, 'fun onCommandPush(ctx: Context)', 900), contains('svc.postFlushFast()'));
+    expect(_after(s, 'private val flushFastRun', 200), contains('doHeartbeat(waitFix = false)'));
+    expect(s, isNot(contains('bg.post { try { doHeartbeat() } catch (_: Throwable) {} }')));
   });
 }

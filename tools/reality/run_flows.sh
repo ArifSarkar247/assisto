@@ -42,6 +42,12 @@ prep_device() {
     timeout 30 adb root >/dev/null 2>&1 || true; sleep 3
     timeout 60 adb wait-for-device >/dev/null 2>&1 || true ;;
   esac
+  # antitheft-nine: the emulator reports "on the charger" and the server
+  # (rightly) ignores a grab of a CHARGING phone -> every anti-theft run
+  # starts unplugged, like a phone in a pocket / on a shop counter.
+  case ",${REALITY_ONLY:-}," in *atproof*|*atnine*|*atbattery*)
+    timeout 10 adb shell dumpsys battery unplug >/dev/null 2>&1 || true ;;
+  esac
   # rf1: NO soft keyboard. Run 40205920547: 4 of 6 emulator deaths came seconds
   # after "showSoftInput ... show(ime())" (the IME window + the app's viewport
   # resize -> 6-18 s frames -> host emulator Segmentation fault under
@@ -233,7 +239,7 @@ host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
       timeout 10 adb shell dumpsys power 2>/dev/null | grep -m1 -E 'mWakefulness=' ;;
     doze_off)
       timeout 20 adb shell dumpsys deviceidle unforce >/dev/null 2>&1 || true
-      timeout 10 adb shell dumpsys battery reset >/dev/null 2>&1 || true
+      timeout 10 adb shell dumpsys battery unplug >/dev/null 2>&1 || true   # stay off the charger
       at_unlock
       timeout 10 adb shell dumpsys deviceidle get deep 2>&1 | sed 's/^/deep=/' ;;
     fcm_wake)
@@ -249,7 +255,10 @@ host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
       timeout 10 adb shell dumpsys power 2>/dev/null | grep -m1 -E 'mWakefulness=' ;;
     cam_info)
       timeout 15 adb shell dumpsys media.camera 2>/dev/null | grep -m4 -E 'Number of camera devices|Facing' | tr -s ' '
-      timeout 10 adb shell dumpsys package "$PKG" 2>/dev/null | grep -m1 'android.permission.CAMERA: granted' || echo 'CAMERA not granted' ;;
+      timeout 10 adb shell dumpsys package "$PKG" 2>/dev/null | grep -m1 'android.permission.CAMERA: granted' || echo 'CAMERA not granted'
+      timeout 10 adb shell cmd appops get "$PKG" CAMERA 2>&1 | head -2 | tr '\n' ' '; echo
+      timeout 10 adb shell dumpsys sensor_privacy 2>/dev/null | grep -iE 'enabled|camera' | head -3 | tr -s ' ' | tr '\n' ' '; echo
+      timeout 10 adb shell dumpsys activity processes 2>/dev/null | grep -A2 "$PKG" | grep -m1 -oE 'procState=[A-Z_0-9]+|curProcState=[0-9]+|mCurCapability=[0-9a-zA-Z]+' | head -2 | tr '\n' ' '; echo ;;
     batt_start)
       timeout 10 adb shell dumpsys battery unplug >/dev/null 2>&1 || true
       timeout 20 adb shell dumpsys batterystats --reset 2>&1 | tail -1
