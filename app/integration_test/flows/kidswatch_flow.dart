@@ -135,7 +135,7 @@ void registerKidsWatchFlows() {
       final banner = find.byKey(ValueKey('kwg-sos-$wid'));
       await f.scrollTo(banner);
       await f.waitFor(banner, what: 'red SOS banner');
-      expect(find.descendant(of: banner, matching: find.byIcon(Icons.call_rounded)),
+      expect(find.descendant(of: banner, matching: find.byWidgetPredicate((w) => w is Icon && w.icon == Icons.call_rounded)),
           findsOneWidget);
       await f.shot('kidswatch_sos_banner');
     });
