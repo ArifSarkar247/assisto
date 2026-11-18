@@ -328,6 +328,7 @@ Map<String, dynamic>? fakeBizAgentGet(String path, bool bn, FakeMode mode) {
     };
   }
   if (p == '/bizagent/threads/7') return _g1ImageThread(bn);
+  if (p == '/bizagent/threads/6') return bspCodThread(bn); // bizsales-proof
   // sales2: catalog quick replies (views_bizagent_v2.QuickRepliesView)
   if (p.startsWith('/bizagent/threads/') && p.endsWith('/quick-replies')) {
     return {'lang': bn ? 'bn' : 'en', 'replies': s2QuickReplies(bn)};
@@ -407,3 +408,28 @@ Map<String, dynamic>? fakeBizAgentPost(String path, Map<String, dynamic> body, b
   if (path == '/bizagent/plan/trial') return {'plan': 'trial', 'active': true};
   return {'ok': true};
 }
+
+
+// bizsales-proof: a chat with two COD orders (one to ask, one waiting)
+Map<String, dynamic> bspCodThread(bool bn) => {
+      'thread': {..._thread(bn), 'id': 6},
+      'messages': [
+        {'id': 61, 'direction': 'in', 'text': bn ? 'পাঞ্জাবি নিব' : 'I want the panjabi',
+         'is_ai': false, 'status': 'received', 'kind': 'text', 'risk_reason': '',
+         'send_error': '', 'confidence': 0, 'created_at': ''},
+      ],
+      'orders': [
+        {'id': 71, 'status': 'new', 'total': '2460.00', 'tracking': '', 'courier': '',
+         'courier_live': false, 'payment_status': '', 'draft': false, 'items': [],
+         'cod': {'stage': 'none', 'can_ask': true, 'risk': {
+           'level': 'high', 'delivered': 1, 'returned': 2, 'based_on': 3,
+           'text_bn': 'এই নম্বরের আগের পার্সেল (সব Assisto দোকান মিলিয়ে, শুধু সংখ্যা): ডেলিভারি ১, ফেরত ২।',
+           'text_en': "This number's earlier parcels (all Assisto shops, counts only): 1 delivered, 2 returned."}}},
+        {'id': 72, 'status': 'new', 'total': '1260.00', 'tracking': '', 'courier': '',
+         'courier_live': false, 'payment_status': '', 'draft': false, 'items': [],
+         'cod': {'stage': 'asked', 'can_ask': false, 'risk': {
+           'level': 'new', 'delivered': 0, 'returned': 0, 'based_on': 0,
+           'text_bn': 'নতুন ক্রেতা: এই নম্বরে Assisto-তে আগের কোনো পার্সেলের হিসাব নেই। ঝুঁকি জানা নেই, তাই নিরাপদ ধরা হয়নি।',
+           'text_en': 'New buyer: no earlier parcels for this number on Assisto. The risk is unknown, so it is not treated as safe.'}}},
+      ],
+    };

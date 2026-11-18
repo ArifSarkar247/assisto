@@ -1,0 +1,31 @@
+{
+ "en": {
+  "bspCodCardTitle": "Cash on delivery — order #{id}",
+  "@bspCodCardTitle": {
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "bspCodSend": "Ask the customer to confirm",
+  "bspCodSentDone": "Confirmation sent with Yes / No buttons",
+  "bspCodStageNone": "Not confirmed yet. The customer gets the order details with Yes / No buttons; one reminder after 6 hours, then the order is cancelled if there is no reply.",
+  "bspCodStageAsked": "Waiting for the customer's Yes / No",
+  "bspCodStageReminded": "Reminder sent. The order is cancelled if there is no reply",
+  "bspCodStageConfirmed": "The customer confirmed. You can pack and ship it",
+  "bspCodStageDeclined": "The customer cancelled. Stock was added back",
+  "bspCodStageNoReply": "No reply, so the order was cancelled. Stock was added back"
+ },
+ "bn": {
+  "bspCodCardTitle": "ক্যাশ অন ডেলিভারি — অর্ডার #{id}",
+  "bspCodSend": "গ্রাহককে নিশ্চিত করতে বলুন",
+  "bspCodSentDone": "হ্যাঁ / না বোতামসহ নিশ্চিতকরণ পাঠানো হয়েছে",
+  "bspCodStageNone": "এখনো নিশ্চিত হয়নি। গ্রাহক অর্ডারের বিবরণ আর হ্যাঁ / না বোতাম পাবেন; ৬ ঘণ্টা পরে একবার মনে করানো হবে, তারপরও উত্তর না এলে অর্ডার বাতিল হবে।",
+  "bspCodStageAsked": "গ্রাহকের হ্যাঁ / না-এর অপেক্ষা",
+  "bspCodStageReminded": "মনে করানো হয়েছে। উত্তর না এলে অর্ডার বাতিল হবে",
+  "bspCodStageConfirmed": "গ্রাহক নিশ্চিত করেছেন। এখন প্যাক করে পাঠাতে পারেন",
+  "bspCodStageDeclined": "গ্রাহক বাতিল করেছেন। স্টক ফেরত যোগ হয়েছে",
+  "bspCodStageNoReply": "উত্তর আসেনি, তাই অর্ডার বাতিল হয়েছে। স্টক ফেরত যোগ হয়েছে"
+ }
+}
