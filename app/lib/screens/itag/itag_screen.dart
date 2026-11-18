@@ -310,7 +310,7 @@ class _ItagScreenState extends State<ItagScreen> with WidgetsBindingObserver {
         key: const Key('itag-radio'),
         tone: r == ItagRadio.unsupported ? DsTone.danger : DsTone.normal,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(msg),
+          Text(msg, key: const Key('itag-radio-msg')),
           if (action != null && onTap != null) ...[
             const SizedBox(height: Gap.md),
             DsButton(

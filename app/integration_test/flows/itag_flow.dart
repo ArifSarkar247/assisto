@@ -223,7 +223,10 @@ void registerItagFlows() {
         await n.send('disconnected', radioOff: true);
         await n.send('radio', radioOff: true);
         await f.waitFor(find.byKey(const Key('itag-radio')), what: 'Bluetooth off card');
-        await f.waitFor(find.text(t.itgBtOffWatching), what: '"not being watched" text');
+        final msg = await f.waitFor(find.byKey(const Key('itag-radio-msg')), what: 'card message');
+        if (f.tester.widget<Text>(msg).data != t.itgBtOffWatching) {
+          throw TestFailure('card should say the bag is NOT being watched');
+        }
         await f.pumpFor(const Duration(seconds: 12));
         if (find.byKey(const Key('itag-alert-left')).evaluate().isNotEmpty || sound.starts != starts) {
           throw TestFailure('false left-behind alarm with Bluetooth off');
