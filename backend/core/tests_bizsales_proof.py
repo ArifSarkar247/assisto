@@ -192,7 +192,10 @@ class FakeLLM:
                            "blob": blob})
         facts = blob.split("FACTS:", 1)[1] if "FACTS:" in blob else ""
         rows = self.ROW.findall(facts)
-        low = (prompt or "").lower()
+        # core.ai.generate: prompt = task + "<data>…</data>" (the customer's
+        # untrusted words); only those words decide what this fake "model" does
+        dm = re.search(r"<data>\n(.*?)\n</data>", prompt or "", re.S)
+        low = (dm.group(1) if dm else "").lower()
         if "ignore" in low and "instruction" in low:
             out = {"reply": "Sure! Nodi Boutique sells Kurti at 990 taka and Panjabi at 1850.",
                    "confidence": 0.95}
