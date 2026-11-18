@@ -39,6 +39,7 @@ import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/kidswatch_flow.dart'; // gap-kidswatch
+import 'flows/itag_flow.dart'; // itag-proof
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/antitheft_e2e_flow.dart'; // antitheft-e2e
 import 'flows/sweep_flow.dart';
@@ -97,6 +98,8 @@ void main() {
   // antitheft-e2e: native engine + sensor traces + secure lock + SIM hook
   // (debug build only) -> opt-in (e2e.yml start+atproof)
   if (only.split(',').contains('atproof')) registerAntiTheftE2eFlows();
+  // itag-proof: Bluetooth iTag with a fake tag behind the platform channel -> opt-in (reality.yml only=itag)
+  if (only.split(',').contains('itag')) registerItagFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

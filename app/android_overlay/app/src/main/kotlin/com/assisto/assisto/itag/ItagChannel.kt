@@ -14,7 +14,9 @@ import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.IntentFilter
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -45,16 +47,20 @@ import java.util.UUID
  *   battery({address})      -> Int? (0..100)
  *   disconnect({address})   -> Bool
  *   openSettings()          -> Bool
- * Native -> Dart: "event" {type: connected|disconnected|button, address, user}
+ * Native -> Dart: "event" {type: connected|disconnected|button|radio, address, user, radioOff}
+ *   (radio: Bluetooth turned off/on; disconnected with radioOff=true = the
+ *   adapter went off, never a "left behind")
  *
  * LAZY + CRASH-GUARDED: register() only installs a handler; the adapter is
  * touched only when the Bluetooth tag screen calls. Scanning uses
  * BLUETOOTH_SCAN with neverForLocation on Android 12+ (Android 8-11 need
  * the location permission for any BLE scan — asked on the tag screen after
  * its own reason). No background scanning, no foreground service: links live
- * only while the app process runs. Every GATT step is serialized (one op at a
- * time, 4 s timeout) and every callback is try/catch — a vendor quirk returns
- * false/null instead of crashing.
+ * only while the app process runs. itag-proof: the link logic (serialized
+ * GATT ops, timeouts, one silent retry, radio off) is ItagEngine.kt — pure
+ * Kotlin, JVM unit-tested in CI (itag-proof.yml); this file only adapts
+ * Android's BluetoothGatt to it. A vendor quirk returns false/null instead
+ * of crashing.
  */
 object ItagChannel {
     private const val NAME = "com.assisto/itag"
@@ -74,24 +80,6 @@ object ItagChannel {
     private var channel: MethodChannel? = null
     private var app: Context? = null
     private var activity: WeakReference<Activity>? = null
-    private val links = HashMap<String, Link>()
-
-    private class Op(
-        val run: (BluetoothGatt) -> Boolean,
-        val done: (Any?) -> Unit,
-        val timeoutMs: Long = 4000,
-    ) {
-        var finished = false
-    }
-
-    private class Link(val address: String) {
-        var gatt: BluetoothGatt? = null
-        var ready = false
-        var userClosed = false
-        var pendingConnect: MethodChannel.Result? = null
-        val queue = ArrayDeque<Op>()
-        var busy: Op? = null
-    }
 
     fun register(activity: Activity, messenger: BinaryMessenger) {
         this.activity = WeakReference(activity)
@@ -106,10 +94,10 @@ object ItagChannel {
                     "state" -> result.success(mapOf("state" to state(ctx), "sdk" to Build.VERSION.SDK_INT))
                     "scan" -> scan(ctx, (call.argument<Int>("ms") ?: 8000).toLong(), result)
                     "connect" -> connect(ctx, addr, result)
-                    "ring" -> writeAlert(addr, IAS, call.argument<Int>("level") ?: 2, result)
-                    "linkLoss" -> writeAlert(addr, LLS, call.argument<Int>("level") ?: 0, result)
-                    "battery" -> readBattery(addr, result)
-                    "disconnect" -> { close(addr, user = true); result.success(true) }
+                    "ring" -> engine.ring(addr, call.argument<Int>("level") ?: 2, reply(result))
+                    "linkLoss" -> engine.linkLoss(addr, call.argument<Int>("level") ?: 0, reply(result))
+                    "battery" -> engine.battery(addr) { v -> try { result.success(v) } catch (_: Throwable) {} }
+                    "disconnect" -> { engine.disconnect(addr); result.success(true) }
                     "openSettings" -> result.success(openSettings())
                     else -> result.notImplemented()
                 }
@@ -198,194 +186,144 @@ object ItagChannel {
         }, ms.coerceIn(2000, 20000))
     }
 
-    // ---- connect + GATT ops -----------------------------------------------
+    // ---- connect + GATT ops: ItagEngine (pure Kotlin, JVM-tested) -----------
 
-    private fun emit(type: String, address: String, user: Boolean = false) {
+    private val engine: ItagEngine by lazy { ItagEngine(AndroidHost) }
+
+    private fun emit(type: String, address: String, user: Boolean, radioOff: Boolean) {
         main.post {
             try {
-                channel?.invokeMethod("event", mapOf("type" to type, "address" to address, "user" to user))
+                channel?.invokeMethod("event", mapOf(
+                    "type" to type, "address" to address, "user" to user, "radioOff" to radioOff))
             } catch (_: Throwable) {}
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun connect(ctx: Context, address: String, result: MethodChannel.Result) {
-        val a = adapter(ctx)
-        if (a == null || !a.isEnabled || !canConnect(ctx) || !BluetoothAdapter.checkBluetoothAddress(address)) {
-            result.success(false); return
-        }
-        val existing = links[address]
-        if (existing?.ready == true) { result.success(true); return }
-        existing?.let { close(address, user = true, silent = true) }
-        val link = Link(address)
-        link.pendingConnect = result
-        links[address] = link
-        val device: BluetoothDevice = a.getRemoteDevice(address)
-        link.gatt = try {
-            device.connectGatt(ctx, false, callback(link), BluetoothDevice.TRANSPORT_LE)
-        } catch (_: Throwable) { null }
-        if (link.gatt == null) { links.remove(address); finishConnect(link, false); return }
-        main.postDelayed({
-            if (link.pendingConnect != null) {
-                finishConnect(link, false)
-                close(address, user = true, silent = true)
+    private var radioWatch: BroadcastReceiver? = null
+
+    /** Bluetooth on/off while a tag is linked (lazy: first connect only). */
+    private fun watchRadio(ctx: Context) {
+        if (radioWatch != null) return
+        val r = object : BroadcastReceiver() {
+            override fun onReceive(c: Context?, i: Intent?) {
+                try {
+                    if (i == null || i.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
+                    when (i.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)) {
+                        BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_OFF ->
+                            main.post { try { engine.onRadio(false) } catch (_: Throwable) {} }
+                        BluetoothAdapter.STATE_ON ->
+                            main.post { try { engine.onRadio(true) } catch (_: Throwable) {} }
+                    }
+                } catch (_: Throwable) {}
             }
-        }, 15000)
-    }
-
-    private fun finishConnect(link: Link, ok: Boolean) {
-        val r = link.pendingConnect ?: return
-        link.pendingConnect = null
-        try { r.success(ok) } catch (_: Throwable) {}
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun close(address: String, user: Boolean, silent: Boolean = false) {
-        val link = links.remove(address) ?: return
-        link.userClosed = user
-        link.ready = false
-        failAll(link)
-        try { link.gatt?.disconnect() } catch (_: Throwable) {}
-        try { link.gatt?.close() } catch (_: Throwable) {}
-        link.gatt = null
-        if (!silent) emit("disconnected", address, user)
-    }
-
-    private fun failAll(link: Link) {
-        link.busy?.let { if (!it.finished) { it.finished = true; try { it.done(false) } catch (_: Throwable) {} } }
-        link.busy = null
-        while (link.queue.isNotEmpty()) {
-            val op = link.queue.removeFirst()
-            try { op.done(false) } catch (_: Throwable) {}
         }
+        try {
+            val f = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+            // a protected system broadcast: delivered to a not-exported receiver
+            if (Build.VERSION.SDK_INT >= 33) ctx.registerReceiver(r, f, Context.RECEIVER_NOT_EXPORTED)
+            else ctx.registerReceiver(r, f)
+            radioWatch = r
+        } catch (_: Throwable) {}
     }
 
-    private fun enqueue(link: Link, op: Op) {
-        link.queue.addLast(op)
-        pump(link)
+    private fun connect(ctx: Context, address: String, result: MethodChannel.Result) {
+        watchRadio(ctx)
+        engine.connect(address) { ok -> try { result.success(ok) } catch (_: Throwable) {} }
     }
 
-    private fun pump(link: Link) {
-        if (link.busy != null) return
-        val g = link.gatt ?: return failAll(link)
-        val op = link.queue.removeFirstOrNull() ?: return
-        link.busy = op
-        val started = try { op.run(g) } catch (_: Throwable) { false }
-        if (!started) { complete(link, op, false); return }
-        main.postDelayed({ complete(link, op, null) }, op.timeoutMs)
-    }
+    private fun reply(result: MethodChannel.Result): (Boolean) -> Unit =
+        { ok -> try { result.success(ok) } catch (_: Throwable) {} }
 
-    private fun complete(link: Link, op: Op, value: Any?) {
-        if (op.finished) return
-        op.finished = true
-        if (link.busy === op) link.busy = null
-        try { op.done(value) } catch (_: Throwable) {}
-        pump(link)
+    private object AndroidHost : ItagHost {
+        override fun radioOn(): Boolean = try {
+            ItagChannel.app?.let { ItagChannel.adapter(it)?.isEnabled } == true
+        } catch (_: Throwable) { false }
+
+        override fun canConnect(): Boolean = ItagChannel.app?.let { ItagChannel.canConnect(it) } == true
+
+        override fun validAddress(address: String) = BluetoothAdapter.checkBluetoothAddress(address)
+
+        @SuppressLint("MissingPermission")
+        override fun open(address: String, events: ItagGattEvents): ItagGatt? {
+            val ctx = ItagChannel.app ?: return null
+            val a = ItagChannel.adapter(ctx) ?: return null
+            val device: BluetoothDevice = a.getRemoteDevice(address)
+            val g = device.connectGatt(ctx, false, AndroidCallback(events), BluetoothDevice.TRANSPORT_LE)
+                ?: return null
+            return AndroidGatt(g)
+        }
+
+        override fun post(r: () -> Unit) { ItagChannel.main.post { r() } }
+        override fun postDelayed(ms: Long, r: () -> Unit) { ItagChannel.main.postDelayed({ r() }, ms) }
+        override fun emit(type: String, address: String, user: Boolean, radioOff: Boolean) =
+            ItagChannel.emit(type, address, user, radioOff)
     }
 
     private fun char(g: BluetoothGatt, svc: UUID, ch: UUID): BluetoothGattCharacteristic? =
         try { g.getService(svc)?.getCharacteristic(ch) } catch (_: Throwable) { null }
 
-    @Suppress("DEPRECATION")
     @SuppressLint("MissingPermission")
-    private fun writeAlert(address: String, svc: UUID, level: Int, result: MethodChannel.Result) {
-        val link = links[address]
-        if (link == null || !link.ready) { result.success(false); return }
-        enqueue(link, Op({ g ->
-            val c = char(g, svc, ALERT) ?: return@Op false
+    private class AndroidGatt(val g: BluetoothGatt) : ItagGatt {
+        override fun discoverServices() = g.discoverServices()
+
+        @Suppress("DEPRECATION")
+        override fun writeAlert(service: ItagService, level: Int): Boolean {
+            val svc = if (service == ItagService.IMMEDIATE_ALERT) ItagChannel.IAS else ItagChannel.LLS
+            val c = ItagChannel.char(g, svc, ItagChannel.ALERT) ?: return false
             c.writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-            c.value = byteArrayOf(level.coerceIn(0, 2).toByte())
-            g.writeCharacteristic(c)
-            // a write without response may never call back on some phones:
-            // the short timeout below counts a started write as sent
-        }, { v -> try { result.success(v != false) } catch (_: Throwable) {} }, 600))
-    }
+            c.value = byteArrayOf(level.toByte())
+            return g.writeCharacteristic(c)
+        }
 
-    @SuppressLint("MissingPermission")
-    private fun readBattery(address: String, result: MethodChannel.Result) {
-        val link = links[address]
-        if (link == null || !link.ready) { result.success(null); return }
-        enqueue(link, Op({ g ->
-            val c = char(g, BAS, BATT) ?: return@Op false
-            g.readCharacteristic(c)
-        }, { v -> try { result.success(v as? Int) } catch (_: Throwable) {} }))
-    }
+        override fun readBattery(): Boolean {
+            val c = ItagChannel.char(g, ItagChannel.BAS, ItagChannel.BATT) ?: return false
+            return g.readCharacteristic(c)
+        }
 
-    @Suppress("DEPRECATION")
-    @SuppressLint("MissingPermission")
-    private fun enableButton(link: Link) {
-        enqueue(link, Op({ g ->
-            val c = char(g, BTN_SVC, BTN) ?: return@Op false
-            if (!g.setCharacteristicNotification(c, true)) return@Op false
-            val d = c.getDescriptor(CCCD) ?: return@Op false
+        @Suppress("DEPRECATION")
+        override fun enableButton(): Boolean {
+            val c = ItagChannel.char(g, ItagChannel.BTN_SVC, ItagChannel.BTN) ?: return false
+            if (!g.setCharacteristicNotification(c, true)) return false
+            val d = c.getDescriptor(ItagChannel.CCCD) ?: return false
             d.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            g.writeDescriptor(d)
-        }, { }))
+            return g.writeDescriptor(d)
+        }
+
+        override fun disconnect() = g.disconnect()
+        override fun close() = g.close()
     }
 
-    private fun callback(link: Link) = object : BluetoothGattCallback() {
-        @SuppressLint("MissingPermission")
+    /** BluetoothGattCallback -> ItagGattEvents (the engine hops to main). */
+    private class AndroidCallback(val ev: ItagGattEvents) : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            main.post {
-                try {
-                    if (links[link.address] !== link) return@post
-                    if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        if (!gatt.discoverServices()) close(link.address, user = false)
-                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                        val wasReady = link.ready
-                        finishConnect(link, false)
-                        close(link.address, user = false, silent = !wasReady)
-                    }
-                } catch (_: Throwable) {}
-            }
+            if (newState == BluetoothProfile.STATE_CONNECTED) ev.connectionState(true)
+            else if (newState == BluetoothProfile.STATE_DISCONNECTED) ev.connectionState(false)
         }
 
-        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            main.post {
-                try {
-                    if (links[link.address] !== link) return@post
-                    if (status != BluetoothGatt.GATT_SUCCESS) {
-                        finishConnect(link, false); close(link.address, user = true, silent = true); return@post
-                    }
-                    link.ready = true
-                    enableButton(link)
-                    finishConnect(link, true)
-                    emit("connected", link.address)
-                } catch (_: Throwable) {}
-            }
-        }
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) =
+            ev.servicesDiscovered(status == BluetoothGatt.GATT_SUCCESS)
 
-        override fun onCharacteristicWrite(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
-            main.post { link.busy?.let { complete(link, it, status == BluetoothGatt.GATT_SUCCESS) } }
-        }
+        override fun onCharacteristicWrite(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) =
+            ev.writeDone(status == BluetoothGatt.GATT_SUCCESS)
 
-        override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, status: Int) {
-            main.post { link.busy?.let { complete(link, it, status == BluetoothGatt.GATT_SUCCESS) } }
-        }
-
-        private fun battery(c: BluetoothGattCharacteristic, value: ByteArray?, status: Int) {
-            val v = if (status == BluetoothGatt.GATT_SUCCESS && c.uuid == BATT && value != null && value.isNotEmpty())
-                (value[0].toInt() and 0xFF).coerceIn(0, 100) else null
-            main.post { link.busy?.let { complete(link, it, v) } }
-        }
+        override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, status: Int) =
+            ev.writeDone(status == BluetoothGatt.GATT_SUCCESS)
 
         @Deprecated("Android 12 and older")
         @Suppress("DEPRECATION")
-        override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
-            battery(c, c.value, status)
-        }
+        override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) =
+            ev.readDone(c.uuid == ItagChannel.BATT, c.value, status == BluetoothGatt.GATT_SUCCESS)
 
-        override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray, status: Int) {
-            battery(c, value, status)
-        }
+        override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray, status: Int) =
+            ev.readDone(c.uuid == ItagChannel.BATT, value, status == BluetoothGatt.GATT_SUCCESS)
 
         @Deprecated("Android 12 and older")
         override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic) {
-            if (c.uuid == BTN) emit("button", link.address)
+            if (c.uuid == ItagChannel.BTN) ev.buttonPressed()
         }
 
         override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray) {
-            if (c.uuid == BTN) emit("button", link.address)
+            if (c.uuid == ItagChannel.BTN) ev.buttonPressed()
         }
     }
 }

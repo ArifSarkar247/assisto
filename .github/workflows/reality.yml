@@ -57,7 +57,7 @@ jobs:
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           # gap-money: opt-in single-feature groups (never part of "all")
-          optin = ["mess"]
+          optin = ["mess", "itag"]  # itag-proof
           sel = ([g for g in allg if not want or g in want]
                  + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))

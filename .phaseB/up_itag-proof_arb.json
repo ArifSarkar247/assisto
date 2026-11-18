@@ -1,0 +1,12 @@
+{
+  "en": {
+    "itgBtOffWatching": "Bluetooth is off, so your bag is NOT being watched. Turn it on to keep watching.",
+    "@itgBtOffWatching": {"description": "itag-proof: tag screen card when Bluetooth was turned off while 'watch my bag' is on"},
+    "itgTurnOnLocation": "Turn on location",
+    "@itgTurnOnLocation": {"description": "itag-proof: button that opens Location settings (Android 8-11 need Location on for a Bluetooth search)"}
+  },
+  "bn": {
+    "itgBtOffWatching": "ব্লুটুথ বন্ধ, তাই আপনার ব্যাগ এখন পাহারা হচ্ছে না। পাহারা চালু রাখতে ব্লুটুথ চালু করুন।",
+    "itgTurnOnLocation": "লোকেশন চালু করুন"
+  }
+}

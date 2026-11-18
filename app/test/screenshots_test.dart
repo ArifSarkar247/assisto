@@ -467,6 +467,13 @@ import 'package:assisto/notiflisten/ai_reply_notif.dart'; // ai-reply-notif
 import 'package:assisto/notiflisten/ai_reply_notif_screens.dart'; // ai-reply-notif
 import 'ai_reply_notif_fake.dart'; // ai-reply-notif
 import 'fake_kidswatch.dart'; // chipbuy2
+import 'package:assisto/itag/itag_controller.dart'; // itag-proof
+import 'package:assisto/itag/itag_platform.dart'; // itag-proof
+import 'package:assisto/itag/itag_store.dart'; // itag-proof
+import 'package:assisto/screens/itag/itag_alert.dart'; // itag-proof
+import 'package:assisto/screens/itag/itag_permission.dart'; // itag-proof
+import 'package:assisto/screens/itag/itag_screen.dart'; // itag-proof
+import 'package:assisto/train/dest_alarm_sound.dart' as itag_shot; // itag-proof
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
 import 'package:assisto/widgets/guide_service_card.dart'; // p3guides
@@ -1058,6 +1065,42 @@ Map<String, GallerySpec> gallerySpecs() {
     ),
     // chipbuy: add a tracker chip (bag / shoe) + "where to buy" link
     'chip_pair': (build: (_) => const Scaffold(body: ChipPairSheet()), mode: FakeMode.data, full: true),
+    // itag-proof: Bluetooth iTag — empty, paired + watching, Bluetooth off
+    // while watching, location off (Android 8–11), both alerts, both reasons
+    'itag_empty': (build: (l) => _itagShot(l, tags: false), mode: FakeMode.data, full: true),
+    'itag_paired': (build: (l) => _itagShot(l), mode: FakeMode.data, full: true),
+    'itag_bt_off': (
+      build: (l) => _itagShot(l, radio: const ItagRadioState(ItagRadio.off, 33), radioOff: true),
+      mode: FakeMode.data,
+      full: true
+    ),
+    'itag_location_off': (
+      build: (l) => _itagShot(l, radio: const ItagRadioState(ItagRadio.locationOff, 29)),
+      mode: FakeMode.data,
+      full: true
+    ),
+    'itag_alert_left': (
+      build: (l) => ItagAlertScreen(
+          controller: _itagCtl(l)..leftBehind = _itagAddr,
+          kind: ItagAlertKind.leftBehind,
+          tagName: l == 'bn' ? 'চাবি' : 'Keys'),
+      mode: FakeMode.data,
+      full: true
+    ),
+    'itag_alert_find': (
+      build: (l) => ItagAlertScreen(
+          controller: _itagCtl(l)..phoneRinging = true,
+          kind: ItagAlertKind.findPhone,
+          tagName: l == 'bn' ? 'চাবি' : 'Keys'),
+      mode: FakeMode.data,
+      full: true
+    ),
+    'itag_reason': (build: (_) => const ItagReasonScreen(nearbyDevices: true), mode: FakeMode.data, full: true),
+    'itag_reason_legacy': (
+      build: (_) => const ItagReasonScreen(nearbyDevices: false),
+      mode: FakeMode.data,
+      full: false
+    ),
     // chipbuy2: chip card — find now (acked), left-behind spot + safe place,
     // minutes choice, own-shop buy link on the pair sheet (chip_pair)
     'chip_card': (
@@ -2082,4 +2125,82 @@ class _KwSosShotState extends State<_KwSosShot> {
 
   @override
   Widget build(BuildContext context) => const KidsWatchScreen();
+}
+
+
+// itag-proof: a fake tag for the gallery (made-up address, no Bluetooth).
+const _itagAddr = 'AA:BB:CC:DD:EE:01';
+
+class _ShotItagPlatform implements ItagPlatform {
+  _ShotItagPlatform(this.st);
+  final ItagRadioState st;
+  @override
+  Future<ItagRadioState> state() async => st;
+  @override
+  Future<List<ItagFound>> scan({Duration duration = const Duration(seconds: 8)}) async =>
+      const [ItagFound(_itagAddr, 'iTAG', -52, true)];
+  @override
+  Future<bool> connect(String address) async => st.radio == ItagRadio.ready;
+  @override
+  Future<bool> ring(String address, int level) async => true;
+  @override
+  Future<bool> linkLoss(String address, int level) async => true;
+  @override
+  Future<int?> battery(String address) async => 87;
+  @override
+  Future<void> disconnect(String address) async {}
+  @override
+  Future<void> openSettings() async {}
+  @override
+  Stream<ItagEvent> get events => const Stream.empty();
+}
+
+class _ShotItagStore extends ItagStore {
+  _ShotItagStore(this.tags);
+  final List<ItagTag> tags;
+  @override
+  Future<List<ItagTag>> load() async => tags;
+  @override
+  Future<void> save(List<ItagTag> tags) async {}
+  @override
+  Future<bool> buttonRingsPhone() async => true;
+}
+
+class _ShotItagSound implements itag_shot.DestAlarmSound {
+  @override
+  Future<bool> start({required bool sound, required bool vibrate}) async => true;
+  @override
+  Future<void> stop() async {}
+  @override
+  Future<bool> speak(String text, String lang) async => true;
+  @override
+  Future<bool> playClip(String path) async => true;
+  @override
+  Future<bool> vibrateOnce() async => true;
+}
+
+ItagController _itagCtl(String l,
+    {bool tags = true, ItagRadioState radio = const ItagRadioState(ItagRadio.ready, 33)}) {
+  final now = DateTime(2026, 11, 18, 9, 40).millisecondsSinceEpoch;
+  return ItagController(
+    platform: _ShotItagPlatform(radio),
+    sound: _ShotItagSound(),
+    store: _ShotItagStore(tags
+        ? [
+            ItagTag(_itagAddr, l == 'bn' ? 'চাবি' : 'Keys', now,
+                battery: 87, batteryMs: now, lastSeen: ItagPlace(23.7808, 90.4130, now)),
+          ]
+        : const []),
+    locate: () async => null,
+  );
+}
+
+Widget _itagShot(String l,
+    {bool tags = true,
+    ItagRadioState radio = const ItagRadioState(ItagRadio.ready, 33),
+    bool radioOff = false}) {
+  final c = _itagCtl(l, tags: tags, radio: radio)
+    ..watching = tags
+    ..radioOff = radioOff;
+  return ItagScreen(controller: c, locationAllowed: () async => true);
 }

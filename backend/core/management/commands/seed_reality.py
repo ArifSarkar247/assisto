@@ -253,7 +253,8 @@ class Command(BaseCommand):
         # (vault_e2e -> flow 21; ps_secretary / ai_daily_planner /
         # booking_bot / official_corners / blood_donors -> flows 31-36).
         # gap-kidswatch: + kids_watch (flow 18k pairs a simulated watch)
-        for key in ("dest_alarm", "train_tracker", "kids_watch"):
+        # itag-proof: + itag_tags (flow 41i: Bluetooth tag with a fake tag)
+        for key in ("dest_alarm", "train_tracker", "kids_watch", "itag_tags"):
             ff = FeatureFlag.objects.filter(key=key).first()
             if ff is not None:
                 ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]

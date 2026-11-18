@@ -26,13 +26,17 @@ class ItagFound {
   const ItagFound(this.address, this.name, this.rssi, this.likely);
 }
 
-enum ItagEventType { connected, disconnected, button }
+/// radio (itag-proof): Bluetooth was turned off (radioOff) or on again.
+enum ItagEventType { connected, disconnected, button, radio }
 
 class ItagEvent {
   final ItagEventType type;
   final String address;
   final bool user; // a disconnect the user asked for
-  const ItagEvent(this.type, this.address, {this.user = false});
+  /// itag-proof: the link dropped because Bluetooth was turned off (never a
+  /// "left behind"); on a radio event: true = off, false = on again.
+  final bool radioOff;
+  const ItagEvent(this.type, this.address, {this.user = false, this.radioOff = false});
 }
 
 /// Alert levels of the Immediate Alert / Link Loss services.
@@ -61,11 +65,12 @@ class MethodChannelItagPlatform implements ItagPlatform {
         'connected' => ItagEventType.connected,
         'disconnected' => ItagEventType.disconnected,
         'button' => ItagEventType.button,
+        'radio' => ItagEventType.radio,
         _ => null,
       };
       final a = (m['address'] ?? '').toString();
-      if (type != null && a.isNotEmpty) {
-        _events.add(ItagEvent(type, a, user: m['user'] == true));
+      if (type != null && (a.isNotEmpty || type == ItagEventType.radio)) {
+        _events.add(ItagEvent(type, a, user: m['user'] == true, radioOff: m['radioOff'] == true));
       }
       return null;
     });

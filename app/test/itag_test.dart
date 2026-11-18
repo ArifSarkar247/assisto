@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +38,8 @@ class FakeItag implements ItagPlatform {
   int settings = 0;
   final _ev = StreamController<ItagEvent>.broadcast();
 
-  void emit(ItagEventType t, {bool user = false}) => _ev.add(ItagEvent(t, _a, user: user));
+  void emit(ItagEventType t, {bool user = false, bool radioOff = false}) =>
+      _ev.add(ItagEvent(t, _a, user: user, radioOff: radioOff));
 
   @override
   Future<ItagRadioState> state() async => st;
@@ -69,6 +71,7 @@ class FakeItag implements ItagPlatform {
   Future<void> openSettings() async => settings++;
   @override
   Stream<ItagEvent> get events => _ev.stream;
+  void emitEv(ItagEvent e) => _ev.add(e); // itag-proof
 }
 
 class FakeSound implements DestAlarmSound {
@@ -524,6 +527,249 @@ void main() {
       expect(k.contains('PendingIntent'), isFalse); // no background scan
       expect(File('android_overlay/app/src/main/kotlin/com/assisto/assisto/MainActivity.kt')
           .readAsStringSync(), contains('ItagChannel.register('));
+    });
+  });
+
+  // itag-proof (18 Nov): the reliability cases + the Dart <-> native contract.
+  group('itag-proof reliability', () {
+    testWidgets('left behind fires 10 s after the drop even when the place lookup is slow',
+        (tester) async {
+      final p = FakeItag();
+      final s = FakeSound();
+      final c = _ctl(p, s,
+          locate: () => Future.delayed(
+              const Duration(seconds: 8), () => const ItagPlace(23.81, 90.41, 1700000000000)));
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      p.connectOk = false;
+      p.emit(ItagEventType.disconnected);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 9));
+      expect(c.leftBehind, isNull);
+      await tester.pump(const Duration(milliseconds: 1500)); // 10.5 s after the drop
+      expect(c.leftBehind, _a); // was ~18 s before itag-proof
+      expect(s.starts, 1);
+      expect(c.tags.single.lastSeen?.lat, 23.81);
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('Bluetooth turned off mid-session: never a false "left behind"; on again reconnects',
+        (tester) async {
+      final p = FakeItag();
+      final s = FakeSound();
+      final c = _ctl(p, s);
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      final before = p.connects;
+      p.emit(ItagEventType.disconnected, radioOff: true);
+      p.emitEv(const ItagEvent(ItagEventType.radio, '', radioOff: true));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 20)); // grace + a retry tick
+      expect(c.radioOff, isTrue);
+      expect(c.leftBehind, isNull);
+      expect(s.starts, 0);
+      expect(p.connects, before); // no pointless retries while off
+      p.emitEv(const ItagEvent(ItagEventType.radio, ''));
+      await tester.pump();
+      expect(c.radioOff, isFalse);
+      expect(p.connects, before + 1);
+      expect(c.connected, contains(_a));
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('Bluetooth off without a radio event (state says off) -> still no alarm',
+        (tester) async {
+      final p = FakeItag();
+      final s = FakeSound();
+      final c = _ctl(p, s);
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      p.connectOk = false;
+      p.st = const ItagRadioState(ItagRadio.off, 33);
+      p.emit(ItagEventType.disconnected);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+      expect(c.leftBehind, isNull);
+      expect(s.starts, 0);
+      expect(c.radioOff, isTrue);
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('location off (Android 8–11) does NOT silence a real left-behind', (tester) async {
+      final p = FakeItag();
+      final s = FakeSound();
+      final c = _ctl(p, s);
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      p.connectOk = false;
+      p.st = const ItagRadioState(ItagRadio.locationOff, 29);
+      p.emit(ItagEventType.disconnected);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+      expect(c.leftBehind, _a);
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('screen: Bluetooth off while watching -> card says "not watched" + Turn on works',
+        (tester) async {
+      _tall(tester);
+      final p = FakeItag();
+      final c = _ctl(p, FakeSound());
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      await tester.pumpWidget(_app(ItagScreen(controller: c, locationAllowed: () async => true)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-radio')), findsNothing);
+      p.st = const ItagRadioState(ItagRadio.off, 33);
+      p.emit(ItagEventType.disconnected, radioOff: true);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-radio')), findsOneWidget);
+      final t = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.text(t.itgBtOffWatching), findsOneWidget);
+      await tester.tap(find.byKey(const Key('itag-radio-action')));
+      await tester.pumpAndSettle();
+      expect(p.settings, 1);
+      // back from Settings with Bluetooth on: re-checked + reconnected
+      p.st = const ItagRadioState(ItagRadio.ready, 33);
+      final before = p.connects;
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-radio')), findsNothing);
+      expect(c.radioOff, isFalse);
+      expect(p.connects, greaterThan(before));
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('screen: location off (Android 8–11) card has a Turn on location button',
+        (tester) async {
+      _tall(tester);
+      final p = FakeItag()..st = const ItagRadioState(ItagRadio.locationOff, 29);
+      final c = _ctl(p, FakeSound());
+      await tester.pumpWidget(_app(ItagScreen(controller: c, locationAllowed: () async => true)));
+      await tester.pumpAndSettle();
+      final t = await AppLocalizations.delegate.load(const Locale('en'));
+      expect(find.byKey(const Key('itag-radio-action')), findsOneWidget);
+      expect(find.text(t.itgTurnOnLocation), findsOneWidget);
+      await tester.tap(find.byKey(const Key('itag-radio-action')));
+      await tester.pumpAndSettle(); // no plugin in tests: must not throw
+      expect(tester.takeException(), isNull);
+      c.dispose();
+    });
+
+    testWidgets('screen: permission denied -> the card keeps an Allow button (no dead end)',
+        (tester) async {
+      _tall(tester);
+      final p = FakeItag()..st = const ItagRadioState(ItagRadio.noPermission, 33);
+      final c = _ctl(p, FakeSound());
+      await tester.pumpWidget(_app(ItagScreen(
+          controller: c, ask: (_) async => ItagAsk.denied, locationAllowed: () async => true)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('itag-add-empty')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('itag-reason-yes')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-screen')), findsOneWidget);
+      expect(find.byKey(const Key('itag-radio-action')), findsOneWidget);
+      c.dispose();
+    });
+
+    testWidgets('left-behind alert closes by itself when the tag comes back', (tester) async {
+      _tall(tester);
+      final p = FakeItag();
+      final s = FakeSound();
+      final c = _ctl(p, s);
+      await c.load();
+      await c.pair(_found, 'Bag');
+      await c.setWatching(true);
+      p.connectOk = false;
+      p.emit(ItagEventType.disconnected);
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpWidget(_app(Builder(
+          builder: (ctx) => TextButton(
+              key: const Key('open'),
+              onPressed: () => Navigator.of(ctx).push(MaterialPageRoute<void>(
+                  builder: (_) => ItagAlertScreen(
+                      controller: c, kind: ItagAlertKind.leftBehind, tagName: 'Bag'))),
+              child: const Text('open')))));
+      await tester.tap(find.byKey(const Key('open')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-alert-left')), findsOneWidget);
+      p.emit(ItagEventType.connected); // back in reach
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('itag-alert-left')), findsNothing);
+      expect(s.stops, greaterThanOrEqualTo(1));
+      await c.setWatching(false);
+      c.dispose();
+    });
+
+    testWidgets('the real MethodChannel platform: calls + events match ItagChannel.kt',
+        (tester) async {
+      const ch = MethodChannel('com.assisto/itag');
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(ch, (call) async {
+        calls.add('${call.method} ${call.arguments ?? ''}');
+        return switch (call.method) {
+          'state' => {'state': 'location_off', 'sdk': 29},
+          'scan' => [
+              {'address': _a, 'name': 'iTAG', 'rssi': -48, 'likely': true}
+            ],
+          'connect' || 'ring' || 'linkLoss' || 'disconnect' || 'openSettings' => true,
+          'battery' => 64,
+          _ => null,
+        };
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(ch, null));
+      final p = MethodChannelItagPlatform();
+      final got = <String>[];
+      final sub = p.events.listen((e) => got.add('${e.type.name} ${e.address} ${e.user} ${e.radioOff}'));
+      final st = await p.state();
+      expect(st.radio, ItagRadio.locationOff);
+      expect(st.nearbyDevicesPermission, isFalse); // Android 10: location, not Nearby devices
+      expect((await p.scan()).single.likely, isTrue);
+      expect(await p.connect(_a), isTrue);
+      expect(await p.ring(_a, kItagAlertHigh), isTrue);
+      expect(await p.battery(_a), 64);
+      expect(calls, contains('ring {address: $_a, level: 2}'));
+      Future<void> native(Map<String, Object?> m) async {
+        await tester.binding.defaultBinaryMessenger.handlePlatformMessage('com.assisto/itag',
+            const StandardMethodCodec().encodeMethodCall(MethodCall('event', m)), (_) {});
+      }
+
+      await native({'type': 'button', 'address': _a, 'user': false, 'radioOff': false});
+      await native({'type': 'disconnected', 'address': _a, 'user': false, 'radioOff': true});
+      await native({'type': 'radio', 'address': '', 'user': false, 'radioOff': false});
+      await native({'type': 'connected', 'address': '', 'user': false}); // no address: dropped
+      await tester.pump();
+      expect(got, [
+        'button $_a false false',
+        'disconnected $_a false true',
+        'radio  false false',
+      ]);
+      await sub.cancel();
+      // the native side really speaks the same names
+      final k = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/itag/ItagChannel.kt')
+          .readAsStringSync();
+      final e = File('android_overlay/app/src/main/kotlin/com/assisto/assisto/itag/ItagEngine.kt')
+          .readAsStringSync();
+      for (final m in ['state', 'scan', 'connect', 'ring', 'linkLoss', 'battery', 'disconnect', 'openSettings']) {
+        expect(k.contains('"$m" ->'), isTrue, reason: m);
+      }
+      for (final ev in ['connected', 'disconnected', 'button', 'radio']) {
+        expect(e.contains('"$ev"'), isTrue, reason: ev);
+      }
+      expect(k.contains('"radioOff" to radioOff'), isTrue);
+      expect(e.contains('import android.'), isFalse, reason: 'ItagEngine stays pure Kotlin (JVM-tested)');
     });
   });
 }

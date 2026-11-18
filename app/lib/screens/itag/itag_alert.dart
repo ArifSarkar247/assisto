@@ -65,6 +65,8 @@ class _ItagAlertScreenState extends State<ItagAlertScreen> {
     // the tag came back in reach / the ring timed out: close by itself
     if (!_active && mounted && !_closing) {
       _closing = true;
+      // itag-proof: the tag came back — clear the lock-screen notice too
+      Notifications.cancelId(kItagNotifId); // never throws
       Navigator.of(context).maybePop();
     }
   }

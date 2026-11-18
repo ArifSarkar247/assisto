@@ -83,6 +83,9 @@ class ItagController extends ChangeNotifier {
   bool watching = false;
   bool buttonRingsPhone = true;
   String? leftBehind; // address of the tag that was left behind
+  /// itag-proof: Bluetooth was turned off while tags were linked — the
+  /// screen says so; no "left behind" alarm until it is back on.
+  bool radioOff = false;
   bool phoneRinging = false;
   bool _loaded = false;
   StreamSubscription<ItagEvent>? _sub;
@@ -221,6 +224,7 @@ class ItagController extends ChangeNotifier {
   }
 
   Future<void> _retryLost() async {
+    if (radioOff) return; // nothing can connect; the screen asks to turn it on
     for (final t in List.of(_tags)) {
       if (!connected.contains(t.address)) await _connect(t.address);
     }
@@ -257,25 +261,37 @@ class ItagController extends ChangeNotifier {
         _cancelGrace(e.address);
         if (leftBehind == e.address) await dismissLeftBehind(); // back in reach
         notifyListeners();
+      case ItagEventType.radio:
+        await _onRadio(!e.radioOff);
       case ItagEventType.disconnected:
         connected.remove(e.address);
         tagRinging.remove(e.address);
         _tagRingTimers.remove(e.address)?.cancel();
+        if (e.radioOff) {
+          // Bluetooth turned off: the tag did not go anywhere — no alarm
+          radioOff = true;
+          _cancelGrace(e.address);
+          notifyListeners();
+          return;
+        }
         notifyListeners();
         if (t == null || e.user) return;
+        // itag-proof: the grace clock starts AT the drop (the place lookup
+        // below can take up to 8 s and used to delay the alarm to ~18 s)
+        if (watching) {
+          _cancelGrace(e.address);
+          _graceTimers[e.address] = Timer(grace, () => _graceOver(e.address));
+          unawaited(_connect(e.address)); // a short drop reconnects silently
+        }
         // the phone's place at the moment the link dropped (this phone only)
         final place = await locate();
-        if (place != null) {
+        if (place != null && tag(e.address) != null) {
           _tags = [
             for (final x in _tags) x.address == e.address ? x.copyWith(lastSeen: place) : x,
           ];
           await store.save(_tags);
           notifyListeners();
         }
-        if (!watching) return;
-        _cancelGrace(e.address);
-        _graceTimers[e.address] = Timer(grace, () => _graceOver(e.address));
-        unawaited(_connect(e.address)); // a short drop reconnects silently
       case ItagEventType.button:
         if (t == null || !buttonRingsPhone) return;
         if (phoneRinging) {
@@ -291,10 +307,43 @@ class ItagController extends ChangeNotifier {
     }
   }
 
+  /// itag-proof: Bluetooth off -> every grace clock stops (never a false
+  /// "left behind"); on again -> reconnect every paired tag.
+  Future<void> _onRadio(bool on) async {
+    if (!on) {
+      radioOff = true;
+      for (final a in List.of(_graceTimers.keys)) {
+        _cancelGrace(a);
+      }
+      connected.clear();
+      connecting.clear();
+      notifyListeners();
+      return;
+    }
+    radioOff = false;
+    notifyListeners();
+    await connectAll();
+  }
+
+  /// The screen re-checked the radio (app resumed / Settings closed).
+  Future<void> radioChecked(ItagRadio r) async {
+    final off = r == ItagRadio.off;
+    if (off == radioOff) return;
+    await _onRadio(!off);
+  }
+
   Future<void> _graceOver(String address) async {
     _graceTimers.remove(address);
     final t = tag(address);
-    if (!watching || t == null || connected.contains(address)) return;
+    if (!watching || t == null || connected.contains(address) || radioOff) return;
+    // Bluetooth turned off without a radio event (some phones): no alarm
+    final s = await platform.state();
+    if (s.radio == ItagRadio.off) {
+      radioOff = true;
+      notifyListeners();
+      return;
+    }
+    if (!watching || connected.contains(address) || tag(address) == null) return;
     leftBehind = address;
     notifyListeners();
     await sound.start(sound: true, vibrate: true);

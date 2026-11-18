@@ -30,10 +30,11 @@ class ItagScreen extends StatefulWidget {
   State<ItagScreen> createState() => _ItagScreenState();
 }
 
-class _ItagScreenState extends State<ItagScreen> {
+class _ItagScreenState extends State<ItagScreen> with WidgetsBindingObserver {
   late final ItagController c = widget.controller ?? ItagController.instance;
   ItagRadio? _radio;
   bool _locOk = true;
+  late bool _seenRadioOff = c.radioOff;
 
   bool get _bn => Localizations.localeOf(context).languageCode == 'bn';
 
@@ -42,17 +43,41 @@ class _ItagScreenState extends State<ItagScreen> {
     super.initState();
     itagInstallAlertHook(c);
     c.addListener(_changed);
+    WidgetsBinding.instance.addObserver(this);
     _start();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     c.removeListener(_changed);
     super.dispose();
   }
 
   void _changed() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    if (c.radioOff != _seenRadioOff) {
+      // itag-proof: Bluetooth turned off / on while the screen is open
+      _seenRadioOff = c.radioOff;
+      _refreshRadio();
+    }
+    setState(() {});
+  }
+
+  /// itag-proof: back from Settings (Bluetooth / location / permission) —
+  /// re-check and reconnect, so the card never stays stale (no dead end).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    () async {
+      await _refreshRadio();
+      _locOk = await (widget.locationAllowed ?? _locationAllowed)();
+      if (!mounted) return;
+      setState(() {});
+      final r = _radio;
+      if (r != null) await c.radioChecked(r);
+      if (r == ItagRadio.ready) await c.connectAll();
+    }();
   }
 
   Future<void> _start() async {
@@ -95,7 +120,8 @@ class _ItagScreenState extends State<ItagScreen> {
         showDsToast(context, t.itgBtOff,
             actionLabel: t.itgTurnOn, onAction: () => c.platform.openSettings());
       case ItagReady.locationOff:
-        showDsToast(context, t.itgLocationOff);
+        showDsToast(context, t.itgLocationOff,
+            actionLabel: t.itgTurnOnLocation, onAction: () => openLocationSettingsSafe());
       case ItagReady.unsupported:
         showDsToast(context, t.itgUnsupported, tone: DsToastTone.danger);
     }
@@ -261,14 +287,22 @@ class _ItagScreenState extends State<ItagScreen> {
   }
 
   List<Widget> _radioCard(AppLocalizations t) {
-    final r = _radio;
+    final r = c.radioOff ? ItagRadio.off : _radio;
     if (r == null || r == ItagRadio.ready) return const [];
     final (String msg, String? action, VoidCallback? onTap) = switch (r) {
-      ItagRadio.off => (t.itgBtOff, t.itgTurnOn, () => c.platform.openSettings()),
+      ItagRadio.off => (
+          c.watching && c.tags.isNotEmpty ? t.itgBtOffWatching : t.itgBtOff,
+          t.itgTurnOn,
+          () => c.platform.openSettings()
+        ),
       ItagRadio.noPermission => (t.itgNeedPermission, t.itgAllow, () => _ready().then((ok) {
             if (ok) c.connectAll();
           })),
-      ItagRadio.locationOff => (t.itgLocationOff, null, null),
+      ItagRadio.locationOff => (
+          t.itgLocationOff,
+          t.itgTurnOnLocation,
+          () => openLocationSettingsSafe()
+        ),
       _ => (t.itgUnsupported, null, null),
     };
     return [
@@ -411,6 +445,13 @@ class _NameDialogState extends State<_NameDialog> {
       ],
     );
   }
+}
+
+/// itag-proof: Android 8–11 scan only with Location on — one tap to its switch.
+Future<void> openLocationSettingsSafe() async {
+  try {
+    await Geolocator.openLocationSettings();
+  } catch (_) {} // best-effort: the card text already says where to turn it on
 }
 
 Future<void> openAppSettingsSafe() async {
