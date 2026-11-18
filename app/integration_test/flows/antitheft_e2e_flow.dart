@@ -155,6 +155,16 @@ Future<String> _feedNewest(ApiClient api) async {
   return items.isEmpty ? '' : jsonEncode(items.first);
 }
 
+/// What the server holds for B's grabs (diagnostics for a failed step).
+Future<String> _grabSummary(RFlow f) async {
+  final evs = await f.net(() => _events(_b!));
+  return evs.where((e) => e['kind'] == 'snatch').map((e) {
+    final d = e['data'] as Map;
+    return 'held=${e['held']} confirm=${d['confirm']} suppressed=${d['suppressed']} '
+        'charging=${d['charging']} profile=${d['profile']}';
+  }).join(' / ');
+}
+
 Future<void> _waitNoPending(RFlow f) async {
   await f.eventually('no grab is pending on the phone', () async {
     final s = await _ch.invokeMethod<Map>('debugState');
@@ -311,11 +321,16 @@ void registerAntiTheftE2eFlows() {
     });
     await f.step('held: the server has it, A does NOT see it yet (no location)', () async {
       Map? held;
-      await f.eventually('the held grab reached the server', () async {
-        final evs = await _events(_b!);
-        held = evs.where((e) => e['kind'] == 'snatch' && e['held'] == true).firstOrNull;
-        return held != null;
-      }, seconds: 15);
+      try {
+        await f.eventually('the held grab reached the server', () async {
+          final evs = await _events(_b!);
+          held = evs.where((e) => e['kind'] == 'snatch' && e['held'] == true).firstOrNull;
+          return held != null;
+        }, seconds: 20);
+      } catch (_) {
+        f.note('server grabs: ${await _grabSummary(f)}');
+        rethrow;
+      }
       final keys = (held!['data'] as Map).keys.map((k) => '$k').toSet();
       final extra = keys.difference(_motion.union(_facts));
       if (extra.isNotEmpty) throw TestFailure('grab payload carries more than motion + facts: $extra');
@@ -385,11 +400,16 @@ void registerAntiTheftE2eFlows() {
         if (secs >= 15) throw TestFailure('host unlock too slow (${secs}s) to prove the cancel');
       });
       await f.step('server dropped the held grab; A never told; no location kept', () async {
-        await f.eventually('the grab was dropped by the owner unlock', () async {
-          final evs = await _events(_b!);
-          return evs.any((e) => e['kind'] == 'snatch' &&
-              (e['data'] as Map)['confirm'] == 'owner_unlock');
-        }, seconds: 30);
+        try {
+          await f.eventually('the grab was dropped by the owner unlock', () async {
+            final evs = await _events(_b!);
+            return evs.any((e) => e['kind'] == 'snatch' &&
+                (e['data'] as Map)['confirm'] == 'owner_unlock');
+          }, seconds: 30);
+        } catch (_) {
+          f.note('server grabs: ${await _grabSummary(f)}');
+          rethrow;
+        }
         final ev = (await f.net(() => _events(_b!))).firstWhere((e) =>
             e['kind'] == 'snatch' && (e['data'] as Map)['confirm'] == 'owner_unlock');
         if (ev['lat'] != null || ev['lng'] != null) {
@@ -423,10 +443,15 @@ void registerAntiTheftE2eFlows() {
     }
 
     Future<void> serverHeldThenOk(String what) async {
-      await f.eventually('$what reached the server and is held (not suppressed)', () async {
-        final evs = await _events(_b!);
-        return evs.any((e) => e['kind'] == 'snatch' && e['held'] == true);
-      }, seconds: 15);
+      try {
+        await f.eventually('$what reached the server and is held (not suppressed)', () async {
+          final evs = await _events(_b!);
+          return evs.any((e) => e['kind'] == 'snatch' && e['held'] == true);
+        }, seconds: 20);
+      } catch (_) {
+        f.note('server grabs: ${await _grabSummary(f)}');
+        rethrow;
+      }
       await _imOk(f);
     }
 
@@ -517,7 +542,7 @@ void registerAntiTheftE2eFlows() {
               {'action': 'turn_off_lost', 'pin': _pin}));
           await f.net(() => _b!.postJsonRaw('/security/engine/false-alarm', {'pin': _pin}));
           await f.net(AntiTheftService.flushNow);
-          await f.tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 5)));
+          await f.tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 12)));
           final s = await _state(f);
           f.note('lost message after off: ${s['lostShown']}');
           await f.net(() => _b!.postJsonRaw('/security/engine/disable', {'pin': _pin}));

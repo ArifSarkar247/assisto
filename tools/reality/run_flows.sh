@@ -176,7 +176,10 @@ host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
       timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
       at_unlock
       timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mDreamingLockscreen|isKeyguardShowing|mShowingLockscreen' | head -3 ;;
-    unplug) timeout 10 adb shell dumpsys battery unplug 2>&1; echo unplugged ;;
+    unplug)
+      timeout 10 adb shell dumpsys battery unplug 2>&1
+      timeout 10 adb shell dumpsys battery set status 3 2>&1   # DISCHARGING
+      echo unplugged ;;
     battery_reset) timeout 10 adb shell dumpsys battery reset 2>&1; echo reset ;;
     lockshot)
       timeout 20 adb shell locksettings set-pin "$AT_PIN" >/dev/null 2>&1 || true
