@@ -641,14 +641,16 @@ def case_carecall(A, B, Ah, tokens):
     # A's phone clock is what the server rings on (fcbrain ping, as the app sends)
     Ah.req("POST", "/family/brain/ping", {"tz_offset_min": off})
     phone_now = datetime.now(dtz.utc) + timedelta(minutes=off)
-    q = phone_now + timedelta(hours=12)
-    Ah.req("POST", "/carecall/quiet", {"start": q.strftime("%H:%M"),
-                                       "end": (q + timedelta(minutes=1)).strftime("%H:%M")})
     at = phone_now + timedelta(minutes=2 if phone_now.second <= 40 else 3)
     text = "notifproof care call %d" % (int(time.time()) % 100000)
     st, j = B.req("POST", "/carecall", {"receiver_id": A.pk, "text": text,
                                         "time": at.strftime("%H:%M"), "repeat": "once"})
     cc = (j or {}).get("care_call") or {}
+    # quiet hours far from the slot, AFTER the call made the B -> A link
+    # (a new link starts with A's default 22:00-07:00 quiet hours)
+    q = phone_now + timedelta(hours=12)
+    Ah.req("POST", "/carecall/quiet", {"start": q.strftime("%H:%M"),
+                                       "end": (q + timedelta(minutes=1)).strftime("%H:%M")})
     if not c.check("B's one-time Care Call saved (no date: the next time on A's clock)", st == 201 and cc.get("id"), (st, j)):
         return c.done()
     nxt = datetime.fromisoformat(str(cc.get("next_at")).replace("Z", "+00:00"))

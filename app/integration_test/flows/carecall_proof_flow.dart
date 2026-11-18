@@ -67,9 +67,6 @@ void registerCareCallProofFlows() {
       // the receiver's clock = the zone A's phone reports (the CI emulator is on UTC)
       await f.net(() => api.postJson('/family/brain/ping',
           {'tz_offset_min': DateTime.now().timeZoneOffset.inMinutes}));
-      final q = DateTime.now().add(const Duration(hours: 12));
-      await f.net(() => api.postJson('/carecall/quiet',
-          {'start': _hhmm(q), 'end': _hhmm(q.add(const Duration(minutes: 1)))}));
       // a re-run: B's older proof calls off (the active limit stays free)
       for (final c in _rows(await f.net(() => apiB.getJson('/carecall')), 'sent')) {
         if ('${c['text']}'.contains('(CC proof')) {
@@ -84,6 +81,13 @@ void registerCareCallProofFlows() {
             'time': _hhmm(at),
             'repeat': 'once', // no 'date': the server picks the next one on A's clock
           }));
+      // quiet hours far from the slot — AFTER the call exists: the link
+      // (B -> A) is made by the first call with A's default 22:00-07:00, and
+      // /carecall/quiet changes A's existing links (run 44235735125: the UTC
+      // emulator sat inside 22-07, the ring was correctly held to 07:00)
+      final q = DateTime.now().add(const Duration(hours: 12));
+      await f.net(() => api.postJson('/carecall/quiet',
+          {'start': _hhmm(q), 'end': _hhmm(q.add(const Duration(minutes: 1)))}));
       final cc = r['care_call'] as Map;
       ccId = (cc['id'] as num).toInt();
       next = DateTime.parse('${cc['next_at']}');
