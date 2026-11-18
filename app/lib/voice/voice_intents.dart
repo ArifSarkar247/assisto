@@ -674,6 +674,10 @@ class VoiceIntentParser {
   static final _openOnly = _n(['open', 'kholo', 'khulo', 'show', 'dekhao', '\u0996\u09cb\u09b2\u09cb', '\u0996\u09c1\u09b2\u09cb', '\u0993\u09aa\u09c7\u09a8', '\u09a6\u09c7\u0996\u09be\u0993']);
   static final _circleVerbs = _n(['write', 'tell', 'say', 'send', 'bolo', 'janao', 'bole dao', '\u09ac\u09b2\u09cb', '\u099c\u09be\u09a8\u09be\u0993', '\u09aa\u09be\u09a0\u09be\u0993']);
 
+  // voice-proof: "open CCTV" / "\u09b8\u09bf\u09b8\u09bf\u099f\u09bf\u09ad\u09bf \u0996\u09cb\u09b2\u09cb" opens Assisto's own CCTV (route watchman).
+  static final _cctv = _n([
+    'cctv', 'cc camera', 'cc tv', 'security camera', 'security cameras', 'home camera', 'home cameras', 'shop camera', 'shop cameras', 'my cameras', 'sisi tivi', 'cc kamera', '\u09b8\u09bf\u09b8\u09bf\u099f\u09bf\u09ad\u09bf', '\u09b8\u09bf\u09b8\u09bf \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u09b8\u09bf\u09b8\u09bf\u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u09a8\u09bf\u09b0\u09be\u09aa\u09a4\u09cd\u09a4\u09be \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u09a6\u09cb\u0995\u09be\u09a8\u09c7\u09b0 \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u09ac\u09be\u09b8\u09be\u09b0 \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u09ac\u09be\u09a1\u09bc\u09bf\u09b0 \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be', '\u0986\u09ae\u09be\u09b0 \u0995\u09cd\u09af\u09be\u09ae\u09c7\u09b0\u09be',
+  ]);
   static final _whatsapp = _n([
     'whatsapp', 'whats app', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u0985\u09cd\u09af\u09be\u09aa', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u09cd\u09af\u09be\u09aa', '\u09b9\u09cb\u09af\u09bc\u09be\u099f\u09b8\u0986\u09aa',
   ]);
@@ -935,6 +939,11 @@ class VoiceIntentParser {
         return VaIntent(VaAction.mapSearch, raw,
             target: nearby ? '$q near me' : q);
       }
+    }
+
+    // 12b. voice-proof: Assisto's CCTV ("open cctv", "show my cameras").
+    if (VaText.any(text, _cctv)) {
+      return VaIntent(VaAction.openScreen, raw, route: 'watchman');
     }
 
     // 13. Open an in-app screen or a phone app.

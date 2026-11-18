@@ -420,6 +420,11 @@ class ChatNav {
       'medicines', 'medicine',
     ],
     'reminders': ['reminders', 'reminder', 'remind me'],
+    // voice-proof: Assisto's own CCTV (route watchman)
+    'watchman': [
+      'security cameras', 'security camera', 'cctv camera', 'shop cameras',
+      'shop camera', 'home cameras', 'home camera', 'my cameras', 'cctv',
+    ],
     'emergency': ['emergency', 'sos', 'help'],
     'plans': ['plans', 'plan', 'premium', 'upgrade', 'subscribe', 'pricing'],
     'scam': ['scam check', 'scam', 'fraud'],

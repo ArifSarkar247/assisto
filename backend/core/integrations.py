@@ -993,7 +993,10 @@ REGISTRY = {
                                       "Enter cost per minute (USD) → Save → Test"],
                          "fields": [_f("api_key", "API Key", "API Key"),
                                     _f("model", "মডেল", "Model", secret=False),
-                                    _f("cost_per_minute_usd", "মিনিট প্রতি খরচ (USD)", "Cost per minute (USD)", secret=False)],
+                                    _f("cost_per_minute_usd", "মিনিট প্রতি খরচ (USD)", "Cost per minute (USD)", secret=False),
+                                    # voice-proof: optional OpenAI-compatible server (self-hosted Whisper, Groq)
+                                    _f("base_url", "API ঠিকানা (ঐচ্ছিক, যেমন নিজের Whisper সার্ভার)",
+                                       "API base URL (optional, e.g. your own Whisper server)", secret=False)],
                          "test": "test_openai"},
     # ---- /g1-bizagent ----
     "news": {"name": "News", "category": "Media",

@@ -217,6 +217,10 @@ class VaExecutor {
 
   Future<VaOutcome> _call(VaIntent i) async {
     final who = i.target;
+    // voice-proof: a My Circle person first (free Assisto call, no contacts
+    // permission needed); the phonebook + SIM call only when nobody matches.
+    final circle = await circleCall(i);
+    if (circle != null) return circle;
     if (who == null) {
       final ok = await _launch('tel:');
       return VaOutcome(ok ? t.vaDialerOpened : t.vaErrNoApp,
@@ -634,6 +638,20 @@ class VaExecutor {
     final acc = accs.isEmpty ? null : accs.first['serverId'];
     final cat = _categoryLabel(i.category);
     final catSaid = _catSaid(i.category);
+    final amount = NumberFormat.decimalPattern(_lang).format(i.amount);
+    // voice-proof: money -> a confirm card first (amount + category); nothing
+    // is saved until the user taps Save or says yes. Undo stays after saving.
+    if (!context.mounted) return VaOutcome(t.vaCancelled);
+    final go = await VaConfirmSheet.show(
+      context,
+      icon: Icons.receipt_long_rounded,
+      title: t.vaConfirmExpenseTitle('৳$amount', catSaid),
+      detail: (i.message ?? '').trim().isEmpty ? null : '“${i.message!.trim()}”',
+      confirmLabel: t.save,
+      voice: confirmVoice,
+      spokenQuestion: t.vaConfirmExpenseTitle('৳$amount', catSaid),
+    );
+    if (go == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
     final created = await app.txns.add({
       if (acc != null) 'account': acc,
       'kind': 'expense',
@@ -645,7 +663,6 @@ class VaExecutor {
       'date': DateFormat('yyyy-MM-dd').format(expenseDate(i.raw)),
       'source': 'voice',
     });
-    final amount = NumberFormat.decimalPattern(_lang).format(i.amount);
     return VaOutcome(
       t.vaExpenseLogged('৳$amount', catSaid),
       icon: Icons.receipt_long_rounded,

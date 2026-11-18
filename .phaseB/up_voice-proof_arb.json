@@ -1,0 +1,12 @@
+{
+  "en": {
+    "vaCircleCallLabel": "My Circle · free Assisto call",
+    "@vaCircleCallLabel": {"description": "voice-proof: subtitle of a My Circle person in the voice call confirm card (internet call, no SIM balance)"},
+    "vaConfirmExpenseTitle": "Save {amount} for {category}?",
+    "@vaConfirmExpenseTitle": {"description": "voice-proof: confirm card before a spoken expense is saved", "placeholders": {"amount": {"type": "String"}, "category": {"type": "String"}}}
+  },
+  "bn": {
+    "vaCircleCallLabel": "আমার সার্কেল · ফ্রি Assisto কল",
+    "vaConfirmExpenseTitle": "{category}-এ {amount} খরচ লিখে রাখব?"
+  }
+}

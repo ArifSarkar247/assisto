@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../crypto/identity_vault.dart';
+import '../screens/circle_call_screen.dart';
 import '../screens/circle_chat_screen.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
@@ -89,6 +90,28 @@ class VaRouter {
 class VaCircle {
   VaCircle._();
 
+  /// voice-proof: tests replace the server's My Circle list (null = real API).
+  @visibleForTesting
+  static List<Map<String, dynamic>>? debugMembers;
+
+  /// My Circle members from the server (null = offline / not logged in).
+  static Future<List<Map<String, dynamic>>?> load(AppState app) async {
+    final d = debugMembers;
+    if (d != null) return d;
+    if (!app.loggedIn) return null;
+    try {
+      final r = await app.api
+          .getJson('/circle/members')
+          .timeout(const Duration(seconds: 6));
+      return ((r['results'] ?? r['members'] ?? const []) as List)
+          .whereType<Map>()
+          .map((m) => m.cast<String, dynamic>())
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
   static String memberName(Map<String, dynamic> m) =>
       '${m['name'] ?? m['display_name'] ?? ''}'.trim();
 
@@ -124,14 +147,8 @@ extension VaAssistoActions on VaExecutor {
     final app = context.read<AppState>();
     final who = i.target ?? '';
     final body = (i.message ?? '').trim();
-    List<Map<String, dynamic>> members;
-    try {
-      final r = await app.api.getJson('/circle/members');
-      members = ((r['results'] ?? r['members'] ?? const []) as List)
-          .whereType<Map>()
-          .map((m) => m.cast<String, dynamic>())
-          .toList();
-    } catch (_) {
+    final members = await VaCircle.load(app);
+    if (members == null) {
       return VaOutcome(t.vaErrOffline, icon: Icons.cloud_off_rounded, ok: false);
     }
     final found = VaCircle.match(who, members);
@@ -175,6 +192,42 @@ extension VaAssistoActions on VaExecutor {
             autoSend: body.isNotEmpty))));
     return VaOutcome(body.isEmpty ? t.vaCircleOpened(name) : t.vaCircleSent(name),
         icon: Icons.forum_rounded, title: name, subtitle: body.isEmpty ? null : body);
+  }
+
+  /// voice-proof: "call ammu" / "আম্মুকে কল দাও" — a My Circle person is
+  /// called FREE on Assisto (internet call, no SIM balance) after the confirm
+  /// card. null = nobody in My Circle matches (or offline): the caller then
+  /// uses the phonebook + SIM call as before.
+  Future<VaOutcome?> circleCall(VaIntent i) async {
+    final who = (i.target ?? '').trim();
+    if (who.isEmpty || who.replaceAll(RegExp(r'[^0-9]'), '').length >= 6) return null;
+    final members = await VaCircle.load(context.read<AppState>());
+    if (members == null) return null;
+    final found = VaCircle.match(who, members);
+    if (found.isEmpty || !context.mounted) return null;
+    final first = VaCircle.memberName(found.first);
+    final pick = await VaConfirmSheet.show(
+      context,
+      icon: Icons.call_rounded,
+      title: t.vaConfirmCallTitle(first),
+      choices: [
+        for (final m in found)
+          {'name': VaCircle.memberName(m), 'phone': t.vaCircleCallLabel, 'id': '${m['id']}'},
+      ],
+      confirmLabel: t.vaCallNow,
+      voice: confirmVoice,
+      spokenQuestion: t.vaConfirmCallSpoken(first),
+    );
+    if (pick == null) return VaOutcome(t.vaCancelled, icon: Icons.close_rounded);
+    final member = found.firstWhere((m) => '${m['id']}' == pick['id'],
+        orElse: () => found.first);
+    final name = VaCircle.memberName(member);
+    if (!context.mounted) return VaOutcome(t.vaCancelled);
+    // the call screen places the ONE call (same as the chat's call button)
+    unawaited(Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => CircleCallScreen(member: member, kind: 'voice'))));
+    return VaOutcome(t.vaCalling(name),
+        icon: Icons.call_rounded, title: name, subtitle: t.vaCircleCallLabel);
   }
 
   /// "Nanu ke care call dao" -> confirm card -> the Care Call screen (pick

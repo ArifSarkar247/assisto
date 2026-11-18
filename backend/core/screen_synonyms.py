@@ -24,6 +24,11 @@ SCREEN_SYNONYMS = {
         "পরিবার", "ফ্যামিলি", "ওষুধ", "আম্মুর ওষুধ", "আব্বুর ওষুধ", "medicine", "medicines",
         "family", "family care", "mom's medicine", "dad's medicine",
     ],
+    # voice-proof: Assisto's own CCTV (app route "watchman")
+    "watchman": ["সিসিটিভি", "সিসি ক্যামেরা", "নিরাপত্তা ক্যামেরা", "দোকানের ক্যামেরা",
+                 "বাসার ক্যামেরা", "বাড়ির ক্যামেরা", "আমার ক্যামেরা",
+                 "security cameras", "security camera", "cctv camera", "shop cameras",
+                 "shop camera", "home cameras", "home camera", "my cameras", "cctv"],
     "reminders": ["রিমাইন্ডার", "মনে করিয়ে", "অ্যালার্ম", "reminder", "reminders", "remind me"],
     "emergency": ["ইমার্জেন্সি", "জরুরি", "sos", "emergency", "help"],
     "plans": ["প্ল্যান", "প্রিমিয়াম", "আপগ্রেড", "সাবস্ক্রিপশন প্ল্যান", "plans", "premium", "upgrade", "pricing", "subscription plan"],

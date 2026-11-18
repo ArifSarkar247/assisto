@@ -86,6 +86,21 @@ class VoiceDictation extends ChangeNotifier {
   /// (false = declined, no engine, no Bangla, or cancelled before it began).
   bool lastStartListened = false;
 
+  /// voice-proof: a phone with NO speech service (AOSP, many HMS phones,
+  /// stripped Android Go builds) records + transcribes on our server instead
+  /// of a dead-end "turn on speech" message. false = old message (tests).
+  final bool noEngineServer;
+
+  /// voice-proof: true once this phone's engine said "no speech service".
+  bool _noEngine = false;
+
+  /// Pure rule (unit-tested): use the server path when the phone has no
+  /// speech engine, the mic is not denied, server voice typing is not paused
+  /// and this is not a language course (the server writes only bn / en).
+  static bool useServerWhenNoEngine(
+          {required bool micDenied, required bool serverOff, String? learnLocale}) =>
+      !micDenied && !serverOff && learnLocale == null;
+
   // Auto mode: the bn locale was rejected by the engine for this session, so
   // the next listens go straight to English.
   bool _bnRejected = false;
@@ -95,7 +110,8 @@ class VoiceDictation extends ChangeNotifier {
       this.learnLocale,
       @visibleForTesting SpeechToText? engine,
       @visibleForTesting Future<bool> Function(BuildContext context)? askReason,
-      @visibleForTesting Future<bool> Function()? micDenied})
+      @visibleForTesting Future<bool> Function()? micDenied,
+      @visibleForTesting this.noEngineServer = true})
       : _speech = engine ?? SpeechToText(),
         _askReason = askReason ??
             ((c) => showPermissionReason(c, PermKind.mic)),
@@ -263,6 +279,10 @@ class VoiceDictation extends ChangeNotifier {
     final t = AppLocalizations.of(context);
     HapticFeedback.selectionClick();
     try {
+      if (_noEngine && noEngineServer && !serverOff && learnLocale == null) {
+        await _startServerFor(context, input);
+        return;
+      }
       if (!_speech.isAvailable) {
         if (!_reasonShown) {
           final ok = await _askReason(context);
@@ -275,6 +295,20 @@ class VoiceDictation extends ChangeNotifier {
         final ready = await _speech.initialize(
             onStatus: _onStatus, onError: _onError);
         if (!ready) {
+          if (!context.mounted) return;
+          if (noEngineServer) {
+            var denied = false;
+            try {
+              denied = await _micDenied().timeout(const Duration(seconds: 3));
+            } catch (_) {}
+            if (useServerWhenNoEngine(
+                    micDenied: denied, serverOff: serverOff, learnLocale: learnLocale) &&
+                context.mounted) {
+              _noEngine = true;
+              await _startServerFor(context, input);
+              return;
+            }
+          }
           if (context.mounted) await _explainUnavailable(context, t);
           return;
         }
@@ -315,6 +349,7 @@ class VoiceDictation extends ChangeNotifier {
       _base = input.text;
       if (_base.isNotEmpty && !_base.endsWith(' ')) _base = '$_base ';
       activeLang = plan.lang;
+      _serverPause = pauseFor ?? const Duration(milliseconds: 1800);
       if (plan.localeId == serverLocale) {
         await _startServer(context);
         return;
@@ -391,6 +426,7 @@ class VoiceDictation extends ChangeNotifier {
   // server into Bangla script. A failed transcription costs nothing.
   AudioRecorder? _rec;
   bool _serverRec = false;
+  Duration _serverPause = const Duration(milliseconds: 1800);
   String? _recPath;
   Timer? _recCap;
 
@@ -413,6 +449,22 @@ class VoiceDictation extends ChangeNotifier {
     serverOffMessage = msg;
     _serverOffAt = msg == null ? null : DateTime.now();
   }
+
+  /// voice-proof: the server path without a phone engine (no locale list):
+  /// Bangla unless the user / app chose English.
+  Future<void> _startServerFor(BuildContext context, TextEditingController input) async {
+    _target = input;
+    _base = input.text;
+    if (_base.isNotEmpty && !_base.endsWith(' ')) _base = '$_base ';
+    final app = Localizations.localeOf(context).languageCode;
+    activeLang = mode == 'en' || (mode == 'auto' && app == 'en') ? 'en' : 'bn';
+    await _startServer(context);
+  }
+
+  /// voice-proof: end-of-speech for the server path (hands-free after
+  /// "Hey Assisto" no longer records 45 s): stop ~1.8 s after the voice ends.
+  StreamSubscription<Amplitude>? _ampSub;
+  VadEndpointer? _vad;
 
   Future<void> _startServer(BuildContext context) async {
     if (serverOff) {
@@ -451,6 +503,14 @@ class VoiceDictation extends ChangeNotifier {
       notifyListeners();
       _recCap?.cancel();
       _recCap = Timer(const Duration(seconds: 45), stop);
+      final vad = VadEndpointer(trailMs: _serverPause.inMilliseconds);
+      _vad = vad;
+      await _ampSub?.cancel();
+      _ampSub = _rec!
+          .onAmplitudeChanged(const Duration(milliseconds: VadEndpointer.stepMs))
+          .listen((a) {
+        if (_serverRec && vad.feed(a.current)) stop();
+      }, onError: (_) {});
     } catch (_) {
       _mic.stop();
       _serverRec = false;
@@ -464,6 +524,12 @@ class VoiceDictation extends ChangeNotifier {
   Future<void> _stopServer() async {
     _recCap?.cancel();
     _serverRec = false;
+    final sub = _ampSub;
+    _ampSub = null;
+    unawaited(sub?.cancel());
+    final heard = _vad?.heardSpeech ?? true;
+    final quietEnd = _vad?.ended == true && !heard;
+    _vad = null;
     _mic.stop();
     String? path;
     try {
@@ -481,6 +547,14 @@ class VoiceDictation extends ChangeNotifier {
         f.deleteSync();
       } catch (_) {}
       if (wav.length < 3200) return; // < 0.1 s: nothing said
+      // voice-proof: the clip ended by itself and held no voice -> nothing to
+      // write down (never sent, never charged)
+      if (quietEnd) {
+        if (!_quietNoMatch && ctx.mounted) {
+          _showMessage(ctx, AppLocalizations.of(ctx).voiceNoMatch, settings: false);
+        }
+        return;
+      }
       final text = await (debugTranscribe ?? _upload)(ctx, wav, activeLang);
       if (text != null && text.trim().isNotEmpty) {
         final live = '$_base${text.trim()}';
@@ -614,6 +688,21 @@ class VoiceDictation extends ChangeNotifier {
   void dispose() {
     // The engine is shared: only cancel OUR session, and drop our callbacks.
     _mic.stop();
+    // voice-proof: a server-path recording NEVER outlives its screen (it used
+    // to keep recording up to 45 s after the user left).
+    _recCap?.cancel();
+    final sub = _ampSub;
+    _ampSub = null;
+    final rec = _rec;
+    _rec = null;
+    _serverRec = false;
+    () async {
+      try {
+        await sub?.cancel();
+        await rec?.cancel();
+        await rec?.dispose();
+      } catch (_) {}
+    }();
     try {
       if (listening) _speech.cancel();
       if (_speech.statusListener == _onStatus) {
@@ -629,6 +718,45 @@ class VoiceDictation extends ChangeNotifier {
 /// [VoiceDictation]); the only override lives in Settings -> Voice, so there is
 /// no language chip here. Hold to talk (release stops), tap to toggle. Pulses
 /// while live.
+/// voice-proof: end-of-speech detection on the recorder's level (dBFS every
+/// [stepMs]). Adapts to the room's noise floor; [feed] returns true when the
+/// recording should stop: [trailMs] of quiet after speech, or [noSpeechMs]
+/// with no speech at all. Pure (unit-tested in voice_proof_test.dart).
+class VadEndpointer {
+  VadEndpointer({this.trailMs = 1800, this.noSpeechMs = 8000});
+
+  static const int stepMs = 100;
+  final int trailMs;
+  final int noSpeechMs;
+
+  double? _floor;
+  int _t = 0, _quiet = 0, _loud = 0;
+  bool heardSpeech = false;
+  bool ended = false;
+
+  bool feed(double db) {
+    if (ended) return true;
+    if (db.isNaN || db.isInfinite) db = -160;
+    _t += stepMs;
+    final f = _floor ?? db;
+    // noise floor: falls fast, rises slowly (speech never lifts it much)
+    _floor = db < f ? f + (db - f) * 0.5 : f + (db - f) * 0.02;
+    final floor = _floor!;
+    final speech = db > -55 && db >= floor + 12;
+    if (speech) {
+      _loud += stepMs;
+      if (_loud >= 200) heardSpeech = true; // >= 0.2 s of voice
+      _quiet = 0;
+    } else {
+      _loud = 0;
+      if (heardSpeech && db < floor + 8) _quiet += stepMs;
+    }
+    if (heardSpeech && _quiet >= trailMs) ended = true;
+    if (!heardSpeech && _t >= noSpeechMs) ended = true;
+    return ended;
+  }
+}
+
 class VoiceMicButton extends StatelessWidget {
   final VoiceDictation voice;
   final TextEditingController input;

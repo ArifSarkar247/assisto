@@ -282,6 +282,23 @@ def stt_config():
     return conf if conf.get("api_key") else {}
 
 
+def stt_url(conf):
+    """voice-proof: the transcription endpoint. Default OpenAI; the owner may
+    set "base_url" to any OpenAI-compatible server (e.g. a self-hosted
+    Whisper, Groq). https only — plain http only for this machine itself
+    (127.0.0.1 / localhost: a Whisper next to the server, and the CI proof)."""
+    from urllib.parse import urlparse
+    base = str((conf or {}).get("base_url") or "").strip().rstrip("/")
+    if not base:
+        return "https://api.openai.com/v1/audio/transcriptions"
+    u = urlparse(base)
+    local = u.hostname in ("127.0.0.1", "localhost")
+    if u.scheme not in ("https", "http") or not u.hostname or (u.scheme == "http" and not local) \
+            or u.username or u.password or u.query or u.fragment:
+        return "https://api.openai.com/v1/audio/transcriptions"
+    return base + "/audio/transcriptions"
+
+
 def _openai_transcribe(conf, data, mime, lang):
     """OpenAI audio transcription (multipart). Returns text or raises."""
     import requests
@@ -289,7 +306,7 @@ def _openai_transcribe(conf, data, mime, lang):
     ext = {"audio/ogg": "ogg", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/aac": "aac",
            "audio/wav": "wav", "audio/webm": "webm", "audio/amr": "amr"}.get(
         (mime or "").split(";")[0], "ogg")
-    r = requests.post("https://api.openai.com/v1/audio/transcriptions",
+    r = requests.post(stt_url(conf),
                       headers={"Authorization": "Bearer %s" % conf.get("api_key", "")},
                       files={"file": ("voice.%s" % ext, data, mime or "audio/ogg")},
                       data={"model": model, "language": "bn" if lang != "en" else "en"},

@@ -28,6 +28,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import org.json.JSONObject
 import java.io.File
 
@@ -74,6 +75,13 @@ class WakeWordService : Service() {
         // battery | saver | locked | call | mic_busy | user | wake | fgs_blocked | mic_blocked | engine:<x>
         @Volatile var reason: String = ""
         @Volatile var pausedUntil: Long = 0L
+        // voice-proof: honest numbers for the proof run and the settings
+        // screen — how many times it woke since it started, and the input
+        // level it hears (dBFS peak of the last ~2 s). Numbers only: no
+        // audio, no words, nothing leaves the phone.
+        @Volatile var wakes: Int = 0
+        @Volatile var peakDb: Float = -120f
+        @Volatile var lastScore: Float = 0f
 
         fun prefs(ctx: Context): SharedPreferences =
             ctx.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -91,6 +99,9 @@ class WakeWordService : Service() {
             "pausedUntil" to pausedUntil,
             "wanted" to prefs(ctx).getBoolean("wanted", false),
             "level" to (prefs(ctx).getString("level", "normal") ?: "normal"),
+            "wakes" to wakes,
+            "peakDb" to peakDb.toDouble(),
+            "lastScore" to lastScore.toDouble(),
         )
 
         /**
@@ -264,6 +275,7 @@ class WakeWordService : Service() {
                 return START_NOT_STICKY
             }
             if (!alive) {
+                wakes = 0
                 alive = true
                 registerMonitors()
                 main.post(monitorTick)
@@ -458,9 +470,21 @@ class WakeWordService : Service() {
                     }
                     break
                 }
+                var pk = 0
+                for (k in 0 until n) { val a = Math.abs(buf[k].toInt()); if (a > pk) pk = a }
+                val db = if (pk <= 0) -120f else (20.0 * Math.log10(pk / 32768.0)).toFloat()
+                peakDb = if (db > peakDb - 1.2f) db else peakDb - 1.2f // ~2 s decay at 80 ms
                 var fired = false
+                var top = 0f
                 engine.push(buf, n) { s ->
+                    if (s > top) top = s
                     if (!fired && decider.feed(s, SystemClock.elapsedRealtime())) fired = true
+                }
+                if (fired) {
+                    wakes += 1
+                    lastScore = top
+                    // numbers only (the CI proof counts these lines)
+                    Log.i("AssistoWake", "WAKE n=$wakes score=$top peakDb=$peakDb")
                 }
                 if (fired) {
                     releaseRec(rec); rec = null
