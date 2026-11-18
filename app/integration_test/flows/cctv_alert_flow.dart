@@ -365,7 +365,10 @@ Future<void> _flow(RFlow f) async {
       await f.back(); // leave the alerts screen
       await _host(f, 'NET', 'off');
       await _host(f, 'NETSPEED', 'block'); // the backend unreachable for real (TCP reset)
-      await f.eventually('the backend is unreachable', () async => !(await f.net(_reachable)), seconds: 30);
+      // eventually() already runs the probe in real async — a nested
+      // f.net (runAsync) inside it never returned true (runs 44181292975 ..
+      // 44244324245), although the app itself got 'Network is unreachable'
+      await f.eventually('the backend is unreachable', () async => !(await _reachable()), seconds: 30);
       await f.pushScreen(WatchmanAlertsScreen(source: ApiWatchmanSource(f.app.api), siteId: site, owner: true));
       await f.waitFor(_k('wm-alerts-autoretry'), seconds: 40, what: 'the offline state');
       await _shotBoth(f, 'offline');
