@@ -54,6 +54,7 @@ tools/*
 !tools/ci/
 !tools/reality/
 !tools/wakeword/
+!tools/itag/
 !tools/lp/
 tools/lp/**/*.mp3
 tools/lp/**/*.wav
