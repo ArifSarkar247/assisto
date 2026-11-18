@@ -58,7 +58,8 @@ from django.utils import timezone
 COLLECTION = "devlink"
 TTL_SEC = 120            # QR / code life
 APPROVE_TTL_SEC = 300    # after a claim: time for the owner to approve + pickup
-CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"   # no 0/O/1/I
+CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"   # letters only (no I/O): no digit-script
+# mix-ups in Bangla; 24^8 = 1.1e11 codes for a 2-minute single-use secret
 CODE_LEN = 8
 QR_PREFIX = "assisto-link:1:"
 CLAIMS_PER_IP_PER_10MIN = 20
@@ -337,8 +338,8 @@ def listing(user, current_device_id="", lang="bn"):
 
 
 def claim_rate_ok(request):
-    """At most CLAIMS_PER_IP_PER_10MIN claims per IP (8 random characters
-    from 32 = 1.1e12 codes; this only stops noise)."""
+    """At most CLAIMS_PER_IP_PER_10MIN claims per IP (8 random letters
+    from 24 = 1.1e11 codes; this only stops noise)."""
     try:
         from django.core.cache import cache
         from .otp import client_ip

@@ -58,7 +58,7 @@ class LinkFlowTests(APITestCase):
         s = a.post("/api/v1/e2/link/start", {}, format="json")
         self.assertEqual(s.status_code, 200, s.data)
         self.assertTrue(s.data["qr"].startswith(DL.QR_PREFIX))
-        self.assertRegex(s.data["code"], r"^[A-Z2-9]{4}-[A-Z2-9]{4}$")
+        self.assertRegex(s.data["code"], r"^[A-HJ-NP-Z]{4}-[A-HJ-NP-Z]{4}$")
         b = self.new_phone()
         secret = s.data["code"].lower() if use_code else s.data["qr"]
         cl = b.post("/api/v1/e2/link/claim", {"code": secret, "eph_pub": PUB,

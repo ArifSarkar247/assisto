@@ -1,5 +1,6 @@
 import 'p3guides_fake.dart'; // p3guides
 import 'fake_channels.dart'; // channels
+import 'fake_cx.dart'; // circle-extras
 import 'fake_food.dart'; // p2food
 import 'fake_famcare.dart'; // famcare
 import 'fake_fcscreen.dart'; // fcscreen
@@ -1167,6 +1168,12 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return c100;
     }
+    // circle-extras: linked phones + link sheet
+    final cxG = fakeCxGet(path, bn: _bn, empty: mode == FakeMode.empty);
+    if (cxG != null) {
+      if (mode == FakeMode.fail) _fail();
+      return cxG;
+    }
     // channels (2 Nov): directory / my channels / communities stubs
     final chx = fakeChannelsGet(path, bn: _bn, empty: mode == FakeMode.empty);
     if (chx != null) {
@@ -2286,6 +2293,8 @@ class FakeApi extends ApiClient {
     if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels
     if (chxP != null) return chxP;
+    final cxP = fakeCxPost(path, body); // circle-extras
+    if (cxP != null) return cxP;
     final p1P = fakeBizAgentPost(path, body, _bn); // p1-bizagent
     if (p1P != null) return p1P;
     final khP = fakeKhataPost(

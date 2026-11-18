@@ -12,6 +12,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:assisto/screens/messenger/linked_devices_screen.dart'; // circle-extras
+import 'package:assisto/screens/link_phone_screen.dart'; // circle-extras
+import 'package:assisto/screens/messenger/link_phone_sheet.dart'; // circle-extras
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/state.dart';
@@ -624,6 +627,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'c1_contacts_synced': (build: (_) { SharedPreferences.setMockInitialValues({'c1_contacts_consent_v1': true}); return const ContactsScreen(source: C1GallerySource()); }, mode: FakeMode.data, full: true),
     // channels (2 Nov): My Circle channels + communities others can find.
     'chx_channels': (build: (_) => const ChannelListScreen(), mode: FakeMode.data, full: true),
+    // circle-extras: linked phones, the main-phone link sheet, the new phone's screen
+    'cx_linked_devices': (build: (_) => const LinkedDevicesScreen(), mode: FakeMode.data, full: true),
+    'cx_linked_devices_empty': (build: (_) => const LinkedDevicesScreen(), mode: FakeMode.empty, full: true),
+    'cx_link_sheet': (build: (_) => Scaffold(body: Builder(builder: (ctx) => LinkPhoneSheet(api: ctx.read<AppState>().api))), mode: FakeMode.data, full: true),
+    'cx_link_phone': (build: (_) => const LinkPhoneScreen(startWithCamera: false), mode: FakeMode.data, full: true),
     'chx_channels_empty': (build: (_) => const ChannelListScreen(), mode: FakeMode.empty, full: true),
     'chx_directory': (build: (_) => const DiscoverScreen(), mode: FakeMode.data, full: true),
     'chx_channel': (build: (_) => const ChannelDetailScreen(channelId: 11), mode: FakeMode.data, full: true),
