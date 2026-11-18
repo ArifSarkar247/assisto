@@ -31,7 +31,6 @@ class ReminderAlarms {
   static const payloadPrefix = 'remalarm:';
 
   static bool _queued = false;
-  static bool _running = false;
   static List<Map<String, dynamic>> Function()? _source;
 
   /// Ask for a reconcile soon (coalesced). Never throws.
@@ -51,57 +50,65 @@ class ReminderAlarms {
     });
   }
 
+  /// proof-notif: one reconcile at a time, and a change that arrives WHILE
+  /// one runs is re-run right after it. Before, `if (_running) return`
+  /// DROPPED it: on app start a Snooze / Done tapped while the app was
+  /// closed patched the reminder during the start-up reconcile, so the
+  /// snoozed reminder's new alarm was never set (the stand-in alarm was
+  /// already cancelled) until some later list change happened to re-trigger.
+  static final rerun = SerialRerun<(List<Map<String, dynamic>>, DateTime?)>();
+
   /// Bring the OS alarms in line with [items]. Safe to call often.
   static Future<void> reconcile(List<Map<String, dynamic>> items,
       {DateTime? now}) async {
-    if (!Notifications.ready || _running) return;
-    _running = true;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final exact = await Notifications.canScheduleExact();
-      final ledger = decodeLedger(prefs.getString(ledgerKey));
-      final plans = planReminderAlarms(items, now: now ?? DateTime.now());
-      await _migrateLegacy(prefs, items);
-      final pendingIds = await Notifications.pendingIds();
-      final lost = countLostAlarms(
-          plans: plans,
-          ledger: ledger,
-          pendingIds: pendingIds,
-          now: now ?? DateTime.now());
-      if (lost > 0) await _noteLost(prefs, lost, now ?? DateTime.now());
-      final ops = diffAlarms(
+    if (!Notifications.ready) return;
+    await rerun.run((items, now), (a) => _reconcileOnce(a.$1, now: a.$2));
+  }
+
+  static Future<void> _reconcileOnce(List<Map<String, dynamic>> items,
+      {DateTime? now}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final exact = await Notifications.canScheduleExact();
+    final ledger = decodeLedger(prefs.getString(ledgerKey));
+    final plans = planReminderAlarms(items, now: now ?? DateTime.now());
+    await _migrateLegacy(prefs, items);
+    final pendingIds = await Notifications.pendingIds();
+    final lost = countLostAlarms(
         plans: plans,
         ledger: ledger,
-        exactAllowed: exact,
         pendingIds: pendingIds,
-      );
-      if (ops.isEmpty) return;
-      for (final id in ops.cancel) {
-        await Notifications.cancelId(id);
-        ledger.remove(id);
-      }
-      for (final p in ops.schedule) {
-        final want = modeFor(p, exactAllowed: exact);
-        final used = await Notifications.scheduleAlarm(
-            p.id, p.title, p.body, p.at,
-            mode: want, repeat: p.repeat,
-            payload: ReminderActions.payloadFor(p.baseKey, p.title, p.body));
-        if (used == null) {
-          ledger.remove(p.id);
-          continue;
-        }
-        ledger[p.id] = LedgerEntry(
-          key: p.key,
-          at: p.at.millisecondsSinceEpoch,
-          mode: used,
-          repeat: p.repeat,
-          sig: p.sig(used),
-        );
-      }
-      await prefs.setString(ledgerKey, encodeLedger(ledger));
-    } finally {
-      _running = false;
+        now: now ?? DateTime.now());
+    if (lost > 0) await _noteLost(prefs, lost, now ?? DateTime.now());
+    final ops = diffAlarms(
+      plans: plans,
+      ledger: ledger,
+      exactAllowed: exact,
+      pendingIds: pendingIds,
+    );
+    if (ops.isEmpty) return;
+    for (final id in ops.cancel) {
+      await Notifications.cancelId(id);
+      ledger.remove(id);
     }
+    for (final p in ops.schedule) {
+      final want = modeFor(p, exactAllowed: exact);
+      final used = await Notifications.scheduleAlarm(
+          p.id, p.title, p.body, p.at,
+          mode: want, repeat: p.repeat,
+          payload: ReminderActions.payloadFor(p.baseKey, p.title, p.body));
+      if (used == null) {
+        ledger.remove(p.id);
+        continue;
+      }
+      ledger[p.id] = LedgerEntry(
+        key: p.key,
+        at: p.at.millisecondsSinceEpoch,
+        mode: used,
+        repeat: p.repeat,
+        sig: p.sig(used),
+      );
+    }
+    await prefs.setString(ledgerKey, encodeLedger(ledger));
   }
 
   // ------------------------------------------------------------ lost
@@ -318,5 +325,38 @@ class ReminderAlarms {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(askedKey, DateTime.now().millisecondsSinceEpoch);
     } catch (_) {}
+  }
+}
+
+/// proof-notif: run [body] one call at a time. A call made while one is
+/// running is not lost: the LATEST such argument runs once more right after
+/// the current run (older queued arguments are superseded — reconcile always
+/// works from the newest list). Exceptions from [body] still reach the
+/// caller of the run that threw; the queued re-run happens either way.
+class SerialRerun<T> {
+  bool _busy = false;
+  bool _queued = false;
+  T? _next;
+
+  bool get busy => _busy;
+
+  Future<void> run(T arg, Future<void> Function(T arg) body) async {
+    if (_busy) {
+      _next = arg;
+      _queued = true;
+      return;
+    }
+    _busy = true;
+    try {
+      await body(arg);
+    } finally {
+      _busy = false;
+      if (_queued) {
+        final a = _next as T;
+        _queued = false;
+        _next = null;
+        await run(a, body);
+      }
+    }
   }
 }
