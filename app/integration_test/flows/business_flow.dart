@@ -212,6 +212,13 @@ void registerBusinessFlows() {
       await f.shot('site-added');
       await f.eventually('site on server', () async =>
           (await api.shopSites()).toString().contains(site));
+      // the app then shows the device enrolment code (Copy / Close) — a
+      // user reads it and closes it before going to the Cameras tab
+      final close = find.text(f.t.close).hitTestable();
+      if (close.evaluate().isNotEmpty) {
+        await f.shot('enrol-code');
+        await f.tap(close, settleSeconds: 2);
+      }
     });
     await f.step('add a camera', () async {
       await f.tapText(f.t.shopBoxTabCameras);
