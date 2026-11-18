@@ -433,7 +433,8 @@ Future<MediaDescriptor?> _mediaFromA(_Peer p, String kind, {String? name}) async
 }
 
 /// B's "phone" sends A a media file with the app's own MediaOutbox code.
-Future<MediaJob> _peerSendMedia(RFlow f, _Peer p, MediaOutbox out, String kind, String path,
+/// Returns the blob ref of the sent media.
+Future<String> _peerSendMedia(RFlow f, _Peer p, MediaOutbox out, String kind, String path,
     {required String name, required String mime, int? w, int? h, int? ms, String thumb = ''}) async {
   final edge = await f.net(() => _edgeTo(p.api, 'Rahim'));
   final job = MediaJob(
@@ -453,19 +454,22 @@ Future<MediaJob> _peerSendMedia(RFlow f, _Peer p, MediaOutbox out, String kind, 
   await f.net(() => out.add(job));
   await f.eventually('${p.name}\'s phone sent the $kind', () async => (await out.all()).isEmpty,
       seconds: 180);
+  // the outbox re-reads jobs from its store: the ref is on the SENT record
+  final ref = out.recentlySent[job.id]?.desc?.ref ?? '';
+  if (ref.isEmpty) throw TestFailure('${p.name}: no sent record for the $kind');
   // the sender's copy is "adopted" into the (shared, in-process) media cache —
   // on a real second phone it lives on THAT phone: remove it from A's cache.
   final root = MediaDirs.rootSync;
-  if (root != null) {
+  if (root != null && Directory('$root/files').existsSync()) {
     for (final e in Directory('$root/files').listSync()) {
-      if (e.path.split('/').last.startsWith(job.ref)) {
+      if (e.path.split('/').last.startsWith('$ref.')) {
         try {
           e.deleteSync();
         } catch (_) {}
       }
     }
   }
-  return job;
+  return ref;
 }
 
 /// Type into the chat input found by its hint (works when it already holds
@@ -633,23 +637,23 @@ void registerCircleChatFlows() {
         final name = 'cc_bphoto_$_tag.png';
         final path = await f.net(() => _tmpFile(name, bp));
         final thumb = await f.net(() => tinyThumbB64(bp));
-        final job = await _peerSendMedia(f, b, outB, 'photo', path,
+        final ref = await _peerSendMedia(f, b, outB, 'photo', path,
             name: name, mime: 'image/png', w: 1300, h: 1300, thumb: thumb);
         await _openChatWith(f, Seed.nameB);
         final any = find.byWidgetPredicate((w) =>
-            w.key == Key('md1-dl-${job.ref}') ||
-            w.key == Key('md1-dl-cancel-${job.ref}') ||
-            w.key == Key('md1-photo-${job.ref}'));
+            w.key == Key('md1-dl-${ref}') ||
+            w.key == Key('md1-dl-cancel-${ref}') ||
+            w.key == Key('md1-photo-${ref}'));
         await f.waitFor(any, seconds: 40, what: 'B\'s photo bubble');
         if (find.byType(ImageFiltered).evaluate().isEmpty &&
-            find.byKey(Key('md1-photo-${job.ref}')).evaluate().isEmpty) {
+            find.byKey(Key('md1-photo-${ref}')).evaluate().isEmpty) {
           throw TestFailure('no blurred thumbnail before the download');
         }
         await f.shot('bphoto-thumb');
-        if (find.byKey(Key('md1-dl-${job.ref}')).evaluate().isNotEmpty) {
-          await f.tap(find.byKey(Key('md1-dl-${job.ref}')), settleSeconds: 1);
+        if (find.byKey(Key('md1-dl-${ref}')).evaluate().isNotEmpty) {
+          await f.tap(find.byKey(Key('md1-dl-${ref}')), settleSeconds: 1);
         }
-        await f.waitFor(find.byKey(Key('md1-photo-${job.ref}')), seconds: 90, what: 'photo opened');
+        await f.waitFor(find.byKey(Key('md1-photo-${ref}')), seconds: 90, what: 'photo opened');
         await f.shot('bphoto-open');
       });
 
@@ -659,15 +663,15 @@ void registerCircleChatFlows() {
         final path = await f.net(() => _tmpFile(name, bv));
         final thumb = await f.net(() => tinyThumbB64(_png(64, 36, 15)));
         await f.back();
-        final job = await _peerSendMedia(f, b, outB, 'video', path,
+        final ref = await _peerSendMedia(f, b, outB, 'video', path,
             name: name, mime: 'video/mp4', w: 1280, h: 720, ms: 20000, thumb: thumb);
         slow.ranges.clear();
         await _openChatWith(f, Seed.nameB);
-        final dl = find.byKey(Key('md1-dl-${job.ref}'));
+        final dl = find.byKey(Key('md1-dl-${ref}'));
         if (await f.appears(dl, seconds: 25)) await f.tap(dl, settleSeconds: 1);
         var p = 0.0;
         for (var i = 0; i < 240 && p < 0.3; i++) {
-          p = MediaCache.instance.states.value[job.ref]?.progress ?? p;
+          p = MediaCache.instance.states.value[ref]?.progress ?? p;
           await f.pumpFor(const Duration(milliseconds: 250));
         }
         if (p < 0.3) throw TestFailure('download progress never reached 30 % (last $p)');
@@ -678,18 +682,18 @@ void registerCircleChatFlows() {
         await f.pumpFor(const Duration(seconds: 75));
         await f.shot('bvideo-cut');
         await _airplane(f, false);
-        final retry = find.byKey(Key('md1-dl-${job.ref}'));
+        final retry = find.byKey(Key('md1-dl-${ref}'));
         if (await f.appears(retry, seconds: 10)) await f.tap(retry, settleSeconds: 1);
         await f.eventually('the video is downloaded + decrypted on A', () async {
           final root = MediaDirs.rootSync;
           if (root == null) return false;
-          return File('$root/files/${job.ref}.mp4').existsSync() &&
-              MediaCache.instance.states.value[job.ref] == null;
+          return File('$root/files/${ref}.mp4').existsSync() &&
+              MediaCache.instance.states.value[ref] == null;
         }, seconds: 240);
         final resumed = slow.ranges.where((r) => r.$1 > 0 && r.$2 == 206).toList();
         f.note('download calls (from, status): ${slow.ranges}');
         if (resumed.isEmpty) throw TestFailure('no resumed (Range, 206) download: ${slow.ranges}');
-        final size = File('${MediaDirs.rootSync}/files/${job.ref}.mp4').lengthSync();
+        final size = File('${MediaDirs.rootSync}/files/${ref}.mp4').lengthSync();
         if (size != bv.length) throw TestFailure('A\'s video is $size bytes, want ${bv.length}');
         await f.shot('bvideo-done');
       });
@@ -745,19 +749,23 @@ void registerCircleChatFlows() {
       await f.back();
       final outB = MediaOutbox(store: _MemJobs(), transport: HttpMediaTransport(token: () => b.api.token));
       outB.identity = () async => b.id;
-      final job = await _peerSendMedia(f, b, outB, 'voice', path,
+      final ref = await _peerSendMedia(f, b, outB, 'voice', path,
           name: 'voice_$_tag.m4a', mime: 'audio/mp4', ms: got.durationMs ?? 3000);
       await _openChatWith(f, Seed.nameB);
       await f.pumpFor(const Duration(seconds: 8)); // the bubble + auto download
       await f.waitFor(find.byKey(const Key('md1-voice-play')), seconds: 30, what: 'voice bubble');
-      await f.tap(find.byKey(const Key('md1-voice-play')).last, settleSeconds: 1);
+      // two voice bubbles (A's and B's): play until B's file is the one playing
       var played = false;
-      for (var i = 0; i < 40 && !played; i++) {
-        final s = VoicePlayer.instance.state.value;
-        played = s.playing || s.positionMs > 0;
-        await f.pumpFor(const Duration(milliseconds: 500));
+      final n = find.byKey(const Key('md1-voice-play')).evaluate().length;
+      for (var k = 0; k < n && !played; k++) {
+        await f.tap(find.byKey(const Key('md1-voice-play')).at(k), settleSeconds: 1);
+        for (var i = 0; i < 30 && !played; i++) {
+          final s = VoicePlayer.instance.state.value;
+          played = s.path.contains(ref) && (s.playing || s.positionMs > 0);
+          await f.pumpFor(const Duration(milliseconds: 500));
+        }
       }
-      if (!played) throw TestFailure('B\'s voice note did not play on A (ref ${job.ref})');
+      if (!played) throw TestFailure('B\'s voice note did not play on A (ref ${ref})');
       await f.shot('voice-playing');
     });
     f.note('the CI emulator mic records silence/host noise; audio quality and the '
@@ -935,7 +943,8 @@ void registerCircleChatFlows() {
       await longPress('Answer $_tag');
       await menu(f.t.circleActionEdit);
       await _type(f, f.t.circleMessageHint, 'Answer edited $_tag');
-      await f.tapSend(settleSeconds: 3);
+      // while editing, the send button is "Save" (✓)
+      await f.tap(find.byTooltip(f.t.save).hitTestable(), settleSeconds: 3);
       await f.eventually('B: new text + edited_at', () async {
         final r = (await _fromA(b)).where((x) => x.$1 == 'Answer edited $_tag').toList();
         return r.isNotEmpty && r.last.$2['edited_at'] != null;
