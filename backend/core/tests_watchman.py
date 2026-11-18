@@ -116,6 +116,12 @@ class _Base(APITestCase):
         super().tearDownClass()
 
     def setUp(self):
+        # cctv-preview: the CCTV plan's camera count is cached 60 s by user id
+        # (cctv_plan_service.plan_cameras); the test DB reuses ids, so a plan
+        # cached by an earlier suite in the same worker made "no Business
+        # plan" owners look paid (run 44250988205, 3 SetupTests)
+        from django.core.cache import cache
+        cache.clear()
         self.owner = User.objects.create_user(name="Rahim", phone="01710002001",
                                               password="pw")
         self.owner.ai_credits = 500
