@@ -1,5 +1,6 @@
 package com.assisto.assisto.antitheft
 
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -22,6 +23,7 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import org.json.JSONArray
@@ -139,6 +141,9 @@ class AntiTheftService : Service(), SensorEventListener {
         /** Fake SIM slot identities (SimBaseline.slotIdentity form); null =
          *  the real SIM again. Debug builds only. */
         @Volatile internal var debugSimSlots: List<String?>? = null
+        /** antitheft-nine: wake-up pushes seen / the last remote switch result */
+        @Volatile internal var pushWakes = 0L
+        @Volatile internal var lastCmd = ""
 
         fun debugInject(ctx: Context, mags: List<Double>, dtMs: Int,
                         c: Map<String, Any?>, endGrace: Boolean): Map<String, Any?> {
@@ -168,6 +173,23 @@ class AntiTheftService : Service(), SensorEventListener {
                 "lostShown" to RemoteCommands.lostMessageShowing(ctx),
                 "graceLeftMs" to (s?.let { maxOf(0L, it.snatchGraceUntil -
                     System.currentTimeMillis()) } ?: -1L),
+                // antitheft-nine
+                "alarmPlaying" to RemoteAlarm.playing,
+                "pushWakes" to pushWakes,
+                "wakeHolds" to EngineWake.holds,
+                "wakeHeldMs" to EngineWake.heldMs,
+                "beatAlarms" to (s?.beatAlarms ?: 0L),
+                "intruderPhoto" to (s?.intruderPhoto ?: false),
+                "snatchLock" to (s?.snatchLock ?: false),
+                "photoTries" to (s?.photoTries ?: 0),
+                "photoOk" to (s?.photoOk ?: 0),
+                "photoErr" to (s?.photoErr ?: ""),
+                "lastCmd" to lastCmd,
+                "adminActive" to DeviceAdminLock.isActive(ctx),
+                "interactive" to ((ctx.getSystemService(Context.POWER_SERVICE)
+                    as? PowerManager)?.isInteractive ?: true),
+                "deviceIdle" to (if (Build.VERSION.SDK_INT >= 23) ((ctx.getSystemService(
+                    Context.POWER_SERVICE) as? PowerManager)?.isDeviceIdleMode ?: false) else false),
             )
         }
 
@@ -482,6 +504,11 @@ class AntiTheftService : Service(), SensorEventListener {
             try {
                 val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 if ((p.getString("token", "") ?: "").isBlank()) return
+                // antitheft-nine: FCM's own wake lock ends when
+                // onMessageReceived returns; the check-in that fetches the
+                // command runs after that, on the worker thread.
+                pushWakes++
+                EngineWake.hold(ctx, EngineWake.PUSH_MS)
                 val svc = instance
                 if (svc != null && running) {
                     svc.postFlush()
@@ -555,6 +582,10 @@ class AntiTheftService : Service(), SensorEventListener {
     // foreground yet). The camera is used only if CAMERA is in here (API 30+).
     private var fgTypes = -1
     private var lastPhotoAt = 0L
+    // antitheft-nine: debug counters (debugState only)
+    @Volatile internal var photoTries = 0
+    @Volatile internal var photoOk = 0
+    @Volatile internal var photoErr = ""
     // antitheft2: grab rules from the server config + live facts
     private var nightGuard = false
     private var homeWifi: Set<String> = emptySet()
@@ -614,8 +645,38 @@ class AntiTheftService : Service(), SensorEventListener {
         override fun run() {
             try { doHeartbeat() } catch (_: Throwable) {}
             val interval = currentIntervalMin()
+            bg.removeCallbacks(this)
             bg.postDelayed(this, interval * 60_000L)
+            scheduleBeatAlarm(interval)
         }
+    }
+
+    // antitheft-nine: the Handler above runs on the UPTIME clock, which
+    // stops while a real phone's CPU sleeps (screen off; a foreground service
+    // does not prevent that). An inexact ELAPSED_REALTIME_WAKEUP alarm (no
+    // exact-alarm permission; Doze defers it to a maintenance window) wakes
+    // the engine for the heartbeat if the Handler did not run in time.
+    @Volatile internal var beatAlarms = 0L
+    private var alarmMgr: AlarmManager? = null
+    private val beatAlarm = AlarmManager.OnAlarmListener {
+        try {
+            beatAlarms++
+            EngineWake.hold(applicationContext, EngineWake.BEAT_MS)
+            heartbeatTick.run()
+        } catch (_: Throwable) {}
+    }
+
+    private fun scheduleBeatAlarm(intervalMin: Int) {
+        try {
+            val am = alarmMgr ?: (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
+                ?.also { alarmMgr = it } ?: return
+            am.cancel(beatAlarm)
+            // a minute after the Handler's turn: on an awake phone the
+            // Handler wins and re-arms this alarm, so it never fires twice
+            am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + (intervalMin + 1) * 60_000L,
+                "assisto:antitheft-beat", beatAlarm, bg)
+        } catch (_: Throwable) {}
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -949,12 +1010,21 @@ class AntiTheftService : Service(), SensorEventListener {
         lastPhotoAt = now
         // never covert: the system shutter sound (and Android's camera dot)
         try { android.media.MediaActionSound().play(android.media.MediaActionSound.SHUTTER_CLICK) } catch (_: Throwable) {}
-        val jpeg = IntruderCamera.captureJpeg(applicationContext) ?: return
+        photoTries++
+        val jpeg = IntruderCamera.captureJpeg(applicationContext)
+        if (jpeg == null) { photoErr = "no_frame"; return }
         val cid = "intr-" + UUID.randomUUID().toString().take(12)
-        val path = IntruderVault.seal(applicationContext, cid, jpeg) ?: return
-        val loc = LastLocation.get(applicationContext)
-        queue?.add(cid, "intruder_photo", now, loc?.first, loc?.second, batteryPct(),
-            JSONObject().put("source", "in_app_wrong_pin"), path)
+        val path = IntruderVault.seal(applicationContext, cid, jpeg)
+        if (path == null) { photoErr = "seal"; return }
+        // antitheft-nine: where the phone is NOW (fresh fix, as for a grab or
+        // a SIM change), not only the last cached point
+        val fix = currentFix(2 * 60_000L, 8_000L)
+        val loc = if (fix != null) Pair(fix.lat, fix.lng) else LastLocation.get(applicationContext)
+        val d = JSONObject().put("source", "in_app_wrong_pin")
+        fix?.let { f -> d.put("fix_at", f.timeMs); f.acc?.let { a -> d.put("acc", a.toDouble()) } }
+        queue?.add(cid, "intruder_photo", now, loc?.first, loc?.second, batteryPct(), d, path)
+        photoOk++
+        photoErr = ""
     }
 
     /** Upload up to 3 queued (encrypted) photos; keep them on a network error. */
@@ -1136,6 +1206,11 @@ class AntiTheftService : Service(), SensorEventListener {
             val cfg = resp.optJSONObject("config")
             if (cfg != null) {
                 nightGuard = cfg.optBoolean("night_guard", nightGuard)
+                // antitheft-nine (bug): like the sensitivity below, the
+                // intruder photo, instant lock and wrong-unlock threshold
+                // changed from ANOTHER device never reached a running engine
+                // (it kept taking / not taking the photo until a restart).
+                applySwitches(cfg)
                 // antitheft-e2e (bug): the owner's grab sensitivity reached a
                 // running engine ONLY from the open app on THIS phone; a
                 // change from another device / the server never did, so the
@@ -1166,6 +1241,33 @@ class AntiTheftService : Service(), SensorEventListener {
         return true
     }
 
+    /** antitheft-nine: the owner's switches from a check-in; kept for a restart. */
+    private fun applySwitches(cfg: JSONObject) {
+        try {
+            val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val stored = try {
+                JSONObject(p.getString("config", "{}") ?: "{}")
+            } catch (_: Throwable) { JSONObject() }
+            var changed = false
+            if (cfg.has("intruder_photo")) {
+                val v = cfg.optBoolean("intruder_photo", false)
+                if (v != intruderPhoto) { intruderPhoto = v; changed = true }
+                stored.put("intruder_photo", v)
+            }
+            if (cfg.has("snatch_lock")) {
+                val v = cfg.optBoolean("snatch_lock", false)
+                if (v != snatchLock) { snatchLock = v; changed = true }
+                stored.put("snatch_lock", v)
+            }
+            if (cfg.has("failed_unlock_threshold")) {
+                val v = cfg.optInt("failed_unlock_threshold", failThreshold).coerceIn(2, 10)
+                if (v != failThreshold) { failThreshold = v; changed = true }
+                stored.put("failed_unlock_threshold", v)
+            }
+            if (changed) p.edit().putString("config", stored.toString()).apply()
+        } catch (_: Throwable) {}
+    }
+
     /** at100: worker thread. Run each new command once, queue its result. */
     private fun runCommands(arr: JSONArray) {
         if (arr.length() == 0) return
@@ -1178,6 +1280,7 @@ class AntiTheftService : Service(), SensorEventListener {
             if (!RemoteCommands.shouldRun(kind, id, done)) continue
             RemoteCommands.markDone(applicationContext, id)
             val (ok, detail) = RemoteCommands.run(applicationContext, c)
+            lastCmd = "$kind:$detail"
             try {
                 queue?.add("cmd-$id", "command_result", System.currentTimeMillis(),
                     null, null, batteryPct(),
@@ -1391,6 +1494,9 @@ class AntiTheftService : Service(), SensorEventListener {
 
     private fun onSnatchDetected() {
         try {
+            // antitheft-nine: a screen-off grab must reach the server before
+            // the CPU sleeps (the server escalates only what it has)
+            EngineWake.hold(applicationContext, EngineWake.GRAB_MS)
             var locked = false
             // optional instant lock via the existing device admin (honest: only
             // if admin is active; we never claim a lock we didn't do).
@@ -1744,6 +1850,7 @@ class AntiTheftService : Service(), SensorEventListener {
         if (instance === this) instance = null
         try { sensorMgr?.unregisterListener(this) } catch (_: Throwable) {}
         try { sysReceiver?.let { unregisterReceiver(it) } } catch (_: Throwable) {}
+        try { alarmMgr?.cancel(beatAlarm) } catch (_: Throwable) {}
         try { if (this::bg.isInitialized) bg.removeCallbacksAndMessages(null) } catch (_: Throwable) {}
         try { if (this::worker.isInitialized) worker.quitSafely() } catch (_: Throwable) {}
         super.onDestroy()

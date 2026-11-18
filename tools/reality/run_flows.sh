@@ -20,6 +20,8 @@ set -u
 OUT="${REALITY_OUT:-$PWD/reality_out}"
 PKG=com.assisto.assisto
 DEV=/sdcard/Android/data/$PKG/files/reality
+# antitheft-nine: background watchers live this long (the battery hour needs more)
+LIVE_S="${REALITY_LIVE_SECONDS:-3000}"
 EMU_OPTS="${REALITY_EMU_OPTS:--no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim}"
 # rt2: the matrix job builds ONE debug test APK (start + its group baked in via
 # --dart-define=REALITY_ONLY) BEFORE the emulator boots; `flutter drive
@@ -33,6 +35,13 @@ A() { timeout "${T:-60}" adb "$@"; }
 alive() { [ "$(T=10 A shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; }
 
 prep_device() {
+  # antitheft-nine: the FCM wake-up proof hands the push to the phone the way
+  # Play services does (c2dm RECEIVE broadcast) -> needs adbd as root, BEFORE
+  # the logcat reader starts (adb root restarts adbd). google_apis image.
+  case ",${REALITY_ONLY:-}," in *atnine*|*atbattery*)
+    timeout 30 adb root >/dev/null 2>&1 || true; sleep 3
+    timeout 60 adb wait-for-device >/dev/null 2>&1 || true ;;
+  esac
   # rf1: NO soft keyboard. Run 40205920547: 4 of 6 emulator deaths came seconds
   # after "showSoftInput ... show(ime())" (the IME window + the app's viewport
   # resize -> 6-18 s frames -> host emulator Segmentation fault under
@@ -51,7 +60,7 @@ prep_device() {
   A shell settings put global animator_duration_scale 0 || true
   # live logcat (APPENDS across emulator restarts; the shot watcher and
   # summarize.py read it)
-  ( timeout 3000 adb logcat -v time >> "$OUT/live_logcat.txt" 2>&1 ) &
+  ( timeout $LIVE_S adb logcat -v time >> "$OUT/live_logcat.txt" 2>&1 ) &
   # pre-grant runtime permissions once the app is installed
   ( for _ in $(seq 1 120); do
       if timeout 10 adb shell pm list packages 2>/dev/null | grep -q "$PKG"; then
@@ -96,7 +105,7 @@ prep_device
 # Host-side screenshots: the app prints `REALITY_SHOT <file>`; grab the real
 # screen and touch an ack in the app's external dir so the flow continues at
 # once (the app gives up after 6 s if the ack never lands).
-( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+( timeout $LIVE_S tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
     | grep --line-buffered -oE 'REALITY_SHOT [A-Za-z0-9_.-]+\.png' \
     | while read -r _ f; do
         timeout 20 adb exec-out screencap -p > "$OUT/shots/$f" 2>/dev/null || true
@@ -119,7 +128,7 @@ net_mode() {  # $1 = off|on
     timeout 10 adb shell svc data enable >/dev/null 2>&1 || true
   fi
 }
-( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+( timeout $LIVE_S tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
     | grep --line-buffered -oE 'REALITY_NET (off|on) [A-Za-z0-9_.-]+' \
     | while read -r _ mode f; do
         net_mode "$mode"
@@ -130,7 +139,7 @@ net_mode() {  # $1 = off|on
 # sjproof: FAKE GPS for the Safe Journey proof. The app prints
 # `REALITY_GEO <lat> <lng> <file>`; the host moves the emulator's GPS
 # (`adb emu geo fix` takes longitude first; works in airplane mode too) and acks.
-( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+( timeout $LIVE_S tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
     | grep --line-buffered -oE 'REALITY_GEO -?[0-9.]+ -?[0-9.]+ [A-Za-z0-9_.-]+' \
     | while read -r _ lat lng f; do
         timeout 10 adb shell cmd location set-location-enabled true >/dev/null 2>&1 || true
@@ -144,7 +153,7 @@ net_mode() {  # $1 = off|on
 # host pre-allows PROJECT_MEDIA (API <= 33 then skips the dialog) and taps
 # the SystemUI "Start now" if the dialog still shows (tools/reality/
 # projection_tap.py), then acks. The flow itself waits for frames, not acks.
-( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+( timeout $LIVE_S tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
     | grep --line-buffered -oE 'REALITY_PROJECTION [A-Za-z0-9_.-]+' \
     | while read -r _ f; do
         timeout 10 adb shell appops set $PKG PROJECT_MEDIA allow >/dev/null 2>&1 || true
@@ -205,10 +214,60 @@ host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
       [ -s "$OUT/shots/$2.png" ] && echo "shot $2.png" || echo "shot MISSING"
       timeout 10 adb shell dumpsys notification --noredact 2>/dev/null | grep -c 'assisto_lost_message' | sed 's/^/lost_notif_records=/'
       at_unlock ;;
+    # antitheft-nine verbs:
+    #   admin_on   make Assisto the device admin (the owner's "lock" switch)
+    #   doze_on    unplug + screen off + force Doze (deep idle)
+    #   doze_off   undo, screen on, unlock
+    #   fcm_wake   deliver the server's silent "at_command" push as Google
+    #              Play services does (c2dm RECEIVE, high priority, root)
+    #   alarm_state  is an ALARM-usage player active? (dumpsys audio)
+    #   cam_info   the emulated cameras + Assisto's camera permission
+    #   batt_start / batt_end   the battery hour (dumpsys batterystats)
+    admin_on)
+      timeout 20 adb shell dpm set-active-admin --user 0 "$PKG/com.assisto.assisto.AssistoDeviceAdminReceiver" 2>&1 | tail -2 ;;
+    doze_on)
+      timeout 10 adb shell dumpsys battery unplug >/dev/null 2>&1 || true
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
+      timeout 20 adb shell dumpsys deviceidle force-idle 2>&1 | tail -1
+      timeout 10 adb shell dumpsys deviceidle get deep 2>&1 | sed 's/^/deep=/'
+      timeout 10 adb shell dumpsys power 2>/dev/null | grep -m1 -E 'mWakefulness=' ;;
+    doze_off)
+      timeout 20 adb shell dumpsys deviceidle unforce >/dev/null 2>&1 || true
+      timeout 10 adb shell dumpsys battery reset >/dev/null 2>&1 || true
+      at_unlock
+      timeout 10 adb shell dumpsys deviceidle get deep 2>&1 | sed 's/^/deep=/' ;;
+    fcm_wake)
+      MS=$(( $(date +%s) * 1000 ))
+      timeout 30 adb shell am broadcast -p "$PKG" -a com.google.android.c2dm.intent.RECEIVE \
+        --es kind at_command --es silent 1 \
+        --es google.delivered_priority high --es google.original_priority high --es google.priority high \
+        --es google.message_id "0:${MS}%atnine" --es google.sent_time "$MS" --es from atnine 2>&1 | tail -2
+      timeout 10 adb shell dumpsys power 2>/dev/null | grep -m1 -E 'mWakefulness=' ;;
+    alarm_state)
+      timeout 15 adb shell dumpsys audio 2>/dev/null | grep -iE 'usage=USAGE_ALARM|AudioPlaybackConfiguration' | grep -ci 'USAGE_ALARM' | sed 's/^/alarm_players=/'
+      timeout 10 adb shell dumpsys audio 2>/dev/null | grep -iE 'usage=USAGE_ALARM' | grep -m2 -oiE 'state:[a-z]+' | tr '\n' ' '; echo
+      timeout 10 adb shell dumpsys power 2>/dev/null | grep -m1 -E 'mWakefulness=' ;;
+    cam_info)
+      timeout 15 adb shell dumpsys media.camera 2>/dev/null | grep -m4 -E 'Number of camera devices|Facing' | tr -s ' '
+      timeout 10 adb shell dumpsys package "$PKG" 2>/dev/null | grep -m1 'android.permission.CAMERA: granted' || echo 'CAMERA not granted' ;;
+    batt_start)
+      timeout 10 adb shell dumpsys battery unplug >/dev/null 2>&1 || true
+      timeout 20 adb shell dumpsys batterystats --reset 2>&1 | tail -1
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true
+      date +%s > "$OUT/.batt_t0"
+      echo "uid=$(timeout 10 adb shell dumpsys package "$PKG" 2>/dev/null | grep -m1 -oE 'userId=[0-9]+')" ;;
+    batt_end)
+      T0=$(cat "$OUT/.batt_t0" 2>/dev/null || date +%s)
+      timeout 60 adb shell dumpsys batterystats "$PKG" > "$OUT/batterystats_app.txt" 2>&1 || true
+      timeout 90 adb shell dumpsys batterystats --checkin > "$OUT/batterystats_checkin.txt" 2>&1 || true
+      timeout 20 adb shell dumpsys alarm > "$OUT/alarm_dump.txt" 2>&1 || true
+      timeout 10 adb shell dumpsys battery reset >/dev/null 2>&1 || true
+      at_unlock
+      python3 "$GITHUB_WORKSPACE/tools/e2e/at_battery.py" "$OUT" "$PKG" "$(( $(date +%s) - T0 ))" 2>&1 | tail -6 ;;
     *) echo "unknown verb $1" ;;
   esac
 }
-( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+( timeout $LIVE_S tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
     | grep --line-buffered -oE 'REALITY_HOST [a-z_]+ [A-Za-z0-9_.-]+' \
     | while read -r _ verb f; do
         host_verb "$verb" "$f" > "$OUT/.host_$f.txt" 2>&1
@@ -335,7 +394,7 @@ grep -c "REALITY_RESULT" "$OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "tail -n +1 -F $OUT/live_logcat.txt" 2>/dev/null || true
 pkill -f "adb logcat -v time" 2>/dev/null || true
 jobs -p | xargs -r kill 2>/dev/null || true
-pkill -f "timeout 3000" 2>/dev/null || true
+pkill -f "timeout $LIVE_S" 2>/dev/null || true
 # rt2: run 39895738392 — the flows ended at 03:48 but the step hung until it
 # was cancelled: after the action's own `adb emu kill` the emulator never
 # exited (netsim "GOAWAY"), and run 39884806316 idled 26 min the same way.

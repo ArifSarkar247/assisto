@@ -237,6 +237,13 @@ def install():
     else:
         push.is_available = lambda: True
         push.push_to_user = fake_push_to_user
+    # antitheft-nine: the alert-SPEED flow measures many grabs in a row; the
+    # 10-min "one alert per kind" cooldown (a product rule) would hide all but
+    # the first. Only when e2e.yml sets it (group atnine); never otherwise.
+    cd = os.environ.get("E2E_AT_COOLDOWN_MIN", "")
+    if cd.strip().isdigit():
+        from core.logic import antitheft as at_logic
+        at_logic.ALERT_COOLDOWN_MIN = int(cd)
     # camflows: the fake vendor clouds (CCTV brand-cloud E2E only)
     import os
     if os.environ.get("E2E_VENDOR_SIM") == "1":

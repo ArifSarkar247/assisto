@@ -32,6 +32,7 @@ FILE_GROUP = {
     "remmeter_flow": "personal", "budget_remittance_flow": "personal",
     "billing_flow": "personal", "crm100_flow": "business",
     "antitheft_e2e_flow": "atproof",   # antitheft-e2e (opt-in, e2e.yml)
+    "antitheft_nine_flow": "atnine", "antitheft_battery_flow": "atbattery",   # antitheft-nine
 }
 
 

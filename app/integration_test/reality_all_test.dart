@@ -41,6 +41,8 @@ import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/kidswatch_flow.dart'; // gap-kidswatch
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/antitheft_e2e_flow.dart'; // antitheft-e2e
+import 'flows/antitheft_nine_flow.dart'; // antitheft-nine
+import 'flows/antitheft_battery_flow.dart'; // antitheft-nine
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
@@ -97,6 +99,10 @@ void main() {
   // antitheft-e2e: native engine + sensor traces + secure lock + SIM hook
   // (debug build only) -> opt-in (e2e.yml start+atproof)
   if (only.split(',').contains('atproof')) registerAntiTheftE2eFlows();
+  // antitheft-nine: thief photo, remote alarm/lock in Doze, alert p95 (e2e.yml
+  // start+atnine, google_apis + emulated front camera) and the battery hour
+  if (only.split(',').contains('atnine')) registerAntiTheftNineFlows();
+  if (only.split(',').contains('atbattery')) registerAntiTheftBatteryFlow();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

@@ -43,6 +43,9 @@ BOARD = {
     "at03_snatch_are_you_ok_family_alerted": [11],
     "at04_secure_unlock_cancels": [11], "at05_sensitivity_levels": [11],
     "at06_sim_change_alert": [11], "at07_lost_mode_screen": [11],
+    # antitheft-nine (e2e.yml group=start+atnine / start+atproof+atnine / start+atbattery)
+    "at08_thief_photo_reaches_family": [11], "at09_remote_alarm_lock_screen_off_doze": [11],
+    "at10_alert_speed_p95": [11], "at11_battery_hour_screen_off": [11],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -57,9 +60,15 @@ def expected():
         # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
         files = ["app/integration_test/flows/sj_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
-    if "atproof" in os.environ.get("REALITY_ONLY", ""):
-        # antitheft-e2e: the anti-theft proof run (e2e.yml group=start+atproof)
-        files = ["app/integration_test/flows/antitheft_e2e_flow.dart"]
+    only = os.environ.get("REALITY_ONLY", "")
+    at_files = [fn for g, fn in (
+        ("atproof", "app/integration_test/flows/antitheft_e2e_flow.dart"),     # antitheft-e2e
+        ("atnine", "app/integration_test/flows/antitheft_nine_flow.dart"),     # antitheft-nine
+        ("atbattery", "app/integration_test/flows/antitheft_battery_flow.dart"),
+    ) if g in only]
+    if at_files:
+        # the anti-theft proof runs (e2e.yml group=start+atproof / +atnine / +atbattery)
+        files = at_files
         pat = r"realityFlow\(\s*'(at\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
@@ -111,6 +120,9 @@ def main():
         md.append("| %s | %s | %s | %ss | %s |" % (
             r["id"], ", ".join(map(str, r["board_rows"])), r["status"],
             round(r["seconds"] or 0), (fs["name"] + ": " + (fs["detail"] or ""))[:120] if fs else ""))
+    # antitheft-nine: the measured numbers (latency, battery) live in the notes
+    md += [""] + ["- %s: %s" % (r["id"], r["note"][:600]) for r in rows
+                  if r["id"].startswith("at") and r["note"]]
     md += ["", "server outbox: `%s`" % json.dumps(kinds)]
     (out / "e2e_proof.md").write_text("\n".join(md) + "\n")
     if os.environ.get("GITHUB_STEP_SUMMARY"):

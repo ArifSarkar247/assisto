@@ -1,0 +1,12 @@
+{
+  "en": {
+    "atnineLockNeedsAdmin": "Instant lock needs Assisto as device admin on this phone. It is off now, so the phone will not lock by itself and your family cannot lock it from far away.",
+    "@atnineLockNeedsAdmin": {"description": "antitheft-nine: shown under the Instant lock switch when it is ON but device admin is off"},
+    "atnineTurnOnAdmin": "Turn on device admin",
+    "@atnineTurnOnAdmin": {"description": "antitheft-nine: button under the Instant lock switch; first explains why, then opens Android's device admin screen"}
+  },
+  "bn": {
+    "atnineLockNeedsAdmin": "তাৎক্ষণিক লকের জন্য এই ফোনে Assisto-কে ডিভাইস অ্যাডমিন করতে হয়। এখন তা বন্ধ, তাই ফোন নিজে লক হবে না, আর আপনার পরিবারও দূর থেকে লক করতে পারবে না।",
+    "atnineTurnOnAdmin": "ডিভাইস অ্যাডমিন চালু করুন"
+  }
+}

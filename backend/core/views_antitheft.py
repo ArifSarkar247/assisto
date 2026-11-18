@@ -1042,9 +1042,16 @@ def _alert_new_events(phone, eng, new_events, now):
             newest[ev.kind] = ev
     for kind, ev in newest.items():
         cutoff = now - timedelta(minutes=at.ALERT_COOLDOWN_MIN)
-        recently = (AntiTheftEvent.objects.filter(
-            phone=phone, kind=kind, alerted=True, received_at__gte=cutoff)
-            .exclude(pk=ev.pk).exclude(data__has_key="suppressed").exists())
+        # antitheft-nine (bug): an alert the owner then cleared with "It was
+        # me" (data.false_alarm) no longer blocks the next one — before, a
+        # REAL theft within 10 min of a false alarm reached nobody.
+        # (checked in Python: a JSON-key exclude would also drop rows
+        # without the key on some databases)
+        recently = any(
+            not (e.data or {}).get("false_alarm")
+            for e in AntiTheftEvent.objects.filter(
+                phone=phone, kind=kind, alerted=True, received_at__gte=cutoff)
+            .exclude(pk=ev.pk).exclude(data__has_key="suppressed").only("data")[:50])
         if recently and kind != "test":
             continue
         loc = best_location(phone, eng, ev)

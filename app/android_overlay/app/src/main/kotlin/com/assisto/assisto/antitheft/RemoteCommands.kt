@@ -13,6 +13,7 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import org.json.JSONObject
@@ -211,6 +212,9 @@ object RemoteAlarm {
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build())
                 mp.setDataSource(c, uri)
+                // antitheft-nine: keep ringing on a sleeping, screen-off phone
+                // (the player holds its own wake lock while it plays)
+                try { mp.setWakeMode(c, PowerManager.PARTIAL_WAKE_LOCK) } catch (_: Throwable) {}
                 mp.isLooping = true
                 mp.prepare()
                 mp.start()

@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   bool _running = false; // native foreground-service truth
   Map<String, dynamic> _state = const {};
   Map<String, dynamic> _caps = const {};
+  // antitheft-nine: the instant lock (and the family's remote lock) needs
+  // Assisto as device admin. Unknown / no channel = assume on (no false
+  // warning); a real "false" shows the honest line + the button.
+  static const _admin = MethodChannel('com.assisto/device_admin');
+  bool _adminActive = true;
 
   ApiClient get _api => context.read<AppState>().api;
 
@@ -86,6 +92,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     if (s == AppLifecycleState.resumed) {
       AntiTheftService.setQuiet(true);
       _refreshRunning();
+      _refreshAdmin(); // antitheft-nine: back from the system admin screen
     } else if (s == AppLifecycleState.paused ||
         s == AppLifecycleState.hidden ||
         s == AppLifecycleState.detached) {
@@ -125,6 +132,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       // line only while the (consented) intruder photo is really on.
       unawaited(IntruderSnap.remember(
           st['enabled'] == true && st['intruder_photo'] == true));
+      await _refreshAdmin(); // antitheft-nine
       if (!mounted) return;
       setState(() {
         _state = st;
@@ -140,6 +148,38 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         _loading = false;
       });
     }
+  }
+
+  // antitheft-nine
+  Future<void> _refreshAdmin() async {
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    try {
+      final on = await _admin.invokeMethod<bool>('isAdminActive');
+      if (on != null && mounted) setState(() => _adminActive = on);
+    } catch (_) {/* no channel: keep the safe default */}
+  }
+
+  /// antitheft-nine: explain WHY (Play disclosure), then Android's own
+  /// "Activate device admin app?" screen. Returns false on "Not now".
+  Future<bool> _askAdmin() async {
+    if (!await AtDisclosure.show(context, AtDisclosureKind.admin)) return false;
+    if (!mounted) return false;
+    final tr = AppLocalizations.of(context);
+    try {
+      await _admin.invokeMethod<bool>(
+          'requestAdmin', {'explanation': tr.lostStolenConsentExplain});
+    } catch (e) {
+      reportNonFatal('antitheft.request_admin', e);
+    }
+    await _refreshAdmin();
+    return true;
+  }
+
+  Future<void> _toggleSnatchLock(bool on) async {
+    if (on && !_adminActive && defaultTargetPlatform == TargetPlatform.android) {
+      if (!await _askAdmin() || !mounted) return;
+    }
+    await _saveSettings(snatchLock: on);
   }
 
   Future<void> _refreshRunning() async {
@@ -324,14 +364,26 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final agree = await IntruderConsentScreen.ask(context);
     if (!agree || !mounted) return;
     var camOk = false;
+    var blocked = false;
     try {
-      camOk = (await Permission.camera.request()).isGranted;
+      final st = await Permission.camera.request();
+      camOk = st.isGranted;
+      blocked = st.isPermanentlyDenied;
     } catch (_) {
       camOk = false;
     }
     if (!mounted) return;
     if (!camOk) {
-      _snack(tr.atIntruderNeedCamera);
+      // antitheft-nine: "Don't ask again" was a dead end — Android shows no
+      // prompt any more, so offer the app's settings page.
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(
+          content: Text(tr.atIntruderNeedCamera),
+          action: blocked
+              ? SnackBarAction(label: tr.camPermOpenSettings, onPressed: openAppSettings)
+              : null,
+        ));
       return;
     }
     await _saveSettings(
@@ -749,8 +801,31 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               subtitle: Text(tr.atOptSnatchLockBody),
               onChanged: _busy
                   ? null
-                  : (v) => _saveSettings(snatchLock: v),
+                  : (v) => _toggleSnatchLock(v),
             ),
+            // antitheft-nine: ON but device admin is off -> honest line +
+            // the way to fix it (no silent "lock" that never happens)
+            if (_state['snatch_lock'] == true && !_adminActive)
+              Padding(
+                key: const Key('at9-admin-off'),
+                padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(tr.atnineLockNeedsAdmin,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error)),
+                    const SizedBox(height: Gap.xs),
+                    OutlinedButton.icon(
+                      key: const Key('at9-admin-on'),
+                      style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                      onPressed: _busy ? null : _askAdmin,
+                      icon: const Icon(Icons.admin_panel_settings_outlined),
+                      label: Text(tr.atnineTurnOnAdmin, softWrap: true),
+                    ),
+                  ],
+                ),
+              ),
             SwitchListTile(
               value: _state['intruder_photo'] == true && canCamera,
               title: Text(tr.atOptIntruder),
