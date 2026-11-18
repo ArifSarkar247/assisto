@@ -515,7 +515,7 @@
  },
  {
   "id": "c25",
-  "scene": "pet_animal",
+  "scene": "animal_night",
   "title": "File:Surveillance camera captures bear in Franklin County for first time in nearly 20 years.webm",
   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Surveillance_camera_captures_bear_in_Franklin_County_for_first_time_in_nearly_20_years.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
   "sha1": "e967ae2274aef2bb5a9abd196dfcf6a3a83fa1fa",
@@ -551,7 +551,7 @@
  },
  {
   "id": "c27",
-  "scene": "night_ir",
+  "scene": "animal",
   "title": "File:Trail Camera.webm",
   "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Trail_Camera.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
   "sha1": "88b1f5e8d744a206bb6d11a4d23557df0aa04df2",
@@ -611,7 +611,7 @@
  },
  {
   "id": "c30",
-  "scene": "night_ir",
+  "scene": "animal",
   "title": "File:Weasel on Trail Camera.webm",
   "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Weasel_on_Trail_Camera.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
   "sha1": "633ebc4fa4e727ee3818e8a918ef476c195958ca",
@@ -651,7 +651,7 @@
  },
  {
   "id": "c32",
-  "scene": "night_ir",
+  "scene": "animal",
   "title": "File:Wolf on Trail Camera.webm",
   "url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Wolf_on_Trail_Camera.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
   "sha1": "fbf301488d60a93bcbcebefbef9307e99cfc7dc4",
@@ -668,5 +668,69 @@
    "person": [],
    "night": false
   }
+ },
+ {
+  "id": "c33",
+  "scene": "rain",
+  "title": "File:Aguacero sobre Valencia, España (13 de junio de 2015).webm",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Aguacero_sobre_Valencia%2C_Espa%C3%B1a_%2813_de_junio_de_2015%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "sha1": "ffaa5b9f076b52fda5a85d2839002261a91450e2",
+  "size": 201250718,
+  "duration": 559.562,
+  "w": 1920,
+  "h": 1080,
+  "licence": "CC BY-SA 4.0",
+  "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
+  "author": "Dorieo",
+  "page": "https://commons.wikimedia.org/wiki/File:Aguacero_sobre_Valencia,_Espa%C3%B1a_(13_de_junio_de_2015).webm",
+  "labels": null
+ },
+ {
+  "id": "c36",
+  "scene": "headlights",
+  "title": "File:Cars driving at night.webm",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Cars_driving_at_night.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "sha1": "53fc56b2e6c053243f9ef377ada946abce4dcf63",
+  "size": 113584348,
+  "duration": 159.869,
+  "w": 1920,
+  "h": 1080,
+  "licence": "CC BY 3.0",
+  "licence_url": "https://creativecommons.org/licenses/by/3.0",
+  "author": "https://www.youtube.com/user/Editor",
+  "page": "https://commons.wikimedia.org/wiki/File:Cars_driving_at_night.webm",
+  "labels": null
+ },
+ {
+  "id": "c35",
+  "scene": "headlights",
+  "title": "File:Night Traffic at Loughborough station, January 2017..webm",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Night_Traffic_at_Loughborough_station%2C_January_2017..webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "sha1": "5dec2465b888c8f0d5a4f05101b56ef64308a79e",
+  "size": 128545265,
+  "duration": 445.059,
+  "w": 1920,
+  "h": 1080,
+  "licence": "CC BY 3.0",
+  "licence_url": "https://creativecommons.org/licenses/by/3.0",
+  "author": "The Hellenic Trainspotters",
+  "page": "https://commons.wikimedia.org/wiki/File:Night_Traffic_at_Loughborough_station,_January_2017..webm",
+  "labels": null
+ },
+ {
+  "id": "c34",
+  "scene": "rain_lens",
+  "title": "File:Radevormwald - Raindrops on a window 08 (1) ies.webm",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Radevormwald_-_Raindrops_on_a_window_08_%281%29_ies.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "sha1": "71bd73f6f0ace26b9b5851c3efa622b3bac6301e",
+  "size": 88793680,
+  "duration": 128.131,
+  "w": 1920,
+  "h": 1080,
+  "licence": "CC BY-SA 3.0",
+  "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+  "author": "Frank Vincentz",
+  "page": "https://commons.wikimedia.org/wiki/File:Radevormwald_-_Raindrops_on_a_window_08_(1)_ies.webm",
+  "labels": null
  }
 ]

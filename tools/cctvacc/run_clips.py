@@ -286,12 +286,17 @@ def score_clip(clip: dict, alerts, dur: float, cool_s: float) -> dict:
     iv = [tuple(x) for x in lab.get("person") or []]
     tp = [t for t, _ in alerts if _inside(t, iv)]
     fp = [t for t, _ in alerts if not _inside(t, iv)]
-    found = 0
+    found, delays = 0, []
     for a, b in iv:
-        if any(a - 1.0 <= t <= b + 2.0 for t in tp) or any(a - cool_s <= t < a for t in tp):
+        inside = [t for t in tp if a - 1.0 <= t <= b + 2.0]
+        if inside:
+            found += 1
+            delays.append(max(0.0, min(inside) - a))
+        elif any(a - cool_s <= t < a for t in tp):
             found += 1
     return {"alerts": len(alerts), "tp": len(tp), "fp": len(fp), "visits": len(iv),
-            "found": found, "seconds": dur, "fp_times": [round(t, 1) for t in fp]}
+            "found": found, "seconds": dur, "fp_times": [round(t, 1) for t in fp],
+            "delays": [round(d, 1) for d in delays]}
 
 
 def detector_pr(clip: dict, frames: List[Frame], s: Setting, kind="person") -> dict:
@@ -338,13 +343,16 @@ def aggregate(rows: List[dict]) -> dict:
     found = sum(r["found"] for r in rows)
     sec = sum(r["seconds"] for r in rows) or 1.0
     days = sec / 86400.0
+    dl = sorted(d for r in rows for d in r.get("delays", []))
     return {"alerts": tp + fp, "tp": tp, "fp": fp,
             "precision": round(tp / (tp + fp), 3) if tp + fp else None,
             "visits": visits, "found": found,
             "recall": round(found / visits, 3) if visits else None,
             "seconds": round(sec, 1),
             "fp_per_cam_day": round(fp / days, 1),
-            "fp_per_cam_day_u95": round(poisson_upper95(fp) / days, 1)}
+            "fp_per_cam_day_u95": round(poisson_upper95(fp) / days, 1),
+            "first_alert_s_median": dl[len(dl) // 2] if dl else None,
+            "first_alert_s_max": dl[-1] if dl else None}
 
 
 def evaluate(clips, frames_by, setting: Setting, path: str, ids=None):

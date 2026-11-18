@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../../cctvguard/vendor_live_screen.dart'; // gap-cctv
+import '../../ipcam/lan_grid_screen.dart'; // cctv-accuracy
 import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
@@ -99,6 +100,14 @@ class _CctvGridScreenState extends State<CctvGridScreen> {
       appBar: AppBar(
         title: Text(t.ctmGridTitle),
         actions: [
+          // cctv-accuracy: 4 / 9 cameras live straight from the DVR on this Wi-Fi
+          IconButton(
+            key: const ValueKey('ctm-grid-lan'),
+            tooltip: t.lvgEntry,
+            icon: const Icon(Icons.live_tv_rounded),
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const LanGridScreen())),
+          ),
           IconButton(
             key: const ValueKey('ctm-grid-watch'),
             tooltip: t.ctmWatchTitle,

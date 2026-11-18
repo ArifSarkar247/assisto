@@ -47,6 +47,11 @@ class IpCamPipeline {
   int _bytesMark = 0;
   DateTime _bytesAt = DateTime.now();
   double kbps = 0; // camera -> phone, kilobytes per second
+  int _bytesDone = 0; // cctv-accuracy: bytes of the sessions already closed
+
+  /// cctv-accuracy: every byte this camera sent this phone (all sessions) —
+  /// the LAN grid's "data per minute".
+  int get bytesIn => _bytesDone + (_s?.bytesIn ?? 0);
 
   IpCamPipeline(this.url, this.dec,
       {SessionOpener? opener, Duration Function(int)? backoff, FeedGate? gate})
@@ -108,6 +113,7 @@ class IpCamPipeline {
     if (_stopped || state == PipeState.waiting) return;
     _sub?.cancel();
     _sub = null;
+    _bytesDone += _s?.bytesIn ?? 0;
     _s = null;
     lostSince ??= DateTime.now();
     state = PipeState.waiting;
@@ -206,6 +212,7 @@ class IpCamPipeline {
     await _sub?.cancel();
     _sub = null;
     final s = _s;
+    _bytesDone += s?.bytesIn ?? 0;
     _s = null;
     _q.clear();
     if (s != null) await s.close();

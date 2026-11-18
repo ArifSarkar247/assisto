@@ -27,6 +27,11 @@ class NativeIpDecoder implements IpDecoder {
   static const _ch = MethodChannel('com.assisto/guardbox');
   String lastError = '';
 
+  /// cctv-accuracy: the native decoder SLOT (one per LAN-grid tile; the
+  /// Guard Box keeps the default 'guard').
+  final String id;
+  NativeIpDecoder({this.id = 'guard'});
+
   @override
   Future<bool> available() async {
     try {
@@ -38,7 +43,7 @@ class NativeIpDecoder implements IpDecoder {
 
   Future<Map<String, dynamic>?> _call(String m, [Map<String, dynamic>? a]) async {
     try {
-      final r = await _ch.invokeMapMethod<String, dynamic>(m, a);
+      final r = await _ch.invokeMapMethod<String, dynamic>(m, {...?a, 'id': id});
       if (r != null && r['ok'] != true) lastError = (r['error'] ?? '').toString();
       return r;
     } catch (e) {

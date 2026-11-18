@@ -517,9 +517,15 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     if (dev == null) return;
     final detect = _detect;
     List<List<double>>? boxes;
+    var pic = f;
     if (detect != null) {
       try {
-        boxes = await detect(f.jpeg);
+        // cctv-accuracy: a night person seen once -> the next picture at once
+        (boxes, pic) = await checkPersonOnce<IpFrame>((x) => detect(x.jpeg), f,
+            next: () async {
+              final p = _pipe;
+              return p == null ? null : await p.grab(maxW: 640);
+            }, nightPending: () => guardNightPending);
       } catch (_) {
         boxes = null;
       }
@@ -527,7 +533,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     final alert = ipcamAlert(modelAvailable: detect != null, boxes: boxes, brand: _brand);
     if (alert == null) return;
     _clock.lastAlert = DateTime.now();
-    final snap = f.jpeg.length <= _maxSnapshotBytes ? f.jpeg : null;
+    final snap = pic.jpeg.length <= _maxSnapshotBytes ? pic.jpeg : null;
     final signals = {...alert.signals, 'seen_at': DateTime.now().toUtc().toIso8601String()};
     final r = await dev.ingest(alert.type, signals, snapshot: snap);
     if (r.status == 0 || r.status >= 500) {

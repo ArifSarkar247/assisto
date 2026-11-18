@@ -1,0 +1,127 @@
+name: CCTV Wi-Fi live grid (4 + 9 cameras on a 2 GB emulator)
+
+# cctv-accuracy: the multi-camera live grid (app/lib/ipcam/lan_grid_screen.dart)
+# MEASURED on a 2 GB API 33 emulator (2048 MB RAM, 2 cores, 720x1600 @ 320
+# dpi, like perf2gb's 2gb profile) against 9 test cameras on the runner
+# (mediamtx; per camera a 1280x720 main + 640x360 sub H.264 stream, ffmpeg
+# test pattern; no real camera, no personal data). PROFILE build of
+# integration_test/cctv_grid_e2e_test.dart started with `am start`.
+# Evidence (artifact cctv-grid): cctv_grid.json + grid_lines.txt + mem.tsv +
+# logcat. Red when the app died / ran < 10 min / a tile played the wrong
+# stream / an off-screen tile used data. Never touches any server.
+on:
+  workflow_dispatch:
+    inputs:
+      phase_s:
+        description: "Seconds per grid phase (2x2, 3x3)"
+        default: "300"
+  push:
+    branches: ["ci/cctvgrid", "ci/cctvgrid-*"]
+
+concurrency:
+  group: cctv-grid-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      E2E_DIR: /tmp/assisto-grid-e2e
+      PHASE_S: ${{ github.event.inputs.phase_s || '300' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free runner disk (the emulator image needs ~8 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift || true
+          df -h / | tail -1
+      - name: Test cameras (mediamtx + 9 x main/sub H.264)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null
+          bash tools/e2e/cctv_grid_up.sh
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
+          channel: stable
+          cache: true
+      - name: Add integration_test (CI-only dev dep)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s, "dev_dependencies block not found"
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Analyze the grid flow (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test/cctv_grid_e2e_test.dart lib/ipcam > ia.txt 2>&1; tail -30 ia.txt
+          grep -qE "error •" ia.txt && { echo "::error::the grid flow does not compile"; exit 1; }
+          exit 0
+      - name: Build the x86_64 PROFILE test APK
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 2400 flutter build apk --profile --target-platform=android-x64 \
+            --target=integration_test/cctv_grid_e2e_test.dart \
+            --dart-define=GRID_HOST=10.0.2.2:18554 --dart-define=GRID_PHASE_S="$PHASE_S"
+          cp build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/grid.apk"
+          echo "GRID_APK=$RUNNER_TEMP/grid.apk" >> "$GITHUB_ENV"
+          (cd android && timeout 60 ./gradlew --stop) || true
+          rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
+          free -m; df -h / | tail -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Grid on a 2 GB API 33 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GRID_MAX_S: "1500"
+        with:
+          api-level: 33
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: false
+          emulator-boot-timeout: 600
+          ram-size: 2048M
+          heap-size: 128M
+          cores: 2
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i -e '/^hw.keyboard=/d' -e '/^hw.lcd.width=/d' -e '/^hw.lcd.height=/d' -e '/^hw.lcd.density=/d' "$c" && printf 'hw.keyboard=yes\nhw.lcd.width=720\nhw.lcd.height=1600\nhw.lcd.density=320\n' >> "$c"; done; true
+          script: bash tools/e2e/cctv_grid_run.sh
+      - name: Proof (cctv_grid.json + table)
+        if: always()
+        run: |
+          set -o pipefail
+          python3 tools/e2e/cctv_grid_summary.py "$E2E_DIR" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cctv-grid
+          path: |
+            /tmp/assisto-grid-e2e/*.json
+            /tmp/assisto-grid-e2e/*.txt
+            /tmp/assisto-grid-e2e/*.tsv
+            /tmp/assisto-grid-e2e/*.log
+          retention-days: 3
+          if-no-files-found: warn

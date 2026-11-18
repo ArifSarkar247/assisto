@@ -31,6 +31,13 @@ import java.util.concurrent.Executors
  *   decFeed({data, pts})                 -> {ok, decoded, error?}
  *   decGrab({gw, maxW, q, timeoutMs})    -> {ok, jpeg, gray, gw, gh, w, h, error?}
  *   decClose                             -> true
+ *   decStats                             -> {ok, slots, max}
+ *
+ * cctv-accuracy (LAN live grid): every call may carry "id" — one decoder
+ * SLOT per camera tile (at most MAX_SLOTS; the Guard Box keeps the default
+ * id "guard", so older Dart code is unchanged). A slot that cannot get a
+ * codec (a cheap phone's decoder limit) answers {ok:false, error:"slots"}
+ * or the codec error; the tile says so instead of crashing.
  *
  * LAZY + CRASH-GUARDED: nothing exists until decOpen (from an open Guard Box
  * screen, flag guard_box_mode). ONE background thread owns the codec; every
@@ -41,30 +48,47 @@ import java.util.concurrent.Executors
 object IpCamDecoder {
     private val worker = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
-
-    private var codec: MediaCodec? = null
-    private var codecName = ""
-    private val info = MediaCodec.BufferInfo()
-    private var outFmt: MediaFormat? = null
-    private var decoded = 0L
-    private var grab: Grab? = null
+    const val MAX_SLOTS = 10
+    private const val DEFAULT_ID = "guard"
+    private val slots = HashMap<String, Slot>()   // touched only on [worker]
 
     private class Grab(val result: MethodChannel.Result, val gw: Int, val maxW: Int, val q: Int)
 
+    /** One camera's codec state (was the whole object before the grid). */
+    private class Slot {
+        var codec: MediaCodec? = null
+        var codecName = ""
+        val info = MediaCodec.BufferInfo()
+        var outFmt: MediaFormat? = null
+        var decoded = 0L
+        var grab: Grab? = null
+    }
+
+    private fun slot(id: String, create: Boolean): Slot? {
+        slots[id]?.let { return it }
+        if (!create || slots.size >= MAX_SLOTS) return null
+        return Slot().also { slots[id] = it }
+    }
+
     fun handle(call: MethodCall, result: MethodChannel.Result): Boolean {
+        val id = (try { call.argument<String>("id") } catch (_: Throwable) { null }) ?: DEFAULT_ID
         when (call.method) {
             "decAvailable" -> result.success(true)
+            "decStats" -> run(result) { mapOf("ok" to true, "slots" to slots.size, "max" to MAX_SLOTS) }
             "decOpen" -> {
                 val mime = call.argument<String>("mime") ?: "video/avc"
                 val csd = call.argument<List<ByteArray>>("csd") ?: emptyList()
                 val w = call.argument<Int>("w") ?: 1280
                 val h = call.argument<Int>("h") ?: 720
-                run(result) { open(mime, csd, w, h) }
+                run(result, id) { open(id, mime, csd, w, h) }
             }
             "decFeed" -> {
                 val data = call.argument<ByteArray>("data")
                 val pts = (call.argument<Number>("pts") ?: 0).toLong()
-                run(result) { if (data == null) err("args") else feed(data, pts) }
+                run(result, id) {
+                    val sl = slot(id, false)
+                    if (data == null) err("args") else if (sl == null) err("closed") else feed(sl, data, pts)
+                }
             }
             "decGrab" -> {
                 val gw = (call.argument<Int>("gw") ?: 160).coerceIn(32, 640)
@@ -73,37 +97,43 @@ object IpCamDecoder {
                 val timeoutMs = (call.argument<Int>("timeoutMs") ?: 3000).coerceIn(200, 15000)
                 val g = Grab(result, gw, maxW, q)
                 worker.execute {
+                    val sl = slot(id, false)
+                    if (sl == null) {
+                        reply(result, err("closed"))
+                        return@execute
+                    }
                     try {
-                        grab?.let { reply(it.result, err("replaced")) }
-                        grab = g
-                        codec?.let { drain(it) }
+                        sl.grab?.let { reply(it.result, err("replaced")) }
+                        sl.grab = g
+                        sl.codec?.let { drain(sl, it) }
                     } catch (t: Throwable) {
-                        if (grab === g) grab = null
+                        if (sl.grab === g) sl.grab = null
                         reply(result, err(t.javaClass.simpleName))
                     }
                 }
                 main.postDelayed({
                     worker.execute {
-                        if (grab === g) {
-                            grab = null
+                        val sl = slots[id]
+                        if (sl != null && sl.grab === g) {
+                            sl.grab = null
                             reply(result, err("timeout"))
                         }
                     }
                 }, timeoutMs.toLong())
             }
-            "decClose" -> run(result) { closeCodec(); mapOf("ok" to true) }
+            "decClose" -> run(result) { closeSlot(id); mapOf("ok" to true) }
             else -> return false
         }
         return true
     }
 
-    private fun run(result: MethodChannel.Result, body: () -> Map<String, Any?>) {
+    private fun run(result: MethodChannel.Result, id: String? = null, body: () -> Map<String, Any?>) {
         worker.execute {
             val out = try {
                 body()
             } catch (t: Throwable) {
                 // a broken codec is dropped; Dart reopens it on the next key picture
-                if (t !is OutOfMemoryError) closeCodec()
+                if (t !is OutOfMemoryError && id != null) closeSlot(id)
                 err(t.javaClass.simpleName)
             }
             reply(result, out)
@@ -121,8 +151,9 @@ object IpCamDecoder {
 
     private fun err(e: String): Map<String, Any?> = mapOf("ok" to false, "error" to e)
 
-    private fun open(mime: String, csd: List<ByteArray>, w: Int, h: Int): Map<String, Any?> {
-        closeCodec()
+    private fun open(id: String, mime: String, csd: List<ByteArray>, w: Int, h: Int): Map<String, Any?> {
+        closeSlot(id)
+        val sl = slot(id, true) ?: return err("slots")
         val fmt = MediaFormat.createVideoFormat(mime, w.coerceIn(64, 3840), h.coerceIn(64, 2160))
         val sc = byteArrayOf(0, 0, 0, 1)
         if (mime == "video/avc" && csd.size >= 2) {
@@ -138,29 +169,35 @@ object IpCamDecoder {
         if (Build.VERSION.SDK_INT >= 30) {
             try { fmt.setInteger(MediaFormat.KEY_LOW_LATENCY, 1) } catch (_: Throwable) {}
         }
-        val c = MediaCodec.createDecoderByType(mime)
+        val c = try {
+            MediaCodec.createDecoderByType(mime)
+        } catch (t: Throwable) {
+            slots.remove(id)
+            throw t
+        }
         try {
             c.configure(fmt, null, null, 0)
             c.start()
         } catch (t: Throwable) {
             try { c.release() } catch (_: Throwable) {}
+            slots.remove(id)
             throw t
         }
-        codec = c
-        codecName = try { c.name } catch (_: Throwable) { "" }
-        outFmt = null
-        decoded = 0
-        return mapOf("ok" to true, "codec" to codecName)
+        sl.codec = c
+        sl.codecName = try { c.name } catch (_: Throwable) { "" }
+        sl.outFmt = null
+        sl.decoded = 0
+        return mapOf("ok" to true, "codec" to sl.codecName)
     }
 
-    private fun feed(data: ByteArray, pts: Long): Map<String, Any?> {
-        val c = codec ?: return err("closed")
+    private fun feed(sl: Slot, data: ByteArray, pts: Long): Map<String, Any?> {
+        val c = sl.codec ?: return err("closed")
         var idx = c.dequeueInputBuffer(20_000)
         if (idx < 0) {
-            drain(c)
+            drain(sl, c)
             idx = c.dequeueInputBuffer(60_000)
         }
-        if (idx < 0) return mapOf("ok" to false, "error" to "busy", "decoded" to decoded)
+        if (idx < 0) return mapOf("ok" to false, "error" to "busy", "decoded" to sl.decoded)
         val buf = c.getInputBuffer(idx) ?: return err("nobuf")
         buf.clear()
         if (data.size > buf.capacity()) {
@@ -169,21 +206,21 @@ object IpCamDecoder {
         }
         buf.put(data)
         c.queueInputBuffer(idx, 0, data.size, pts, 0)
-        drain(c)
-        return mapOf("ok" to true, "decoded" to decoded)
+        drain(sl, c)
+        return mapOf("ok" to true, "decoded" to sl.decoded)
     }
 
-    private fun drain(c: MediaCodec) {
+    private fun drain(sl: Slot, c: MediaCodec) {
         while (true) {
-            val o = c.dequeueOutputBuffer(info, 0)
+            val o = c.dequeueOutputBuffer(sl.info, 0)
             when {
-                o == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> outFmt = c.outputFormat
+                o == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> sl.outFmt = c.outputFormat
                 o >= 0 -> {
-                    decoded++
-                    val g = grab
-                    if (g != null && info.size > 0) {
-                        grab = null
-                        val out = try { picture(c, o, g) } catch (t: Throwable) { err(t.javaClass.simpleName) }
+                    sl.decoded++
+                    val g = sl.grab
+                    if (g != null && sl.info.size > 0) {
+                        sl.grab = null
+                        val out = try { picture(sl, c, o, g) } catch (t: Throwable) { err(t.javaClass.simpleName) }
                         reply(g.result, out)
                     }
                     c.releaseOutputBuffer(o, false)
@@ -194,12 +231,12 @@ object IpCamDecoder {
     }
 
     /** One decoded picture -> NV21 at <= maxW wide -> JPEG + a small grey frame. */
-    private fun picture(c: MediaCodec, idx: Int, g: Grab): Map<String, Any?> {
+    private fun picture(sl: Slot, c: MediaCodec, idx: Int, g: Grab): Map<String, Any?> {
         val img: Image? = try { c.getOutputImage(idx) } catch (_: Throwable) { null }
         val src: Yuv = if (img != null) {
             try { Yuv.fromImage(img) } finally { img.close() }
         } else {
-            Yuv.fromBuffer(c.getOutputBuffer(idx) ?: return err("nobuf"), outFmt ?: c.outputFormat)
+            Yuv.fromBuffer(c.getOutputBuffer(idx) ?: return err("nobuf"), sl.outFmt ?: c.outputFormat)
                 ?: return err("colorfmt")
         }
         val w = src.w
@@ -218,7 +255,7 @@ object IpCamDecoder {
             for (x in 0 until gw) gray[y * gw + x] = nv21[sy * tw + x * tw / gw]
         }
         return mapOf("ok" to true, "jpeg" to jpeg.toByteArray(), "gray" to gray, "gw" to gw, "gh" to gh,
-            "w" to w, "h" to h, "decoded" to decoded, "codec" to codecName)
+            "w" to w, "h" to h, "decoded" to sl.decoded, "codec" to sl.codecName)
     }
 
     /** A YUV 4:2:0 picture as three planes with strides (cropped). */
@@ -308,12 +345,13 @@ object IpCamDecoder {
         }
     }
 
-    private fun closeCodec() {
-        val c = codec
-        codec = null
-        outFmt = null
-        grab?.let { reply(it.result, err("closed")) }
-        grab = null
+    private fun closeSlot(id: String) {
+        val sl = slots.remove(id) ?: return
+        val c = sl.codec
+        sl.codec = null
+        sl.outFmt = null
+        sl.grab?.let { reply(it.result, err("closed")) }
+        sl.grab = null
         if (c != null) {
             try { c.stop() } catch (_: Throwable) {}
             try { c.release() } catch (_: Throwable) {}

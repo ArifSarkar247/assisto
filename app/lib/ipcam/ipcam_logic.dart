@@ -40,6 +40,30 @@ import '../phonecam/phonecam_logic.dart' show healthReport;
   );
 }
 
+/// cctv-accuracy: the person check of ONE motion event on an IP camera.
+/// A night person seen once leaves NightConfirm "pending" (it wants two
+/// checks <= 2 s apart) — so the NEXT picture is checked at once, exactly as
+/// the phone camera does. Before this, the IP-camera Guard Box waited for
+/// its 5-s check spacing, NightConfirm reset, and a person at night on an
+/// IR camera NEVER alerted (tools/cctvacc/run_clips.py, ipcam path).
+/// Returns the boxes and the picture they came from (for the alert photo).
+Future<(List<List<double>>?, T)> checkPersonOnce<T>(
+  Future<List<List<double>>?> Function(T pic) detect,
+  T first, {
+  required Future<T?> Function() next,
+  required bool Function() nightPending,
+}) async {
+  var boxes = await detect(first);
+  if (boxes != null && boxes.isEmpty && nightPending()) {
+    final p2 = await next();
+    if (p2 != null) {
+      final b2 = await detect(p2);
+      if (b2 != null && b2.isNotEmpty) return (b2, p2);
+    }
+  }
+  return (boxes, first);
+}
+
 /// Cool-downs: one alert a minute with the person check, one every 3 min on
 /// movement only; a person check at most every 5 s (old phones).
 class AlertClock {
