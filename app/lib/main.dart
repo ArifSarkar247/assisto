@@ -1,4 +1,5 @@
 import 'family_v3/family_entry.dart'; // fcscreen
+import 'diag/app_version.dart'; // min-build
 import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
@@ -179,6 +180,9 @@ void main() {
       // own-device: load the hashed install id for the X-Device-Id header
       // (SharedPreferences only, never throws, not awaited).
       unawaited(DeviceId.get());
+      // min-build: full app version for the X-App-Version header (one
+      // guarded package-info read, never throws, not awaited)
+      unawaited(AppVersion.resolve());
       // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
       // time-boxed device_info read, after the first frame; never throws).
       unawaited(LowRamTuning.apply());

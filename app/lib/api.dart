@@ -77,7 +77,8 @@ class ApiClient {
         'X-Session-Mode': 'device',
         if (DeviceFacts.label.isNotEmpty) 'X-Device-Name': DeviceFacts.label,
         'X-Platform': 'android',
-        'X-App-Version': AppConfig.appVersionLabel,
+        // min-build: the full "1.0.N+10N" so the server knows this build
+        'X-App-Version': AppConfig.appVersionHeader,
       };
 
   Never _fail(http.Response r) {
