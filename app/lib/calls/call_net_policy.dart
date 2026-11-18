@@ -126,14 +126,19 @@ class CallNetPolicy {
     this.probeAfterSamples = 10,
     this.maxProbeAfterSamples = 60,
     this.hd = false,
-  }) : rung = hd ? 0 : 1;
+  }) : rung = 1; // calls-quality: start at 480p, climb to 720p on a good uplink
 
   /// calls-quality: the camera was opened at 720p ([VideoCapture.hd720]).
   /// false = 480p capture: the ladder starts at 480p (the old plan values).
   final bool hd;
 
   /// The live resolution ladder (index = [rung]): 720p 1.5 Mbit/s, 480p
-  /// 600 kbit/s, 320p 350 kbit/s. Down one rung when the smoothed available
+  /// 600 kbit/s, 320p 350 kbit/s. Every call starts at 480p (a 720p first
+  /// keyframe on a 300 kbit/s start estimate took > 15 s to arrive on the CI
+  /// emulators, calls2emu 44254417569) and a 720p camera climbs to 720p
+  /// after [rungUpAfter] samples of an uplink that fills the 480p cap. The
+  /// ladder follows the uplink while the camera is OFF too, so turning the
+  /// camera on starts at a size the link can carry right now. Down one rung when the smoothed available
   /// send bitrate stays under [rungDownKbps] for [rungDownAfter] samples;
   /// up one rung (a probe) after [rungUpAfter] samples of an uplink that
   /// fills the current cap — a probe that falls back within 10 samples
@@ -281,7 +286,7 @@ class CallNetPolicy {
   /// (the pause logic is idle otherwise).
   PolicyStep onSample(MediaStats s, {required bool sendingVideo}) {
     _stepTier(tierOf(s));
-    if (sendingVideo) _stepRung(s.availableKbps);
+    _stepRung(s.availableKbps);
     var paused = false, resumed = false;
     if (!sendingVideo) {
       // voice call / camera off: nothing to pause; forget any pause state

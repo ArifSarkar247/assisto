@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:assisto/api.dart';
 import 'package:assisto/calls/api_call_signaling.dart';
 import 'package:assisto/calls/call_controller.dart';
+import 'package:assisto/calls/call_video_profile.dart'; // calls-quality
 import 'package:assisto/calls/webrtc_media.dart';
 import 'package:assisto/config.dart';
 import 'package:assisto/perf/low_ram.dart'; // calls-quality
@@ -163,6 +164,8 @@ class Peer extends ChangeNotifier {
         final id = (inc['call_id'] as num).toInt();
         // calls-quality: relay-only ICE when A asks for the TURN proof
         WebRtcCallMedia.debugIcePolicy = a['relayOnly'] == true ? 'relay' : null;
+        // calls-quality: a fresh app session (no weak uplink remembered)
+        if (a['freshProfile'] == true) CallVideoProfile.lastUplinkKbps = null;
         _set('answering call $id (video=${inc['video']}, camera ${blocked ? 'UNAVAILABLE' : 'ok'})');
         await api.postJson('/circle/calls/$id/event', {'event': 'ringing'});
         final m = media = WebRtcCallMedia(cameraBlocked: blocked);

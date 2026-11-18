@@ -27,6 +27,7 @@ void main() {
     CallVideoProfile.lastUplinkKbps = null;
     CallVideoProfile.ramMb = () => 0;
     CallVideoProfile.lowRam = () => false;
+    CallVideoProfile.now = DateTime.now;
   });
 
   group('camera size at open', () {
@@ -51,18 +52,37 @@ void main() {
       expect(CallVideoProfile.capture, VideoCapture.sd480);
     });
 
-    test('the controller\'s ladder follows the same decision', () {
+    test('the controller\'s ladder follows the same decision; every call starts at 480p', () {
       CallVideoProfile.ramMb = () => 3800;
-      expect(CallNetPolicy(hd: CallVideoProfile.capture == VideoCapture.hd720).targetHeight, 720);
+      final hd = CallNetPolicy(hd: CallVideoProfile.capture == VideoCapture.hd720);
+      expect(hd.captureHeight, 720);
+      expect(hd.targetHeight, 480, reason: 'a 720p first keyframe is too slow on a fresh estimate');
       CallVideoProfile.ramMb = () => 1900;
-      expect(CallNetPolicy(hd: CallVideoProfile.capture == VideoCapture.hd720).targetHeight, 480);
+      final sd = CallNetPolicy(hd: CallVideoProfile.capture == VideoCapture.hd720);
+      expect(sd.captureHeight, 480);
+      expect(sd.targetHeight, 480);
+    });
+
+    test('a weak uplink is remembered for 30 minutes only', () {
+      var t = DateTime(2026, 11, 18, 10);
+      CallVideoProfile.now = () => t;
+      CallVideoProfile.ramMb = () => 3800;
+      CallVideoProfile.lastUplinkKbps = 300;
+      expect(CallVideoProfile.capture, VideoCapture.sd480);
+      t = t.add(const Duration(minutes: 31));
+      expect(CallVideoProfile.lastUplinkKbps, isNull);
+      expect(CallVideoProfile.capture, VideoCapture.hd720);
+      CallVideoProfile.now = DateTime.now;
     });
   });
 
   group('live resolution ladder (720p capture)', () {
-    test('good uplink keeps 720p at 1.5 Mbit/s', () {
+    test('good uplink: climbs from 480p to 720p within ~8 s and stays', () {
       final p = CallNetPolicy(hd: true);
-      feedUntil(p, 2500, 12, -1);
+      final at = feedUntil(p, 2500, 8, 0);
+      expect(at, isNotNull);
+      expect(at!, lessThanOrEqualTo(5));
+      feedUntil(p, 2500, 10, -1);
       expect(p.rung, 0);
       expect(p.plan.videoScaleDown, 1.0);
       expect(p.plan.videoMaxBps, 1500000);
@@ -71,7 +91,7 @@ void main() {
 
     test('uplink drops: 720 -> 480 -> 320 within a few samples, then back up', () {
       final p = CallNetPolicy(hd: true);
-      feedUntil(p, 2500, 3, -1);
+      expect(feedUntil(p, 2500, 8, 0), isNotNull);
       final to480 = feedUntil(p, 600, 10, 1);
       expect(to480, isNotNull);
       expect(to480!, lessThanOrEqualTo(6), reason: '~12 s at one sample / 2 s');
@@ -91,7 +111,7 @@ void main() {
 
     test('one bad sample never steps down', () {
       final p = CallNetPolicy(hd: true);
-      feedUntil(p, 2500, 4, -1);
+      expect(feedUntil(p, 2500, 8, 0), isNotNull);
       p.onSample(up(300), sendingVideo: true);
       p.onSample(up(2500), sendingVideo: true);
       expect(p.rung, 0);
@@ -137,12 +157,14 @@ void main() {
       expect(p.plan.videoScaleDown, closeTo(1.5, 0.001));
     });
 
-    test('voice / camera off: the ladder does not move', () {
+    test('camera off: the ladder still follows the uplink, so camera-on starts small', () {
       final p = CallNetPolicy(hd: true);
       for (var i = 0; i < 8; i++) {
         p.onSample(up(100), sendingVideo: false);
       }
-      expect(p.rung, 0);
+      expect(p.rung, 2);
+      expect(p.targetHeight, 320);
+      expect(p.plan.videoActive, isTrue, reason: 'nothing to pause while the camera is off');
     });
   });
 }

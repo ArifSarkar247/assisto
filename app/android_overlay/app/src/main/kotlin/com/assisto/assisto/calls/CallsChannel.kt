@@ -580,6 +580,8 @@ object CallsChannel {
 
     /** MainActivity forwards onPictureInPictureModeChanged here. */
     fun onPipChanged(inPip: Boolean) {
+        // calls-quality: one line per change (two-emulator PiP case evidence)
+        try { android.util.Log.i("AssistoCalls", "pipChanged $inPip channel=${channel != null}") } catch (ignored: Throwable) {}
         main.post {
             try { channel?.invokeMethod("pipChanged", inPip) } catch (ignored: Throwable) {}
         }

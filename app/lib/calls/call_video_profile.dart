@@ -15,9 +15,24 @@ class CallVideoProfile {
   static int Function() ramMb = () => LowRamTuning.ramMb;
   static bool Function() lowRam = () => LowRamTuning.lowRam;
 
-  /// The uplink the LAST call measured (smoothed available send bitrate,
-  /// kbit/s) — null until a call has run in this app session.
-  static double? lastUplinkKbps;
+  /// The uplink the LAST video call measured (smoothed available send
+  /// bitrate, kbit/s) — null until a call has run in this app session, and
+  /// forgotten after [uplinkMemory] (the phone may be on another network).
+  static double? get lastUplinkKbps {
+    final at = _uplinkAt;
+    if (at == null || now().difference(at) > uplinkMemory) return null;
+    return _uplink;
+  }
+
+  static set lastUplinkKbps(double? v) {
+    _uplink = v;
+    _uplinkAt = v == null ? null : now();
+  }
+
+  static double? _uplink;
+  static DateTime? _uplinkAt;
+  static const uplinkMemory = Duration(minutes: 30);
+  static DateTime Function() now = DateTime.now;
 
   /// Test override (integration tests only); null = decide from the phone.
   static VideoCapture? forced;
