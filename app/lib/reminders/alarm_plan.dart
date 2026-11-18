@@ -52,6 +52,7 @@ class AlarmPlan {
     required this.body,
     this.repeat = AlarmRepeat.none,
     this.important = false,
+    this.oneOff = false,
     String? baseKey,
   }) : baseKey = baseKey ?? key;
 
@@ -70,6 +71,10 @@ class AlarmPlan {
   final AlarmRepeat repeat;
   final bool important;
 
+  /// notif-nine: a one-off reminder (no repeat rule) — its notification's
+  /// Done can be sent to the server straight from the closed app.
+  final bool oneOff;
+
   int get id => alarmIdFor(key);
 
   /// Signature used by the ledger to decide "already scheduled exactly so".
@@ -79,7 +84,7 @@ class AlarmPlan {
   /// so a daily alarm keeps its future rings after Done / Snooze.
   String sig(AlarmMode mode) =>
       '${at.millisecondsSinceEpoch}|${repeat.name}|${mode.name}|'
-      '${PushPayload.stableHash('$title\u0000$body')}|a2';
+      '${PushPayload.stableHash('$title\u0000$body')}${oneOff ? '|o' : ''}|a2';
 }
 
 /// The notification id for a reminder key. Identical to the id the server
@@ -200,6 +205,7 @@ List<AlarmPlan> planReminderAlarms(List<Map<String, dynamic>> items,
       body: body,
       repeat: repeat,
       important: important,
+      oneOff: rule == null, // notif-nine
     ));
     for (var i = 0; i < extra.length; i++) {
       out.add(AlarmPlan(

@@ -1,0 +1,15 @@
+{
+  "en": {
+    "rnChAlarms": "Reminder alarms",
+    "@rnChAlarms": {"description": "notif-nine: Android notification-channel name for reminders the phone itself rings (exact alarms)."},
+    "rnChAlarmsDesc": "Your reminders, ringing on time even when Assisto is closed",
+    "@rnChAlarmsDesc": {"description": "notif-nine: Android notification-channel description for reminder alarms."},
+    "nnMsgSummary": "New messages in {count} chats",
+    "@nnMsgSummary": {"description": "notif-nine: shade summary when several My Circle chats have unread messages.", "placeholders": {"count": {"type": "String"}}}
+  },
+  "bn": {
+    "rnChAlarms": "রিমাইন্ডার অ্যালার্ম",
+    "rnChAlarmsDesc": "আপনার রিমাইন্ডার — Assisto বন্ধ থাকলেও ঠিক সময়ে বাজে",
+    "nnMsgSummary": "{count}টি চ্যাটে নতুন মেসেজ"
+  }
+}

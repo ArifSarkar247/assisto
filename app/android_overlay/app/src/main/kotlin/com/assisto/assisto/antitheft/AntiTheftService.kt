@@ -369,7 +369,7 @@ class AntiTheftService : Service(), SensorEventListener {
                     ?: return
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     nm.createNotificationChannel(NotificationChannel(
-                        CHANNEL_ID, "Lost/Stolen protection",
+                        CHANNEL_ID, protectionChannelName(ctx),
                         NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) })
                 }
                 val tap = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
@@ -685,7 +685,7 @@ class AntiTheftService : Service(), SensorEventListener {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(
-                CHANNEL_ID, "Lost/Stolen protection",
+                CHANNEL_ID, protectionChannelName(this),
                 NotificationManager.IMPORTANCE_LOW
             ).apply { setShowBadge(false) }
             nm.createNotificationChannel(ch)
@@ -1639,3 +1639,15 @@ class AntiTheftService : Service(), SensorEventListener {
         super.onDestroy()
     }
 }
+
+/** notif-nine: the protection channel's name in Android's notification
+ *  settings, in the app's language (was English-only). The app's choice is
+ *  shared_preferences key "locale"; anything but "en" -> Bangla. */
+internal fun protectionChannelName(ctx: Context): String = try {
+    val l = ctx.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        .getString("flutter.locale", null)
+    if (l == "en") "Lost/Stolen protection" else "হারানো/চুরি সুরক্ষা"
+} catch (_: Throwable) {
+    "হারানো/চুরি সুরক্ষা"
+}
+

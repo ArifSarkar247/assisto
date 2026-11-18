@@ -16,6 +16,7 @@ import '../crypto/e2e.dart';
 import '../crypto/identity_vault.dart';
 import '../l10n/app_localizations.dart';
 import '../push/push_payload.dart';
+import '../push/notif_text.dart'; // notif-nine
 import 'avatar_cache.dart';
 import 'badges_bus.dart';
 import 'bubble_open_mark.dart'; // circlebub
@@ -554,7 +555,10 @@ class FlnMsgSink implements MsgNotifSink {
       await _plugin.show(
         kMsgSummaryId,
         'Assisto',
-        t.c3NotifSummary(convs),
+        // notif-nine: "New messages in ৩ chats" (Bangla digits; it used to
+        // read just "3 chats")
+        notifDigits(t.localeName.startsWith('bn') ? 'bn' : 'en',
+            t.nnMsgSummary('$convs')),
         NotificationDetails(
           android: AndroidNotificationDetails(ch, t.pushChMessages,
               groupKey: kMsgGroupKey,

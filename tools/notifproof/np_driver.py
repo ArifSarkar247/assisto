@@ -2,7 +2,7 @@
 """notifproof — CLOSED-APP notification proof on the CI emulator.
 
 Board rows 6 (Notifications) and 10 (Family SOS). Runs on the GitHub runner
-next to the API-33 Google-APIs emulator (.github/workflows/notif-closed.yml):
+next to the API-34 Google-APIs emulator (.github/workflows/notif-closed.yml):
 
   throw-away Django (settings_e2eproof + E2E_REAL_FCM=1: the REAL
   core/push.py FCM v1 code -> tools/e2e/mock_fcm.py, JWT verified)
@@ -85,8 +85,8 @@ RESULT = {"cases": [], "setup": {}, "not_proven": [
     "the alarm cases run the DEBUG APK: the reboot reschedule in the R8-shrunk "
     "release build is guarded by android.yml's R8 keep-rule gate, not run here",
     "Android 14+: exact alarms are OFF for new installs until the user allows "
-    "'Alarms & reminders' (this emulator is API 33, where they are on); the "
-    "Reminders screen banner asks for it",
+    "'Alarms & reminders' — the driver turns it on for np1-np9 so they "
+    "measure the exact path; np10 proves the app's flow with it OFF",
 ]}
 
 
@@ -627,6 +627,10 @@ def setup():
     apk = os.environ["NP_APK"]
     s["install"] = adb("install", "-r", "-g", apk, timeout=300).strip()[-200:]
     sh("appops set %s USE_FULL_SCREEN_INTENT allow" % PKG)
+    # notif-nine: API 34 new install = exact alarms OFF; on for np1-np9 (np10
+    # turns it off again and proves the app's explainer -> Settings -> re-arm)
+    sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)
+    s["exact_alarm_default"] = "API 34 new install: off; driver: allow for np1-np9"
     sh("cmd notification set_dnd off")
     sh("svc power stayon false")
     sh("settings put system screen_off_timeout 600000")
@@ -875,6 +879,17 @@ def case_alarm_ring_actions(A, Ah):
         time.sleep(6)
         sh("cmd statusbar collapse")
         c.check("Done dismissed reminder 2", _rem_rec(t2) is None, "")
+        # notif-nine: Done on a one-off reaches the server with the app CLOSED
+        end_d = time.time() + 30
+        d2c = None
+        while time.time() < end_d:
+            d2c = reminder_row(r2)
+            if d2c is not None and d2c.done:
+                break
+            time.sleep(3)
+        c.check("'Done' reached the server with the app still CLOSED (no app start)",
+                d2c is not None and d2c.done and PKG not in resumed_activity(),
+                d2c and d2c.done)
     # ---- the next app start applies both buttons
     open_app(10)
     end = time.time() + 90
@@ -1064,6 +1079,167 @@ def case_alarm_made_while_open(A, Ah, Bu, B, tokens):
     return c.done()
 
 
+# ------------------------------------------------------- notif-nine cases
+EXACT_TITLE = ("রিমাইন্ডার কি ঠিক মিনিটে বাজবে?", "Ring reminders on the exact minute?")
+EXACT_ALLOW = ("অনুমতি দিন", "Allow")
+
+
+def _app_find(labels, timeout=60):
+    end = time.time() + timeout
+    root = None
+    while time.time() < end:
+        root = ui_dump()
+        for lb in labels:
+            n = ui_find(root, lb, pkg=PKG)
+            if n is not None:
+                return n, root
+        time.sleep(3)
+    return None, root
+
+
+def case_exact_off(A, Ah):
+    """notif-nine (row 13): Android 14 — exact alarms OFF (the default for a
+    new install). The reminder still gets a phone alarm (honest inexact),
+    the app explains, "Allow" opens Android's "Alarms & reminders" page, the
+    user turns it on and comes back -> the app re-arms it EXACT -> it rings
+    on its minute with the app killed."""
+    c = Case("np10_exact_off_android14", [13],
+             "Android 14 exact alarms OFF: explainer -> Alarms & reminders -> re-armed exact -> rings closed")
+    kill_app()
+    sh("appops set %s SCHEDULE_EXACT_ALARM default" % PKG)
+    sh("appops set %s SCHEDULE_EXACT_ALARM deny" % PKG)
+    time.sleep(2)
+    c.r["appop_off"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:160]
+    c.check("exact alarms are OFF for Assisto (Android 14 new-install state)",
+            "deny" in c.r["appop_off"] or "ignore" in c.r["appop_off"], c.r["appop_off"])
+    title = "notifproof exact off %d" % (int(time.time()) % 100000)
+    due = _next_minute(300)
+    st, j = make_reminder(Ah, title, due)
+    c.check("reminder saved on the server", st in (200, 201), (st, j))
+    open_app(15, cold=True)
+    a0, _ = wait_alarm_at(due, timeout=60, tol_s=5)
+    c.r["alarm_off"] = a0
+    c.check("with exact alarms OFF the reminder still gets a phone alarm (fallback)", a0 is not None,
+            alarm_entries()[0][:6])
+    c.check("... honestly INEXACT (Android may batch it a few minutes)", a0 is not None and not is_exact(a0), a0)
+    node, root = _app_find(EXACT_TITLE, timeout=45)
+    shot("np10_explainer")
+    if not c.check("the app explains why exact alarms matter (one sheet)", node is not None,
+                   ui_texts(root, pkg=PKG)[:30]):
+        return c.done()
+    btn, _ = _app_find(EXACT_ALLOW, timeout=10)
+    c.check("the sheet has an 'Allow' button", btn is not None, "")
+    if btn is None:
+        return c.done()
+    tap_node(btn)
+    time.sleep(5)
+    ra = resumed_activity()
+    shot("np10_alarms_reminders_page")
+    c.r["settings_activity"] = ra
+    c.check("'Allow' opened Android's 'Alarms & reminders' page for Assisto",
+            "com.android.settings" in ra, ra)
+    # the user turns it on: tap the page's switch (fallback: the same appop)
+    root = ui_dump()
+    sw = None
+    for n in ui_nodes(root):
+        if n.get("class", "").endswith("Switch") or n.get("checkable") == "true":
+            sw = n
+            break
+    if sw is not None:
+        tap_node(sw)
+        time.sleep(2)
+    if "allow" not in sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG):
+        sh("appops set %s SCHEDULE_EXACT_ALARM allow" % PKG)
+        c.r["toggle"] = "appops fallback (switch not found on this Settings build)"
+    else:
+        c.r["toggle"] = "the page's switch"
+    sh("input keyevent KEYCODE_BACK")
+    time.sleep(6)
+    c.check("back in Assisto after the Settings page", PKG in resumed_activity(), resumed_activity())
+    a1, (_, dump) = wait_alarm_at(due, timeout=60, tol_s=2)
+    save("np10_alarm_dump_after_allow.txt", dump)
+    c.r["alarm_after"] = a1
+    c.check("on return the app RE-ARMED the reminder EXACT (no restart)", is_exact(a1), a1)
+    closed_precheck(c)
+    wake_unlocked()
+    seen, rec, _ = wait_ring(title, due)
+    shot("np10_ring")
+    c.check("it rang at its minute with the app killed",
+            rec is not None and -2 <= seen - due <= 60, None if seen is None else round(seen - due, 1))
+    return c.done()
+
+
+def _stash_all():
+    for r in notif_records()[0]:
+        if r["key"]:
+            sh("cmd notification snooze --for 36000000 %s" % q(r["key"]))
+
+
+def case_shade_shots(A, B, Ah, tokens, edge_b):
+    """notif-nine (row 6): the shade itself in Bangla and in English — two
+    My Circle messages in ONE conversation (MessagingStyle lines, Reply /
+    Mark as read buttons) + a reminder — screenshots + every shade text."""
+    c = Case("np11_shade_bn_en", [6], "the notification shade in Bangla and English (screenshots)")
+    import ticks_proof as TP
+    from core.models import User
+    from django.utils import timezone
+    from datetime import timedelta
+    st, kj = B.req("GET", "/circle/keys/peer/%d" % edge_b)
+    a_pub = base64.b64decode(kj.get("public_key") or "") if st == 200 else b""
+    kb = TP.Identity()
+    B.req("POST", "/circle/keys", {"public_key": base64.b64encode(kb.pub).decode(),
+                                   "key_id": kb.kid, "scheme": TP.SCHEME})
+    labels = {"bn": ("উত্তর দিন", "পড়া হয়েছে"), "en": ("Reply", "Mark as read")}
+    for lang in ("bn", "en"):
+        User.objects.filter(pk=A.pk).update(language=lang)
+        kill_app()
+        _stash_all()
+        title = ("ওষুধ খান %d" if lang == "bn" else "take medicine %d") % (int(time.time()) % 1000)
+        Ah.req("POST", "/reminders/", {"title": title,
+                                       "due_at": (timezone.now() + timedelta(minutes=2)).isoformat()})
+        n0 = len(fcm_calls())
+        Ah.req("POST", "/ci-e2e/tick", {"job": "push_due_reminders", "advance_min": 3})
+        m = wait_fcm(tokens, "reminder", n0, pred=lambda d: title in (d.get("title", "") + d.get("body", "")))
+        if m is not None:
+            deliver(m)
+        texts_sent = []
+        for i in range(2):
+            text = ("দুপুরে আসছি %d" if lang == "bn" else "coming at noon %d") % (i + 1)
+            env = TP.encrypt(kb, a_pub, text)
+            env.update(content_type="text", client_msg_id="np11-%s-%d-%d" % (lang, i, int(time.time() * 1000)))
+            n0 = len(fcm_calls())
+            st, _ = B.req("POST", "/circle/%d/messages" % edge_b, env)
+            m = wait_fcm(tokens, "message", n0)
+            if m is not None:
+                deliver(m)
+                texts_sent.append(text)
+            time.sleep(6)
+        time.sleep(8)
+        wake_unlocked()
+        sh("cmd statusbar expand-notifications")
+        time.sleep(4)
+        root = ui_dump()
+        shot("np11_shade_%s" % lang)
+        tx = ui_texts(root, pkg="com.android.systemui")
+        save("np11_shade_%s.txt" % lang, "\n".join(tx))
+        blob = "\n".join(tx)
+        c.check("[%s] both messages are in the shade (one conversation)" % lang,
+                len(texts_sent) == 2 and all(t in blob for t in texts_sent), tx[:30])
+        c.check("[%s] message buttons in %s (%s / %s)" % (lang, lang, labels[lang][0], labels[lang][1]),
+                any(labels[lang][0] in t for t in tx) and any(labels[lang][1] in t for t in tx), tx[:40])
+        c.check("[%s] the reminder is in the shade" % lang, title in blob, tx[:40])
+        if lang == "bn":
+            ours = [t for t in tx if t in labels["bn"] or t.startswith("দুপুরে")]
+            c.check("[bn] no English on Assisto's message lines / buttons",
+                    all(not re.search(r"[A-Za-z]", t) for t in ours), ours)
+        sh("cmd statusbar collapse")
+    User.objects.filter(pk=A.pk).update(language="bn")
+    # channel names as Android shows them in Settings (evidence)
+    save("np11_channels.txt", sh("dumpsys notification --noredact | grep -E 'NotificationChannel\\{mId=' | grep -i assisto -n || "
+                                 "cmd notification list_channels %s 0" % PKG, timeout=90))
+    return c.done()
+
+
 def report():
     cases = RESULT["cases"]
     ok = bool(cases) and all(c["status"] == "pass" for c in cases)
@@ -1074,7 +1250,7 @@ def report():
     with open(os.path.join(OUT, "notifproof.json"), "w", encoding="utf-8") as f:
         json.dump(RESULT, f, ensure_ascii=False, indent=1)
     L = ["### Closed-app notification proof (notifproof) — %s" % ("PASS" if ok else "FAIL"), "",
-         "Emulator API 33 Google APIs, app process KILLED before every event; event from the 2nd CI account "
+         "Emulator API 34 Google APIs, app process KILLED before every event; event from the 2nd CI account "
          "via the backend; backend's real FCM v1 code -> mock FCM -> the same message as the Play-services "
          "broadcast. FCM token: %s." % RESULT["setup"].get("fcm_token", "?"), "",
          "| case | rows | result | inject->shown | failed checks |", "|---|---|---|---|---|"]
@@ -1097,9 +1273,11 @@ def _alarm_pair(A, Ah):
     case_alarm_doze(snoozed)
 
 
-def _run_alarm_cases(A, Ah, only, Bu=None, B=None, tokens=()):
+def _run_alarm_cases(A, Ah, only, Bu=None, B=None, tokens=(), edge_b=None):
     for name, fn in (("alarm", lambda: _alarm_pair(A, Ah)),
                      ("front", lambda: case_alarm_made_while_open(A, Ah, Bu, B, tokens)),
+                     ("exactoff", lambda: case_exact_off(A, Ah)),             # notif-nine
+                     ("shade", lambda: case_shade_shots(A, B, Ah, tokens, edge_b)),  # notif-nine
                      ("reboot", lambda: case_alarm_reboot(A, Ah))):
         if only and name not in only:
             continue
@@ -1135,7 +1313,7 @@ def main():
                 log("case", name, "crashed:", repr(e))
         # proof-notif: the phone's OWN reminder alarms (rows 13 + 6), after
         # the push cases; reboot last (it restarts the emulator)
-        _run_alarm_cases(A, Ah, only, Bu, B, tokens)
+        _run_alarm_cases(A, Ah, only, Bu, B, tokens, edge_b)
     except Exception as e:
         RESULT["setup"]["error"] = repr(e)[:400]
         log("setup failed:", repr(e))

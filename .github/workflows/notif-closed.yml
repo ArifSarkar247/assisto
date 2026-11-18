@@ -32,7 +32,7 @@ permissions:
 jobs:
   closed-app:
     runs-on: ubuntu-latest
-    timeout-minutes: 100   # proof-notif: + local alarm, Doze and reboot cases (~25 min)
+    timeout-minutes: 120   # proof-notif: + local alarm, Doze and reboot cases (~25 min)
     services:
       postgres:
         image: postgres:16
@@ -146,10 +146,12 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Closed-app cases on API 33 (Google APIs)
+      # notif-nine: API 34 (Android 14) — exact alarms are OFF for new installs
+      # there, the case np10 proves the app's honest flow around it
+      - name: Closed-app cases on API 34 (Google APIs)
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 34
           arch: x86_64
           target: google_apis
           profile: pixel_5

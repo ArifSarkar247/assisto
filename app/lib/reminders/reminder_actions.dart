@@ -3,11 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http; // notif-nine
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../config.dart'; // notif-nine
 import '../notifications.dart';
+import '../security/secret_store.dart'; // notif-nine
 import '../widgets/reminders_nlp.dart' show nextOccurrence;
 import 'alarm_plan.dart';
 import 'reminder_alarms.dart' show ReminderAlarms;
@@ -52,8 +55,60 @@ class ReminderActions {
   /// "Snooze" can set the stand-in alarm even though the OS has already
   /// dismissed the notification (the buttons now dismiss natively).
   /// Format: `remalarm:<key>\n["title","text"]`; old payloads = key only.
-  static String payloadFor(String key, String title, String body) =>
-      '${ReminderAlarms.payloadPrefix}$key\n${jsonEncode([title, body])}';
+  /// notif-nine: a third element `1` marks a ONE-OFF reminder (Done goes
+  /// straight to the server from the closed app, see [record]).
+  static String payloadFor(String key, String title, String body,
+          {bool oneOff = false}) =>
+      '${ReminderAlarms.payloadPrefix}$key\n'
+      '${jsonEncode([title, body, if (oneOff) 1])}';
+
+  /// notif-nine: true when the payload marks a one-off reminder.
+  static bool isOneOff(String? payload) {
+    final p = payload ?? '';
+    final nl = p.indexOf('\n');
+    if (!p.startsWith(ReminderAlarms.payloadPrefix) || nl < 0) return false;
+    try {
+      final l = jsonDecode(p.substring(nl + 1));
+      return l is List && l.length >= 3 && l[2] == 1;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// notif-nine: the server id in a `rem-<id>` key (null for local-only).
+  static int? serverIdOf(String key) {
+    final m = RegExp(r'^rem-(\d+)$').firstMatch(key);
+    return m == null ? null : int.tryParse(m.group(1)!);
+  }
+
+  /// notif-nine: test seam for the direct server call.
+  @visibleForTesting
+  static Future<bool> Function(int id)? debugDoneOnServer;
+
+  /// notif-nine: mark a one-off reminder done on the server from ANY isolate
+  /// (the notification-action background isolate included) — own HTTP
+  /// client, the saved session token, short timeout. False = not sent (no
+  /// token / offline / server error); the recorded action is applied on the
+  /// next app start either way (done = true is idempotent).
+  static Future<bool> doneOnServer(int id) async {
+    final f = debugDoneOnServer;
+    if (f != null) return f(id);
+    try {
+      final token = await SecretStore.instance.read('token');
+      if (token == null || token.isEmpty) return false;
+      final r = await http
+          .post(AppConfig.api('/notif/reminders/reminder:$id/done'),
+              headers: {
+                'Authorization': 'Token $token',
+                'Content-Type': 'application/json',
+              },
+              body: '{}')
+          .timeout(const Duration(seconds: 10));
+      return r.statusCode >= 200 && r.statusCode < 300;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// (title, text) from a payload, or null for an old key-only payload.
   static (String, String)? textOf(String? payload) {
@@ -62,7 +117,7 @@ class ReminderActions {
     if (!p.startsWith(ReminderAlarms.payloadPrefix) || nl < 0) return null;
     try {
       final l = jsonDecode(p.substring(nl + 1));
-      if (l is List && l.length == 2) return ('${l[0] ?? ''}', '${l[1] ?? ''}');
+      if (l is List && l.length >= 2) return ('${l[0] ?? ''}', '${l[1] ?? ''}');
     } catch (_) {}
     return null;
   }
@@ -91,7 +146,8 @@ class ReminderActions {
           body = n?.body ?? '';
         }
         final when = at.add(const Duration(minutes: snoozeMinutes));
-        await _schedule(plugin, snoozeIdFor(key), title, body, when, key);
+        await _schedule(plugin, snoozeIdFor(key), title, body, when, key,
+            oneOff: isOneOff(r.payload));
       }
       // remhbar: no plugin.cancel(r.id) here — that also removed a daily /
       // weekly alarm's NEXT rings (the OS already dismissed the shown
@@ -106,6 +162,16 @@ class ReminderActions {
         list.removeAt(0);
       }
       await prefs.setString(pendingKey, jsonEncode(list));
+      // notif-nine: Done on a one-off reminder reaches the server NOW, even
+      // with the app closed (the pending entry above stays as the retry —
+      // done = true is idempotent on the next start).
+      if (a == done && isOneOff(r.payload)) {
+        final sid = serverIdOf(key);
+        if (sid != null) {
+          final ok = await doneOnServer(sid);
+          if (kDebugMode) debugPrint('REMDONE_DIRECT id=$sid ok=$ok');
+        }
+      }
       return a;
     } catch (e) {
       if (kDebugMode) debugPrint('reminder action failed: $e');
@@ -225,12 +291,13 @@ class ReminderActions {
   }
 
   static Future<void> _schedule(FlutterLocalNotificationsPlugin? plugin, int id,
-      String title, String body, DateTime when, String key) async {
+      String title, String body, DateTime when, String key,
+      {bool oneOff = false}) async {
     if (plugin == null) {
       final exact = Notifications.exactAllowedCached ?? await Notifications.canScheduleExact();
       await Notifications.scheduleAlarm(id, title, body, when,
           mode: exact ? AlarmMode.exact : AlarmMode.inexact,
-          payload: payloadFor(key, title, body));
+          payload: payloadFor(key, title, body, oneOff: oneOff));
       return;
     }
     try {
@@ -241,7 +308,7 @@ class ReminderActions {
     } catch (_) {}
     await Notifications.scheduleAlarm(id, title, body, when,
         mode: AlarmMode.exact,
-        payload: payloadFor(key, title, body),
+        payload: payloadFor(key, title, body, oneOff: oneOff),
         plugin: plugin);
   }
 }

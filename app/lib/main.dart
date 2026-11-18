@@ -29,6 +29,7 @@ import 'family_sos/sos_alarm_screen.dart'; // fcsos
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
+import 'reminders/exact_alarm_ui.dart' show maybeAskExactAlarms; // notif-nine
 import 'calls/call_mini_bar.dart'; // b1: in-app minimized-call bar
 import 'calls/call_launch.dart'; // calls-a: Accept -> the call screen first
 import 'calls/call_runtime.dart' show CallRuntime; // calls-a
@@ -380,6 +381,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     PendingInvite.code.addListener(_onInvite); // invite-join
+    ReminderAlarms.needsExact.addListener(_onNeedsExact); // notif-nine
     // First foreground poll shortly after launch.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pollAlerts();
@@ -523,7 +525,32 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     PendingInvite.code.removeListener(_onInvite);
+    ReminderAlarms.needsExact.removeListener(_onNeedsExact); // notif-nine
     super.dispose();
+  }
+
+  /// notif-nine: a reminder was just armed INEXACT (Android withholds exact
+  /// alarms — off by default for new installs on Android 14+). Offer the
+  /// explainer -> "Alarms & reminders" -> re-arm, from whichever screen is
+  /// up (AI chat, family task, website reminder...). maybeAskExactAlarms
+  /// keeps it to once every few days; declined -> the honest "may ring a
+  /// few minutes late" line.
+  bool _askingExact = false;
+  void _onNeedsExact() {
+    if (_askingExact) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // the overlay's context sits BELOW the Navigator (sheets need one above)
+      final ctx = appNavigatorKey.currentState?.overlay?.context;
+      if (ctx == null || !mounted || _askingExact) return;
+      if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+      _askingExact = true;
+      try {
+        await maybeAskExactAlarms(ctx);
+      } catch (_) {
+      } finally {
+        _askingExact = false;
+      }
+    });
   }
 
   /// invite-join: a code arrived (link / referrer / restored) -> re-decide.

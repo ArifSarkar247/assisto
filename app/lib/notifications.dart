@@ -64,14 +64,37 @@ class Notifications {
     }
   }
 
-  static const _details = NotificationDetails(
-    android: AndroidNotificationDetails(
-      'assisto_reminders', 'Reminders',
-      channelDescription: 'Assisto reminders',
-      importance: Importance.max, priority: Priority.high,
-      category: AndroidNotificationCategory.reminder,
-    ),
-  );
+  // notif-nine: the phone-alarm channel had an English-only name
+  // ("Reminders" / "Assisto reminders") in Android's notification settings,
+  // and the same name as the server push channel. Now in the app's language
+  // and distinct ("Reminder alarms"); creating it again only renames it.
+  static AppLocalizations _tl() {
+    try {
+      return lookupAppLocalizations(Locale(actionLang == 'en' ? 'en' : 'bn'));
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('en'));
+    }
+  }
+
+  static const reminderChannelId = 'assisto_reminders';
+
+  @visibleForTesting
+  static (String, String) reminderChannelNames() {
+    final t = _tl();
+    return (t.rnChAlarms, t.rnChAlarmsDesc);
+  }
+
+  static NotificationDetails get _details {
+    final (name, desc) = reminderChannelNames();
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        reminderChannelId, name,
+        channelDescription: desc,
+        importance: Importance.max, priority: Priority.high,
+        category: AndroidNotificationCategory.reminder,
+      ),
+    );
+  }
 
   // remnotes: reminder alarms carry "Done" / "Snooze 10 min" buttons in the
   // app's language (AppState sets it before each reconcile). Neither opens
@@ -85,16 +108,11 @@ class Notifications {
   @visibleForTesting
   static NotificationDetails detailsFor(String? payload) {
     if (!(payload ?? '').startsWith(reminderPayloadPrefix)) return _details;
-    AppLocalizations t;
-    try {
-      t = lookupAppLocalizations(Locale(actionLang == 'en' ? 'en' : 'bn'));
-    } catch (_) {
-      t = lookupAppLocalizations(const Locale('en'));
-    }
+    final t = _tl();
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        'assisto_reminders', 'Reminders',
-        channelDescription: 'Assisto reminders',
+        reminderChannelId, t.rnChAlarms,
+        channelDescription: t.rnChAlarmsDesc,
         importance: Importance.max, priority: Priority.high,
         category: AndroidNotificationCategory.reminder,
         actions: <AndroidNotificationAction>[
@@ -341,8 +359,8 @@ class Notifications {
           body,
           NotificationDetails(
             android: AndroidNotificationDetails(
-              'assisto_reminders', 'Reminders',
-              channelDescription: 'Assisto reminders',
+              reminderChannelId, reminderChannelNames().$1,
+              channelDescription: reminderChannelNames().$2,
               importance: Importance.high, priority: Priority.high,
               styleInformation: BigTextStyleInformation(body),
               actions: actions,

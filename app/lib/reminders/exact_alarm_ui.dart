@@ -37,7 +37,21 @@ class ExactAlarmHooks {
   static OemGuideNative oem = const ChannelOemGuideNative();
 }
 
+/// notif-nine: one explainer at a time (a screen's save and the app-wide
+/// "armed inexact" signal can both ask within the same second).
+bool _exactAskOpen = false;
+
 Future<void> maybeAskExactAlarms(BuildContext context) async {
+  if (_exactAskOpen) return;
+  _exactAskOpen = true;
+  try {
+    await _maybeAskExactAlarms(context);
+  } finally {
+    _exactAskOpen = false;
+  }
+}
+
+Future<void> _maybeAskExactAlarms(BuildContext context) async {
   bool ask;
   try {
     ask = await ExactAlarmHooks.shouldExplain();
@@ -52,13 +66,24 @@ Future<void> maybeAskExactAlarms(BuildContext context) async {
     showDragHandle: true,
     builder: (ctx) => const _ExactExplainSheet(),
   );
+  var granted = false;
   if (allow == true) {
-    await ExactAlarmHooks.requestExact();
+    // requestExact waits until the user is back from "Alarms & reminders"
+    // and returns the real state; the re-sync re-arms every alarm EXACT.
+    try {
+      granted = await ExactAlarmHooks.requestExact();
+    } catch (_) {}
     if (context.mounted) {
       try {
         context.read<AppState>().syncReminderAlarms();
       } catch (_) {} // best-effort: a status read / re-sync; the sheet shows "unknown" or retries on resume
     }
+  }
+  // notif-nine: declined (or not turned on) -> say it honestly: the alarms
+  // are set, but inexact.
+  if (!granted && context.mounted) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context).rmxBannerTitle)));
   }
 }
 

@@ -95,7 +95,8 @@ class ReminderAlarms {
       final used = await Notifications.scheduleAlarm(
           p.id, p.title, p.body, p.at,
           mode: want, repeat: p.repeat,
-          payload: ReminderActions.payloadFor(p.baseKey, p.title, p.body));
+          payload: ReminderActions.payloadFor(p.baseKey, p.title, p.body,
+              oneOff: p.oneOff));
       if (used == null) {
         ledger.remove(p.id);
         continue;
@@ -109,7 +110,15 @@ class ReminderAlarms {
       );
     }
     await prefs.setString(ledgerKey, encodeLedger(ledger));
+    // notif-nine: a reminder just got only an INEXACT alarm because Android
+    // (14+: off for new installs) withholds exact alarms -> the app shell
+    // offers the explainer, whichever screen saved it (AI chat, family task,
+    // website, quick add).
+    if (!exact && ops.schedule.isNotEmpty) needsExact.value++;
   }
+
+  /// notif-nine: bumped when reminders were armed inexact (see above).
+  static final ValueNotifier<int> needsExact = ValueNotifier<int>(0);
 
   // ------------------------------------------------------------ lost
   /// remhbar: last time alarms were found GONE before their time (Force
