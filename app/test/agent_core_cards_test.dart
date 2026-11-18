@@ -33,6 +33,8 @@ Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = fa
     ChangeNotifierProvider<AppState>.value(value: _state(), child: _material(home, lang, scale, dark));
 
 Widget _material(Widget home, String lang, double scale, bool dark) => MaterialApp(
+      // a fresh app per pump: each case gets its own screen state + fake source
+      key: UniqueKey(),
       locale: Locale(lang),
       theme: dark ? AssistoTheme.dark : AssistoTheme.light,
       supportedLocales: AppLocalizations.supportedLocales,
