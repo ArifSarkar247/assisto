@@ -905,6 +905,9 @@ def tick(limit=20, time_budget_s=50.0, now=None):
             break
         if not flag_on(run.user):
             continue
-        advance(run, time_budget_s=max(1.0, time_budget_s - (_time.monotonic() - t0)))
+        # agentcore: a worker-resumed run answers in the user's own language
+        la = getattr(run.user, "language", "bn")
+        advance(run, lang=la if la in ("bn", "en") else "bn",
+                time_budget_s=max(1.0, time_budget_s - (_time.monotonic() - t0)))
         done += 1
     return done
