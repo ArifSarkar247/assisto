@@ -37,7 +37,11 @@ void registerFamilyCircleFlows() {
     await f.step('open Emergency', () async {
       await f.openFeature(f.t.moduleEmergency, 'emergency');
       await f.shot('emergency');
-      f.expectHttp('GET', '/emergency', since: mark);
+      // sosfam-crm-proof: the Emergency HUB (svcclean, 9 Nov) opens offline-
+      // first from this phone's copy; its one server read is the verified
+      // crisis helplines (GET /emergency belongs to the card screen) —
+      // stale since then (nightly 44007111431 + run 44213469898).
+      f.expectHttp('GET', '/crisis/helplines', since: mark);
     });
     await f.step('hold SOS -> countdown', () async {
       // qjourney: SOS is press-and-hold since sosat (a tap only says "hold")

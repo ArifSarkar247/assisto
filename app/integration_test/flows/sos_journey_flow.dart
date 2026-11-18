@@ -76,6 +76,10 @@ void registerSosJourneyFlows() {
       await f.scrollTo(safe); // below the fold under the ladder
       await f.waitFor(safe, what: '"I\'m safe now" button');
       await f.tester.ensureVisible(safe);
+      // sosfam-crm-proof: let the list stop moving — a tap on a list that is
+      // still flinging only stops the fling (run 44213469898: the button was
+      // on screen, no /resolve was sent)
+      await f.pumpFor(const Duration(milliseconds: 1500));
       final m2 = f.httpMark;
       await f.tap(safe, settleSeconds: 3);
       await f.shot('safe');

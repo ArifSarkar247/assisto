@@ -158,15 +158,19 @@ void registerCrm100Flows() {
         ['/crm/send/log', {'phone': phone, 'business': bizId, 'text': 'Eid offer',
           'channel': 'whatsapp_link'}],
       ]) {
-        Object? err;
-        try {
-          await f.net(() => api.postJson(call[0] as String, call[1] as Map<String, dynamic>));
-        } on ApiException catch (e) {
-          err = e;
+        // runAsync reports + swallows a throw, so catch INSIDE (run 44213469898)
+        final got = await f.net(() async {
+          try {
+            await api.postJson(call[0] as String, call[1] as Map<String, dynamic>);
+            return 'accepted';
+          } on ApiException catch (e) {
+            return '${e.status} ${e.reason ?? ''}';
+          }
+        });
+        if (!'$got'.startsWith('409')) {
+          throw TestFailure('${call[0]} for a STOP customer answered: $got');
         }
-        if (err is! ApiException) throw TestFailure('${call[0]} was accepted for a STOP customer');
-        if (err.status != 409) throw TestFailure('${call[0]} answered ${err.status}: $err');
-        f.note('${call[0]} refused 409 ${err.reason ?? ''}');
+        f.note('${call[0]} refused $got');
       }
       final list = await f.net(() => api.getJson('/retention/opt-outs'));
       f.note('owner STOP list: ${list['count']} (${(list['opt_outs'] as List).map((o) => (o as Map)['source']).join(',')})');

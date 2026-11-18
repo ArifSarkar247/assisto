@@ -119,6 +119,17 @@ void registerFamilyV3Flows() {
             'payload': {'state': 'online'}
           }));
     });
+    // sosfam-crm-proof: the Family list is lazy — the tasks sit below the
+    // member cards, the status line above them (run 44213469898: the task
+    // WAS refreshed in, just not built off-screen). Scroll like a finger.
+    Future<void> toTop() async {
+      final sc = find.byWidgetPredicate((w) =>
+          w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical).hitTestable();
+      for (var i = 0; i < 8 && sc.evaluate().isNotEmpty; i++) {
+        await f.tester.drag(sc.first, const Offset(0, 600), warnIfMissed: false);
+        await f.tester.pump(const Duration(milliseconds: 300));
+      }
+    }
     late int taskId;
     final title = 'gap e2e rice ${DateTime.now().millisecondsSinceEpoch % 100000}';
     await f.step('A keeps Family open; B adds a task -> it appears with no pull', () async {
@@ -127,7 +138,7 @@ void registerFamilyV3Flows() {
       final r = await f.net(() => apiB.postJson('/family/v3/families/$fid/tasks',
           {'title': title, 'kind': 'other'}));
       taskId = (((r['task'] ?? r) as Map)['id'] as num).toInt();
-      await f.waitFor(find.text(title), seconds: 25, what: 'B\'s task on A\'s open screen');
+      await f.scrollToBuilt(find.text(title), seconds: 30, what: 'B\'s task on A\'s open screen');
       await f.shot('live_task');
     });
     await f.step('A deletes the task (asks first) -> gone on the server', () async {
@@ -144,7 +155,8 @@ void registerFamilyV3Flows() {
     await f.step('Location on B\'s card -> the ask form with B picked', () async {
       final card = find.byWidgetPredicate((w) =>
           w.key is ValueKey && '${(w.key as ValueKey).value}'.startsWith('fc3-member-$bId-'));
-      await f.scrollTo(card);
+      await toTop();
+      await f.scrollTo(find.descendant(of: card, matching: find.text(f.t.fc3Location)).hitTestable());
       await f.tap(find.descendant(of: card, matching: find.text(f.t.fc3Location)), settleSeconds: 4);
       await f.waitFor(find.byType(GuardianRequestScreen), seconds: 15, what: 'ask form');
       final chip = await f.waitFor(find.byKey(ValueKey('gj_person_$bCircleId')), what: 'B chip');
@@ -157,6 +169,7 @@ void registerFamilyV3Flows() {
     });
     await f.step('B pauses sharing -> A\'s line says paused, not "no news"', () async {
       await f.net(() => apiB.postJson('/family/brain/pause', {'hours': 1}));
+      await toTop();
       await f.waitFor(find.byKey(const ValueKey('fcg-line-paused')), seconds: 25, what: 'paused line');
       await f.shot('paused_line');
       await f.net(() => apiB.postJson('/family/brain/pause', {'resume': true}));
