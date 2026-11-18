@@ -229,6 +229,9 @@ def install():
     else:
         push.is_available = lambda: True
         push.push_to_user = fake_push_to_user
+    # plans-credits: the fake payment gateway (OFF until a flow turns it on)
+    from . import fake_gateway
+    fake_gateway.install()
     # camflows: the fake vendor clouds (CCTV brand-cloud E2E only)
     import os
     if os.environ.get("E2E_VENDOR_SIM") == "1":

@@ -9,6 +9,7 @@ import '../payments/payments_api.dart';
 import '../payments/play_restore.dart' show PlayStatusCard, playManageUri;
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/ladder_common.dart' show fmtInt; // plans-credits
 import 'buy_inside.dart' show BuyOrigin;
 
 /// buyinside — the central Plans page additions (owner order 10 Nov):
@@ -22,7 +23,10 @@ class PlansBuySection extends StatefulWidget {
   /// Tests: the recommendation payload (null = ask the server).
   final Map<String, dynamic>? preview;
   final String? flavour;
-  const PlansBuySection({super.key, this.preview, this.flavour});
+
+  /// Tests: the GET /shop/cctv-plan payload (null = ask the server).
+  final Map<String, dynamic>? cctvPreview;
+  const PlansBuySection({super.key, this.preview, this.flavour, this.cctvPreview});
 
   @override
   State<PlansBuySection> createState() => _PlansBuySectionState();
@@ -31,6 +35,9 @@ class PlansBuySection extends StatefulWidget {
 class _PlansBuySectionState extends State<PlansBuySection> {
   Map<String, dynamic>? _rec;
   String _text = '';
+  // plans-credits: the CCTV plan's price line comes from the server's CCTV
+  // plan (the same numbers the CCTV plan screen and the website show).
+  Map<String, dynamic>? _cctv;
 
   String get _flavour => widget.flavour ?? payFlavour();
 
@@ -42,6 +49,11 @@ class _PlansBuySectionState extends State<PlansBuySection> {
       _apply(p);
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    }
+    _cctv = widget.cctvPreview;
+    if (_cctv == null && widget.preview == null &&
+        FeatureFlags.instance.isOn('cctv_watchman')) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadCctv());
     }
   }
 
@@ -58,6 +70,33 @@ class _PlansBuySectionState extends State<PlansBuySection> {
     } catch (_) {
       // no recommendation offline — never a guess
     }
+  }
+
+  Future<void> _loadCctv() async {
+    try {
+      final j = await context.read<AppState>().api.getJson('/shop/cctv-plan');
+      if (mounted) setState(() => _cctv = j);
+    } catch (_) {
+      // offline: the line says "open to see prices" — never a typed price
+    }
+  }
+
+  /// "From ৳N a month for C cameras · D days free" from the server's numbers.
+  String _cctvLine(AppLocalizations t) {
+    final c = _cctv;
+    if (c == null) return t.pcCctvSeePrices;
+    final cams = (c['base_cameras'] as num?)?.toInt();
+    int? price;
+    for (final m in (c['tiers'] as List? ?? const []).whereType<Map>()) {
+      if (m['cameras'] == cams) price = (m['monthly'] as num?)?.toInt();
+    }
+    price ??= (c['base_price'] as num?)?.toInt();
+    if (cams == null || price == null || price <= 0) return t.pcCctvSeePrices;
+    final taka = '৳${fmtInt(context, price)}';
+    final days = (c['trial_days'] as num?)?.toInt() ?? 0;
+    return days > 0 && c['trial_available'] == true
+        ? t.pcCctvFromLine(taka, fmtInt(context, cams), fmtInt(context, days))
+        : t.pcCctvFromLineNoTrial(taka, fmtInt(context, cams));
   }
 
   Future<void> _switch() async {
@@ -132,7 +171,8 @@ class _PlansBuySectionState extends State<PlansBuySection> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(t.biCctvPlanTitle,
                         style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text(t.biCctvPlanLine,
+                    Text(_cctvLine(t),
+                        key: const Key('bi-plans-cctv-line'),
                         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
                   ]),
                 ),

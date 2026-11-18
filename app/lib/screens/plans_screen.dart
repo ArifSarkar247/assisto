@@ -151,9 +151,9 @@ class _PlansScreenState extends State<PlansScreen> {
 
   /// billapp: the Credits screen; back here, the plan state is re-read
   /// from the server (a pack bought there shows at once).
-  Future<void> _openCredits() async {
-    await Navigator.push(
-        context, MaterialPageRoute(builder: (_) => const CreditsScreen()));
+  Future<void> _openCredits({bool buy = false}) async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => CreditsScreen(jumpToPacks: buy)));
     if (mounted) await _load();
   }
 
@@ -372,7 +372,8 @@ class _PlansScreenState extends State<PlansScreen> {
     final premiumRow =
         monthly.where((p) => p['id'] == 'premium').toList();
 
-    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+    // plans-credits: the last row clears the phone's navigation bar
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
       if (!online) _offlineBanner(t, scheme),
       _currentCard(t),
       // billapp: trial left + what ends, period credits, usage meters
@@ -381,7 +382,7 @@ class _PlansScreenState extends State<PlansScreen> {
         v2: _v2,
         credits: _credits,
         usage: _usage,
-        onOpenCredits: _openCredits,
+        onOpenCredits: () => _openCredits(),
       ),
       ..._v2Trial(t, scheme),
       ..._payBanner(t, scheme),
@@ -391,7 +392,7 @@ class _PlansScreenState extends State<PlansScreen> {
       _safetyPromise(t, scheme),
       const SizedBox(height: Gap.md),
       // Honest allowance explainer: NOTHING is unlimited (owner decision —
-      // Premium is 90 credits/month, Business 240). Always shown; the card
+      // each plan's monthly credits come from the server). Always shown; the card
       // above always shows the credit count, never "Unlimited AI".
       _allowanceNote(t, scheme),
       const SizedBox(height: Gap.sm),
@@ -399,7 +400,7 @@ class _PlansScreenState extends State<PlansScreen> {
       DsButton.secondary(
         buttonKey: const Key('plans-open-credits'),
         expand: true,
-        onPressed: _openCredits,
+        onPressed: () => _openCredits(),
         icon: Icons.bolt_rounded,
         label: t.plansManageCredits,
       ),
@@ -633,6 +634,17 @@ class _PlansScreenState extends State<PlansScreen> {
                     color: ds.text, fontWeight: FontWeight.w700)),
           ),
         ]),
+        // plans-credits (LIVE_TRUTH row 7: "the buy-credits button is
+        // covered by the trial card"): Buy credits sits in the first card,
+        // always on screen when the page opens; it lands on the packs.
+        const SizedBox(height: Gap.md),
+        DsButton(
+          buttonKey: const Key('plans-buy-credits'),
+          expand: true,
+          onPressed: () => _openCredits(buy: true),
+          icon: Icons.add_shopping_cart_rounded,
+          label: t.creditsPacksTitle,
+        ),
         if (showAds) ...[
           const SizedBox(height: Gap.md),
           DsButton.secondary(
@@ -869,14 +881,14 @@ class _PlansScreenState extends State<PlansScreen> {
             OutlinedButton(
               onPressed: null,
               style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44)),
+                  minimumSize: const Size.fromHeight(48)),
               child: Text(isCurrent ? t.plansCurrentTag : t.plansIncluded),
             )
           else if (isCurrent)
             FilledButton.tonal(
               onPressed: null,
               style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44)),
+                  minimumSize: const Size.fromHeight(48)),
               child: Text(t.plansCurrentTag),
             )
           else if (_canBuy(_skuFor(id)) && _isPlay && !_playPriced(id) &&
@@ -888,7 +900,7 @@ class _PlansScreenState extends State<PlansScreen> {
               },
               icon: const Icon(Icons.refresh_rounded, size: 18),
               style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(44)),
+                  minimumSize: const Size.fromHeight(48)),
               label: Text(t.retry),
             )
           else if (_canBuy(_skuFor(id)))

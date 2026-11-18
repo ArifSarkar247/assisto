@@ -36,6 +36,7 @@ import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sj_proof_flow.dart'; // sjproof
+import 'flows/pay_proof_flow.dart'; // plans-credits
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
@@ -82,6 +83,8 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // plans-credits: plans & credits proof needs settings_e2eproof's fake gateway -> opt-in (e2e.yml start+payproof)
+  if (only.split(',').contains('payproof')) registerPayProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

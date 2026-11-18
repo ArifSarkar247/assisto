@@ -38,6 +38,9 @@ BOARD = {
     "sjp05_impossible_early_arrival": [4], "sjp06_danger_pin_silent_red": [4],
     "sjp07_two_journeys": [4], "sjp08_child_unknown_place": [4],
     "sjp09_train_three_passengers": [4], "sjp10_offline_destination_alarm": [4],
+    # plans-credits: plans & credits proof (e2e.yml group=start+payproof)
+    "pay01_buy_plan": [7], "pay02_buy_credits": [7], "pay03_failed_charge": [7],
+    "pay04_zero_credits_sheet_buy": [7], "pay05_safety_at_zero": [7, 3],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -52,6 +55,10 @@ def expected():
         # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
         files = ["app/integration_test/flows/sj_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "payproof" in os.environ.get("REALITY_ONLY", ""):
+        # plans-credits: the plans & credits proof (e2e.yml group=start+payproof)
+        files = ["app/integration_test/flows/pay_proof_flow.dart"]
+        pat = r"realityFlow\(\s*'(pay\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f
