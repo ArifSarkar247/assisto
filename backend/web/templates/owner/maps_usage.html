@@ -9,7 +9,7 @@
 <label>{{ L.bdt_rate }} <input name="bdt_per_usd" value="{{ card.bdt_per_usd }}" inputmode="decimal" size="6"></label> <button class="btn primary">{{ L.save }}</button></form>
 </section>
 <div class="card tbl"><table id="maps-usage"><thead><tr><th>{{ L.api }}</th><th>{{ L.today }}</th><th>{{ L.capped }}</th><th>{{ L.month }}</th><th>{{ L.free_left }}</th><th>{{ L.usd }}</th><th>{{ L.bdt }}</th></tr></thead><tbody>
-{% for r in card.rows %}<tr><td>{{ r.label }}</td><td>{{ r.today }}</td><td>{{ r.capped_today }}</td><td>{{ r.month }}</td><td>{{ r.free_left }}</td><td>${{ r.usd }}</td><td>৳{{ r.bdt }}</td></tr>
+{% for r in card.rows %}<tr><td translate="no">{{ r.label }}</td><td>{{ r.today }}</td><td>{{ r.capped_today }}</td><td>{{ r.month }}</td><td>{{ r.free_left }}</td><td>${{ r.usd }}</td><td>৳{{ r.bdt }}</td></tr>
 <tr><td colspan="7"><form method="post" class="cols">{% include "owner/_csrf.html" %}<input type="hidden" name="api" value="{{ r.api }}">
 <label>{{ L.rate }} <input name="usd_per_1000" value="{{ r.usd_per_1000 }}" inputmode="decimal" size="6"></label>
 <label>{{ L.free }} <input name="free_month" value="{{ r.free_month }}" inputmode="numeric" size="7"></label>

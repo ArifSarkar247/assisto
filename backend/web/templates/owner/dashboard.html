@@ -16,7 +16,7 @@
   <h2>{{ T.recent_activity }}</h2>
   {% if recent %}
   <div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{{ T.action }}</th><th>{{ T.target }}</th><th>IP</th></tr></thead><tbody>
-  {% for r in recent %}<tr class="{% if not r.ok %}bad{% endif %}"><td>{{ r.created_at|date:"Y-m-d H:i" }}</td><td>{{ r.action }}</td><td>{{ r.target }}</td><td>{{ r.ip }}</td></tr>{% endfor %}
+  {% for r in recent %}<tr class="{% if not r.ok %}bad{% endif %}"><td>{{ r.created_at|date:"Y-m-d H:i" }}</td><td><code>{{ r.action }}</code></td><td><code>{{ r.target }}</code></td><td>{{ r.ip }}</td></tr>{% endfor %}
   </tbody></table></div>
   {% else %}<p class="empty">{{ T.empty }}</p>{% endif %}
 </section>

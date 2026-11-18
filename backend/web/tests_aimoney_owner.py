@@ -19,7 +19,7 @@ class MoneyPageTests(OwnerBase):
         self.assertIn("টাকার হিসাব", html)
         self.assertIn('id="money-table"', html)
         self.assertIn('id="money-ads-per-answer"', html)
-        self.assertIn("native ৳1.5", html)
+        self.assertIn("native ৳১.৫", html)   # owneradmin: Bangla digits in bn
         r = self.c.get("/owner/money?lang=en&days=3")
         self.assertContains(r, "Free users profit / loss")
 

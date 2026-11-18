@@ -55,9 +55,24 @@ class OwnerAdminCrawlTests(OwnerBase):
     def test_every_page_passes_every_check(self):
         with mock.patch("web.owner.today._fetch_ci", return_value={"queued": 3, "running": 2}):
             rep = CC.crawl(self.c, extra=["/owner/users/%d" % self.people[0].pk])
-        self.assertGreater(len(rep["pages"]), 150, CC.summary(rep))
+        html_ok = [p for p in rep["pages"] if p["status"] == 200 and p.get("html")]
+        self.assertGreater(len(html_ok), 150, CC.summary(rep))
+        self.assertIn("/owner/integrations", {p["url"] for p in html_ok})
         # the saved key never comes back on any page (only a mask / last 4)
         self.assertEqual(rep["findings"], 0, "\n" + CC.summary(rep))
+
+    def test_checker_catches_each_problem(self):
+        bad = ('<p>Total users 12</p><table></table>'
+               '<form method="post" action="/owner/discover/3/delete"><button>x</button></form>'
+               '<input name="api_key" value="sk-live-abcdef123456"><b style="color:red">!</b>')
+        f, _, _ = CC.analyse(bad, "bn")
+        for k in ("english_in_bn", "ascii_digits_in_bn", "table_not_scrollable",
+                  "form_without_csrf", "destructive_without_confirm", "secret_value_shown",
+                  "inline_style_or_handler_blocked_by_csp"):
+            self.assertIn(k, f)
+        good, _, _ = CC.analyse('<p>মোট ১২ <code>owner.login</code> <span lang="en">English</span></p>'
+                                '<div class="tbl"><table></table></div>', "bn")
+        self.assertEqual(good, {})
 
     def test_saved_secret_never_shown_anywhere(self):
         for path in ("/owner/integrations", "/owner/ai", "/owner/integrations?lang=en"):

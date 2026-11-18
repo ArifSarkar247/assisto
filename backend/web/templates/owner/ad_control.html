@@ -4,7 +4,7 @@
 <div class="card"><p>{{ T.adc_intro }}</p>
 <p class="mut small">{{ T.adc_live }}</p>
 <p><b>{{ T.adc_on_count }}: {{ n_on }} / {{ n }}</b> ·
-{% for d in day_options %}<a href="?days={{ d }}" {% if d == days %}style="font-weight:700"{% endif %}>{{ d }} {{ T.adc_days }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+{% for d in day_options %}<a href="?days={{ d }}" {% if d == days %}class="on-b"{% endif %}>{{ d }} {{ T.adc_days }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
 <p class="mut small">{{ T.adc_estimate_note }}</p></div>
 
 <form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}

@@ -23,9 +23,9 @@
   {% elif pair %}
     <p class="mut small">{{ my_votes }} / {{ pairs_total }} · {{ pair.category }}</p>
     <div class="cols">
-      <figure><img src="/owner/photo/ab/{{ pair.pk }}/in" alt="input" style="max-width:100%"><figcaption>{{ T.ph_ab_input }}</figcaption></figure>
-      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ left_tag }}" alt="A" style="max-width:100%"><figcaption>A</figcaption></figure>
-      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ right_tag }}" alt="B" style="max-width:100%"><figcaption>B</figcaption></figure>
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/in" alt="input"><figcaption>{{ T.ph_ab_input }}</figcaption></figure>
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ left_tag }}" alt="A"><figcaption>A</figcaption></figure>
+      <figure><img src="/owner/photo/ab/{{ pair.pk }}/{{ right_tag }}" alt="B"><figcaption>B</figcaption></figure>
     </div>
     <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="vote">
       <input type="hidden" name="pair" value="{{ pair.pk }}"><input type="hidden" name="left_was" value="{{ left_was }}">

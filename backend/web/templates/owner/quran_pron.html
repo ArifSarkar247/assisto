@@ -20,8 +20,8 @@
 {% if rows %}
 <div class="card tbl"><table><thead><tr><th>{{ T.qpr_ayah }}</th><th>{{ T.qpr_text }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
 {% for r in rows %}<tr id="a{{ r.ayah }}"><td>{{ surah }}:{{ r.ayah }}</td>
-<td><p dir="rtl" lang="ar" style="font-size:1.4em;line-height:2">{{ r.ar }}</p>
-<p lang="bn" style="font-size:1.15em;line-height:1.8"><b>{{ r.bn }}</b></p>
+<td><p dir="rtl" lang="ar" class="qar">{{ r.ar }}</p>
+<p lang="bn" class="qbn"><b>{{ r.bn }}</b></p>
 <div class="small mut">{% for x in r.rules %}<span class="pill">{{ x }}</span> {% endfor %}</div>
 {% if r.history %}<details><summary class="small">{{ T.qpr_history }} ({{ r.history|length }})</summary>{% for h in r.history %}<div class="small">{{ h.created_at|date:"Y-m-d H:i" }} · #{{ h.user_id }} {{ h.user.name|default:"" }} · {{ h.data.action }} · v{{ h.data.engine }}{% if h.data.note %} — {{ h.data.note }}{% endif %}{% if h.data.suggestion %}<br>{{ T.qpr_suggestion }}: {{ h.data.suggestion }}{% endif %}</div>{% endfor %}</details>{% endif %}</td>
 <td><span class="pill {% if r.status == 'approved' %}ok{% elif r.status != 'under_review' %}spons{% endif %}">{% if r.status == 'approved' %}{{ T.qpr_t_approved }}{% elif r.status == 'rejected' %}{{ T.qpr_t_rejected }}{% elif r.status == 'needs_fix' %}{{ T.qpr_t_fix }}{% else %}{{ T.qpr_t_review }}{% endif %}</span></td>

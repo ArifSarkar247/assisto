@@ -1,7 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_ad_control }}{% endblock %}
 {% block content %}
-<div class="card" style="border:2px solid #b00020"><h3 style="color:#b00020">⚠ {{ T.adc_warn_title }}</h3>
+<div class="card danger"><h3 class="neg">⚠ {{ T.adc_warn_title }}</h3>
 <p>{{ T.adc_warn_body }}</p>
 <form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}
 {% for k, v in post %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}

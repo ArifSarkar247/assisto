@@ -65,4 +65,4 @@ class AIPageTests(OwnerBase):
         R.check_alerts()
         r = self.c.get("/owner/pricing")
         self.assertContains(r, 'id="ai-spend-alert"')
-        self.assertContains(r, "gemini 90%")
+        self.assertContains(r, "gemini ৯০%")   # owneradmin: Bangla digits in bn

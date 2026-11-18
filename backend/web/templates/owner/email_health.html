@@ -4,7 +4,7 @@
 <p class="mut small">{{ L.intro }}</p>
 <p class="small" id="email-configured">{% if card.configured %}<b>✓ {{ L.configured }}</b>{% else %}<b>✗ {{ L.not_configured }}</b>{% endif %}</p>
 {% if card.provider_quota %}<div class="flash warn" role="alert" id="email-quota">{{ L.quota }} {{ card.quota_until }}</div>{% endif %}
-<section class="card" id="email-health">
+<section class="card tbl" id="email-health">
 <table><tbody>
 <tr><th>{{ L.sent_today }}</th><td id="eh-sent">{{ card.sent_today }}</td></tr>
 <tr><th>{{ L.failed_today }}</th><td id="eh-failed">{{ card.failed_today }}</td></tr>

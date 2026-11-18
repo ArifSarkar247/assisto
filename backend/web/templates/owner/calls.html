@@ -67,7 +67,7 @@
   {% else %}<p class="empty">{% if rd_days == 30 %}{{ T.rd_none_30 }}{% else %}{{ T.rd_none }}{% endif %}</p>{% endif %}
   {% if rd.trend %}<h3>{{ T.rd_trend }}</h3>
   <div class="tbl" id="ring-trend"><table><thead><tr><th>{{ T.rd_day }}</th><th class="num">{{ T.rd_attempts }}</th><th class="num">{{ T.rd_delivered }}</th><th class="num">{{ T.rd_rate }}</th><th>{{ T.rd_target }} {{ rd.target }}%</th><th class="num">{{ T.rd_early }}</th></tr></thead><tbody>
-  {% for d in rd.trend %}<tr><td>{{ d.date|date:"Y-m-d" }}</td><td class="num">{{ d.attempts }}</td><td class="num">{{ d.delivered }}</td><td class="num {% if d.below %}neg{% endif %}">{% if d.pct is not None %}{{ d.pct }}%{% else %}—{% endif %}</td><td>{% if d.pct is not None %}<div class="rdbar" role="img" aria-label="{{ d.pct }}%"><i class="{% if d.below %}below{% endif %}" style="width:{{ d.bar }}%"></i><b style="left:{{ rd.target }}%"></b></div>{% endif %}</td><td class="num">{{ d.early_cancels }}</td></tr>{% endfor %}
+  {% for d in rd.trend %}<tr><td>{{ d.date|date:"Y-m-d" }}</td><td class="num">{{ d.attempts }}</td><td class="num">{{ d.delivered }}</td><td class="num {% if d.below %}neg{% endif %}">{% if d.pct is not None %}{{ d.pct }}%{% else %}—{% endif %}</td><td>{% if d.pct is not None %}<meter class="rdmeter{% if d.below %} below{% endif %}" min="0" max="100" low="{{ rd.target }}" optimum="100" value="{{ d.bar }}" aria-label="{{ d.pct }}%">{{ d.pct }}%</meter>{% endif %}</td><td class="num">{{ d.early_cancels }}</td></tr>{% endfor %}
   </tbody></table></div>{% endif %}
 </section>{% endif %}
 {% if not cur %}<p class="empty">{{ T.t9_no_samples }}</p>{% else %}

@@ -46,7 +46,7 @@ SHA HMAC JWT RFC Authenticator Authy Quran Hadith Bangla Dhaka Bangladesh
 Sentry Crashlytics Vitals ARB TTS STT ASR LLM VPN NID BRTA BTRC DMP RAB
 Meta Instagram Remini Tanzil Cambridge Microsoft RunPod Topaz Crystal Lanczos Doze
 coturn turnserver nginx postgresql cron crontab sudo apt journalctl eCPM vCPU Axon
-Ranger Amiri Pickthall SeTracker Asalify asalifymart Prothom Alo Jazeera ExchangeRate
+Ranger Amiri Pickthall SeTracker Asalify Prothom Alo Jazeera ExchangeRate
 Twilio Infobip Tuya Tavily AppLovin BulkSMSBD BotFather RedX Steadfast ekPay DoLynk
 NAFNet GoPro AcuSense Hik Clarity Markdown Agentforce AnyDesk Calendly Coursera Canva
 Duolingo Bdjobs Badhan Dropbox Alexa AirTag Apple MapLibre Raspberry Zoom Breeze Muse
@@ -74,6 +74,7 @@ class _Page(HTMLParser):
         self.tables_bare = 0
         self.secrets = []         # (name, value) of secret-looking inputs with a value
         self.attr_text = []       # placeholder / title / aria-label (visible text)
+        self.csp_dead = []        # style= / on*= attributes the panel CSP blocks
 
     def _wrapped(self):
         return any(c for t, c in self.stack if c and ({"tbl", "chartbox"} & set(c.split())))
@@ -81,6 +82,9 @@ class _Page(HTMLParser):
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         cls = a.get("class") or ""
+        for k in a:
+            if k == "style" or k.startswith("on"):
+                self.csp_dead.append("%s[%s]" % (tag, k))
         if self.raw:
             name, n = self.raw[-1]
             if tag == name:
@@ -191,6 +195,8 @@ def analyse(html, lang):
         dg = ascii_digits(p.text)
         if dg:
             f["ascii_digits_in_bn"] = dg[:8]
+    if p.csp_dead:
+        f["inline_style_or_handler_blocked_by_csp"] = sorted(set(p.csp_dead))
     if p.tables_bare:
         f["table_not_scrollable"] = [p.tables_bare]
     for fm in p.forms:
@@ -290,7 +296,7 @@ def crawl(client, extra=(), max_pages=MAX_PAGES):
                    "kb": round(len(body) / 1024, 1), "findings": {}}
             if r.status_code in (301, 302):
                 loc = r.get("Location", "")
-                if loc.startswith("/owner/login") or loc.startswith("/owner/2fa"):
+                if loc.startswith(("/owner/login", "/owner/2fa", "/owner/enrol")):
                     row["findings"]["redirect_to_login"] = [loc]
                 else:
                     n = _norm(loc, url)
@@ -340,5 +346,7 @@ def summary(report, limit=400):
     lines.append("slowest: " + ", ".join("%s %dms" % (p["url"], p["ms"]) for p in slow))
     big = sorted(report["pages"], key=lambda p: -p["kb"])[:5]
     lines.append("biggest: " + ", ".join("%s %.0fKB" % (p["url"], p["kb"]) for p in big))
-    lines.append("pages: %d, findings: %d" % (len(report["pages"]), report["findings"]))
+    ok = sum(1 for p in report["pages"] if p["status"] == 200 and p.get("html"))
+    lines.append("pages: %d (%d HTML 200), findings: %d" % (len(report["pages"]), ok,
+                                                           report["findings"]))
     return "\n".join(lines[-limit:] if len(lines) > limit else lines)
