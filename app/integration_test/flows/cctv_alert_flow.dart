@@ -105,20 +105,25 @@ Future<void> _host(RFlow f, String cmd, String arg) async {
   f.note('host never acked $cmd $arg');
 }
 
-/// Can this phone open a TCP connection to the test backend right now?
+/// Does the test backend ANSWER an HTTP request right now? (Any HTTP status
+/// counts.) A bare TCP connect is not enough: the emulator's NAT completes
+/// the guest's handshake itself, so a blocked backend still "connected"
+/// (runs 44219548996 / 44240689124).
 Future<bool> _reachable() async {
-  final u = Uri.parse(AppConfig.apiBase);
+  final hc = HttpClient()..connectionTimeout = const Duration(seconds: 3);
   try {
-    final s = await Socket.connect(u.host, u.hasPort ? u.port : (u.scheme == 'https' ? 443 : 80),
-        timeout: const Duration(seconds: 2));
-    s.destroy();
+    final req = await hc.getUrl(Uri.parse('${AppConfig.apiBase}/api/v1/features?fv=2'))
+        .timeout(const Duration(seconds: 4));
+    final res = await req.close().timeout(const Duration(seconds: 4));
+    await res.drain<void>().timeout(const Duration(seconds: 4));
     return true;
   } catch (_) {
     return false;
+  } finally {
+    hc.close(force: true);
   }
 }
 
-/// The same screen in English and in Bangla (owner rule: proof in both).
 /// [refresh]: pull the list down after the switch so the server's own words
 /// (alert title, AI label) also come in Bangla, as a Bangla user sees them.
 Future<void> _shotBoth(RFlow f, String name, {bool refresh = false}) async {
