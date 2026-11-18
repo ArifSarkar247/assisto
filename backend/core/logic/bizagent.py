@@ -145,17 +145,24 @@ def _messaging_events(entry, channel):
                                event_id=mid, text=text, ts=ts,
                                raw={"app_id": msg.get("app_id")}))
             else:
-                out.append(_ev(channel=channel, kind="message",
-                               account_id=recipient or acct, user_id=sender,
-                               event_id=mid, text=text, ts=ts, attachments=atts))
+                ev = _ev(channel=channel, kind="message",
+                         account_id=recipient or acct, user_id=sender,
+                         event_id=mid, text=text, ts=ts, attachments=atts)
+                qr = msg.get("quick_reply")
+                if isinstance(qr, dict) and qr.get("payload"):
+                    ev["payload"] = str(qr["payload"])[:256]   # bizsales-proof
+                out.append(ev)
             continue
         pb = m.get("postback")
         if isinstance(pb, dict):
             mid = str(pb.get("mid") or "pb-%s-%s" % (sender, ts))
-            out.append(_ev(channel=channel, kind="postback",
-                           account_id=recipient or acct, user_id=sender,
-                           event_id=mid, text=pb.get("title") or pb.get("payload") or "",
-                           ts=ts))
+            ev = _ev(channel=channel, kind="postback",
+                     account_id=recipient or acct, user_id=sender,
+                     event_id=mid, text=pb.get("title") or pb.get("payload") or "",
+                     ts=ts)
+            if pb.get("payload"):
+                ev["payload"] = str(pb["payload"])[:256]
+            out.append(ev)
     return out
 
 
@@ -222,14 +229,18 @@ def parse_whatsapp(payload):
                 if not wamid:
                     continue
                 typ = m.get("type")
+                payload = ""         # bizsales-proof: the tapped button's own id
                 if typ == "text":
                     text = (m.get("text") or {}).get("body") or ""
                 elif typ == "button":
                     text = (m.get("button") or {}).get("text") or ""
+                    payload = str((m.get("button") or {}).get("payload") or "")
                 elif typ == "interactive":
                     it = m.get("interactive") or {}
                     text = ((it.get("button_reply") or it.get("list_reply") or {})
                             .get("title") or "")
+                    payload = str((it.get("button_reply") or it.get("list_reply") or {})
+                                  .get("id") or "")
                 else:
                     text = "[%s]" % (typ or "message")
                 cart = []
@@ -267,6 +278,8 @@ def parse_whatsapp(payload):
                          ts=int(m.get("timestamp") or 0), attachments=atts)
                 if cart:
                     ev["cart"] = cart
+                if payload:
+                    ev["payload"] = payload[:256]
                 events.append(ev)
             for s in v.get("statuses") or []:
                 wamid = str(s.get("id") or "")

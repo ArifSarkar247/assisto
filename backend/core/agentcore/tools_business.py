@@ -213,6 +213,15 @@ def _cod_confirm(ctx, a):
         return out
     lang = (o.thread.lang if o.thread_id else "") or ctx.lang
     text = _cod_text(o, shop, lang)
+    # bizsales-proof: a live official channel → the real COD confirmation
+    # (yes/no buttons, reminder, auto-cancel on no reply — core/bizagent_cod.py)
+    if biz is not None and o.business_id:
+        from .. import bizagent_cod as COD
+        if COD.thread_for_order(o) is not None:
+            r = COD.ask(o, lang=lang)
+            out.update(sent=r["ok"] or r["reason"] == "already_asked", status=r["status"],
+                       reason="ok" if r["ok"] else r["reason"])
+            return out
     if o.thread_id:
         prior = Message.objects.filter(thread=o.thread, direction="out",
                                        meta__agent_step=ctx.idem_key).first() if ctx.idem_key else None
