@@ -684,7 +684,7 @@ class _SalesState extends State<CctvSalesMatchScreen> {
               Text(t.cv3PosTitle, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 4),
               Text(k['has_key'] == true
-                  ? t.cv3PosLinked(
+                  ? t.gcvPlPosLinked((k['events'] as num?)?.toInt() ?? 0,
                       (k['partner'] == 'asalify' ? t.cv3PosAsalify : t.cv3PosOther),
                       wmDigits(lang, k['events'] ?? 0))
                   : t.cv3PosBenefit),
@@ -962,7 +962,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
           return RefreshIndicator(
             onRefresh: () => _load(refresh: true),
             child: ListView(padding: const EdgeInsets.all(16), children: [
-              Text(t.cv3AutoLinked(wmDigits(lang, devs.length)),
+              Text(t.gcvPlAutoLinked(devs.length, wmDigits(lang, devs.length)),
                   style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 4),
               Text((d['lock_note'] ?? '').toString(), style: Theme.of(context).textTheme.bodySmall),

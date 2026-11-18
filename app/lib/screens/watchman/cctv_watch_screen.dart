@@ -95,7 +95,7 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
                           leading: const CircleAvatar(child: Icon(Icons.lock_rounded)),
                           title: Text((g['name'] ?? '').toString()),
                           subtitle: Text('${g['community'] ?? ''} · '
-                              '${t.ctmWatchMembers(wmDigits(lang, (g['members'] as num?)?.toInt() ?? 0))}'),
+                              '${t.gcvPlWatchMembers((g['members'] as num?)?.toInt() ?? 0, wmDigits(lang, (g['members'] as num?)?.toInt() ?? 0))}'),
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => CctvWatchGroupScreen(

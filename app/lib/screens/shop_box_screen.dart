@@ -597,7 +597,7 @@ class _SitesTab extends StatelessWidget {
                               style: AType.bodyLarge.copyWith(
                                   color: scheme.ds.text, fontWeight: FontWeight.w700)),
                           Text(
-                            t.shopBoxSiteSubtitle(
+                            t.gcvPlSiteSubtitle(cameras, // gap-cctv: "1 camera"
                                 fmtInt(context, cameras),
                                 fmtInt(context, retention)),
                             style: AType.bodySmall.copyWith(color: scheme.ds.muted),

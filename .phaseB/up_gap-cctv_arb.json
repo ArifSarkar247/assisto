@@ -189,6 +189,183 @@
   "gcvShopBoxPlanNote": "Shop Box comes with the CCTV plan (2 cameras and up, with a free trial — prices on the CCTV plan page) or the Business plan. A camera beyond your plan uses credits — the exact number is shown when you add it.",
   "@gcvShopBoxPlanNote": {
    "description": "gap-cctv: Shop Box lock — which plans unlock it (same rule as the server)"
+  },
+  "gcvPlSiteSubtitle": "{count, plural, =1{{cameras} camera · keeps snapshots {days} days} other{{cameras} cameras · keeps snapshots {days} days}}",
+  "@gcvPlSiteSubtitle": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "cameras": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlEodTodayCount": "{n, plural, =1{{count} cash sale today} other{{count} cash sales today}}",
+  "@gcvPlEodTodayCount": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "n": {
+     "type": "int"
+    },
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCamerasA11y": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasA11y": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCurrentLine": "{count, plural, =1{{n} camera · {period}} other{{n} cameras · {period}}}",
+  "@gcvPlCurrentLine": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    },
+    "period": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlUsed": "{count, plural, =1{{used} of {n} camera in use} other{{used} of {n} cameras in use}}",
+  "@gcvPlUsed": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "used": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCamerasCount": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasCount": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlWatchMembers": "{count, plural, =1{{n} member} other{{n} members}}",
+  "@gcvPlWatchMembers": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlLinkViews": "{count, plural, =0{Not opened yet} =1{Opened once} other{Opened {n} times}}",
+  "@gcvPlLinkViews": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPartCams": "{count, plural, =1{{online} of {total} camera online} other{{online} of {total} cameras online}}",
+  "@gcvPlPartCams": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "online": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPosLinked": "{count, plural, =1{Linked: {pos} · {n} event received} other{Linked: {pos} · {n} events received}}",
+  "@gcvPlPosLinked": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "pos": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlAutoLinked": "{count, plural, =1{Smart Life linked · {n} device} other{Smart Life linked · {n} devices}}",
+  "@gcvPlAutoLinked": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPeople": "{count, plural, =1{{n} person} other{{n} people}}",
+  "@gcvPlPeople": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlClipsLine": "{count, plural, =1{{n} clip · {mb} MB of {cap} MB} other{{n} clips · {mb} MB of {cap} MB}}",
+  "@gcvPlClipsLine": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    },
+    "mb": {
+     "type": "String"
+    },
+    "cap": {
+     "type": "String"
+    }
+   }
   }
  },
  "bn": {
@@ -262,6 +439,19 @@
   "gcvPbRevoked": "Assisto এই ক্যামেরায় আর পৌঁছাতে পারছে না — \"DVR / ক্যামেরা ব্র্যান্ড যুক্ত করুন\" থেকে আবার যুক্ত করুন।",
   "gcvPbNetwork": "এখন Imou-তে পৌঁছানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "gcvPbPlayFailed": "রেকর্ডিং চালানো গেল না (লিংক ১০ মিনিট থাকে)। আবার চেষ্টা করুন।",
-  "gcvShopBoxPlanNote": "শপ বক্স পাওয়া যায় সিসিটিভি প্ল্যানে (২টি ক্যামেরা থেকে, ফ্রি ট্রায়ালসহ — দাম সিসিটিভি প্ল্যানের পাতায়) বা বিজনেস প্ল্যানে। প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।"
+  "gcvShopBoxPlanNote": "শপ বক্স পাওয়া যায় সিসিটিভি প্ল্যানে (২টি ক্যামেরা থেকে, ফ্রি ট্রায়ালসহ — দাম সিসিটিভি প্ল্যানের পাতায়) বা বিজনেস প্ল্যানে। প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।",
+  "gcvPlSiteSubtitle": "{count, plural, other{{cameras}টি ক্যামেরা · স্ন্যাপশট {days} দিন রাখে}}",
+  "gcvPlEodTodayCount": "{n, plural, other{আজ {count}টি ক্যাশ বিক্রি}}",
+  "gcvPlCamerasA11y": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlCurrentLine": "{count, plural, other{{n}টি ক্যামেরা · {period}}}",
+  "gcvPlUsed": "{count, plural, other{{n}টির মধ্যে {used}টি ক্যামেরা চালু}}",
+  "gcvPlCamerasCount": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlWatchMembers": "{count, plural, other{{n} জন সদস্য}}",
+  "gcvPlLinkViews": "{count, plural, =0{এখনো খোলা হয়নি} other{{n} বার খোলা হয়েছে}}",
+  "gcvPlPartCams": "{count, plural, other{{total}টির মধ্যে {online}টি ক্যামেরা অনলাইন}}",
+  "gcvPlPosLinked": "{count, plural, other{যুক্ত: {pos} · {n}টি ঘটনা এসেছে}}",
+  "gcvPlAutoLinked": "{count, plural, other{Smart Life যুক্ত · {n}টি ডিভাইস}}",
+  "gcvPlPeople": "{count, plural, other{{n} জন}}",
+  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}"
  }
 }
