@@ -207,16 +207,25 @@ class Command(BaseCommand):
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
 
-        # --- group-calls: E is in A's and B's circle (both ways, accepted)
-        for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
-            CircleMember.objects.update_or_create(
-                user=users[x], peer_user=users[y],
-                defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
-                          "state": "accepted", "relation": "friend",
-                          "direction": "outgoing" if x in ("a", "b") else "incoming"})
-        self.steps.append({"step": "circle A<->E, B<->E (group call proof)",
-                           "method": "DB", "path": "circle", "status": 200,
-                           "ok": True})
+        # --- group-calls: E is in A's and B's circle (both ways, accepted) ONLY
+        # when the drive runs the circle / calls flows (18g). Elsewhere E stays
+        # out, so no other flow's circle picker sees an extra person (gate
+        # 44243785970: 41_mess_v2 added "Reality Dipu" instead of B).
+        drive = (os.environ.get("REALITY_DRIVE") or os.environ.get("REALITY_ONLY") or "")
+        groups = set(drive.replace(",", "+").split("+"))
+        if groups & {"circle", "calls"}:
+            for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
+                CircleMember.objects.update_or_create(
+                    user=users[x], peer_user=users[y],
+                    defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
+                              "state": "accepted", "relation": "friend",
+                              "direction": "outgoing" if x in ("a", "b") else "incoming"})
+            self.steps.append({"step": "circle A<->E, B<->E (group call proof)",
+                               "method": "DB", "path": "circle", "status": 200,
+                               "ok": True})
+        else:
+            CircleMember.objects.filter(user__in=[users["a"], users["b"]], peer_user=users["e"]).delete()
+            CircleMember.objects.filter(user=users["e"]).delete()
 
         # --- m3-circle: A and C start NOT connected (the flow adds C)
         CircleMember.objects.filter(user=users["a"], peer_user=users["c"]).delete()

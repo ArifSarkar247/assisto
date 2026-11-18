@@ -56,7 +56,11 @@ void registerMessV2Flows() {
       await f.tap(find.text(f.t.mv2TabMembers));
       await f.tap(find.byKey(const ValueKey('mess-add-member')), settleSeconds: 3);
       await f.shot('circle_picker');
-      await f.tap(find.text(f.t.mv2Add).first, settleSeconds: 3);
+      // the Add on B's OWN row (never the first row: other seeded circle
+      // people may sort above B — gate 44243785970 added "Reality Dipu")
+      final rowB = find.ancestor(
+          of: find.textContaining(Seed.nameB.split(' ').last), matching: find.byType(ListTile));
+      await f.tap(find.descendant(of: rowB.first, matching: find.text(f.t.mv2Add)), settleSeconds: 3);
       f.expectHttp('POST', '/mess/v2/$mid/members');
       await f.tap(find.byKey(const ValueKey('mess-pick-done')));
       await f.eventually('B sees the mess group', () async {

@@ -208,6 +208,8 @@ jobs:
       ASSISTO_CI_PG_NAME: assisto_ci
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
+      # seed_reality: drive-scoped seed data (E in A's circle only for circle/calls)
+      REALITY_DRIVE: ${{ matrix.only }}
       E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
       NP_OUT: ${{ github.workspace }}/reality_out/notifproof
       NP_ONLY: ${{ matrix.kind == 'np' && matrix.ids || '' }}
