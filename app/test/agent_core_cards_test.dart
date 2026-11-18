@@ -6,15 +6,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/models.dart';
 import 'package:assisto/screens/agent_core/agent_core_screen.dart';
 import 'package:assisto/screens/agent_core/agent_nudges.dart';
+import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
 import 'agent_core_fakes.dart';
+import 'fake_api.dart';
 
-Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = false}) => MaterialApp(
+AppState _state() {
+  final s = AppState();
+  s.api = FakeApi();
+  s.user = AppUser(
+      id: 1, name: 'A', phone: '01712345678', email: '', autonomyLevel: 2, language: 'en');
+  s.locale = const Locale('en');
+  s.loading = false;
+  s.online = true;
+  return s;
+}
+
+Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = false}) =>
+    ChangeNotifierProvider<AppState>.value(value: _state(), child: _material(home, lang, scale, dark));
+
+Widget _material(Widget home, String lang, double scale, bool dark) => MaterialApp(
       locale: Locale(lang),
       theme: dark ? AssistoTheme.dark : AssistoTheme.light,
       supportedLocales: AppLocalizations.supportedLocales,
