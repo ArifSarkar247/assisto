@@ -92,7 +92,16 @@
   "licence_url": null,
   "author": "Serious Security Sydney",
   "page": "https://commons.wikimedia.org/wiki/File:8MP_4K_Dahua_CCTV_System_Sample_Video_-_Night_Time.webm",
-  "labels": null
+  "labels": {
+   "person": [
+    [
+     0,
+     7.5
+    ]
+   ],
+   "night": true
+  },
+  "camera": "fixed IR CCTV at night (a person walks past a parked car, then the yard is empty)"
  },
  {
   "id": "c05",
@@ -165,7 +174,11 @@
   "licence_url": "https://creativecommons.org/licenses/by/4.0",
   "author": "Vitaly Zdanevich",
   "page": "https://commons.wikimedia.org/wiki/File:Batumi2025-dogs-at-night-near-magnolia.webm",
-  "labels": null
+  "labels": {
+   "person": [],
+   "night": true
+  },
+  "camera": "hand-held at night (stray dogs on a beach)"
  },
  {
   "id": "c09",
@@ -382,7 +395,16 @@
   "licence_url": null,
   "author": "HDCCTV Cameras",
   "page": "https://commons.wikimedia.org/wiki/File:HD_CCTV_Camera_video_3MP_4MP_iProx_CCTV_HDCCTVCameras.net_retail_store.webm",
-  "labels": null
+  "labels": {
+   "person": [
+    [
+     0,
+     111
+    ]
+   ],
+   "night": false
+  },
+  "camera": "fixed ceiling CCTV over a shop counter and aisles (customers all the time)"
  },
  {
   "id": "c19",
@@ -547,7 +569,17 @@
   "licence_url": "https://creativecommons.org/licenses/by/3.0",
   "author": "https://www.youtube.com/user/Editor",
   "page": "https://commons.wikimedia.org/wiki/File:Traffic_on_bridge_at_night.webm",
-  "labels": null
+  "labels": {
+   "person": [],
+   "night": true,
+   "vehicle": [
+    [
+     4,
+     41
+    ]
+   ]
+  },
+  "camera": "fixed night view of a bridge (headlights, focus pull at the start)"
  },
  {
   "id": "c27",
@@ -683,7 +715,8 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Dorieo",
   "page": "https://commons.wikimedia.org/wiki/File:Aguacero_sobre_Valencia,_Espa%C3%B1a_(13_de_junio_de_2015).webm",
-  "labels": null
+  "labels": null,
+  "dropped": "hand-held from a window; tiny people with umbrellas far below, not labelable"
  },
  {
   "id": "c36",
@@ -699,7 +732,17 @@
   "licence_url": "https://creativecommons.org/licenses/by/3.0",
   "author": "https://www.youtube.com/user/Editor",
   "page": "https://commons.wikimedia.org/wiki/File:Cars_driving_at_night.webm",
-  "labels": null
+  "labels": {
+   "person": [],
+   "night": true,
+   "vehicle": [
+    [
+     0,
+     160
+    ]
+   ]
+  },
+  "camera": "fixed night view of a freeway (headlights all the time)"
  },
  {
   "id": "c35",
@@ -715,7 +758,8 @@
   "licence_url": "https://creativecommons.org/licenses/by/3.0",
   "author": "The Hellenic Trainspotters",
   "page": "https://commons.wikimedia.org/wiki/File:Night_Traffic_at_Loughborough_station,_January_2017..webm",
-  "labels": null
+  "labels": null,
+  "dropped": "edited station montage with many people in some shots; labelling 7 sheets by hand left for later"
  },
  {
   "id": "c34",
@@ -731,6 +775,10 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "Frank Vincentz",
   "page": "https://commons.wikimedia.org/wiki/File:Radevormwald_-_Raindrops_on_a_window_08_(1)_ies.webm",
-  "labels": null
+  "labels": {
+   "person": [],
+   "night": false
+  },
+  "camera": "fixed: rain running down a window in front of the lens"
  }
 ]
