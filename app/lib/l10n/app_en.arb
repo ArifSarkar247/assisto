@@ -53258,5 +53258,9 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "ccErrPastTime": "That time has already passed on that day. Pick a later time, or change the date.",
+  "@ccErrPastTime": {
+    "description": "gap-carecall: Care Call New screen error when a one-time call's date + time is already in the past on the receiver's clock"
   }
 }
