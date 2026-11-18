@@ -1674,8 +1674,23 @@ jobs:
           REL_KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           REL_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           REL_KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          # ---- play-decl ---- ONE switch per Play-declaration item (keys in
+          # tools/ci/play_declared.py ITEMS: guardbox_camera screen_share
+          # bg_location medical). Add a key ONLY after the owner filed that
+          # form (owner_actions/PLAY_DECLARATIONS_BN.md). '' = today's Play
+          # build: every item stays out of the bundle and the gate below fails
+          # the build if one leaks in. core.tests_play_declared guards this.
+          PLAY_DECLARED: ''
         run: |
           set -euo pipefail
+          # ---- play-decl ---- validate keys, export per-item env (e.g.
+          # PLAY_SCREEN_SHARE=true), keep undeclared items out of the manifest
+          python3 ../tools/ci/play_declared.py check "$PLAY_DECLARED"
+          eval "$(python3 ../tools/ci/play_declared.py env "$PLAY_DECLARED")"
+          python3 ../tools/ci/play_declared.py patch android/app/src/main/AndroidManifest.xml "$PLAY_DECLARED"
+          PLAY_DECL_DEFINES="$(python3 ../tools/ci/play_declared.py defines "$PLAY_DECLARED")"
+          PLAY_DECL_PERMS=" $(python3 ../tools/ci/play_declared.py perms "$PLAY_DECLARED") "
+          # ---- /play-decl ----
           # 1) Play manifest: drop the self-update permission even if a plugin
           #    contributes it (tools:node="remove" wins in the merger).
           python3 - <<'PY'
@@ -1722,7 +1737,7 @@ jobs:
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)" \
-            --dart-define=PLAY_STORE=true
+            --dart-define=PLAY_STORE=true $PLAY_DECL_DEFINES
           rm -f android/app/abi_filters.txt
           AAB=build/app/outputs/bundle/release/app-release.aab
           # the bundle's own (protobuf) manifest keeps permission names as text
@@ -1745,6 +1760,8 @@ jobs:
                    READ_CALL_LOG WRITE_CALL_LOG PROCESS_OUTGOING_CALLS READ_PHONE_STATE READ_PHONE_NUMBERS \
                    SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE FOREGROUND_SERVICE_CAMERA \
                    USE_EXACT_ALARM MANAGE_EXTERNAL_STORAGE ACTIVITY_RECOGNITION REQUEST_DELETE_PACKAGES; do
+            # play-decl: a permission whose form the owner filed is allowed
+            case "$PLAY_DECL_PERMS" in *" $P "*) echo "play-decl: $P declared"; continue;; esac
             if grep -a -q "android.permission.$P" /tmp/play-manifest.pb; then
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
@@ -1755,6 +1772,9 @@ jobs:
             fi
           done
           # ---- /playall ----
+          # ---- play-decl ---- no undeclared item (permission / service) in the bundle
+          python3 ../tools/ci/play_declared.py gate /tmp/play-manifest.pb "$PLAY_DECLARED"
+          # ---- /play-decl ----
           # ---- pay1 ---- Play Billing needs the BILLING permission in the bundle
           if ! grep -a -q com.android.vending.BILLING /tmp/play-manifest.pb; then
             echo "::error::com.android.vending.BILLING missing from the Play bundle manifest"; exit 1

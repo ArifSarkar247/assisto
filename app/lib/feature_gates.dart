@@ -29,10 +29,12 @@ import 'config.dart';
 /// (playStore == false) is unchanged. Wellness (Health Connect steps / heart
 /// rate / sleep, fitness, mood) and plain reminders stay in Play.
 ///
-/// FLIP: when the organization account is approved, return `true` here (or
-/// delete the gate) and re-declare the health features in Play Console.
+/// FLIP (play-decl): when the organization account is approved and the
+/// Health apps form is filed, add `medical` to PLAY_DECLARED in android.yml
+/// (builds the Play AAB with PLAY_MEDICAL=true; nothing else changes).
 bool get kMedicalFeaturesAllowed =>
-    debugMedicalFeaturesOverride ?? !AppConfig.playLike; // staging = Play set
+    debugMedicalFeaturesOverride ??
+    (!AppConfig.playLike || AppConfig.playMedical); // staging = Play set
 
 /// Test-only override for [kMedicalFeaturesAllowed] (null = follow flavour).
 @visibleForTesting

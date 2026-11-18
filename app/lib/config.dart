@@ -41,6 +41,12 @@ class AppConfig {
   /// owner's test app (so the owner tests what Play users will see).
   static const bool playLike = playStore || staging;
 
+  /// play-decl: true ONLY when the Play AAB is built with the `medical` key in
+  /// PLAY_DECLARED (android.yml) — i.e. after the owner moved the listing to
+  /// an organization account and filed the Health apps declaration
+  /// (owner_actions/PLAY_DECLARATIONS_BN.md). Default false = today.
+  static const bool playMedical = bool.fromEnvironment('PLAY_MEDICAL');
+
   /// UTC build timestamp, injected by CI (--dart-define=BUILD_TIME=...). Empty
   /// on local/dev builds. Shown only in Settings → About.
   static const String buildTime = String.fromEnvironment('BUILD_TIME', defaultValue: '');

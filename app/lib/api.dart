@@ -62,6 +62,8 @@ class ApiClient {
         // sends nothing extra.
         // staging: the test app shows the Play feature set (AppConfig.playLike)
         if (AppConfig.playLike) 'X-Assisto-Flavour': 'play',
+        // play-decl: Play build with the medical declaration filed
+        if (AppConfig.playLike && AppConfig.playMedical) 'X-Assisto-Medical': '1',
         // credout: this build understands 402 out_of_credits (keeps the text,
         // opens the buy-credits sheet). Older builds get the free answer.
         'X-Assisto-Credout': '1',
