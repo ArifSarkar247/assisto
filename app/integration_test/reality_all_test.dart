@@ -39,6 +39,7 @@ import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
+import 'flows/safety_plan_flow.dart'; // safety-plan
 import 'support/harness.dart';
 
 void main() {
@@ -82,6 +83,8 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // safety-plan: two guardians + family safety plan + map cost (e2e.yml start+safetyplan)
+  if (only.split(',').contains('safetyplan')) registerSafetyPlanFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

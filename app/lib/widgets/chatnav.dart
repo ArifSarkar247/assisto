@@ -124,6 +124,7 @@ import '../screens/market/market_screen.dart'; // amarket
 import '../safe_plans/safe_plans_screen.dart'; // safeplans
 import '../carecall/carecall_screen.dart'; // carecall
 import '../bizai/biz_daily_screen.dart' show BizDailyScreen; // bizai2
+import '../safety_plan/safety_plan_screen.dart' show SafetyPlanScreen; // safety-plan
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -353,6 +354,8 @@ class ChatNav {
         home: const FamilyEntry(),
         open: (_) => const CircleGuardiansScreen(),
         name: 'guardians'),
+    // safety-plan (row 49): the family safety plan (push + chat)
+    'safety_plan': (_) => const SafetyPlanScreen(),
     'referral': (_) => const ReferralScreen(),
     'circle_privacy': (_) => const CirclePrivacyScreen(),
     'circle_calls': (_) => const CircleCallHistoryScreen(),
@@ -502,6 +505,8 @@ class ChatNav {
     'guardians': ['guardians', 'second guardian', 'who can see me',
         'who sees my location', 'co-parent', 'add guardian', 'ovibhabok'],
     'circle_calls': ['call history', 'call log', 'circle calls'],
+    'safety_plan': ['safety plan', 'family plan', 'emergency plan', 'meeting point',
+        'who to call', 'nirapotta porikolpona'],
     // Wave-D batch-4
     'action_center': ['action center', 'action centre', 'audit log', 'audit',
         'what did you do', 'approvals', 'pending actions'],

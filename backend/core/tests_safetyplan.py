@@ -155,6 +155,10 @@ class SafetyPlanTests(Base):
         self.assertEqual(r.json()["detail"], "empty")
         g = self.ca.get("%s/safety-plan" % V).json()
         self.assertIn("999", [n["number"] for n in g["defaults"]])
+        mem = {m["member_id"]: m for m in g["members"]}
+        self.assertTrue(mem[self.ab.id]["on_assisto"])
+        self.assertFalse(mem[self.dad.id]["on_assisto"])
+        self.assertEqual(mem[self.dad.id]["phone"], "01711000003")
         self.assertIsNone(g["mine"])
 
     def test_others_members_cannot_be_injected(self):

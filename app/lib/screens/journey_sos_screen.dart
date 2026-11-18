@@ -16,6 +16,7 @@ import '../widgets/sos_location.dart'; // qjourney
 import '../widgets/sos_a11y.dart'; // a11ysweep
 import 'package:assisto/widgets/app_sheet.dart';
 import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
+import '../safety_plan/safety_plan_screen.dart'; // safety-plan
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
 ///
@@ -396,6 +397,16 @@ class _JourneySosScreenState extends State<JourneySosScreen>
           icon: const Icon(Icons.sms_rounded),
           label: Text(t.j100SendSms),
           onPressed: _sms,
+        ),
+        // safety-plan: our meeting place + who to call first (opens offline)
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          key: const ValueKey('spl_from_sos'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          icon: const Icon(Icons.family_restroom_rounded),
+          label: Text(t.splTitle),
+          onPressed: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const SafetyPlanScreen())),
         ),
         const SizedBox(height: 20),
         Text(t.sosHelplines,

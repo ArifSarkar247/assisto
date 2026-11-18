@@ -1,0 +1,221 @@
+{
+ "en": {
+  "splTitle": "Family safety plan",
+  "@splTitle": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splHubHint": "Where to meet, who to call — works offline",
+  "@splHubHint": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splEmptyTitle": "Agree a plan before trouble comes",
+  "@splEmptyTitle": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splEmptyBody": "If phones die or the network is down, everyone already knows where to meet and who to call first. It takes two minutes.",
+  "@splEmptyBody": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splHow1": "1. Pick a meeting place near home, and one further away",
+  "@splHow1": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splHow2": "2. Pick who to call first from My Circle",
+  "@splHow2": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splHow3": "3. Share it — it opens on every phone, even without internet",
+  "@splHow3": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splMake": "Make our plan",
+  "@splMake": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splMine": "Our plan",
+  "@splMine": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splFrom": "Plan from {name}",
+  "@splFrom": {
+   "description": "safety-plan: family safety plan screen",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "splMeet": "Meeting place near home",
+  "@splMeet": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splMeetFar": "If we can't get home",
+  "@splMeetFar": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splCallOrder": "Who to call first",
+  "@splCallOrder": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNumbers": "Emergency numbers",
+  "@splNumbers": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splSharedWith": "Shared with: {names}",
+  "@splSharedWith": {
+   "description": "safety-plan: family safety plan screen",
+   "placeholders": {
+    "names": {
+     "type": "String"
+    }
+   }
+  },
+  "splNotShared": "Not shared yet — only you can see it",
+  "@splNotShared": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splEdit": "Edit",
+  "@splEdit": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splSave": "Save and share",
+  "@splSave": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splSaved": "Saved. Your family can see it now.",
+  "@splSaved": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splOffline": "No internet — showing the copy saved on this phone at {time}",
+  "@splOffline": {
+   "description": "safety-plan: family safety plan screen",
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "splOfflineNoTime": "No internet — showing the copy saved on this phone",
+  "@splOfflineNoTime": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splOfflineEdit": "You can edit the plan when the internet is back.",
+  "@splOfflineEdit": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNoCopy": "No internet, and this phone has no saved copy yet. Open the plan once with internet and it stays here.",
+  "@splNoCopy": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splYou": "you",
+  "@splYou": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splOpenMap": "Open in Google Maps",
+  "@splOpenMap": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splChoosePlace": "Choose a place",
+  "@splChoosePlace": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNote": "Exact spot (optional)",
+  "@splNote": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splPlaceHint": "e.g. by the school gate",
+  "@splPlaceHint": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNoCircle": "Add your family in My Circle first, then pick them here in one tap.",
+  "@splNoCircle": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splShareWith": "Who can see this plan",
+  "@splShareWith": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splShareNote": "Only people on Assisto can receive it. They are told once.",
+  "@splShareNote": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splAddNumber": "Add a number",
+  "@splAddNumber": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNumberField": "Phone number",
+  "@splNumberField": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNumberLabel": "Whose number? (e.g. family doctor)",
+  "@splNumberLabel": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splNeedOne": "Add a meeting place, a number or a person to call.",
+  "@splNeedOne": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splUpdated": "Updated {date}",
+  "@splUpdated": {
+   "description": "safety-plan: family safety plan screen",
+   "placeholders": {
+    "date": {
+     "type": "String"
+    }
+   }
+  },
+  "splMoveUp": "Move up",
+  "@splMoveUp": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splRemove": "Remove",
+  "@splRemove": {
+   "description": "safety-plan: family safety plan screen"
+  },
+  "splFailed": "Could not save. Check the internet and try again.",
+  "@splFailed": {
+   "description": "safety-plan: family safety plan screen"
+  }
+ },
+ "bn": {
+  "splTitle": "পরিবারের নিরাপত্তা পরিকল্পনা",
+  "splHubHint": "কোথায় দেখা, কাকে ফোন — ইন্টারনেট ছাড়াও",
+  "splEmptyTitle": "বিপদের আগেই পরিকল্পনা ঠিক করুন",
+  "splEmptyBody": "ফোন বন্ধ হলে বা নেটওয়ার্ক না থাকলেও সবাই আগে থেকেই জানবে কোথায় দেখা হবে আর কাকে আগে ফোন করতে হবে। মাত্র দুই মিনিট লাগে।",
+  "splHow1": "১. বাসার কাছে একটা দেখা করার জায়গা ঠিক করুন, আর একটা একটু দূরে",
+  "splHow2": "২. My Circle থেকে বেছে নিন কাকে আগে ফোন করবেন",
+  "splHow3": "৩. শেয়ার করুন — সবার ফোনে খুলবে, ইন্টারনেট ছাড়াও",
+  "splMake": "আমাদের পরিকল্পনা বানান",
+  "splMine": "আমাদের পরিকল্পনা",
+  "splFrom": "{name}-এর পরিকল্পনা",
+  "splMeet": "বাসার কাছে দেখা করার জায়গা",
+  "splMeetFar": "বাসায় ফেরা না গেলে",
+  "splCallOrder": "কাকে আগে ফোন করবেন",
+  "splNumbers": "জরুরি নম্বর",
+  "splSharedWith": "শেয়ার করা হয়েছে: {names}",
+  "splNotShared": "এখনো শেয়ার করা হয়নি — শুধু আপনি দেখছেন",
+  "splEdit": "বদলান",
+  "splSave": "সেভ করে শেয়ার করুন",
+  "splSaved": "সেভ হয়েছে। আপনার পরিবার এখন দেখতে পাবে।",
+  "splOffline": "ইন্টারনেট নেই — এই ফোনে {time}-এ রাখা কপি দেখাচ্ছে",
+  "splOfflineNoTime": "ইন্টারনেট নেই — এই ফোনে রাখা কপি দেখাচ্ছে",
+  "splOfflineEdit": "ইন্টারনেট ফিরলে পরিকল্পনা বদলাতে পারবেন।",
+  "splNoCopy": "ইন্টারনেট নেই, আর এই ফোনে এখনো কোনো কপি নেই। একবার ইন্টারনেটসহ খুললেই কপি এখানে থেকে যাবে।",
+  "splYou": "আপনি",
+  "splOpenMap": "Google Maps-এ খুলুন",
+  "splChoosePlace": "জায়গা বেছে নিন",
+  "splNote": "ঠিক কোন জায়গায় (ইচ্ছা হলে)",
+  "splPlaceHint": "যেমন: স্কুলের গেটের পাশে",
+  "splNoCircle": "আগে My Circle-এ পরিবারকে যোগ করুন, তারপর এখানে এক ট্যাপে বেছে নিন।",
+  "splShareWith": "কে এই পরিকল্পনা দেখবে",
+  "splShareNote": "শুধু Assisto-তে থাকা মানুষ পাবেন। তাঁদের একবার জানানো হবে।",
+  "splAddNumber": "নম্বর যোগ করুন",
+  "splNumberField": "ফোন নম্বর",
+  "splNumberLabel": "কার নম্বর? (যেমন: পারিবারিক ডাক্তার)",
+  "splNeedOne": "একটা দেখা করার জায়গা, একটা নম্বর বা ফোন করার একজন মানুষ যোগ করুন।",
+  "splUpdated": "হালনাগাদ {date}",
+  "splMoveUp": "উপরে নিন",
+  "splRemove": "সরান",
+  "splFailed": "সেভ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।"
+ }
+}

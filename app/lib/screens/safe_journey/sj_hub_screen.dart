@@ -26,6 +26,7 @@ import 'sj_child_school_screen.dart';
 import 'sj_share_screen.dart';
 import 'sj_where_now.dart';
 import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
+import '../../safety_plan/safety_plan_screen.dart'; // safety-plan
 
 /// The three Safe Journey cards, in order. Card 0 (Live Location) is the
 /// default. Cards 1 and 2 are owned by their own screens (agent/sjalarm) and
@@ -339,6 +340,9 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen>
             t.sjlHintRequest, () => _go(const GuardianJourneyScreen(locationOnly: true))),
         _bigButton('sjl_btn_share', Icons.share_location_rounded, t.sjlBtnShare,
             t.sjlHintShare, () => _go(SjShareScreen(oem: widget.oem))),
+        // safety-plan (row 49): where we meet + who to call (works offline)
+        _bigButton('sjl_btn_plan', Icons.family_restroom_rounded, t.splTitle,
+            t.splHubHint, () => _go(const SafetyPlanScreen())),
       ]),
       _h(t.sjlWhereTitle),
       SjWhereNow(

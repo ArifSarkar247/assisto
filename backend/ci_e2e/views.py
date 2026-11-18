@@ -186,6 +186,7 @@ class SjSimView(APIView):
       {op: maps, global_day: n|null}     -> autocomplete global day cap (null = default)
       {op: school, points:[[min_ago, lat, lng]...]}  (the caller = the child's phone)
       {op: train}                        -> 3 fake passengers on a train running now
+      {op: guardians, first: uid[, off]} -> safety-plan: caller = a child with 2 guardians
     """
     permission_classes = [IsAuthenticated]
 
@@ -193,7 +194,7 @@ class SjSimView(APIView):
         d = request.data or {}
         op = str(d.get("op") or "")
         fn = getattr(self, "_" + op, None) if op in ("whoami", "replay", "maps", "school",
-                                                    "train") else None
+                                                    "train", "guardians") else None
         if fn is None:
             return Response({"ok": False, "reason": "unknown_op"}, status=400)
         with _TICK_LOCK:
@@ -257,6 +258,33 @@ class SjSimView(APIView):
                 "ask": dur.get("ask"), "pin_wait": dur.get("pin_wait"),
                 "events": list(JourneyEvent.objects.filter(journey=j)
                                .values_list("kind", flat=True))}
+
+    def _guardians(self, request, d):
+        """safety-plan: the CALLER is a child with TWO guardians — peer
+        `first` (a Circle member, made the verified mother) and a made-up
+        second guardian (approved GuardianLink, NOT in the child's Circle).
+        {op: guardians, first: <user id>, off: true} removes the second."""
+        from datetime import timedelta as td
+        from core.models import CircleMember, GuardianLink, User
+        child = request.user
+        first = User.objects.filter(pk=int(d.get("first") or 0)).first()
+        if first is None or not CircleMember.objects.filter(
+                user=child, peer_user=first, state="accepted").exists():
+            return Response({"ok": False, "reason": "first_not_in_circle"}, status=400)
+        CircleMember.objects.filter(user=child, peer_user=first).update(relation="mother")
+        CircleMember.objects.filter(user=first, peer_user=child).update(relation="child")
+        second = User.objects.filter(phone="01700099901").first() or User.objects.create_user(
+            name="Reality Guardian Two", phone="01700099901", password="ci-only-pw-9x!",
+            language="en")
+        GuardianLink.objects.filter(child=child, guardian=second).delete()
+        if not d.get("off"):
+            now = timezone.now()
+            GuardianLink.objects.create(
+                child=child, guardian=second, invited_by=first, decided_by=first,
+                state="approved", code="CIG%05d" % (child.pk % 100000),
+                expires_at=now + td(hours=48), requested_at=now, approved_at=now)
+        return {"child": child.pk, "first": first.pk, "second": second.pk,
+                "second_name": second.name}
 
     def _maps(self, request, d):
         from core import maps_cost

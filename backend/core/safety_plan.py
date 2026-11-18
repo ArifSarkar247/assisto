@@ -229,7 +229,12 @@ def overview(viewer, lang="bn"):
                        "owner_name": (PUSH.seen_name(viewer, r.user) or "").strip()[:60],
                        "plan": _resolve(r.user, data, viewer)})
     en = lang == "en"
-    return {"mine": mine, "shared": shared,
+    # the people to pick from in one tap (the viewer's own accepted Circle)
+    members = [{"member_id": m.pk, "name": (m.name or "").strip()[:60], "relation": m.relation,
+                "phone": (m.phone or "").strip()[:40], "on_assisto": bool(m.peer_user_id)}
+               for m in CircleMember.objects.filter(user=viewer, state="accepted", blocked=False)
+               .order_by("name")[:60]]
+    return {"mine": mine, "shared": shared, "members": members,
             "defaults": [{"number": n["number"], "label": n["label_en" if en else "label_bn"]}
                          for n in DEFAULT_NUMBERS],
             "limits": {"numbers": MAX_NUMBERS, "call": MAX_CALL, "share": MAX_SHARE}}

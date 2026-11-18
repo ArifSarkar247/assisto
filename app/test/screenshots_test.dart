@@ -29,6 +29,7 @@ import 'fake_m3_circle.dart';
 import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
+import 'safety_plan_shots.dart'; // safety-plan
 import 'fake_otp.dart';
 import 'fake_lp2.dart'; // lpapp
 import 'package:assisto/screens/lp2/lp_companion.dart'; // lpapp
@@ -1512,6 +1513,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in circleaShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // guardian2: two guardians — who sees me, approve, co-guardian, SOS responder
     for (final e in guardian2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in safetyPlanShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safety-plan
     // bubbles: the floating chat bubble window (can't open / signed out)
     for (final e in bubblesShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // bubbles2: install-day bubbles step (+ on / phone blocks), settings Turn on, My Circle row, in-call bubbles
