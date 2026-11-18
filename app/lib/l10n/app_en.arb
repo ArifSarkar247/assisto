@@ -53182,5 +53182,49 @@
   "crfSkCodeDmss": "Password",
   "@crfSkCodeDmss": {
     "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "fatOkNotifBody": "Your phone was suddenly grabbed and carried away. If it was you, unlock your phone or open Assisto within 15 seconds — otherwise your trusted contacts will be alerted.",
+  "@fatOkNotifBody": {
+    "description": "flag-antitheft: heads-up notification after a detected grab (window is now 15 s; unlocking with the phone's own lock also cancels)."
+  },
+  "fatOkBody": "Assisto felt your phone being grabbed and carried away. If you are OK, confirm with your Security PIN (or unlock your phone with its own lock) and no one will be alerted. If you need help, tap \"I need help\". With no answer, your trusted contacts are alerted in about 15 seconds.",
+  "@fatOkBody": {
+    "description": "flag-antitheft: body of the in-app 'Are you OK?' dialog after a grab."
+  },
+  "fatSensTitle": "How eager should grab alerts be?",
+  "@fatSensTitle": {
+    "description": "flag-antitheft: title of the grab-sensitivity card in Always-on protection."
+  },
+  "fatSensBody": "Every level needs a hard grab followed by someone running away with the phone. If it was you, unlock your phone within 15 seconds and nobody is alerted.",
+  "@fatSensBody": {
+    "description": "flag-antitheft: explanation under the sensitivity title."
+  },
+  "fatSensLow": "Low: only when lying down",
+  "@fatSensLow": {
+    "description": "flag-antitheft: sensitivity option low."
+  },
+  "fatSensLowBody": "Watches only a phone lying on a table or bed. Never while it is unlocked in your hand. Fewest false alerts.",
+  "@fatSensLowBody": {
+    "description": "flag-antitheft: sensitivity option low, detail."
+  },
+  "fatSensNormal": "Normal (recommended)",
+  "@fatSensNormal": {
+    "description": "flag-antitheft: sensitivity option normal."
+  },
+  "fatSensNormalBody": "Also while it is in your hand, but only when the grab is followed by running away. A bumpy rickshaw ride, a drop, a fast walk or putting it in a bag is ignored.",
+  "@fatSensNormalBody": {
+    "description": "flag-antitheft: sensitivity option normal, detail."
+  },
+  "fatSensHigh": "High: catch more",
+  "@fatSensHigh": {
+    "description": "flag-antitheft: sensitivity option high."
+  },
+  "fatSensHighBody": "Reacts to weaker grabs. Jogging with the phone in your hand can raise a false alert.",
+  "@fatSensHighBody": {
+    "description": "flag-antitheft: sensitivity option high, detail."
+  },
+  "fatSensSaved": "Saved. Grab alerts now use this level.",
+  "@fatSensSaved": {
+    "description": "flag-antitheft: snackbar after the sensitivity was saved."
   }
 }
