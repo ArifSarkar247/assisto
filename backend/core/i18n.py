@@ -37,6 +37,19 @@ def is_play_flavour(request):
 MEDICAL_SUGGESTION_KEYS = ("onboard_medicine", "medicine_due")
 
 
+def play_medical_hidden(request):
+    """play-decl: medicine prompts are hidden for the Play build UNLESS that
+    build was made with the `medical` Play declaration filed (the app then
+    sends `X-Assisto-Medical: 1`, see tools/ci/play_declared.py). The website
+    APK is never affected."""
+    if not is_play_flavour(request):
+        return False
+    try:
+        return (request.META.get("HTTP_X_ASSISTO_MEDICAL") or "").strip() != "1"
+    except Exception:
+        return True
+
+
 def pick(lang, bn, en):
     return en if lang == "en" else bn
 

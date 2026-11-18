@@ -3769,8 +3769,8 @@ def home_suggestions(request):
     today = now.date()
     ctx = _suggestion_context(request.user, now)
     hist, st = _suggestion_history(request.user, today)
-    from .i18n import is_play_flavour, MEDICAL_SUGGESTION_KEYS
-    if is_play_flavour(request):
+    from .i18n import play_medical_hidden, MEDICAL_SUGGESTION_KEYS
+    if play_medical_hidden(request):
         # play-nomed: the Play build has no medicine screens — never suggest them.
         hist = dict(hist)
         hist["suppressed"] = list(hist.get("suppressed") or []) + list(MEDICAL_SUGGESTION_KEYS)
