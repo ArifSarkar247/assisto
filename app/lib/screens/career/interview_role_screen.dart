@@ -35,7 +35,9 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
   int _index = 0;
   Map<String, dynamic>? _rubric;
   Map<String, dynamic>? _ai;
-  final List<int> _scores = [];
+  // career: the LAST checked score per question index (an edited, re-checked
+  // answer replaces its old score) -> the per-question summary at the end.
+  final Map<int, int> _scores = {};
   bool _done = false;
   final _answer = TextEditingController();
   late final VoiceDictation _voice = VoiceDictation();
@@ -112,10 +114,11 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
       final r = await context.read<AppState>().api.postJson('/career/interview/feedback',
           {'qid': q['id'], 'answer': text, 'lang': _lang, 'ai': ai});
       setState(() {
-        final first = _rubric == null;
         _rubric = (r['rubric'] as Map?)?.cast<String, dynamic>();
-        if (r['ai'] is Map) _ai = (r['ai'] as Map).cast<String, dynamic>();
-        if (first && _rubric != null) _scores.add((_rubric!['score'] as num?)?.toInt() ?? 0);
+        // career: a re-check of an edited answer must not keep the OLD AI
+        // feedback under the new answer
+        _ai = r['ai'] is Map ? (r['ai'] as Map).cast<String, dynamic>() : (ai ? _ai : null);
+        if (_rubric != null) _scores[_index] = (_rubric!['score'] as num?)?.toInt() ?? 0;
       });
     } catch (e) {
       if (mounted) {
@@ -135,6 +138,11 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
       _resetAnswer();
     });
   }
+
+  void _endNow() => setState(() {
+        _done = true;
+        _resetAnswer();
+      });
 
   String _tip(String id) => switch (id) {
         'longer' => t.crrTipLonger,
@@ -178,6 +186,7 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
           Padding(padding: const EdgeInsets.only(bottom: 8), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
               padding: EdgeInsets.zero,
               child: ListTile(
+              key: ValueKey('crr-role-${r['id']}'),
               leading: CircleAvatar(
                   backgroundColor: scheme.ds.primarySoft,
                   child: Icon(Icons.work_outline_rounded, color: scheme.ds.primaryInk)),
@@ -216,6 +225,7 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
           ],
         ),
         TextField(
+          key: const ValueKey('crr-answer'),
           controller: _answer,
           minLines: 4,
           maxLines: 10,
@@ -228,9 +238,15 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
         ),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          DsButton(onPressed: _busy ? null : () => _submit(), icon: Icons.fact_check_rounded, label: t.crrSubmit),
+          DsButton(key: const ValueKey('crr-submit'), onPressed: _busy ? null : () => _submit(), icon: Icons.fact_check_rounded, label: t.crrSubmit),
           if (r != null)
-            DsButton.secondary(onPressed: _busy ? null : _next, icon: Icons.arrow_forward_rounded, label: _index + 1 >= _questions.length ? t.crrFinish : t.crrNext),
+            DsButton.secondary(key: const ValueKey('crr-next'), onPressed: _busy ? null : _next, icon: Icons.arrow_forward_rounded, label: _index + 1 >= _questions.length ? t.crrFinish : t.crrNext),
+          if (_scores.isNotEmpty && _index + 1 < _questions.length)
+            TextButton.icon(
+                key: const ValueKey('crr-end'),
+                onPressed: _busy ? null : _endNow,
+                icon: const Icon(Icons.flag_outlined),
+                label: Text(t.crrEndNow)),
         ]),
         if (r != null) ...[
           const SizedBox(height: 16),
@@ -269,11 +285,19 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
                 if (_ai == null)
                   Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: DsButton.secondary(onPressed: _busy ? null : () => _submit(ai: true), icon: Icons.auto_awesome_rounded, label: t.crrAiFeedbackBtn),
+                    child: DsButton.secondary(key: const ValueKey('crr-ai'), onPressed: _busy ? null : () => _submit(ai: true), icon: Icons.auto_awesome_rounded, label: t.crrAiFeedbackBtn),
                   )
-                else if (_ai!['ai_used'] == true)
-                  Text('${_ai!['text'] ?? ''}')
-                else
+                else if (_ai!['ai_used'] == true) ...[
+                  Text('${_ai!['text'] ?? ''}'),
+                  const SizedBox(height: 8),
+                  // career: say what this cost — and that a repeat is free
+                  Text(
+                      _ai!['cached'] == true
+                          ? t.crrAiCachedFree
+                          : t.crrAiCharged(ld(context, (_ai!['charged'] as num?)?.toInt() ?? 0)),
+                      key: const ValueKey('crr-ai-cost'),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                ] else
                   Text('${_ai!['message'] ?? t.crrAiNotReady}',
                       style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ]),
@@ -284,7 +308,10 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
   }
 
   Widget _finished(BuildContext context) {
-    final avg = _scores.isEmpty ? 0 : (_scores.reduce((a, b) => a + b) / _scores.length).round();
+    final vals = _scores.values.toList();
+    final avg = vals.isEmpty ? 0 : (vals.reduce((a, b) => a + b) / vals.length).round();
+    final qs = _questions;
+    final done = _scores.keys.toList()..sort((a, b) => _scores[a]!.compareTo(_scores[b]!));
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(24)),
       children: [
@@ -294,8 +321,28 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
             textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(t.crrDoneAvg(ld(context, avg)),
+            key: const ValueKey('crr-done-avg'),
             textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
+        // career: every answered question with its score (weakest first to
+        // practise again)
+        for (final i in done)
+          if (i < qs.length)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: DsSurface(
+                flat: true,
+                borderColor: Theme.of(context).colorScheme.ds.border,
+                padding: const EdgeInsets.all(12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(t.crrDoneQ(ld(context, i + 1), ld(context, _scores[i] ?? 0)),
+                      style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 4),
+                  Text('${qs[i]['text'] ?? ''}'),
+                ]),
+              ),
+            ),
+        const SizedBox(height: 12),
         DsButton(onPressed: () => _pickRole('${_role!['id']}'), icon: Icons.replay_rounded, label: t.crrAgain),
         const SizedBox(height: 8),
         DsButton.secondary(onPressed: () => setState(() => _role = null), icon: Icons.list_rounded, label: t.crrRolePick),

@@ -10,6 +10,7 @@
 // A single flow's failure is recorded (class C) and the next flow still runs.
 import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
+import 'flows/career_flow.dart'; // career
 import 'flows/budget_remittance_flow.dart';
 import 'flows/city_flow.dart'; // gap-city
 import 'flows/business_flow.dart';
@@ -80,6 +81,8 @@ void main() {
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
+  // career: CV/interview/certificate proof needs settings_e2eproof (fake AI) + seed_career -> opt-in (career-proof.yml)
+  if (only.split(',').contains('career')) registerCareerFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the

@@ -201,7 +201,7 @@ void main() {
       await _settle(tester);
       expect(find.text(en.crrFather), findsOneWidget);
       expect(find.text(en.crrFmtHelpGovt), findsOneWidget);
-      // English CV: direct PDF + print page; Bangla CV: print page only
+      // career lane: English AND Bangla CVs both get the direct PDF + print page
       await tester.scrollUntilVisible(find.text(en.crrPdfDownload), 300,
           scrollable: find.byType(Scrollable).first);
       expect(find.text(en.crrPdfDownload), findsOneWidget);
@@ -209,7 +209,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text(en.crrLangBn));
       await _settle(tester);
-      expect(find.text(en.crrPdfDownload), findsNothing);
+      expect(find.text(en.crrPdfDownload), findsOneWidget);
       expect(find.text(en.crrPrintPage), findsOneWidget);
     });
 

@@ -191,9 +191,21 @@ def draw(c, x, y, text, size=10, bold=False, align="left"):
         c.setFont(f, size)
         t = c.beginText(x, y)
         t.textLine(shaped)
+        span = sh and _actual_text_ok(c)
+        if span:
+            # career: shaped conjunct glyphs have no 1:1 Unicode mapping, so a
+            # copy / ATS parser read garbage. An ActualText span carries the
+            # real Bangla text for the run (same pixels, correct text layer).
+            c._code.append("/Span << /ActualText <FEFF%s> >> BDC" % s.encode("utf-16-be").hex().upper())
         c.drawText(t)
+        if span:
+            c._code.append("EMC")
         x += w
     return total
+
+
+def _actual_text_ok(c):
+    return isinstance(getattr(c, "_code", None), list)
 
 
 def clusters(word):

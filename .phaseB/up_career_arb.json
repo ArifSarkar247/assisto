@@ -1,0 +1,44 @@
+{
+ "en": {
+  "crrPdfHelp2": "An A4 PDF in your CV's language. Bangla letters are drawn correctly and the text can be copied, so job sites (ATS) can read it. The print page below is an extra option.",
+  "@crrPdfHelp2": {
+   "description": "career lane"
+  },
+  "crrEndNow": "End here and see results",
+  "@crrEndNow": {
+   "description": "career lane"
+  },
+  "crrDoneQ": "Question {n}: {score} out of 100",
+  "@crrDoneQ": {
+   "description": "career lane",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "score": {
+     "type": "String"
+    }
+   }
+  },
+  "crrAiCharged": "Credits used for this feedback: {n}",
+  "@crrAiCharged": {
+   "description": "career lane",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "crrAiCachedFree": "Same answer as before — the saved feedback is shown. No new charge.",
+  "@crrAiCachedFree": {
+   "description": "career lane"
+  }
+ },
+ "bn": {
+  "crrPdfHelp2": "আপনার সিভির ভাষায় A4 PDF। বাংলা যুক্তাক্ষর ঠিকভাবে বসে, লেখা কপিও করা যায় — তাই চাকরির সাইট (ATS) পড়তে পারে। নিচের প্রিন্ট পাতা বাড়তি একটা উপায়।",
+  "crrEndNow": "এখানেই শেষ করে ফল দেখুন",
+  "crrDoneQ": "প্রশ্ন {n}: ১০০-এর মধ্যে {score}",
+  "crrAiCharged": "এই মতামতে খরচ: {n} ক্রেডিট",
+  "crrAiCachedFree": "আগের একই উত্তর — জমা থাকা মতামত দেখানো হলো। নতুন কোনো খরচ নেই।"
+ }
+}

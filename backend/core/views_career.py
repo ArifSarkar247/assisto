@@ -3,7 +3,7 @@
 GET  career/status                    flags + AI/Careerjet readiness + roles/formats/portals
 GET  career/cv/prefill                profile -> CV header (name/phone/email)
 GET  career/cv/ats                    rule-based ATS checklist of the saved CV
-GET  career/cv/pdf                    ATS-friendly English PDF (Bangla -> print page)
+GET  career/cv/pdf?lang=bn|en         ATS-friendly A4 PDF in the CV language
 POST career/cv/print-link {lang}      signed 30-min print page URL (any language)
 GET  career/cv/print/<token>          the printable page (token = auth; no login)
 POST career/cv/polish {lang}          AI polish via the router (credits, never invents)
@@ -71,17 +71,15 @@ class CvPdfView(APIView):
         off = _off(request)
         if off:
             return off
-        lang = request.query_params.get("lang", "en")
-        if lang == "bn":
-            return Response({"use_print": True, "detail": pick(
-                req_lang(request),
-                "বাংলা সিভির জন্য প্রিন্ট পাতা খুলুন → PDF হিসেবে সেভ করুন।",
-                "For a Bangla CV open the print page → Save as PDF.")}, status=400)
         row = S.cv_row(request.user)
         if row is None:
             return Response({"detail": "no_cv"}, status=404)
-        resp = HttpResponse(S.cv_pdf(row, "en"), content_type="application/pdf")
-        resp["Content-Disposition"] = 'attachment; filename="cv.pdf"'
+        # career: Bangla CVs are a real PDF file too (HarfBuzz-shaped, fonts
+        # embedded, ActualText layer) — no more "use the print page" detour.
+        lang = request.query_params.get("lang") or row.get("cv_lang") or "en"
+        lang = "bn" if lang == "bn" else "en"
+        resp = HttpResponse(S.cv_pdf(row, lang), content_type="application/pdf")
+        resp["Content-Disposition"] = 'attachment; filename="cv-%s.pdf"' % lang
         resp["Cache-Control"] = "no-store"
         return resp
 

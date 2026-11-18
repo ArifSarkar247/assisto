@@ -335,3 +335,24 @@ class SjSimView(APIView):
         return {"no": t["no"], "name": t.get("name", ""), "date": day.isoformat(),
                 "accepted": acc, "sharers": v.get("sharers"), "mode": v.get("mode"),
                 "true_chainage_m": round(true_ch), "error_m": None if err is None else round(err)}
+
+
+# ---------------------------------------------------------------- career
+class LearnCertTokenView(APIView):
+    """career lane: the signed course-result token a graded Language Partner
+    / Quran result carries (core.learn_cert.result_token), minted for the
+    CALLER so the emulator flow can drive the real claim sheet -> card -> QR
+    -> public /verify page. The grading paths themselves are proven by
+    core.tests_learncert / tests_lp; the token format is the same."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from core import learn_cert
+        d = request.data or {}
+        course = str(d.get("course") or "lang_en")
+        level = str(d.get("level") or "B1")
+        try:
+            tok = learn_cert.result_token(request.user, course, level, d.get("score", 78))
+        except learn_cert.CertError as e:
+            return Response({"ok": False, "reason": e.reason}, status=400)
+        return Response({"ok": True, "token": tok, "course": course, "level": level})

@@ -77,19 +77,41 @@ def photo_bytes(row):
         return None
 
 
+CV_PDF_TXT = {
+    "en": {"sign": "Signature: ______________________        Date: ____________",
+           "page": "Page %s of %s"},
+    "bn": {"sign": "স্বাক্ষর: ______________________        তারিখ: ____________",
+           "page": "পাতা %s / %s"},
+}
+
+
 def cv_pdf(row, lang="en"):
-    """ATS-friendly English PDF bytes: single column, real text (Inter, and
-    any Bangla the user typed shaped right via core.pdf_bn), standard
-    headings, no tables. Photo (optional) top-right."""
+    """ATS-friendly A4 PDF bytes in the CV's language (en | bn): single
+    column, real text (Inter + Noto Sans Bengali, both embedded; Bangla shaped
+    by HarfBuzz via core.pdf_bn, with an ActualText layer so a copy / ATS
+    parser reads the real Bangla), standard headings in that language, no
+    tables, page numbers on a multi-page CV. Photo (optional) top-right."""
+    pdf, pages = _cv_render(row, lang, None)
+    if pages > 1:   # second pass knows the total: "<name> · Page n of N"
+        pdf, _ = _cv_render(row, lang, pages)
+    return pdf
+
+
+def _cv_render(row, lang, total):
+    """-> (pdf bytes, page count)."""
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.utils import ImageReader
     from reportlab.pdfgen import canvas
     from . import pdf_bn
     cv = CC.normalize_cv(row)
+    lang = "bn" if lang == "bn" else "en"
+    T = CV_PDF_TXT[lang]
+    pdf_bn.ensure_fonts()
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
     c.setTitle((cv["name"] or "CV") + " — CV")
     c.setAuthor(cv["name"] or "")
+    c.setSubject("CV")
     w, h = A4
     left, right = 50, w - 50
     y = h - 56
@@ -103,6 +125,16 @@ def cv_pdf(row, lang="en"):
         except Exception:  # noqa: BLE001
             pass
 
+    page = [1]
+
+    def footer():
+        if total and total > 1:
+            num = (T["page"] % (page[0], total))
+            if lang == "bn":
+                num = pdf_bn.bn_digits(num)
+            foot = " · ".join(x for x in (cv["name"], num) if x)
+            pdf_bn.draw(c, w / 2, 30, foot, 8.5, align="center")
+
     def line(txt, font="Helvetica", size=10.5, gap=14, indent=0, width=None):
         nonlocal y
         bold = font.endswith("Bold")
@@ -110,7 +142,9 @@ def cv_pdf(row, lang="en"):
             gap = max(gap, size * 1.55)  # Bangla needs taller lines
         for part in pdf_bn.wrap(txt, size, (width or (right - left)) - indent, bold):
             if y < 60:
+                footer()
                 c.showPage()
+                page[0] += 1
                 y = h - 56
             pdf_bn.draw(c, left + indent, y, part, size, bold)
             y -= gap
@@ -124,9 +158,9 @@ def cv_pdf(row, lang="en"):
         line(contact, "Helvetica", 10, 14, width=text_right - left)
     if photo:
         y = min(y, h - 150)
-    for b in CC.cv_blocks(cv, "en"):
+    for b in CC.cv_blocks(cv, lang):
         y -= 8
-        line(b["heading"].upper(), "Helvetica-Bold", 11.5, 15)
+        line(b["heading"].upper() if lang == "en" else b["heading"], "Helvetica-Bold", 11.5, 15)
         c.setLineWidth(0.5)
         c.line(left, y + 10, right, y + 10)
         y -= 2
@@ -144,10 +178,11 @@ def cv_pdf(row, lang="en"):
                 line(ln)
         if b["kind"] == "declaration":
             y -= 24
-            line("Signature: ______________________        Date: ____________")
+            line(T["sign"])
+    footer()
     c.showPage()
     c.save()
-    return buf.getvalue()
+    return buf.getvalue(), page[0]
 
 
 def print_token(user, lang):
@@ -494,6 +529,35 @@ def set_deadline(user, title, deadline, ref):
 
 
 # ================================================================ INTERVIEW
+# career lane: "never charged twice". One AI feedback per (question, answer,
+# language) per 24 h: a retry after a dropped network, a double tap or a
+# re-open returns the SAME feedback with no new charge. A request that is
+# still running blocks a second one (no parallel double charge). Rows live in
+# the private per-user collection below (not user-writable) — no migration.
+AI_FB_COLL = "career_ai_fb"
+AI_FB_TTL = timedelta(hours=24)
+AI_FB_PENDING_TTL = timedelta(minutes=2)
+
+
+def _fb_key(qid, answer, lang):
+    norm = re.sub(r"\s+", " ", (answer or "").strip()).lower()
+    return hashlib.sha256(("%s|%s|%s" % (qid, lang, norm)).encode("utf-8")).hexdigest()[:40]
+
+
+def _fb_rows(user, key):
+    from .models import PaCollectionItem
+    return PaCollectionItem.objects.filter(
+        user=user, collection=AI_FB_COLL, data__k=key,
+        created_at__gte=timezone.now() - AI_FB_TTL).order_by("id")
+
+
+def _ai_busy(lang):
+    from .i18n import pick
+    return {"ai_used": False, "reason": "in_progress", "charged": 0,
+            "message": pick(lang, "এই উত্তরের AI মতামত তৈরি হচ্ছে — কয়েক সেকেন্ড পরে আবার চাপুন। নতুন কোনো খরচ হবে না।",
+                            "Feedback for this answer is being made — tap again in a few seconds. No new charge.")}
+
+
 def interview_feedback(user, qid, answer, lang="bn", want_ai=False):
     rub = CC.rubric(qid, answer)
     if rub is None:
@@ -502,21 +566,53 @@ def interview_feedback(user, qid, answer, lang="bn", want_ai=False):
     if not want_ai or not (answer or "").strip():
         return out
     from . import ai
+    from .models import PaCollectionItem
     feature = "career.interview"
+    key = _fb_key(qid, answer, lang)
+    now = timezone.now()
+    for r in _fb_rows(user, key):
+        d = r.data or {}
+        if d.get("state") == "done":
+            out["ai"] = {"ai_used": True, "text": d.get("text", ""), "cached": True, "charged": 0}
+            return out
+        if d.get("state") == "pending" and r.created_at >= now - AI_FB_PENDING_TTL:
+            out["ai"] = _ai_busy(lang)
+            return out
     if _ai_calls_today(user, feature) >= AI_INTERVIEW_DAILY_CAP:
         out["ai"] = _ai_unavailable(lang, "cap")
+        return out
+    # claim: create a pending row, then the OLDEST live pending row wins —
+    # two requests that raced past the check above never both charge
+    mine = PaCollectionItem.objects.create(user=user, collection=AI_FB_COLL,
+                                           data={"k": key, "state": "pending", "qid": qid})
+    first = _fb_rows(user, key).filter(created_at__gte=now - AI_FB_PENDING_TTL).first()
+    if first is not None and first.pk != mine.pk:
+        mine.delete()
+        out["ai"] = _ai_busy(lang)
         return out
     _role, q = CC.find_question(qid)
     target = "Bangla" if lang == "bn" else "English"
     task = ("You are a fair, encouraging interview coach in Bangladesh. Give feedback in "
-            "%s on the candidate's answer to the interview question: 2 strengths, 2 "
-            "improvements, and one improved sample opening sentence. Plain text, short "
-            "lines starting with '- '. Do not invent facts about the candidate." % target)
+            "%s on the candidate's answer to the interview question. Start with a one-line "
+            "verdict, then: 2 strengths, 2 improvements, and one improved sample opening "
+            "sentence. Plain text, short lines starting with '- '. Use Bangladesh employer "
+            "context where it helps. Do not invent facts about the candidate. End at a full "
+            "sentence." % target)
     data = "Question: %s\n\nAnswer: %s" % (q["en"] if lang != "bn" else q["bn"], CC._s(answer, 4000))
+    meta = {}
     try:
         txt, _cost = ai.generate(task=task, data=data, tier="cheap", feature=feature,
-                                 max_tokens=450, user=user, pii=True)
-        out["ai"] = {"ai_used": True, "text": (txt or "").strip()[:3000]}
+                                 max_tokens=600, user=user, pii=True, out_meta=meta)
     except ai.AIUnavailable as e:
+        mine.delete()   # nothing charged (the router refunds) -> a retry may run
         out["ai"] = _ai_unavailable(lang, e.reason)
+        return out
+    except Exception:  # noqa: BLE001 — never leave a stuck pending row
+        mine.delete()
+        raise
+    text = (txt or "").strip()[:3000]
+    charged = int(meta.get("charged") or 0)
+    mine.data = {"k": key, "state": "done", "qid": qid, "text": text, "charged": charged}
+    mine.save(update_fields=["data", "updated_at"])
+    out["ai"] = {"ai_used": True, "text": text, "cached": False, "charged": charged}
     return out

@@ -81,7 +81,7 @@ class ContentTests(SimpleTestCase):
                 self.assertEqual(len(q["keys"]) % 2, 0, q["id"])
                 self.assertTrue(q["outline"]["bn"] and q["outline"]["en"])
         self.assertIsNone(CC.role_questions("nope", "bn"))
-        self.assertEqual(len(CC.role_questions("bank", "en")["questions"]), 6)
+        self.assertEqual(len(CC.role_questions("bank", "en")["questions"]), 10)  # career lane
 
     def test_rubric_scores_and_tips(self):
         empty = CC.rubric("bk3", "")
@@ -153,10 +153,10 @@ class CvTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["Content-Type"], "application/pdf")
         self.assertTrue(r.content.startswith(b"%PDF"))
-        # bangla goes through the print page (correct conjuncts)
+        # career lane: a Bangla CV is a real PDF file too (HarfBuzz-shaped)
         bn = self.c.get(V + "/career/cv/pdf?lang=bn")
-        self.assertEqual(bn.status_code, 400)
-        self.assertTrue(bn.json()["use_print"])
+        self.assertEqual(bn.status_code, 200)
+        self.assertTrue(bn.content.startswith(b"%PDF"))
 
     def test_pdf_with_photo_and_bad_photo(self):
         import base64

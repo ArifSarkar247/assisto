@@ -19,9 +19,9 @@ import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 
 /// p2career (flag career_plus): CV style + language, summary, government-style
-/// personal details, optional photo, the key-free ATS check, ATS-friendly PDF
-/// (English, server reportlab) / print page (any language — the browser draws
-/// Bangla conjuncts correctly), and AI polish through the server's AI router
+/// personal details, optional photo, the key-free ATS check, ATS-friendly A4
+/// PDF in the CV's language (server reportlab + HarfBuzz; Bangla conjuncts
+/// shaped, fonts embedded, copyable text) / print page, and AI polish through the server's AI router
 /// (credits; never invents facts).
 ///
 /// Reads/patches the SAME single `cv` row the builder uses (PATCH merges, so
@@ -161,9 +161,10 @@ class _CvExportScreenState extends State<CvExportScreen> {
     try {
       await _saveDetailsQuiet();
       final api = context.read<AppState>().api;
-      final bytes = await api.getBytes('/career/cv/pdf?lang=en');
+      // career: Bangla CVs are a real PDF too (server HarfBuzz shaping)
+      final bytes = await api.getBytes('/career/cv/pdf?lang=$_cvLang');
       final dir = await getTemporaryDirectory();
-      final f = File('${dir.path}/assisto-cv.pdf');
+      final f = File('${dir.path}/assisto-cv-$_cvLang.pdf');
       await f.writeAsBytes(bytes);
       await Share.shareXFiles([XFile(f.path, mimeType: 'application/pdf')]);
     } catch (_) {
@@ -341,6 +342,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
                           const SizedBox(height: 6),
                           Wrap(spacing: 8, runSpacing: 8, children: [
                             ChoiceChip(
+                                key: const ValueKey('crr-lang-bn'),
                                 label: Text(t.crrLangBn),
                                 selected: _cvLang == 'bn',
                                 onSelected: (_) => setState(() => _cvLang = 'bn')),
@@ -352,6 +354,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
                         ]),
                         _section(context, t.crrSummary, [
                           TextField(
+                            key: const ValueKey('crr-summary'),
                             controller: _summary,
                             minLines: 3,
                             maxLines: 6,
@@ -401,17 +404,24 @@ class _CvExportScreenState extends State<CvExportScreen> {
                         ]),
                         Align(
                           alignment: AlignmentDirectional.centerEnd,
-                          child: DsButton.secondary(onPressed: _saveDetails, icon: Icons.save_outlined, label: t.crrSaveDetails),
+                          child: DsButton.secondary(
+                              key: const ValueKey('crr-save-details'),
+                              onPressed: _saveDetails,
+                              icon: Icons.save_outlined,
+                              label: t.crrSaveDetails),
                         ),
                         const SizedBox(height: 8),
                         if (_ats != null) _atsCard(context, scheme),
                         _section(context, t.crrPdfTitle, [
-                          if (_cvLang == 'en')
-                            DsButton(onPressed: _downloadPdf, icon: Icons.picture_as_pdf_outlined, label: t.crrPdfDownload),
+                          DsButton(
+                              key: const ValueKey('crr-pdf'),
+                              onPressed: _downloadPdf,
+                              icon: Icons.picture_as_pdf_outlined,
+                              label: t.crrPdfDownload),
+                          const SizedBox(height: 8),
+                          Text(t.crrPdfHelp2, style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: 8),
                           DsButton.secondary(onPressed: _openPrint, icon: Icons.print_outlined, label: t.crrPrintPage),
-                          const SizedBox(height: 8),
-                          Text(t.crrPrintHelp, style: Theme.of(context).textTheme.bodySmall),
                         ]),
                         _section(context, t.crrAiPolish, [
                           Text(t.crrAiPolishHelp, style: Theme.of(context).textTheme.bodySmall),
