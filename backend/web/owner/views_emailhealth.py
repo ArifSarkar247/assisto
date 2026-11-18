@@ -9,7 +9,7 @@ from .base import done, owner_view, page
 
 L = {
     "bn": {"title": "ইমেইল স্বাস্থ্য", "configured": "ইমেইল সংযুক্ত (Integrations → Email)",
-           "not_configured": "ইমেইল সংযুক্ত নয় — কোড শুধু SMS-এ যাচ্ছে। Integrations → Email-এ App password দিন।",
+           "not_configured": "ইমেইল সংযুক্ত নয় — কোড শুধু SMS-এ যাচ্ছে। ইন্টিগ্রেশন → ইমেইলে অ্যাপ পাসওয়ার্ড দিন।",
            "sent_today": "আজ পাঠানো", "failed_today": "আজ ব্যর্থ", "held_today": "আজ আটকে রাখা",
            "retried_today": "আবার চেষ্টায় গেছে", "used": "২৪ ঘণ্টায় পাঠানো / সীমা",
            "bulk_at": "রিপোর্ট বন্ধ হয়", "near_at": "শুধু কোড/নিরাপত্তা চলে", "bounces": "৭ দিনে বাউন্স",

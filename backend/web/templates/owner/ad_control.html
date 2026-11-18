@@ -14,7 +14,7 @@
 <input type="number" name="{{ k }}" value="{{ v }}"></label></p>{% endfor %}
 <h3>{{ T.adc_ecpm }}</h3>
 {% for t, v in ecpm.items %}<label>{{ t }} <input type="number" step="0.5" name="ecpm_{{ t }}" value="{{ v }}" class="short"></label> {% endfor %}
-<p class="mut small">{{ T.adc_blocked }}: {{ blocked|join:", " }} · {{ T.adc_rating }}: {{ rating }}</p>
+<p class="mut small">{{ T.adc_blocked }}: <span>{{ blocked|join:", " }}</span> · {{ T.adc_rating }}: {{ rating }}</p>
 <p><button class="btn">{{ T.save }}</button></p></div></form>
 
 <form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}

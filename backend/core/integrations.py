@@ -1281,7 +1281,7 @@ def list_all(lang="bn") -> list:
             "badge": badge,
             "last_tested": last.isoformat() if last else "",
             "last_tested_human": (timezone.localtime(last).strftime("%Y-%m-%d %H:%M")
-                                  if last else ("কখনো পরীক্ষা হয়নি / never checked"
+                                  if last else ("কখনো পরীক্ষা হয়নি"
                                                 if lang == "bn" else "never checked")),
             "doc": _DOC,
             # cctvconnect: brand-cloud free-quota use this month ("" = none)

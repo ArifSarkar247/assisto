@@ -19,7 +19,7 @@ L = {
            "minutes": "লাইভ মিনিট (রিলে)", "cap": "সীমা (MB)", "state": "অবস্থা",
            "none": "এই মাসে কোনো লাইভ ট্রাফিক নেই।",
            "intro": "শুধু সংখ্যা — কারো ভিডিও বা ছবি এখানে কখনো দেখা যায় না। ক্লাউড-লাইভ (Imou/EZVIZ) = বিটরেট × সময়ের অনুমান, ভেন্ডরের বিল নয়।",
-           "enforced": "সীমা চালু (মালিক নিশ্চিত করেছেন)", "not_enforced": "সীমা শুধু গোনা হচ্ছে — চাপানো হচ্ছে না (Pricing → cctv_plan → limits_owner_confirmed বন্ধ)",
+           "enforced": "সীমা চালু (মালিক নিশ্চিত করেছেন)", "not_enforced": "সীমা শুধু গোনা হচ্ছে — চাপানো হচ্ছে না (দাম → “cctv_plan” → “limits_owner_confirmed” বন্ধ)",
            "per_cam": "ক্যামেরাপ্রতি সীমা", "lv": {"ok": "ঠিক আছে", "notice": "৮০%+", "paused": "রিলে বন্ধ", "off": "গোনা হচ্ছে"}},
     "en": {"title": "CCTV traffic", "month": "Month", "account": "Account",
            "cams": "Cameras", "paid": "Paid traffic (MB)", "turn": "Our relay, phone-reported / TURN-logged (MB)",

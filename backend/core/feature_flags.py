@@ -119,7 +119,7 @@ REGISTRY = (
     ('city_service', 'daily_life', 'City Service', 'সিটি সার্ভিস', True, ('city',)),
     # nearby (owner 3 Nov 18:50): Assisto business listings with a clearly
     # labelled Sponsored placement in GENERAL nearby only (never emergency).
-    ('nearby_sponsored', 'daily_life', 'Nearby: Sponsored business listings', 'কাছেপিঠে: Sponsored ব্যবসা', False, ()),
+    ('nearby_sponsored', 'daily_life', 'Nearby: Sponsored business listings', 'কাছেপিঠে: স্পনসর ব্যবসা', False, ()),
     # unseen-rename (owner 27 Oct): the Today / Jobs / Expats / Students /
     # Farmers / Government-services hub is "Daily info and services". Its
     # flag was `unseen_world` until this rename; that key now belongs to the

@@ -73,8 +73,8 @@
   <td>{% if it.f.enabled_all and it.f.enabled_play %}<span class="pill ok">{{ T.ff_on }}</span>{% else %}<span class="pill bad">{{ T.ff_off }}</span>{% endif %}</td>
   <td class="num">{{ it.f.rollout_pct|bnd:lang }}%</td>
   <td class="num">{{ it.testers|bnd:lang }}</td>
-  <td>{% if it.proposed == 'show' %}<span class="pill ok">{{ T.ff_prop_show }}</span>{% elif it.proposed == 'hide' %}<span class="pill bad">{{ T.ff_prop_hide }}</span>{% endif %}<br><small class="mut">{{ it.reason }}</small>
-    {% if it.f.note or it.f.note_bn %}<br><small>{% if lang == 'en' %}{{ it.f.note|default:it.f.note_bn }}{% else %}{{ it.f.note_bn|default:it.f.note }}{% endif %}</small>{% endif %}</td>
+  <td>{% if it.proposed == 'show' %}<span class="pill ok">{{ T.ff_prop_show }}</span>{% elif it.proposed == 'hide' %}<span class="pill bad">{{ T.ff_prop_hide }}</span>{% endif %}<br>{# owneradmin: audit / owner notes are shown as written #}<small class="mut" translate="no">{{ it.reason }}</small>
+    {% if it.f.note or it.f.note_bn %}<br><small translate="no">{% if lang == 'en' %}{{ it.f.note|default:it.f.note_bn }}{% else %}{{ it.f.note_bn|default:it.f.note }}{% endif %}</small>{% endif %}</td>
 </tr>
 {% endfor %}
 </tbody></table></div>

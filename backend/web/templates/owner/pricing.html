@@ -63,7 +63,7 @@
   <h2>{{ T.pv2_title }}</h2>
   <p class="muted">{{ T.pv2_intro }}</p>
   <div class="tbl"><table><thead><tr><th>{{ T.pv2_feature }}</th>{% for t in pv2.tiers %}<th>{% if t == "free" %}{{ T.pv2_free }}{% elif t == "premium" %}{{ T.pv2_premium }}{% else %}{{ T.pv2_business }}{% endif %}</th>{% endfor %}</tr></thead><tbody>
-  <tr><td>{{ T.pv2_crm_contacts }}</td>{% for c in pv2.contacts %}<td><input name="{{ c.name }}" value="{{ c.value }}" inputmode="numeric" class="short" aria-label="{{ T.pv2_crm_contacts }} {{ c.tier }}"></td>{% endfor %}</tr>
+  <tr><td>{{ T.pv2_crm_contacts }}</td>{% for c in pv2.contacts %}<td><input name="{{ c.name }}" value="{{ c.value }}" inputmode="numeric" class="short" aria-label="{{ T.pv2_crm_contacts }} · plans.{{ c.tier }}"></td>{% endfor %}</tr>
   {% for r in pv2.rows %}<tr><td>{{ r.label }}</td>{% for cell in r.cells %}<td><input type="checkbox" name="{{ cell.name }}" {% if cell.on %}checked{% endif %} aria-label="{{ r.label }}"></td>{% endfor %}</tr>{% endfor %}
   </tbody></table></div>
   <div class="kv">

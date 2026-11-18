@@ -50,7 +50,7 @@ Ranger Amiri Pickthall SeTracker Asalify Prothom Alo Jazeera ExchangeRate
 Twilio Infobip Tuya Tavily AppLovin BulkSMSBD BotFather RedX Steadfast ekPay DoLynk
 NAFNet GoPro AcuSense Hik Clarity Markdown Agentforce AnyDesk Calendly Coursera Canva
 Duolingo Bdjobs Badhan Dropbox Alexa AirTag Apple MapLibre Raspberry Zoom Breeze Muse
-Prochar ODbL Real-ESRGAN ESRGAN Real Market Cloud Circle
+Prochar ODbL Real-ESRGAN ESRGAN Real Market Cloud Circle Dynamics
 """.split()}
 
 DESTRUCTIVE = re.compile(
