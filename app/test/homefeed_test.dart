@@ -151,7 +151,10 @@ void main() {
     expect(find.text("You're offline — showing the copy saved 25 min ago."),
         findsOneWidget);
     expect(find.text('28°'), findsOneWidget); // the real last value, never blank
-    await tester.fling(find.byType(ListView), const Offset(0, 400), 1200);
+    // the pull itself is Flutter's gesture (proven on the emulator, flow 40);
+    // here: what the screen does when that refresh fails offline
+    final refresh = tester.widget<RefreshIndicator>(find.byType(RefreshIndicator));
+    await tester.runAsync(() => refresh.onRefresh());
     await tester.pumpAndSettle();
     expect(find.text("You're offline — showing the copy saved 25 min ago."),
         findsNWidgets(2)); // banner + snackbar
