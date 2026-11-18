@@ -53258,5 +53258,64 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
-  }
+  },
+  "dlkLoginEntry": "Link to my main phone",
+  "dlkNewTitle": "Link to your main phone",
+  "dlkNewStep1": "1. On your main phone: My Circle → ⋮ → Linked devices → Link a phone.",
+  "dlkNewStep2": "2. Point this phone's camera at the code, or type the 8-character code.",
+  "dlkCameraOff": "No camera here — type the 8-character code instead.",
+  "dlkCameraDenied": "Camera is not allowed — type the 8-character code instead (or allow the camera in Settings).",
+  "dlkCodeLabel": "8-character code",
+  "dlkContinue": "Continue",
+  "dlkTypeInstead": "Type the code instead",
+  "dlkScanInstead": "Scan the code",
+  "dlkNotOurQr": "This is not an Assisto link code. Scan the code on your main phone's Linked devices page.",
+  "dlkCodeIncomplete": "Type all 8 characters (for example ABCD-EFGH).",
+  "dlkWaitTitle": "Allow it on your main phone",
+  "dlkWaitBody": "Your main phone now asks to link this phone. Check it shows these same digits, then tap “Link this phone” there:",
+  "dlkRejected": "Your main phone did not allow this link.",
+  "dlkExpiredNew": "Time ran out. Get a new code on your main phone and try again.",
+  "dlkDoneNew": "Linked. Opening your messages…",
+  "dlkCancel": "Cancel",
+  "dlkTryAgain": "Try again",
+  "dlkLinkFailed": "Could not link. Check the internet on both phones and try again.",
+  "dlkHonest": "Your encryption key is copied to the new phone sealed so that only that phone can open it — Assisto's server cannot read it or your messages.",
+  "dlkHeroSub": "Use Assisto on a second phone or tablet — the same messages on both.",
+  "dlkSheetTitle": "Link a phone",
+  "dlkSheetBody": "On the new phone open Assisto, tap “Link to my main phone” on the sign-in page, then scan this code.",
+  "dlkOrType": "Or type this code on the new phone:",
+  "dlkExpiresIn": "Code works for {sec} more seconds",
+  "@dlkExpiresIn": {
+    "placeholders": {
+      "sec": {
+        "type": "int"
+      }
+    }
+  },
+  "dlkExpired": "This code expired.",
+  "dlkNewCode": "New code",
+  "dlkConfirmTitle": "Link {name}?",
+  "@dlkConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dlkConfirmBody": "The new phone must show exactly these digits:",
+  "dlkConfirmWarn": "Only link your own phone: it will read and send all your My Circle messages. You can log it out here any time.",
+  "dlkAllow": "Link this phone",
+  "dlkDeny": "Don't link",
+  "dlkLinkedOk": "{name} is linked. Messages now arrive on both phones.",
+  "@dlkLinkedOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dlkUnlinkBody": "This phone is signed out at once and can no longer read or send your messages.",
+  "dlkEmptyBody": "No other phone is linked. Link one to read and send your My Circle messages on both — they stay end-to-end encrypted.",
+  "dlkThisPhone": "This phone",
+  "dlkUnnamedPhone": "Phone"
 }
