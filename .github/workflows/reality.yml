@@ -243,7 +243,7 @@ jobs:
         env:
           REALITY_ONLY: ${{ env.REALITY_DRIVE }}
           REALITY_TOTAL_SECONDS: "1800"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back ${{ matrix.group == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.group == 'circle' && 'emulated' || 'none' }}
         with:
           api-level: 33
           arch: x86_64
@@ -258,7 +258,11 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          # circle-screenshare (lead 18 Nov): the circle group gets the SAME
+          # emulated cameras as release_gate's circle leg, so the call
+          # flows (18, 18v, 18s) mean the same thing in both (with no camera
+          # every video flow graded C here — a misleading red). Others: none.
+          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back ${{ matrix.group == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.group == 'circle' && 'emulated' || 'none' }}
           # rf1: a "hardware keyboard" so Android never opens the soft IME
           # window (run 40205920547: the emulator segfaulted seconds after
           # the IME opened); run_flows.sh also disables the IME itself.
