@@ -143,6 +143,16 @@ WHERE = {
     "ai_inbox": (
         "Menu ☰ → Work → AI Inbox",
         "মেনু ☰ → কাজ → AI ইনবক্স"),
+    # itag-proof: where-lines the owner panel was missing (WhereTextTests)
+    "itag_tags": (
+        "Menu ☰ → Home & life → Bluetooth tag",
+        "মেনু ☰ → ঘর ও জীবন → ব্লুটুথ ট্যাগ"),
+    "ai_reply": (
+        "My Circle → open a chat → AI reply (suggest / busy / full auto)",
+        "আমার সার্কেল → একটি চ্যাট খুলুন → AI উত্তর (প্রস্তাব / ব্যস্ত / পুরো অটো)"),
+    "ai_reply_notif": (
+        "Menu ☰ → Settings → AI reply suggestions on notifications",
+        "মেনু ☰ → সেটিংস → নোটিফিকেশনে AI উত্তরের প্রস্তাব"),
 }
 
 

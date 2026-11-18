@@ -51,6 +51,9 @@ class FlagproofSeedTests(TestCase):
     def test_other_drives_leave_the_circle_alone(self):
         d = _seed("start+circle")
         self.assertEqual(d["failed_steps"], [], d["failed_steps"])
+        # group-calls (b330): D is A's FRIEND in every drive (3-way call proof,
+        # flow 18g); only the flagproof drive makes them close family (brother)
         self.assertFalse(CircleMember.objects.filter(user_id=d["users"]["a"]["id"],
-                                                     peer_user_id=d["users"]["d"]["id"]).exists())
+                                                     peer_user_id=d["users"]["d"]["id"],
+                                                     relation="brother").exists())
         self.assertFalse(BloodDonor.objects.filter(user_id=d["users"]["b"]["id"]).exists())
