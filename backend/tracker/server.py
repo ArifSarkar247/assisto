@@ -40,6 +40,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
+from . import rawlog
 from .protocols import gt06, h02, jt808, teltonika, tk103, watch
 
 log = logging.getLogger("assisto.tracker")
@@ -361,7 +362,10 @@ class TrackerServer:
                 session = await self._watch(reader, writer, first, ip)
             elif teltonika.looks_like_imei_frame(first):
                 session = await self._teltonika(reader, writer, first, ip)
-            # anything else: not a tracker we speak -> just close
+            else:
+                # not a tracker we speak -> close; flag-vehicle: keep the first
+                # bytes so a new device's real protocol can be identified
+                rawlog.record("unknown", "", first, error="unknown_protocol")
         except (asyncio.TimeoutError, ConnectionError, OSError):
             pass
         except Exception:
@@ -389,6 +393,9 @@ class TrackerServer:
         tid, reason = await self.store.call(VS.on_device_connect, imei, proto, ip)
         if tid is None:
             self.stats["rejected"] += 1
+            if proto != "h02":          # H02 logs its refused frame itself
+                rawlog.record(proto, imei, error="refused_%s" % (reason or "")[:24],
+                              known=False)
         return tid, reason
 
     def _register(self, proto, tid, imei, writer):
@@ -485,8 +492,10 @@ class TrackerServer:
         while True:
             try:
                 frames, buf = h02.split_frames(buf)
-            except h02.FrameError:
+            except h02.FrameError as e:
                 self.stats["bad_frames"] += 1
+                rawlog.record("h02", s.imei if s else "", buf, error="split_%s" % e,
+                              known=s is not None)
                 return s
             for fr in frames:
                 if not bucket.take():
@@ -496,18 +505,26 @@ class TrackerServer:
                     continue
                 try:
                     pkt = h02.parse_frame(fr)
-                except h02.FrameError:
+                except h02.FrameError as e:
                     self.stats["bad_frames"] += 1
+                    rawlog.record("h02", s.imei if s else "", fr, error=str(e),
+                                  known=s is not None)
                     continue
                 self.stats["frames"] += 1
                 if s is None:
                     tid, _reason = await self._connect(pkt["imei"], "h02", ip)
+                    rawlog.record("h02", pkt["imei"], fr, pkt, known=tid is not None,
+                                  error="" if tid else "refused_%s" % (_reason or ""))
                     if tid is None:
                         return None          # refused: close, no reply
                     s = self._register("h02", tid, pkt["imei"], writer)
                 elif pkt["imei"] != s.imei:
                     self.stats["bad_frames"] += 1     # never switch IMEI mid-socket
+                    rawlog.record("h02", pkt["imei"], fr, pkt, known=False,
+                                  error="imei_switch")
                     continue
+                else:
+                    rawlog.record("h02", s.imei, fr, pkt, known=True)
                 k = pkt["kind"]
                 if k == "gps":
                     # alarms are LEVELS here (repeat in every frame); ingest

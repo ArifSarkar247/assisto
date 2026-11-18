@@ -154,6 +154,7 @@ urlpatterns = [
     path("ai", AIRT.ai_page),                                     # ai-router
     path("ai-usage", AIU.ai_usage),                              # aifinal: AI usage log
     path("ai-levels", AILV.ai_levels),                           # aifinal: answer levels
+    path("features/preview-testers", FF1.preview_testers_save),   # preview-testers
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report
