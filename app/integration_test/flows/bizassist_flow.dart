@@ -295,7 +295,9 @@ void registerBizassistFlows() {
 
     await f.step('A opens the share link in the app, picks a free time and confirms', () async {
       await f.openFeature(f.t.bkgSidebarMine, 'my_bookings');
-      await f.tap(find.widgetWithText(FloatingActionButton, f.t.bkgBookNew), settleSeconds: 2);
+      // run 44293440261: with no bookings the screen shows the empty state's
+      // big "Book with a business" button (no FAB) — tap whichever the user sees
+      await f.tap(find.text(f.t.bkgBookNew).last, settleSeconds: 2);
       await f.enter('lifeassisto.com/b/$_slug', label: f.t.bkgLinkLabel);
       await f.tap(find.widgetWithText(FilledButton, f.t.bkgOpenLink), settleSeconds: 3);
       await f.waitFor(find.text('Haircut'), what: "the salon's service");
