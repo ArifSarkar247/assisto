@@ -442,7 +442,10 @@ def sweep_silent(now=None):
     n = 0
     qs = VehicleTracker.objects.filter(
         state="paired", last_seen_at__isnull=False,
-        last_seen_at__lt=now - timedelta(minutes=10),
+        # vehicle-e2e: was a hard 10-min pre-filter, so a silent_min of 1-9
+        # (the API allows 1..1440) never alerted at all (emulator run
+        # 44288248689). 1 min = the smallest non-zero setting.
+        last_seen_at__lt=now - timedelta(minutes=1),
         last_seen_at__gte=now - timedelta(days=2)).select_related("owner")
     for t in qs[:2000]:
         prefs = alert_prefs(t)

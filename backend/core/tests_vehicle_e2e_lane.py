@@ -98,3 +98,27 @@ class SeedVehicleBlock(TestCase):
         ph = ProtectedPhone.objects.filter(owner=u).first()
         self.assertTrue(check_password("2468", ph.security_pin_hash))
         self.assertEqual(VS.vcfg()["online_window_s"], 60)
+
+
+class SilentSweepShortMinutes(TestCase):
+    """sweep_silent had a hard 10-minute pre-filter: silent_min 1-9 never
+    alerted (reality flow 12v, run 44288248689)."""
+
+    def test_silent_min_below_ten_alerts_once(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core import vehicle_service as VS
+        from core.models import NotifEvent, VehicleTracker
+        u = get_user_model().objects.create_user(name="O", phone="01710009902", password="pw")
+        now = timezone.now()
+        t = VehicleTracker.objects.create(
+            owner=u, imei="9100000002", name="Dhaka Car", state="paired", protocol="h02",
+            paired_at=now, last_seen_at=now - timedelta(minutes=3),
+            last_lat=23.7505, last_lng=90.3935, alert_prefs={"silent_min": 2})
+        self.assertEqual(VS.sweep_silent(now), 1)
+        self.assertTrue(NotifEvent.objects.filter(user=u, title_en__contains="not responding").exists())
+        self.assertEqual(VS.sweep_silent(now + timedelta(seconds=30)), 0)   # once per silence
+        t.alert_prefs = {"silent_min": 5}
+        t.alert_state = {}
+        t.save(update_fields=["alert_prefs", "alert_state"])
+        self.assertEqual(VS.sweep_silent(now), 0)                          # 3 < 5 min
