@@ -11,6 +11,7 @@ import '../screens/train/dest_alarm_screen.dart' show DestAlarmScreen; // sjtrai
 import '../train/dest_alarm_fullscreen.dart' show DestAlarmFullScreen; // sjtrain
 import '../train/dest_alarm_service.dart' show DestAlarmController; // sjtrain
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
+import '../reminders/reminder_freshness.dart' show ReminderFreshness; // proof-notif
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
 import 'dart:async';
@@ -517,6 +518,12 @@ class PushService {
     }
     // family100: receipt for an SOS / family alert (delivery-time bar)
     unawaited(ackFamilyAlertReceipt(data));
+    // proof-notif: a reminder / family task arrived while Assisto is open ->
+    // fetch the list now so its phone alarm is set (it used to wait for the
+    // next cold start). The notification below is still drawn as before.
+    if (ReminderFreshness.isReminderChange(data)) {
+      _app?.refreshReminders(force: true);
+    }
     final p = PushPayload.fromData(data);
     // x1-calls: call-signal nudge -> poll the call queue now (no UI)
     if (p.isCallNudge) {
