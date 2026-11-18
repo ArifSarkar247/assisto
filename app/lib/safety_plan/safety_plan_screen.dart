@@ -567,13 +567,22 @@ class _SafetyPlanEditScreenState extends State<SafetyPlanEditScreen>
         children: [
           _h(t.splMeet),
           _placeTile(t, false),
-          if (_meet != null)
-            TextField(
-                key: const ValueKey('spl_meet_note'),
-                controller: _meetNote,
-                maxLength: 160,
-                buildCounter: localCounter,
-                decoration: InputDecoration(labelText: t.splNote, hintText: t.splPlaceHint)),
+          if (_meet != null) ...[
+            // 200% sweep: a label / hint inside the field was cut — the
+            // text above wraps instead
+            const SizedBox(height: Gap.sm),
+            Text('${t.splNote} — ${t.splPlaceHint}',
+                style: AType.bodyMedium.copyWith(color: ds.muted)),
+            Semantics(
+              label: t.splNote,
+              child: TextField(
+                  key: const ValueKey('spl_meet_note'),
+                  controller: _meetNote,
+                  maxLength: 160,
+                  buildCounter: localCounter,
+                  decoration: const InputDecoration(border: OutlineInputBorder())),
+            ),
+          ],
           _h(t.splMeetFar),
           _placeTile(t, true),
           _h(t.splCallOrder),
