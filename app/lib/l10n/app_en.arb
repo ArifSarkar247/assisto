@@ -53258,5 +53258,29 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "pcSvcNotifTitle": "This phone is working as a camera",
+  "@pcSvcNotifTitle": {
+    "description": "guardbox-play: title of the permanent notification of the camera foreground service"
+  },
+  "pcSvcNotifBody": "Assisto keeps watching for people, even with the screen off. Tap Stop to end.",
+  "@pcSvcNotifBody": {
+    "description": "guardbox-play: body of the camera service notification"
+  },
+  "pcSvcStop": "Stop",
+  "@pcSvcStop": {
+    "description": "guardbox-play: Stop button in the camera service notification"
+  },
+  "pcBgWatching": "Watching with the screen off",
+  "@pcBgWatching": {
+    "description": "guardbox-play: status while the camera service watches in the background"
+  },
+  "pcStartHelp2": "Keep this phone plugged in. You can turn the screen off: it keeps watching, and a notification with a Stop button stays on. Video clips are saved only while this screen is on.",
+  "@pcStartHelp2": {
+    "description": "guardbox-play: replaces pcStartHelp under the Start button"
+  },
+  "pcSvcOnLine": "Keeps watching with the screen off (photo alerts; clips need the screen on)",
+  "@pcSvcOnLine": {
+    "description": "guardbox-play: running-view line while the camera service is on"
   }
 }
