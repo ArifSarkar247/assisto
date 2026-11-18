@@ -52,6 +52,7 @@ void main() {
   if (on('personal') || on('city')) registerCityFlows(); // gap-city (City Service, CI sample data)
   if (on('personal')) registerBudgetRemittanceFlows(); // budrem (flag allow-listed for A by the seed)
   if (on('personal') || on('billing')) registerBillingFlows(); // billapp
+  if (on('family')) registerSosNumbersFlows(); // sos-numbers: first after sign-in
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100

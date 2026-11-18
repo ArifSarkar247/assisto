@@ -1,0 +1,12 @@
+{
+  "en": {
+    "sosNumbersUnavailable": "Your family's saved emergency numbers could not be loaded — no internet. Call 999 below still works; your SOS reaches the family when the internet is back.",
+    "@sosNumbersUnavailable": {"description": "Emergency page: no saved numbers on this phone and the server could not be reached."},
+    "sosNumbersRetry": "Try again",
+    "@sosNumbersRetry": {}
+  },
+  "bn": {
+    "sosNumbersUnavailable": "পরিবারের সংরক্ষিত জরুরি নম্বর আনা যায়নি — ইন্টারনেট নেই। নিচের ৯৯৯-এ কল এখনো করা যায়; ইন্টারনেট ফিরলে আপনার SOS পরিবারের কাছে যাবে।",
+    "sosNumbersRetry": "আবার চেষ্টা করুন"
+  }
+}

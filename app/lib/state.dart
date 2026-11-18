@@ -19,6 +19,7 @@ import 'push/push_service.dart';
 import 'security/secret_store.dart';
 import 'services/error_report.dart';
 import 'services/own_device_guard.dart'; // grab-guard
+import 'family_sos/sos_numbers_sync.dart'; // sos-numbers
 import 'crypto/e2e.dart';
 import 'crypto/key_service.dart';
 import 'crypto/identity_vault.dart';
@@ -370,6 +371,8 @@ class AppState extends ChangeNotifier {
         // never holds the cold start. sync() never throws.
         unawaited(sync());
         _syncAll();
+        // sos-numbers (P0): the family's emergency numbers on this phone
+        unawaited(SosNumbersSync.sync(api));
         // Background poller must never block or crash startup.
         unawaited(Background.start());
       }
@@ -516,6 +519,8 @@ class AppState extends ChangeNotifier {
     if (checkGrace) await _checkDeletionGrace();
     // feature-flags: this account's set (owner / tester preview included).
     unawaited(FeatureFlags.instance.refreshWith(api, force: true));
+    // sos-numbers (P0): SOS call / SMS has the family's numbers right away
+    unawaited(SosNumbersSync.sync(api));
     await _publishIdentityKey();
     await reconcileLanguage();
     unawaited(Background.start());
@@ -591,6 +596,8 @@ class AppState extends ChangeNotifier {
     FeatureFlags.instance.forgetUser(); // feature-flags
     notifyListeners();
     await _step('logout.token', SecretStore.instance.delete('token'));
+    // sos-numbers: the next account never texts this account's family
+    await _step('logout.sos_numbers', SosNumbersSync.clear());
     // offline1st: the cached profile + this account's offline copies go too
     await _step('logout.offline_me', CachedSession.clear());
     await _step('logout.offline', OfflineStore.instance.clearAccount(oldUid));

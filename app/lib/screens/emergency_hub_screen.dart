@@ -16,6 +16,7 @@ import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
 import '../family_sos/sos_setup_card.dart'; // fcsos
 import '../family_sos/sos_sms.dart'; // gap-sos
+import '../family_sos/sos_numbers_sync.dart'; // sos-numbers
 import 'emergency_screen.dart';
 import 'fall_detect_screen.dart'; // svcclean
 import '../services/sos_trigger_settings.dart'; // svcclean
@@ -102,9 +103,40 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
   String? _lang;
   bool? _fallOn; // svcclean: null = not read yet
 
+  // sos-numbers (P0): the family's saved numbers come from the server at app
+  // start / sign-in; this page reloads when they land and says honestly when
+  // they could not be fetched (999 still works).
+  SosNumbersState _numbers = SosNumbersSync.state.value;
+  bool _numbersKicked = false;
+
+  void _onNumbers() {
+    if (!mounted) return;
+    setState(() => _numbers = SosNumbersSync.state.value);
+    if (_numbers == SosNumbersState.ok) _loadLocal();
+  }
+
+  Future<void> _kickNumbers({bool force = false}) async {
+    if (_numbersKicked && !force) return;
+    _numbersKicked = true;
+    try {
+      final have = await SosNumbersSync.cachedContacts();
+      if (have.isNotEmpty && !force) return;
+      if (!mounted) return;
+      final api = context.read<AppState>().api;
+      await SosNumbersSync.sync(api);
+    } catch (_) {/* preview without AppState: nothing to fetch */}
+  }
+
+  @override
+  void dispose() {
+    SosNumbersSync.state.removeListener(_onNumbers);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    SosNumbersSync.state.addListener(_onNumbers);
     _readFall();
     if (widget.open == 'fall_detect') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -136,6 +168,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
       // Fire and forget: the SOS panel is already on screen.
       _loadLocal();
       _refreshCrisis();
+      _kickNumbers(); // sos-numbers
     }
   }
 
@@ -420,6 +453,36 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
             locate: widget.locate,
             ladderLoad: widget.ladderLoad,
           ),
+          // sos-numbers: no saved numbers on this phone and the server could
+          // not be reached — say so; 999 right below always works.
+          if (_contacts.isEmpty && _numbers == SosNumbersState.failed) ...[
+            const SizedBox(height: Gap.sm),
+            Semantics(
+              liveRegion: true,
+              child: Container(
+                key: const ValueKey('sos-numbers-unavailable'),
+                padding: const EdgeInsets.all(Gap.md),
+                decoration: BoxDecoration(
+                    color: ds.dangerBg, borderRadius: BorderRadius.circular(Radii.md)),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Icon(Icons.cloud_off_rounded, color: ds.dangerInk),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(t.sosNumbersUnavailable,
+                          style: AType.bodyMedium.copyWith(color: ds.dangerInk)),
+                      TextButton(
+                        key: const ValueKey('sos-numbers-retry'),
+                        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                        onPressed: () => _kickNumbers(force: true),
+                        child: Text(t.sosNumbersRetry),
+                      ),
+                    ]),
+                  ),
+                ]),
+              ),
+            ),
+          ],
           const SizedBox(height: Gap.md),
           // 2. 999 — one tap opens the dialer; the user presses call.
           _Call999(

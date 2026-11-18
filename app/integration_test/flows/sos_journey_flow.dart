@@ -16,6 +16,8 @@ import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/screens/train/dest_alarm_screen.dart';
 import 'package:assisto/screens/train/train_tracker_screen.dart';
 import 'package:assisto/widgets/emergency_sos_panel.dart';
+import 'package:assisto/family_sos/sos_numbers_sync.dart'; // sos-numbers
+import 'package:assisto/screens/emergency_screen.dart' show EmergencyScreen; // sos-numbers
 import 'package:assisto/widgets/nearby_place_card.dart';
 import 'package:assisto/widgets/skeleton.dart' show StateMessage;
 
@@ -58,6 +60,65 @@ Future<void> releaseSosFinger(RFlow f) async {
 Future<void> _pop(RFlow f, Finder screen) async {
   await Navigator.of(f.tester.element(screen)).maybePop();
   await f.pumpFor(const Duration(milliseconds: 1200));
+}
+
+// sos-numbers (SAFETY P0): runs FIRST in the family group — right after the
+// fresh install's sign-in, before anything could open the emergency card
+// screen. The seeded account A has "Ammu 01700000011" on its server card.
+void registerSosNumbersFlows() {
+  realityFlow('14a_sos_numbers_fresh', 'Family & safety',
+      'Fresh install: right after sign-in the SOS call / SMS steps have the saved family numbers (card screen never opened)',
+      (f) async {
+    await f.home();
+    final api = await f.h.backend();
+    const ammu = '01700000011';
+    await f.step('sign-in fetched the card; the card screen was never opened', () async {
+      final hits = f.h.recorder.hits;
+      if (hits.any((x) => x.method == 'PUT' && x.path.startsWith('/emergency'))) {
+        throw TestFailure('the card was edited — not a fresh phone');
+      }
+      if (find.byType(EmergencyScreen).evaluate().isNotEmpty) {
+        throw TestFailure('the card screen is open');
+      }
+      f.expectHttp('GET', '/emergency');
+      await f.eventually('the saved numbers are on the phone', () async {
+        final c = await SosNumbersSync.cachedContacts();
+        return c.any((x) => x['phone'] == ammu);
+      });
+      f.note('phone copy: ${(await f.net(SosNumbersSync.cachedContacts)).map((c) => c['name']).join(', ')}');
+    });
+    await f.step('Emergency at once -> hold SOS -> the call / SMS targets are the saved numbers',
+        () async {
+      await f.openRoute('emergency');
+      final panel = await f.waitFor(find.byType(EmergencySosPanel), what: 'SOS panel');
+      await f.eventually('the SOS panel has Ammu', () async {
+        final cs = f.tester.widget<EmergencySosPanel>(panel).contacts;
+        return cs.any((c) => '${c['phone']}' == ammu);
+      });
+      if (find.byKey(const ValueKey('sos-numbers-unavailable')).evaluate().isNotEmpty) {
+        throw TestFailure('"numbers could not be loaded" shown while online');
+      }
+      await holdSos(f);
+      await f.waitFor(find.byKey(const ValueKey('sosat-ladder')),
+          seconds: 30, what: 'SOS ladder card after sending');
+      await releaseSosFinger(f);
+      final call = find.byKey(const ValueKey('sosat-call-family'));
+      await f.scrollTo(call);
+      await f.waitFor(find.text(f.t.saLadderCallPerson('Ammu')), what: '"Call Ammu" step');
+      final sms = find.byKey(const ValueKey('sosat-sms'));
+      await f.scrollTo(sms);
+      f.expectVisible(sms, 'SMS step (has numbers)');
+      if (find.byKey(const ValueKey('sosat-add-numbers')).evaluate().isNotEmpty) {
+        throw TestFailure('"Add emergency numbers" shown — the SOS had nobody to call / SMS');
+      }
+      await f.shot('ladder_with_family_numbers');
+    });
+    // leave no active SOS for the next flows
+    try {
+      await f.net(() => api.postJson('/family/sos/resolve'));
+    } catch (_) {}
+    await f.backToHome();
+  });
 }
 
 void registerSosJourneyFlows() {
