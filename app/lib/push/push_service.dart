@@ -60,6 +60,8 @@ import '../family_sos/sos_alarm_screen.dart'; // fcsos
 import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 import '../messaging/ai_reply/ai_reply.dart' show AiReplyHttp; // ai-reply-core
+import '../screens/watchman/watchman_alerts.dart'; // flag-cctv-e2e
+import '../screens/watchman/watchman_source.dart'; // flag-cctv-e2e
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -495,6 +497,13 @@ class PushService {
     } catch (_) {}
   }
 
+  /// flag-cctv-e2e: the emulator flow hands a server push (the CI outbox
+  /// row = what FCM would deliver) to the SAME foreground path, and taps it.
+  @visibleForTesting
+  void debugDeliverForeground(Map<String, dynamic> data) => _onForeground(data);
+  @visibleForTesting
+  void debugTap(Map<String, dynamic> data) => _open(PushPayload.fromData(data), null);
+
   void _onForeground(Map<String, dynamic> data) {
     // x2-ticks: delivered ✓✓ at once (by message id) — even for the chat
     // that is open on screen; a silent msg_sync ping draws nothing.
@@ -743,6 +752,20 @@ class PushService {
     if (chat != null && action == null) {
       _openChat(chat.kind, chat.id);
       return;
+    }
+    // flag-cctv-e2e: a CCTV alert tap opens THAT place's alerts (photo,
+    // Live, 999 on the card) — not the general CCTV / Shop Box page.
+    if (p.kind == 'shop_alert' && action == null) {
+      final site = int.tryParse(p.data['site_id'] ?? '');
+      final n = _nav?.currentState;
+      if (site != null && site > 0 && n != null) {
+        n.push(MaterialPageRoute(
+            builder: (_) => WatchmanAlertsScreen(
+                source: ApiWatchmanSource(app.api),
+                siteId: site,
+                owner: (p.data['viewer'] ?? '').toLowerCase() != 'true')));
+        return;
+      }
     }
     // agent-core WP-APP: an approval push opens THAT card (flag-gated).
     if (p.isAgentApproval) {

@@ -14,6 +14,7 @@ import 'flows/budget_remittance_flow.dart';
 import 'flows/city_flow.dart'; // gap-city
 import 'flows/business_flow.dart';
 import 'flows/camflows_flow.dart'; // camflows
+import 'flows/cctv_alert_flow.dart'; // flag-cctv-e2e
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
@@ -91,6 +92,8 @@ void main() {
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
+  // flag-cctv-e2e: CCTV alert -> action (same fakes as camflows) -> opt-in (camflows.yml only=start,cctv)
+  if (only.split(',').contains('cctv')) registerCctvAlertFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
   // train-e2e: Train Tracker E2E needs settings_e2eproof's train-sim + Redis -> opt-in (train-e2e.yml)

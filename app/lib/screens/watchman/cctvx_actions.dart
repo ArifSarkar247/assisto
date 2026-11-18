@@ -404,6 +404,11 @@ Future<void> shareClipFlow(BuildContext context, CashGuardSource cash, CctvxSour
 /// would start a second download + PDF and race on the same folder).
 bool evidenceBuilding = false;
 
+/// flag-cctv-e2e: the emulator flow receives the finished pack (file path +
+/// the share text) instead of the system share sheet, which would leave the
+/// app. Never set in the shipped app.
+Future<void> Function(String path, String text)? evidenceShareOverride;
+
 Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int eventId,
     {String photoUrl = '', CashClip? clip}) async {
   if (evidenceBuilding) return;
@@ -586,8 +591,13 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
     await f.writeAsBytes(zip, flush: true);
     closeProgress();
     if (partial) say(t.gcvEvidencePartial);
-    await Share.shareXFiles([XFile(f.path, mimeType: 'application/zip')],
-        text: '${t.cxEvidenceShareText(mh.substring(0, 16))}\n\n${t.cevPrivacyWarn}');
+    final shareText = '${t.cxEvidenceShareText(mh.substring(0, 16))}\n\n${t.cevPrivacyWarn}';
+    final seam = evidenceShareOverride; // flag-cctv-e2e
+    if (seam != null) {
+      await seam(f.path, shareText);
+    } else {
+      await Share.shareXFiles([XFile(f.path, mimeType: 'application/zip')], text: shareText);
+    }
   } catch (e) {
     closeProgress();
     say(wmError(e) ?? t.wmGenericError);

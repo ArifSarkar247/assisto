@@ -230,10 +230,19 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
         if (!trail.any((x) => x.contains('/cctv/imou/oauth/callback'))) {
           throw TestFailure('never reached our redirect URI: $trail');
         }
-        // back from the browser: the screen reloads by itself
-        f.tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-        await f.pumpFor(const Duration(milliseconds: 600));
-        f.tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        // back from the browser: the screen reloads by itself.
+        // flag-cctv-e2e: NEVER pump while paused — a paused app schedules no
+        // frames, so pump() waited forever (run 44174170213: this step hung
+        // 7 min, then the next flow died on '!inTest'). Walk the real
+        // Android order and wait in real time while in the background.
+        final lc = f.tester.binding;
+        for (final s in [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused]) {
+          lc.handleAppLifecycleStateChanged(s);
+        }
+        await f.tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 600)));
+        for (final s in [AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+          lc.handleAppLifecycleStateChanged(s);
+        }
         await f.pumpFor(const Duration(seconds: 2));
       } finally {
         CctvConnectScreen.debugOpenUrl = null;
@@ -342,9 +351,13 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
     await _reveal(f, find.text(f.t.wmAlerts).evaluate().isEmpty ? _sees('Alerts (') : find.text(f.t.wmAlerts));
     final btn = find.text(f.t.wmAlerts).evaluate().isNotEmpty ? find.text(f.t.wmAlerts) : _sees('Alerts (');
     await f.tap(btn, settleSeconds: 4);
-    await f.waitFor(find.bySemanticsLabel(f.t.wmSnapshotLabel), seconds: 20, what: 'alert photo');
-    await f.pumpFor(const Duration(seconds: 3));
-    if (find.text(f.t.wmSnapshotGone).evaluate().isNotEmpty) {
+    // flag-cctv-e2e: the photo DRAWN (AlertSnapshot's first frame), not a
+    // semantics label (semantics are off in the reality harness, so
+    // bySemanticsLabel never matched); a failed / deleted photo is a failure
+    await f.waitFor(find.byKey(const ValueKey('wm-snap-ok')), seconds: 30, what: 'alert photo');
+    await f.pumpFor(const Duration(seconds: 1));
+    if (find.byKey(const ValueKey('wm-snap-error')).evaluate().isNotEmpty ||
+        find.text(f.t.wmSnapshotGone).evaluate().isNotEmpty) {
       throw TestFailure('the alert photo did not load on the phone');
     }
     await f.shot('alert-with-photo');

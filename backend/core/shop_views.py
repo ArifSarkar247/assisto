@@ -350,6 +350,8 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
                   "label": "suspicious_please_check",
                   "cash": cash, "away": away, "clip": meta["clip"],
                   "nosale": meta["nosale"],
+                  # flag-cctv-e2e: the tap opens the alerts read-only for a viewer
+                  "viewer": meta["viewer"],
                   **({"snapshot_url": snap_url} if snap_url else {}),
                   # cctv1: places made in the watchman wizard open the watchman
                   "route": "watchman" if site.gateway else "business/shop-box"},

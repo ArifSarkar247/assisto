@@ -39,8 +39,10 @@ from django.conf import settings
 
 _LOCK = threading.RLock()
 SIM = None
-HITS = {"hls": [], "pic": []}       # what the phone / server fetched from the fakes
-PIC_HOSTS = ("pic.ezvizlife.com", "pic.easy4ip.com", "pic.dolynkcloud.com", "pic.hik-connect.com")
+HITS = {"hls": [], "pic": [], "hls_bytes": {}}  # what the phone / server fetched from the fakes
+# flag-cctv-e2e: + the DoLynk alarm-picture CDN (mocks.PIC["dolynk"])
+PIC_HOSTS = ("pic.ezvizlife.com", "pic.easy4ip.com", "pic.dolynkcloud.com", "pic.hik-connect.com",
+             "cloudreadproxy-online-sg.imoulife.com")
 
 
 def hls_prefix():
@@ -171,7 +173,60 @@ def push_alarm(vendor, serial, channel, kind, deliver):
         r = requests.post(url, data=json.dumps(msg), timeout=20,
                           headers={"Content-Type": "application/json"})
         out["callback"] = {"status": r.status_code, "body": r.text[:400]}
+    elif deliver == "callback" and vendor == "dolynk":
+        out.update(dolynk_push(serial, channel, aid, row))
     return out
+
+
+# flag-cctv-e2e: DoLynk Open IoT "Message Subscription" — the vendor cloud
+# PUSHES a SIGNED message (sign = HMAC-SHA512(id, secretKey)) to our PUBLIC
+# callback link (the same link the owner registers), over real HTTP.
+_DL_SEQ = [1880000000000000000]
+
+
+def dolynk_message(serial, channel, aid, row, msg_id=None):
+    import hashlib
+    import hmac
+    from core import integrations as I
+    cfg = I.get("dolynk") or {}
+    with _LOCK:
+        if msg_id is None:
+            _DL_SEQ[0] += 1
+            msg_id = str(_DL_SEQ[0])
+    sk = str(cfg.get("secret_key") or "")
+    return {"id": msg_id, "msgType": row["type"], "deviceId": serial, "channelId": str(channel),
+            "utcTime": int(float(row["at"]) * 1000), "picUrls": [row["pic"]],
+            "accessKey": str(cfg.get("access_key") or ""), "alarmId": aid,
+            "sign": hmac.new(sk.encode(), str(msg_id).encode(), hashlib.sha512).hexdigest().upper()}
+
+
+def dolynk_post(msg):
+    """POST one message to our public callback (rewritten to the runner's
+    :8700). -> {status, body, sent_at, answered_at} (epoch seconds)."""
+    import time
+    import requests
+    from core import integrations as I
+    from core.cctv_connect_views import dolynk_callback_url
+    url = callback_url_local(dolynk_callback_url((I.get("dolynk") or {}).get("access_key")))
+    t0 = time.time()
+    r = requests.post(url, data=json.dumps([msg]), timeout=20,
+                      headers={"Content-Type": "application/json"})
+    return {"status": r.status_code, "body": r.text[:400], "sent_at": t0, "answered_at": time.time()}
+
+
+def dolynk_push(serial, channel, aid, row, msg_id=None):
+    msg = dolynk_message(serial, channel, aid, row, msg_id)
+    out = {"msg_id": msg["id"], "callback": dolynk_post(msg)}
+    out["webhook_at"] = out["callback"]["sent_at"]
+    return out
+
+
+def dolynk_repush(serial, msg_id):
+    """The vendor pushes the SAME message again (it thinks we missed it)."""
+    with _LOCK:
+        d = sim().devs["dolynk"][serial]
+        row = dict(d.alarms[-1])
+    return dolynk_push(serial, row["channel"], row["id"], row, msg_id=msg_id)
 
 
 def state(vendor, serial):
@@ -181,7 +236,12 @@ def state(vendor, serial):
             return {"exists": False}
         return {"exists": True, "owner": d.owner, "oauth_user": d.oauth_user,
                 "alarms": len(d.alarms), "online": d.online,
-                "hls_hits": [h for h in HITS["hls"] if "/%s/" % serial in h][-20:],
+                # playlists kept apart: a 150 s stream fetches > 20 segments
+                # at once, which pushed the .m3u8 out of a plain last-20 window
+                "hls_hits": [h for h in HITS["hls"] if "/%s/" % serial in h and h.endswith(".m3u8")][-5:]
+                + [h for h in HITS["hls"] if "/%s/" % serial in h and not h.endswith(".m3u8")][-15:],
+                # flag-cctv-e2e: bytes the phone downloaded from the live stream
+                "hls_bytes": int(HITS["hls_bytes"].get(serial.upper(), 0)),
                 "pic_hits": len(HITS["pic"])}
 
 

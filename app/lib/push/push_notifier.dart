@@ -152,6 +152,42 @@ class PushNotifier {
 
   /// Fetch the intruder photo for an anti-theft push (≤ 5 s). null on any
   /// problem — the text alert is then drawn without it. Never throws.
+  /// flag-cctv-e2e: a CCTV alert's snapshot link is drawn in the
+  /// notification only when it points at OUR server (the signed media link
+  /// the alert carries) — https, or the debug/CI backend's own address.
+  static bool cctvPhotoUrlOk(Object? u, {String apiBase = AppConfig.apiBase}) {
+    final uri = Uri.tryParse('${u ?? ''}');
+    final base = Uri.tryParse(apiBase);
+    if (uri == null || base == null || uri.host.isEmpty) return false;
+    if (uri.host != base.host) return false;
+    return uri.scheme == 'https' || (uri.scheme == base.scheme && uri.port == base.port);
+  }
+
+  /// flag-cctv-e2e: the alert photo for the notification. Bounded so a slow
+  /// (2G) link never holds the alert back: [timeout], then text only.
+  static Future<Uint8List?> cctvPhoto(Map<String, dynamic> data,
+      {Duration timeout = const Duration(seconds: 4), http.Client? client}) async {
+    try {
+      final u = data['snapshot_url'];
+      if (!cctvPhotoUrlOk(u)) return null;
+      final c = client ?? http.Client();
+      try {
+        final r = await c.get(Uri.parse('$u')).timeout(timeout);
+        if (r.statusCode != 200) return null;
+        return looksLikeJpeg(r.bodyBytes) ? r.bodyBytes : null;
+      } finally {
+        if (client == null) c.close();
+      }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// flag-cctv-e2e: tests / the emulator flow see each notification drawn
+  /// (payload, did it carry a picture). Never set in the shipped app.
+  @visibleForTesting
+  static void Function(PushPayload p, bool withPicture)? debugOnShown;
+
   static Future<Uint8List?> _theftPhoto(Map<String, dynamic> data) async {
     try {
       final u = data['photo_url'];
@@ -384,7 +420,9 @@ class PushNotifier {
       // theftalerts: an anti-theft alert with an intruder photo link
       final Uint8List? pic = OwnDeviceGuard.isAntitheft(p.data)
           ? await _theftPhoto(p.data)
-          : null;
+          : p.kind == 'shop_alert'
+              ? await cctvPhoto(p.data) // flag-cctv-e2e: the alert photo
+              : null;
       var title = titleFor(p);
       var body = p.body;
       if (p.kind == 'channel_post') {
@@ -413,6 +451,7 @@ class PushNotifier {
           body.isEmpty ? null : body,
           detailsFor(p, ringtoneUri: ring, largeIcon: face, bigPicture: pic, sosDnd: sosDnd),
           payload: p.encode());
+      debugOnShown?.call(p, pic != null); // flag-cctv-e2e
     } catch (e) {
       if (kDebugMode) debugPrint('push show failed: $e');
     }

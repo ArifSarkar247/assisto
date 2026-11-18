@@ -14,6 +14,11 @@ on:
   push:
     branches: ["ci/camflows", "ci/camflows-*"]
   workflow_dispatch:
+    inputs:
+      group:
+        description: "camflows (brand clouds add-camera) or cctv (flag-cctv-e2e: alert -> action)"
+        required: false
+        default: "camflows"
 
 concurrency:
   group: camflows-${{ github.ref }}
@@ -45,6 +50,7 @@ jobs:
       E2E_VENDOR_SIM: "1"
       E2E_EXTRA_SEED: seed_camflows
       E2E_HLS_DIR: ${{ github.workspace }}/reality_out/hls
+      CAMFLOWS_GROUP: ${{ github.event.inputs.group || 'camflows' }}
     steps:
       - uses: actions/checkout@v4
       - name: Free runner disk (the emulator image needs ~8 GB)
@@ -60,7 +66,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null
           mkdir -p "$E2E_HLS_DIR"
-          ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc=size=640x360:rate=15 -t 30 \
+          ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc=size=640x360:rate=15 -t 150 \
             -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -g 30 \
             -f hls -hls_time 2 -hls_playlist_type vod -hls_segment_filename "$E2E_HLS_DIR/seg%d.ts" \
             "$E2E_HLS_DIR/index.m3u8"
@@ -125,7 +131,7 @@ jobs:
           timeout 1800 flutter build apk --debug --target-platform=android-x64 \
             --target=integration_test/reality_all_test.dart \
             --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
-            --dart-define=REALITY_ONLY=start,camflows
+            --dart-define=REALITY_ONLY=start,${CAMFLOWS_GROUP}
           echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
       - name: Free the runner for the emulator
         working-directory: app
@@ -146,7 +152,7 @@ jobs:
       - name: Run the brand-cloud flows on API 33
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          REALITY_ONLY: start+camflows
+          REALITY_ONLY: start+${{ github.event.inputs.group || 'camflows' }}
           REALITY_TOTAL_SECONDS: "2700"
           REALITY_DRIVE_SECONDS: "2400"
           REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none

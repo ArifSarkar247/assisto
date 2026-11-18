@@ -1,0 +1,15 @@
+{
+ "en": {
+  "caeSnapSlow": "Slow network — the photo is still loading…",
+  "@caeSnapSlow": {"description": "flag-cctv-e2e: CCTV alert card, the alert photo is still downloading after 3 s (2G)"},
+  "caeSnapFailed": "The photo didn't load. Check the internet — we'll also try again by ourselves.",
+  "@caeSnapFailed": {"description": "flag-cctv-e2e: CCTV alert card, the photo failed for a network reason (not deleted)"},
+  "caeAutoRetry": "No internet right now. The alerts will load by themselves when it's back.",
+  "@caeAutoRetry": {"description": "flag-cctv-e2e: CCTV alerts list could not load; it retries automatically"}
+ },
+ "bn": {
+  "caeSnapSlow": "নেটওয়ার্ক ধীর — ছবিটি এখনো আসছে…",
+  "caeSnapFailed": "ছবিটি আসেনি। ইন্টারনেট দেখুন — আমরাও নিজে থেকে আবার চেষ্টা করব।",
+  "caeAutoRetry": "এখন ইন্টারনেট নেই। ইন্টারনেট ফিরলে সতর্কতাগুলো নিজে থেকেই দেখাবে।"
+ }
+}
