@@ -1,0 +1,91 @@
+{
+ "en": {
+  "nearbyRefreshedNow": "List updated just now.",
+  "@nearbyRefreshedNow": {
+   "description": "gap-nearby"
+  },
+  "nearbyRefreshFailedSaved": "Couldn't update — showing the list saved on this phone.",
+  "@nearbyRefreshFailedSaved": {
+   "description": "gap-nearby"
+  },
+  "nearbyOfflineSavedOn": "Offline — showing the list saved on {when}.",
+  "@nearbyOfflineSavedOn": {
+   "description": "gap-nearby",
+   "placeholders": {
+    "when": {
+     "type": "String"
+    }
+   }
+  },
+  "nearbyUnnamedPlace": "{kind} (no name on the map)",
+  "@nearbyUnnamedPlace": {
+   "description": "gap-nearby",
+   "placeholders": {
+    "kind": {
+     "type": "String"
+    }
+   }
+  },
+  "nearbyPhoneSrcOsm": "Number source: OpenStreetMap",
+  "@nearbyPhoneSrcOsm": {
+   "description": "gap-nearby"
+  },
+  "nearbyPhoneSrcAdmin": "Number checked by Assisto",
+  "@nearbyPhoneSrcAdmin": {
+   "description": "gap-nearby"
+  },
+  "nearbyNoPhoneListed": "No phone number is listed for this place. In an emergency, call the official numbers at the top.",
+  "@nearbyNoPhoneListed": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairTitle": "Fare between two stations",
+  "@cityMetroPairTitle": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairFrom": "From station",
+  "@cityMetroPairFrom": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairTo": "To station",
+  "@cityMetroPairTo": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairSame": "Pick two different stations.",
+  "@cityMetroPairSame": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairUnknown": "The fare for these two stations is not in our data yet.",
+  "@cityMetroPairUnknown": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairFromChart": "From the official station fare chart.",
+  "@cityMetroPairFromChart": {
+   "description": "gap-nearby"
+  },
+  "cityMetroPairFromRate": "Official rate for {km} km along the line.",
+  "@cityMetroPairFromRate": {
+   "description": "gap-nearby",
+   "placeholders": {
+    "km": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "nearbyRefreshedNow": "তালিকা এইমাত্র হালনাগাদ হলো।",
+  "nearbyRefreshFailedSaved": "হালনাগাদ করা গেল না — ফোনে সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyOfflineSavedOn": "অফলাইন — {when}-এ সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyUnnamedPlace": "{kind} (ম্যাপে নাম নেই)",
+  "nearbyPhoneSrcOsm": "নম্বরের সূত্র: OpenStreetMap",
+  "nearbyPhoneSrcAdmin": "নম্বরটি Assisto যাচাই করেছে",
+  "nearbyNoPhoneListed": "এই জায়গার ফোন নম্বর তালিকায় নেই। জরুরি হলে ওপরের সরকারি নম্বরে কল করুন।",
+  "cityMetroPairTitle": "দুই স্টেশনের ভাড়া",
+  "cityMetroPairFrom": "যে স্টেশন থেকে",
+  "cityMetroPairTo": "যে স্টেশনে",
+  "cityMetroPairSame": "দুটি আলাদা স্টেশন বেছে নিন।",
+  "cityMetroPairUnknown": "এই দুই স্টেশনের ভাড়া এখনো আমাদের তথ্যে নেই।",
+  "cityMetroPairFromChart": "সরকারি স্টেশন-ভাড়ার চার্ট থেকে।",
+  "cityMetroPairFromRate": "লাইন ধরে {km} কিমির সরকারি হারে।"
+ }
+}

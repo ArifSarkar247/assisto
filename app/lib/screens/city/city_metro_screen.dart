@@ -13,6 +13,7 @@ import '../../city/city_api.dart';
 import '../../city/city_models.dart';
 import '../../city/city_offline.dart';
 import '../../city/city_widgets.dart';
+import '../../city/metro_fare.dart'; // gap-nearby
 import '../../l10n/app_localizations.dart';
 import '../../maps/place_search.dart' show PlacePick;
 import '../../state.dart';
@@ -33,6 +34,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
   Map<String, dynamic>? _m;
   List<CityStation> _stations = const [];
   bool _loading = true, _offline = false;
+  String? _fromId, _toId; // gap-nearby: station-to-station fare
 
   CityStore get _store => widget.store ?? CityStore.I;
 
@@ -63,6 +65,10 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
       _m = m;
       _offline = offline;
       _stations = [for (final s in (m?['stations'] as List? ?? const [])) CityStation.from(s)];
+      if (_stations.length >= 2) {
+        _fromId ??= _stations.first.id;
+        _toId ??= _stations.last.id;
+      }
       _loading = false;
     });
   }
@@ -90,6 +96,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                           child: Text(t.cityOfflineShowing, style: AType.bodySmall)),
                     _lineCard(t, bn, m),
                     _fareCard(t, m),
+                    _pairFareCard(t, bn, m),
                     _rechargeCard(t, bn, m),
                     CitySection(t.cityStations, icon: Icons.subway_rounded),
                     for (var i = 0; i < _stations.length; i++)
@@ -143,6 +150,72 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
           if ((f['card_discount_pct'] as num?) != null && (f['card_discount_pct'] as num) > 0)
             Text(cityD(context, t.cityMetroCardDiscount(n('card_discount_pct')))),
         ]),
+    );
+  }
+
+  /// gap-nearby: pick two stations -> the fare (official chart when the pair
+  /// is on it, else the official per-km rate), card price, source + date.
+  Widget _pairFareCard(AppLocalizations t, bool bn, Map<String, dynamic> m) {
+    final f = (m['fare'] as Map?)?.cast<String, dynamic>() ?? const {};
+    if (f.isEmpty || _stations.length < 2) return const SizedBox.shrink();
+    CityStation? by(String? id) {
+      for (final s in _stations) {
+        if (s.id == id) return s;
+      }
+      return null;
+    }
+
+    final a = by(_fromId), b = by(_toId);
+    final r = a != null && b != null ? metroPairFare(a, b, f) : null;
+    Widget pick(String key, String label, String? value, ValueChanged<String?> on) =>
+        DropdownButtonFormField<String>(
+          key: ValueKey(key),
+          initialValue: value,
+          isExpanded: true,
+          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+          items: [
+            for (final s in _stations)
+              DropdownMenuItem(
+                  value: s.id,
+                  child: Text(cityD(context, s.label(bn)), overflow: TextOverflow.ellipsis)),
+          ],
+          onChanged: on,
+        );
+    return DsCard(
+      key: const ValueKey('city_metro_pair'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(t.cityMetroPairTitle, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: Gap.sm),
+        pick('city_metro_pair_from', t.cityMetroPairFrom, _fromId, (v) => setState(() => _fromId = v)),
+        const SizedBox(height: Gap.sm),
+        pick('city_metro_pair_to', t.cityMetroPairTo, _toId, (v) => setState(() => _toId = v)),
+        const SizedBox(height: Gap.sm),
+        if (r == null)
+          Text(a != null && b != null && a.id == b.id ? t.cityMetroPairSame : t.cityMetroPairUnknown,
+              key: const ValueKey('city_metro_pair_none'), style: AType.bodyMedium)
+        else ...[
+          KeyedSubtree(
+            key: ValueKey('city_metro_pair_tk_${r.tk}'),
+            child: CityFareChip(CityFare(
+                low: r.tk,
+                high: r.tk,
+                card: r.card,
+                label: fareLabelOf('${f['label'] ?? 'official'}'),
+                basis: r.fromChart ? 'chart' : 'rate',
+                checked: '${f['checked'] ?? ''}',
+                source: '${f['source'] ?? ''}',
+                sourceUrl: '${f['source_url'] ?? ''}')),
+          ),
+          Text(
+              cityD(
+                  context,
+                  r.fromChart
+                      ? t.cityMetroPairFromChart
+                      : t.cityMetroPairFromRate(r.km!.toStringAsFixed(1))),
+              style: AType.bodySmall),
+        ],
+      ]),
     );
   }
 

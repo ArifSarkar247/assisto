@@ -39,7 +39,9 @@ WORLD_KEY = "WORLD"
 META_KEY = "_meta"
 ATTRIBUTION = "© OpenStreetMap contributors (ODbL)"
 COPYRIGHT_URL = "https://www.openstreetmap.org/copyright"
-FIELDS = ["id", "cat", "name", "name_en", "lat", "lon", "phone", "src"]
+# gap-nearby: "phone_src" = where the PHONE NUMBER came from ("admin" when the
+# owner set or corrected it, else the place's own source) — shown under Call.
+FIELDS = ["id", "cat", "name", "name_en", "lat", "lon", "phone", "src", "phone_src"]
 MAX_ROWS = 6000            # densest 3-degree areas (e.g. big US cities)
 CHECK_EVERY_S = 6 * 3600   # manifest check interval
 MAX_FILE_BYTES = 40 * 1024 * 1024
@@ -74,7 +76,8 @@ def eff(p):
 def row(p):
     e = eff(p)
     return [p.id, p.category, e["name"], e["name_en"], round(e["lat"], 6),
-            round(e["lon"], 6), e["phone"], p.source]
+            round(e["lon"], 6), e["phone"], p.source,
+            ("admin" if p.o_phone else p.source) if e["phone"] else ""]
 
 
 def overridden(p):

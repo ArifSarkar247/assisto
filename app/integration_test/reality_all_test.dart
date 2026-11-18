@@ -39,6 +39,7 @@ import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
+import 'flows/nearby_city_flow.dart'; // gap-nearby
 import 'support/harness.dart';
 
 void main() {
@@ -75,6 +76,8 @@ void main() {
   if (on('save')) registerSaveSweepFlows();
   // flagproof: hidden features' two-account proofs (group 'flagproof')
   if (on('flagproof')) registerFlagproofFlows();
+  // gap-nearby: Nearby + City proof (real GPS moves, airplane mode) -> opt-in group 'nearbycity'
+  if (only.split(',').contains('nearbycity')) registerNearbyCityFlows();
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();

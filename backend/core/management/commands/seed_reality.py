@@ -330,6 +330,16 @@ class Command(BaseCommand):
         except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
             self.steps.append({"step": "city sample (gap-city): %s" % e, "method": "DB",
                                "path": "city_dataset", "status": 500, "ok": False})
+        # --- gap-nearby: a tiny made-up emergency list near the sample
+        # Farmgate point (CI DB only) for the `nearbycity` reality group
+        try:
+            from core.nearby_sample import import_sample as nearby_sample
+            got = nearby_sample()
+            self.steps.append({"step": "nearby sample (gap-nearby)", "method": "DB", "path": "nearby_place",
+                               "status": 200, "ok": bool(got)})
+        except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
+            self.steps.append({"step": "nearby sample (gap-nearby): %s" % e, "method": "DB",
+                               "path": "nearby_place", "status": 500, "ok": False})
         # --- flagproof: hidden features proven by reality flows 21 + 31-36
         self._flagproof(users, tokens, now)
 

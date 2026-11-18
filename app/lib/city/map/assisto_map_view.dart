@@ -157,6 +157,7 @@ class _AssistoMapViewState extends State<AssistoMapView> {
 
   Future<void> _onStyle() async {
     _styleReady = true;
+    if (mounted) setState(() {}); // gap-nearby: the 'city_map_gl_ready' marker
     _timeout?.cancel();
     await CityMapGuard.opened();
     widget.onMode?.call(true);
@@ -286,6 +287,8 @@ class _AssistoMapViewState extends State<AssistoMapView> {
           if (!_moving) ..._labelWidgets(_placed),
           if (!_moving)
             for (final p in _pinsAt) _pinWidget(p.$1, p.$2),
+          // gap-nearby: the real map's style + tiles loaded (emulator proof)
+          if (_styleReady) const SizedBox.shrink(key: ValueKey('city_map_gl_ready')),
         ]),
     };
   }
