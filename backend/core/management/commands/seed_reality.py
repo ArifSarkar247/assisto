@@ -41,6 +41,8 @@ USERS = {
     # flagproof: A's brother who runs a small salon (booking_bot flow 33) and
     # posts a missing alert about A (missing_alert flow 36: A says "I am safe").
     # Not in A's circle unless the drive includes the flagproof group.
+    # group-calls: D is also the THIRD person of the 3-way group call proof
+    # (flow 18g): in A's and B's circle (accepted both ways) in every drive.
     "d": {"name": "Reality Selim", "phone": "01700000004",
           "email": "selim@reality.test"},
 }
@@ -201,6 +203,17 @@ class Command(BaseCommand):
         eb = CircleMember.objects.filter(user=users["b"], peer_user=users["a"]).first()
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
+
+        # --- group-calls: D is in A's and B's circle (both ways, accepted)
+        for x, y in (("a", "d"), ("d", "a"), ("b", "d"), ("d", "b")):
+            CircleMember.objects.update_or_create(
+                user=users[x], peer_user=users[y],
+                defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
+                          "state": "accepted", "relation": "friend",
+                          "direction": "outgoing" if x in ("a", "b") else "incoming"})
+        self.steps.append({"step": "circle A<->D, B<->D (group call proof)",
+                           "method": "DB", "path": "circle", "status": 200,
+                           "ok": True})
 
         # --- m3-circle: A and C start NOT connected (the flow adds C)
         CircleMember.objects.filter(user=users["a"], peer_user=users["c"]).delete()
