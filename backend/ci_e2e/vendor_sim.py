@@ -84,15 +84,22 @@ def sim_http(url, body, timeout, headers=None):
 
 # ------------------------------------------------------------------ pictures
 def fake_jpeg(text):
-    from PIL import Image, ImageDraw
-    im = Image.new("RGB", (640, 360), (40, 52, 70))
+    """cctv-preview: a camera-SIZED still (1280x720, gradient + sensor-like
+    noise). The old flat 640x360 card JPEG'd to ~4 KB, so a 2G test could
+    never show what a real ~60-100 KB alert photo costs."""
+    from PIL import Image, ImageChops, ImageDraw
+    w, h = 1280, 720
+    base = Image.linear_gradient("L").resize((w, h)).convert("RGB")
+    noise = Image.effect_noise((w, h), 48).convert("RGB")
+    im = ImageChops.blend(base, noise, 0.35)
+    im = ImageChops.multiply(im, Image.new("RGB", (w, h), (120, 140, 175)))
     d = ImageDraw.Draw(im)
-    d.rectangle((0, 300, 640, 360), fill=(90, 90, 90))
-    d.ellipse((300, 110, 340, 150), fill=(230, 190, 160))       # a simple "person"
-    d.rectangle((295, 150, 345, 260), fill=(30, 110, 200))
-    d.text((12, 12), "CI FAKE " + text[:40], fill=(255, 255, 0))
+    d.rectangle((0, 600, w, h), fill=(90, 90, 90))
+    d.ellipse((600, 220, 680, 300), fill=(230, 190, 160))       # a simple "person"
+    d.rectangle((590, 300, 690, 520), fill=(30, 110, 200))
+    d.text((24, 24), "CI FAKE " + text[:40], fill=(255, 255, 0))
     out = io.BytesIO()
-    im.save(out, "JPEG", quality=80)
+    im.save(out, "JPEG", quality=85)
     return out.getvalue()
 
 

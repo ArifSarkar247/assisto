@@ -330,7 +330,11 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
           AspectRatio(
             aspectRatio: 16 / 9,
             // flag-cctv-e2e: loading / slow 2G / retry / really-gone states
-            child: AlertSnapshot(key: ValueKey('wm-snap-$id'), url: snap),
+            child: AlertSnapshot(
+                key: ValueKey('wm-snap-$id'),
+                url: snap,
+                // cctv-preview: the <= 20 KB photo first on a slow network
+                previewUrl: (e['snapshot_preview_url'] ?? '').toString()),
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),

@@ -249,6 +249,10 @@ class ShopIngestView(APIView):
         except Exception:
             pass
         snap_url = _abs_snapshot_url(ev)
+        # cctv-preview: the small photo exists before the first phone asks
+        if ev.snapshot:
+            from .media_sign import warm_preview
+            warm_preview(ev.snapshot.name)
         for user in recipients:
             _notify_one(user, site, cam, ev, snap_url, quiet)
 
@@ -353,6 +357,8 @@ def _notify_one(user, site, cam, ev, snap_url, quiet):
                   # flag-cctv-e2e: the tap opens the alerts read-only for a viewer
                   "viewer": meta["viewer"],
                   **({"snapshot_url": snap_url} if snap_url else {}),
+                  # cctv-preview: <= 20 KB version for the notification / 2G
+                  **({"snapshot_thumb_url": _preview(snap_url)} if snap_url else {}),
                   # cctv1: places made in the watchman wizard open the watchman
                   "route": "watchman" if site.gateway else "business/shop-box"},
             high_priority=(away or not ev.possible))
@@ -396,6 +402,11 @@ _BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
 def _bn_digits(v):
     return str(v).translate(_BN_DIGITS)
+
+
+def _preview(url):
+    from .media_sign import preview_url
+    return preview_url(url) if url else None
 
 
 def _abs_snapshot_url(ev):
@@ -1460,6 +1471,8 @@ def _event_row(e, request):
             "possible": e.possible, "pos_matched": e.pos_matched,
             "status": e.status, "signals": e.signals,
             "snapshot_url": url, "camera": e.camera_id,
+            # cctv-preview: the small photo first on a slow network
+            "snapshot_preview_url": _preview(url),
             "camera_name": (e.camera.name if e.camera_id and e.camera else ""),
             # cctv1: grouped repeats + the never-accusatory label
             "count": e.count, "last_at": _iso(e.last_at or e.created),
