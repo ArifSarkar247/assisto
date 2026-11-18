@@ -54465,5 +54465,13 @@
   "gcallFlip": "Flip",
   "@gcallFlip": {
     "description": "group-calls: My Circle group calls"
+  },
+  "tr2ReportNotTaken": "Not counted — please try again later",
+  "@tr2ReportNotTaken": {
+    "description": "train-e2e: the server refused a station report or a shared train text (too many reports, wrong station); shown instead of 'saved, sent later'"
+  },
+  "tr2DataNoteOfficial": "Times: Bangladesh Railway official timetable (railway.gov.bd) — approximate until checked. Map © OpenStreetMap contributors (ODbL). Free to use.",
+  "@tr2DataNoteOfficial": {
+    "description": "train-e2e: data note under the train list (replaces trDataNote2, which still named Wikipedia as the source)"
   }
 }

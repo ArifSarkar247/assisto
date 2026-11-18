@@ -26438,5 +26438,7 @@
   "gcallSpeaker": "স্পিকার",
   "gcallMute": "মিউট",
   "gcallCamera": "ক্যামেরা",
-  "gcallFlip": "ঘোরান"
+  "gcallFlip": "ঘোরান",
+  "tr2ReportNotTaken": "গণনা হয়নি — একটু পরে আবার চেষ্টা করুন",
+  "tr2DataNoteOfficial": "সময়: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি (railway.gov.bd) — যাচাই না হওয়া পর্যন্ত আনুমানিক। ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।"
 }
