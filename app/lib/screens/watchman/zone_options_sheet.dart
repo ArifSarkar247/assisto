@@ -256,7 +256,7 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
             Wrap(spacing: 8, runSpacing: 4, children: [
               for (final v in _crowdChoices)
                 ChoiceChip(
-                  label: Text(v == 0 ? t.cdetOff : t.cdetPeople(wmDigits(lang, v))),
+                  label: Text(v == 0 ? t.cdetOff : t.gcvPlPeople(v, wmDigits(lang, v))),
                   selected: _crowdN == v,
                   onSelected: (_) => setState(() => _crowdN = v),
                 ),

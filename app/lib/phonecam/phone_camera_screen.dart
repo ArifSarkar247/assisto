@@ -1381,7 +1381,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       ListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(t.pcClipsTitle),
-        subtitle: Text(t.pcClipsLine(fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb))),
+        subtitle: Text(t.gcvPlClipsLine(_clipCount, fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb))),
         trailing: DropdownButton<int>(
           value: _capMb,
           onChanged: (v) => v == null ? null : _setCap(v),
@@ -1493,7 +1493,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(t.pcAlertsSent(fmtInt(context, _alerts)),
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
-                  Text(t.pcClipsLine(fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb)),
+                  Text(t.gcvPlClipsLine(_clipCount, fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb)),
                       textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   if (_recOn)
                     Text(_recLine(t), textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),

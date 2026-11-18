@@ -721,4 +721,17 @@ void main() {
     await _settle(tester);
     expect(dialed.toString(), 'tel:999');
   });
+
+  test('plurals: "1 camera", "1 cash sale today" (en); Bangla keeps its own digits', () {
+    expect(en.gcvPlSiteSubtitle(1, '1', '7'), '1 camera · keeps snapshots 7 days');
+    expect(en.gcvPlSiteSubtitle(3, '3', '7'), '3 cameras · keeps snapshots 7 days');
+    expect(en.gcvPlEodTodayCount(1, '1'), '1 cash sale today');
+    expect(en.gcvPlEodTodayCount(4, '4'), '4 cash sales today');
+    expect(en.gcvPlLinkViews(1, '1'), 'Opened once');
+    expect(en.gcvPlPeople(1, '1'), '1 person');
+    expect(en.gcvPlClipsLine(1, '1', '2', '50'), '1 clip · 2 MB of 50 MB');
+    expect(en.gcvPlPartCams(1, '1', '1'), '1 of 1 camera online');
+    expect(bn.gcvPlSiteSubtitle(1, '১', '৭'), contains('১টি ক্যামেরা'));
+    expect(bn.gcvPlEodTodayCount(1, '১'), 'আজ ১টি ক্যাশ বিক্রি');
+  });
 }

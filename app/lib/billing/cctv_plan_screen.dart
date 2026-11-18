@@ -331,11 +331,11 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cplCurrent, style: tt.labelLarge?.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: 4),
-          Text(t.cplCurrentLine(wmDigits(_lang(), n), period),
+          Text(t.gcvPlCurrentLine(n, wmDigits(_lang(), n), period),
               style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3)),
           if (date.isNotEmpty) Text(when),
           const SizedBox(height: 4),
-          Text(t.cplUsed(wmDigits(_lang(), used), wmDigits(_lang(), n))),
+          Text(t.gcvPlUsed(n, wmDigits(_lang(), used), wmDigits(_lang(), n))),
           if (over > 0) ...[
             const SizedBox(height: 6),
             Text(t.cplOverBy(wmDigits(_lang(), over)), style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
@@ -374,7 +374,7 @@ _n((d['base_price'] as num?)?.toInt() ?? 0),
                     constraints: const BoxConstraints(minWidth: 24),
                     child: Text(wmDigits(_lang(), i),
                         textAlign: TextAlign.center,
-                        semanticsLabel: t.cplCamerasA11y(wmDigits(_lang(), i)))),
+                        semanticsLabel: t.gcvPlCamerasA11y(i, wmDigits(_lang(), i)))),
                 selected: _cams == i,
                 onSelected: (_) => setState(() {
                   _cams = i;

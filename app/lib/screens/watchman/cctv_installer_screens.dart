@@ -495,7 +495,8 @@ class _SiteSetupCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text([
             done ? t.ctrPartDone : t.ctrPartTodo,
-            t.ctrPartCams(wmDigits(lang, site['online'] ?? 0), wmDigits(lang, site['cameras'] ?? 0)),
+            t.gcvPlPartCams((site['cameras'] as num?)?.toInt() ?? 0, wmDigits(lang, site['online'] ?? 0),
+                wmDigits(lang, site['cameras'] ?? 0)),
           ].join(' · ')),
           const SizedBox(height: 8),
           for (final st in wmList(site['steps']))
