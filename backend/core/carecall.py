@@ -147,6 +147,17 @@ def rtz(receiver):
         return TZ
 
 
+def offset_min(tz, at=None):
+    """gap-carecall: the zone's UTC offset in minutes at `at` (default now) —
+    the app plans the receiver's own alarms and the setter's "today /
+    tomorrow" on THIS clock (Dhaka = 360)."""
+    try:
+        off = (at or timezone.now()).astimezone(tz).utcoffset()
+        return int(off.total_seconds() // 60) if off is not None else 360
+    except Exception:  # noqa: BLE001
+        return 360
+
+
 def after_quiet(dt, qs, qe, tz=TZ):
     """`dt` (aware) moved to the end of the receiver's quiet window when it
     falls inside it; unchanged otherwise."""
@@ -285,6 +296,7 @@ def people(setter):
             "relation": m.relation or "", "circle_group": getattr(m, "circle_group", "") or "",
             "link": ln.status if ln else "none",
             "quiet_start": ln.quiet_start if ln else "", "quiet_end": ln.quiet_end if ln else "",
+            "tz_offset_min": offset_min(rtz(u)),  # gap-carecall: their clock
         })
     out.sort(key=lambda r: (0 if r["circle_group"] == "family" else 1, r["name"].lower()))
     return out
@@ -386,10 +398,26 @@ def _clean(data, lim, tz=TZ):
         if not days:
             return None, "bad_days"
     if repeat == "once":
+        # gap-carecall: the date is on the RECEIVER's calendar. No date = the
+        # NEXT time this clock time comes on their clock (today if still
+        # ahead, else tomorrow) — never "today" when that time has passed
+        # (it was saved active but could never ring). A date+time already
+        # past on their clock is refused, never saved as a dead call.
+        now_loc = timezone.localtime(timezone.now(), tz)
         try:
             once = date.fromisoformat(str((data or {}).get("date") or "")[:10])
         except ValueError:
-            once = timezone.localtime(timezone.now(), tz).date()
+            once = None
+        if once is None:
+            nxt = next_slot("daily", t, [], None, now_loc, tz)
+            once = nxt.astimezone(tz).date() if nxt else now_loc.date()
+        else:
+            m = hhmm_min(t)
+            slot = datetime.combine(once, time(m // 60, m % 60)).replace(tzinfo=tz)
+            if slot <= now_loc:
+                return None, "past_time"
+            if once > now_loc.date() + timedelta(days=366):
+                return None, "bad_date"
     return {"text": text, "time_hhmm": t, "repeat": repeat, "days": days, "once_date": once}, None
 
 
@@ -479,8 +507,13 @@ def update(setter, cc_id, data):
     raw, sec, err = _voice(data, lim)
     if err:
         return None, err
+    # gap-carecall: a "once" that already rang (switched itself off) and is
+    # edited to a new future time is wanted again — re-arm it.
+    spent = cc.repeat == "once" and not cc.active and cc.next_at is None
     for k, v in fields.items():
         setattr(cc, k, v)
+    if spent and fields["repeat"] == "once" and "active" not in (data or {}):
+        data = dict(data or {}, active=True)
     if raw:
         cc.voice.save("cc_%s_%s.m4a" % (setter.pk, int(timezone.now().timestamp())), ContentFile(raw), save=False)
         cc.voice_rev, cc.voice_sec = cc.voice_rev + 1, sec
@@ -530,7 +563,11 @@ def decide(receiver, setter_id, accept):
         for cc in CareCall.objects.filter(setter_id=setter_id, receiver=receiver, active=True):
             cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, now,
                                    rtz(receiver))
-            cc.save(update_fields=["next_at"])
+            # gap-carecall: a "once" whose time passed while waiting for
+            # consent can never ring — off, not shown as on forever
+            if cc.repeat == "once" and cc.next_at is None:
+                cc.active = False
+            cc.save(update_fields=["next_at", "active"])
         _link_push(link, "accepted")
     elif not accept and was == "accepted":
         # stop at once: rings already waiting never go out
@@ -698,7 +735,8 @@ def _clocks(cc, viewer):
     try:
         rz, vz = rtz(cc.receiver), rtz(viewer)
         lang = getattr(viewer, "language", "bn") or "bn"
-        out = {"receiver_tz": str(getattr(rz, "key", "") or rz), "two_clocks": False}
+        out = {"receiver_tz": str(getattr(rz, "key", "") or rz), "two_clocks": False,
+               "receiver_offset_min": offset_min(rz, cc.next_at)}
         if cc.next_at is not None and rz is not None and vz is not None:
             a, b = cc.next_at.astimezone(rz), cc.next_at.astimezone(vz)
             if a.utcoffset() != b.utcoffset():

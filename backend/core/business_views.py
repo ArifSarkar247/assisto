@@ -1994,8 +1994,12 @@ def _cashbox_payload(request, prof, day, lang, cb=None):
     carried = False
     if cb is not None:
         opening = cb.opening_poisha
+        # proof-ledger: the offline client_id marker is never shown as a ref
         entries = [{"id": e.id, "kind": e.kind, "amount": e.amount_poisha,
-                    "note": e.note, "ref": e.ref, "at": e.at.isoformat()}
+                    "note": e.note,
+                    "ref": "" if e.ref.startswith("cid:") else e.ref,
+                    "client_id": e.ref[4:] if e.ref.startswith("cid:") else "",
+                    "at": e.at.isoformat()}
                    for e in cb.entries.all()]
     else:
         opening, entries = _carried_opening(prof, d), []
@@ -2095,14 +2099,40 @@ class CashboxEntryView(APIView):
         except ValueError as ex:
             return _err(lang, "এন্ট্রি ভুল।", "Invalid entry.", status=422,
                         code="invalid_cash_entry", reason=str(ex))
-        from .models import CashEntry
-        cb = _cashbox_row(prof, dd[0])
-        obj = CashEntry.objects.create(
-            day=cb, kind=e["kind"], amount_poisha=e["amount"],
-            note=(e["note"] or "")[:200], ref=(e.get("ref") or "")[:60],
-            at=timezone.now())
+        from django.db import transaction
+        from .models import CashboxDay, CashEntry
+        # proof-ledger: a cash row saved OFFLINE is replayed with the
+        # client_id the phone minted once; the server books it at most once
+        # per business (a replay after a lost answer returns the same row).
+        # The id rides in the never-shown `ref` ("cid:<id>") - no migration.
+        cid = _client_id(request)
+        marker = ("cid:" + cid) if cid and len(cid) <= 56 and not e.get("ref") else ""
+
+        def _booked():
+            return (CashEntry.objects.filter(day__business=prof, ref=marker)
+                    .select_related("day").first() if marker else None)
+
+        ex = _booked()
+        if ex is None:
+            cb = _cashbox_row(prof, dd[0])
+            with transaction.atomic():
+                # one writer per day row: two replays at once cannot both insert
+                CashboxDay.objects.select_for_update().filter(pk=cb.pk).first()
+                ex = _booked()
+                if ex is None:
+                    obj = CashEntry.objects.create(
+                        day=cb, kind=e["kind"], amount_poisha=e["amount"],
+                        note=(e["note"] or "")[:200],
+                        ref=marker or (e.get("ref") or "")[:60],
+                        at=timezone.now())
+        if ex is not None:
+            out = _cashbox_payload(request, prof, ex.day.day.isoformat(), lang, cb=ex.day)
+            out["entry_id"] = ex.id
+            out["duplicate"] = True
+            return Response(out, status=200)
         out = _cashbox_payload(request, prof, day, lang, cb=cb)
         out["entry_id"] = obj.id
+        out["duplicate"] = False
         return Response(out, status=201)
 
 
