@@ -79,6 +79,12 @@ Widget _app(Widget child, ApiClient api, {String lang = 'en', double scale = 1})
   );
 }
 
+EmergencyHubScreen _hub() => EmergencyHubScreen(
+      famCard: () async => const {},
+      smsPeople: () async => const [],
+      locate: () async => (23.75, 90.39),
+    );
+
 Future<void> _settle(WidgetTester t) async {
   for (var i = 0; i < 10; i++) {
     await t.pump(const Duration(milliseconds: 100));
@@ -142,9 +148,10 @@ void main() {
   group('Emergency page', () {
     testWidgets('fresh phone, card never opened: SOS has the saved numbers', (t) async {
       final api = _CardApi();
-      await t.pumpWidget(_app(const EmergencyHubScreen(), api));
+      await SosNumbersSync.sync(api); // what sign-in does
+      await t.pumpWidget(_app(_hub(), api));
       await _settle(t);
-      expect(api.gets, 1);
+      expect(api.gets, 1); // the page itself fetched nothing more
       expect(_panelPhones(t), containsAll(['01700000011', '০১৭০০০০০০১২']));
       expect(find.byKey(const ValueKey('sos-numbers-unavailable')), findsNothing);
     });
@@ -152,8 +159,10 @@ void main() {
     testWidgets('offline + nothing saved: honest line, 999 still there, retry works',
         (t) async {
       final api = _CardApi(offline: true);
-      await t.pumpWidget(_app(const EmergencyHubScreen(), api));
+      await SosNumbersSync.sync(api); // sign-in without internet
+      await t.pumpWidget(_app(_hub(), api));
       await _settle(t);
+      expect(api.gets, 2); // opening the page tried once more
       final t10n = AppLocalizations.of(t.element(find.byType(EmergencyHubScreen)));
       expect(find.byKey(const ValueKey('sos-numbers-unavailable')), findsOneWidget);
       expect(find.text(t10n.sosNumbersUnavailable), findsOneWidget);
@@ -167,12 +176,23 @@ void main() {
       expect(_panelPhones(t), contains('01700000011'));
     });
 
+    testWidgets('app started offline, internet back: opening the page fetches them',
+        (t) async {
+      SosNumbersSync.noteOffline();
+      final api = _CardApi();
+      await t.pumpWidget(_app(_hub(), api));
+      await _settle(t);
+      expect(api.gets, 1);
+      expect(_panelPhones(t), contains('01700000011'));
+      expect(find.byKey(const ValueKey('sos-numbers-unavailable')), findsNothing);
+    });
+
     testWidgets('offline but numbers already on the phone: no warning, numbers used',
         (t) async {
       await Settings.setString(SosNumbersSync.cacheKey,
           jsonEncode({'contacts': [{'name': 'Ammu', 'phone': '01700000011'}]}));
       final api = _CardApi(offline: true);
-      await t.pumpWidget(_app(const EmergencyHubScreen(), api));
+      await t.pumpWidget(_app(_hub(), api));
       await _settle(t);
       expect(api.gets, 0); // nothing to fetch: the phone copy is used at once
       expect(_panelPhones(t), ['01700000011']);
@@ -183,8 +203,9 @@ void main() {
       t.view.physicalSize = const Size(1080, 2400);
       t.view.devicePixelRatio = 2.625;
       addTearDown(t.view.reset);
-      await t.pumpWidget(
-          _app(const EmergencyHubScreen(), _CardApi(offline: true), lang: 'bn', scale: 2));
+      final api = _CardApi(offline: true);
+      await SosNumbersSync.sync(api);
+      await t.pumpWidget(_app(_hub(), api, lang: 'bn', scale: 2));
       await _settle(t);
       final t10n = AppLocalizations.of(t.element(find.byType(EmergencyHubScreen)));
       expect(find.text(t10n.sosNumbersUnavailable), findsOneWidget);

@@ -380,6 +380,7 @@ class AppState extends ChangeNotifier {
       if (isRevoked(e)) {
         await _clearSession();
       } else {
+        SosNumbersSync.noteOffline(); // sos-numbers
         online = false;
       }
     } finally {

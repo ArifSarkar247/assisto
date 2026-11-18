@@ -5,7 +5,6 @@
 // (the same copy the card screen and the Emergency page read), so SOS works
 // offline right away. Sign-out clears it — the next account never texts the
 // previous account's family.
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -45,11 +44,11 @@ class SosNumbersSync {
       if (cached != null && cached.isNotEmpty && await Settings.getString(dirtyKey) == '1') {
         final body = jsonDecode(cached);
         if (body is Map<String, dynamic>) {
-          await api.putEmergency(body).timeout(const Duration(seconds: 15));
+          await api.putEmergency(body);
           await Settings.setString(dirtyKey, '');
         }
       }
-      final card = await api.getEmergency().timeout(const Duration(seconds: 15));
+      final card = await api.getEmergency();
       // a phone edit made while we were fetching wins (the card screen syncs it)
       if (await Settings.getString(dirtyKey) == '1') {
         state.value = SosNumbersState.ok;
@@ -78,6 +77,13 @@ class SosNumbersSync {
     } catch (_) {
       return const [];
     }
+  }
+
+  /// App start without internet: nothing fetched this run. The Emergency
+  /// page then tries again when opened, and says so honestly if it still
+  /// cannot (only matters when the phone has no copy yet).
+  static void noteOffline() {
+    if (state.value == SosNumbersState.unknown) state.value = SosNumbersState.failed;
   }
 
   /// Sign-out: this account's family numbers leave the phone.

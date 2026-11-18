@@ -115,17 +115,19 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
     if (_numbers == SosNumbersState.ok) _loadLocal();
   }
 
-  Future<void> _kickNumbers({bool force = false}) async {
-    if (_numbersKicked && !force) return;
+  /// Opening the page retries only after a failed fetch (app start / sign-in
+  /// already fetched otherwise) and only when this phone has no copy yet.
+  Future<void> _kickNumbers() async {
+    if (_numbersKicked || SosNumbersSync.state.value != SosNumbersState.failed) return;
     _numbersKicked = true;
     try {
-      final have = await SosNumbersSync.cachedContacts();
-      if (have.isNotEmpty && !force) return;
-      if (!mounted) return;
-      final api = context.read<AppState>().api;
-      await SosNumbersSync.sync(api);
+      if ((await SosNumbersSync.cachedContacts()).isNotEmpty || !mounted) return;
+      await SosNumbersSync.sync(context.read<AppState>().api);
     } catch (_) {/* preview without AppState: nothing to fetch */}
   }
+
+  /// "Try again" — sync never throws; the line itself shows the result.
+  Future<void> _retryNumbers() => SosNumbersSync.sync(context.read<AppState>().api);
 
   @override
   void dispose() {
@@ -474,7 +476,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
                       TextButton(
                         key: const ValueKey('sos-numbers-retry'),
                         style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                        onPressed: () => _kickNumbers(force: true),
+                        onPressed: _retryNumbers,
                         child: Text(t.sosNumbersRetry),
                       ),
                     ]),
