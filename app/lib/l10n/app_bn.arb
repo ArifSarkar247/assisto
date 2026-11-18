@@ -26544,5 +26544,7 @@
   "gbzStopByChat": "{date} তারিখে WhatsApp / Messenger চ্যাটে STOP লিখেছেন।",
   "gbzStopByApp": "{date} তারিখে Assisto অ্যাপে বন্ধ চেপেছেন।",
   "gbzStopByOwner": "{date} তারিখে আপনি STOP হিসেবে চিহ্নিত করেছেন।",
-  "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।"
+  "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।",
+  "tr2ReportNotTaken": "গণনা হয়নি — একটু পরে আবার চেষ্টা করুন",
+  "tr2DataNoteOfficial": "সময়: বাংলাদেশ রেলওয়ের অফিসিয়াল সময়সূচি (railway.gov.bd) — যাচাই না হওয়া পর্যন্ত আনুমানিক। ম্যাপ © OpenStreetMap অবদানকারীরা (ODbL)। ব্যবহার বিনামূল্যে।"
 }
