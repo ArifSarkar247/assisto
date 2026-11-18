@@ -185,8 +185,10 @@ def status(user, pair):
         st = "expired"
     out = {"state": st}
     if st in ("claimed", "approved"):
+        # eph_pub: the main phone seals its key ring to it and computes the
+        # 6 digits itself (it never has to trust `verify` from us)
         out.update(name=d.get("name", ""), platform=d.get("platform", "android"),
-                   verify=verify_digits(d.get("eph", "")))
+                   verify=verify_digits(d.get("eph", "")), eph_pub=d.get("eph", ""))
     return out
 
 

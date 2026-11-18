@@ -30,6 +30,8 @@ class PureTests(SimpleTestCase):
         self.assertTrue(a.isdigit())
         self.assertEqual(a, DL.verify_digits(PUB))
         self.assertNotEqual(a, DL.verify_digits(PUB2))
+        # pinned vector, mirrored in app/test/device_link_test.dart
+        self.assertEqual(a, "361262")
 
 
 class LinkFlowTests(APITestCase):
@@ -71,6 +73,7 @@ class LinkFlowTests(APITestCase):
         self.assertEqual(st.data["state"], "claimed")
         self.assertEqual(st.data["name"], "Pixel 7")
         self.assertEqual(st.data["verify"], cl["verify"])
+        self.assertEqual(st.data["eph_pub"], PUB)
         self.assertEqual(a.get("/api/v1/e2/link/status").data["pair"], cl["pair"])
         # before approval the new phone waits
         w = b.post("/api/v1/e2/link/poll", {"pair": cl["pair"], "poll": cl["poll"]}, format="json")
