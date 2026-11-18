@@ -77,7 +77,7 @@ class OfflineQualityTests(TestCase):
         rows = {r["id"]: r for r in card["rows"]}
         # the injected faults were fixed by the product
         cut = [r for r in card["rows"] if r["cut"]]
-        self.assertGreaterEqual(len(cut), 3)
+        self.assertEqual(len(cut), 2)                     # aq-bn-12, aq-bn-37
         for r in cut:
             self.assertTrue(r["continued"], r["id"])
             self.assertEqual(r["cont_charged"], 0, r["id"])     # a Continue is never charged
