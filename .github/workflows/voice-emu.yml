@@ -1,0 +1,245 @@
+# voice-proof (18 Nov): "Hey Assisto" + the voice / text actions on a REAL
+# Android emulator, through its VIRTUAL MICROPHONE.
+#
+#  * audio: synthetic clips (tools/voiceproof/make_clips.py — held-out
+#    Bangla-accent MMS-TTS voices the wake model never heard, eSpeak reported
+#    separately, ~30 min of non-wake speech / TV / music / noise) are played
+#    into a PulseAudio null sink; the emulator records its monitor
+#    (-allow-host-audio). Nothing in the app is faked: the shipped Kotlin
+#    wake service, the model the in-runner server serves, the real voice
+#    screen and actions.
+#  * speech-to-text: CI holds no real keys, so the in-runner server's
+#    "voice_transcribe" integration points at a LOCAL faster-whisper on the
+#    runner (tools/voiceproof/stt_server.py); production uses Gemini.
+#  * numbers: true accepts per voice/condition, false wakes per hour (95 %
+#    bound), wake-thread CPU over the 30 min negative window, batterystats
+#    (emulator power profile), the 8 actions from text (en + bn) and from
+#    Bangla speech. tools/voiceproof/report.py -> step summary + artifact.
+# Heavy (one emulator, ~2 h). Manual / ci/voiceemu* only — never nightly.
+name: Voice emulator proof (Hey Assisto + actions)
+on:
+  workflow_dispatch:
+  push:
+    branches: ["ci/voiceemu*"]
+concurrency:
+  group: voice-emu-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  voice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 175
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      REALITY_DRIVE: start+voiceproof
+      VP_CLIPS: /tmp/vpclips
+      PULSE_SERVER: unix:/tmp/pulse/native
+      QEMU_AUDIO_DRV: pa
+      QEMU_PA_SERVER: /tmp/pulse/native
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------------------------------------------- audio tools (background)
+      - name: Audio tools (eSpeak NG, PulseAudio) + Python venv for TTS / Whisper
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng pulseaudio pulseaudio-utils >/dev/null
+          python3 -m venv /tmp/vp
+          /tmp/vp/bin/pip install -q --upgrade pip
+          /tmp/vp/bin/pip install -q torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          /tmp/vp/bin/pip install -q transformers==4.46.3 scipy numpy uroman faster-whisper==1.1.1
+      - name: Make the clips + start local Whisper (background, while the APK builds)
+        run: |
+          mkdir -p "$REALITY_OUT/voiceproof"
+          nohup /tmp/vp/bin/python tools/voiceproof/make_clips.py "$VP_CLIPS" \
+            > "$REALITY_OUT/voiceproof/make_clips.log" 2>&1 &
+          echo $! > /tmp/clips.pid
+          nohup /tmp/vp/bin/python tools/voiceproof/stt_server.py 9077 large-v3-turbo \
+            > "$REALITY_OUT/voiceproof/stt.log" 2>&1 &
+
+      # ---------------------------------------------- backend (in-runner)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Migrate + seed + CI speech-to-text (local Whisper) + credits
+        working-directory: backend
+        run: |
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$REALITY_OUT/seed.json"
+          python manage.py shell --settings=assisto_backend.settings_ci -c "
+          from core import integrations as I, billing
+          from core.models import Integration
+          from core.phone import find_user
+          I.save('voice_transcribe', {'api_key': 'ci-local', 'model': 'large-v3-turbo',
+                 'base_url': 'http://127.0.0.1:9077/v1', 'cost_per_minute_usd': '0'})
+          Integration.objects.filter(slug='voice_transcribe').update(status='working')
+          u = find_user('01700000001')
+          billing.credit(u, 'adjust', 500, note='ci voiceproof')
+          print('voice_transcribe -> local whisper; credits added')
+          "
+      - name: Start Django on :8700
+        working-directory: backend
+        run: |
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+            > "$REALITY_OUT/django.log" 2>&1 &
+          echo $! > "$REALITY_OUT/django.pid"
+          for i in $(seq 1 60); do
+            curl -fsS -m 5 http://127.0.0.1:8700/api/v1/health >/dev/null && { echo "django up"; exit 0; }
+            sleep 2
+          done
+          echo "::error::Django did not come up"; tail -50 "$REALITY_OUT/django.log"; exit 1
+
+      # ---------------------------------------------- app (same prep as reality.yml)
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
+          channel: stable
+          cache: true
+      - name: Add integration_test + flutter_driver (CI-only dev deps)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n"
+                            "  flutter_driver:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend (Skia)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          PY
+      - name: Analyze the flows (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test test_driver > ia.txt 2>&1; cat ia.txt | tail -40
+          grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
+          if grep -rn "byIcon(" integration_test/flows; then
+            echo "::error::find controls by tooltip / Key / text, not by icon"; exit 1
+          fi
+          exit 0
+      - name: Build the x86_64 debug test APK
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/reality_all_test.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
+            --dart-define=REALITY_ONLY="${REALITY_DRIVE//+/,}"
+          echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
+      - name: Free the runner (stop Gradle/Kotlin daemons)
+        working-directory: app
+        run: |
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+
+      # ---------------------------------------------- virtual microphone
+      - name: Clips ready? (and Whisper up)
+        run: |
+          pid=$(cat /tmp/clips.pid)
+          for i in $(seq 1 240); do kill -0 "$pid" 2>/dev/null || break; sleep 5; done
+          tail -5 "$REALITY_OUT/voiceproof/make_clips.log"
+          test -s "$VP_CLIPS/manifest.txt" || { echo "::error::clip generation failed"; tail -60 "$REALITY_OUT/voiceproof/make_clips.log"; exit 1; }
+          cp "$VP_CLIPS/manifest.txt" "$VP_CLIPS/clips.json" "$VP_CLIPS/neg_long_segments.json" "$REALITY_OUT/voiceproof/"
+          for i in $(seq 1 120); do curl -fsS -m 3 http://127.0.0.1:9077/health && break; sleep 5; done || true
+          tail -3 "$REALITY_OUT/voiceproof/stt.log"
+      - name: PulseAudio null sinks (vmic = the emulator's microphone, spk = its speaker)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pulse
+          pulseaudio -n --daemonize=yes --exit-idle-time=-1 --disallow-exit=yes --log-target=file:/tmp/pulse/log \
+            -L "module-native-protocol-unix socket=/tmp/pulse/native auth-anonymous=1" \
+            -L "module-null-sink sink_name=vmic rate=48000 channels=1" \
+            -L "module-null-sink sink_name=spk rate=48000 channels=2"
+          sleep 2
+          pactl set-default-sink spk
+          pactl set-default-source vmic.monitor
+          pactl info | grep -E "Default (Sink|Source)"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the voice proof on API 33 (virtual mic)
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          REALITY_ONLY: start+voiceproof
+          REALITY_TOTAL_SECONDS: "6600"
+          REALITY_DRIVE_SECONDS: "6300"
+          REALITY_ATTEMPTS: "2"
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none -allow-host-audio
+        with:
+          api-level: 33
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 480
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none -allow-host-audio
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d;/^hw.audioInput=/d;/^hw.audioOutput=/d' "$c" && printf 'hw.keyboard=yes\nhw.audioInput=yes\nhw.audioOutput=yes\n' >> "$c"; done; true
+          script: bash tools/voiceproof/emu_script.sh
+
+      # ---------------------------------------------- evidence
+      - name: Report
+        if: always()
+        run: |
+          cp /tmp/pulse/log "$REALITY_OUT/voiceproof/pulse.log" 2>/dev/null || true
+          curl -fsS -m 5 http://127.0.0.1:9077/log > "$REALITY_OUT/voiceproof/stt_texts.json" 2>/dev/null || true
+          python3 tools/reality/summarize.py "$REALITY_OUT" | head -60 || true
+          python3 tools/voiceproof/report.py "$REALITY_OUT" "$VP_CLIPS" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Stop Django
+        if: always()
+        run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        with:
+          name: voice-emu-evidence
+          path: |
+            reality_out/
+            !reality_out/.recording
+            !reality_out/.attempt.log
+          retention-days: 5
+          if-no-files-found: warn

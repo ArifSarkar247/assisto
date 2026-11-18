@@ -867,6 +867,28 @@ Map<String, GallerySpec> gallerySpecs() {
           icon: Icons.sos_rounded, title: t.vaConfirmSosTitle, detail: t.vaConfirmSosBody,
           confirmLabel: t.vaSendSos, danger: true)))));
     }), mode: FakeMode.data, full: true),
+    // voice-proof: My Circle free call + spoken-expense confirm cards
+    'voice_circle_call_confirm': (build: (l) => Builder(builder: (ctx) {
+      final t = AppLocalizations.of(ctx);
+      return Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Material(
+        elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: Theme.of(ctx).colorScheme.surfaceContainerLow,
+        child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
+          icon: Icons.call_rounded, title: t.vaConfirmCallTitle(l == 'bn' ? 'রহিমা বেগম' : 'Rahima Begum'),
+          choices: [{'name': l == 'bn' ? 'রহিমা বেগম' : 'Rahima Begum', 'phone': t.vaCircleCallLabel}],
+          confirmLabel: t.vaCallNow)))));
+    }), mode: FakeMode.data, full: true),
+    'voice_expense_confirm': (build: (l) => Builder(builder: (ctx) {
+      final t = AppLocalizations.of(ctx);
+      return Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Material(
+        elevation: 6, borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        color: Theme.of(ctx).colorScheme.surfaceContainerLow,
+        child: Padding(padding: const EdgeInsets.only(top: 24), child: VaConfirmSheet(
+          icon: Icons.receipt_long_rounded,
+          title: t.vaConfirmExpenseTitle(l == 'bn' ? '৳২৫০' : '৳250', t.vaCatTransport),
+          detail: l == 'bn' ? '“রিকশা”' : '“rickshaw”',
+          confirmLabel: t.save)))));
+    }), mode: FakeMode.data, full: true),
     'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
     'voice_onboarding': (build: (_) => const Scaffold(body: SafeArea(child: VaOnboardingStep())), mode: FakeMode.data, full: true),
     'voice_settings_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),

@@ -284,6 +284,10 @@ class VoiceDictation extends ChangeNotifier {
         return;
       }
       if (!_speech.isAvailable) {
+        // voice-proof: no "why we need the mic" dialog when the mic is
+        // ALREADY allowed — it blocked hands-free use right after
+        // "Hey Assisto" (first use in every app run)
+        if (!_reasonShown && await _micGranted()) _reasonShown = true;
         if (!_reasonShown) {
           final ok = await _askReason(context);
           if (!ok || !context.mounted) return;
@@ -402,6 +406,21 @@ class VoiceDictation extends ChangeNotifier {
     _showMessage(context, denied ? t.voiceNoPermission : t.micEnableSpeech,
         settings: denied, help: !denied);
   }
+
+  Future<bool> _micGranted() async {
+    if (micGrantedOverride != null) return micGrantedOverride!;
+    try {
+      return await Permission.microphone.status
+          .then((s) => s.isGranted)
+          .timeout(const Duration(seconds: 2));
+    } catch (_) {
+      return false; // unknown -> the reason dialog, as before
+    }
+  }
+
+  /// Tests: pretend the mic permission is (not) granted; null = ask Android.
+  @visibleForTesting
+  static bool? micGrantedOverride;
 
   static Future<bool> _osMicDenied() async {
     final st = await Permission.microphone.status;

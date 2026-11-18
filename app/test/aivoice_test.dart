@@ -706,7 +706,10 @@ void main() {
     final v = VoiceDictation(
         engine: _FakeSpeech(initOk: false),
         askReason: (_) async => true,
-        micDenied: () async => false);
+        micDenied: () async => false,
+        // voice-proof: with the server path this phone records instead; this
+        // test keeps the honest message when that path is not used
+        noEngineServer: false);
     final input = TextEditingController();
     late BuildContext ctx;
     await tester.pumpWidget(_app(_stub(_ChatApi(), 'en'),

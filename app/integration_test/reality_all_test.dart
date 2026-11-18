@@ -39,6 +39,7 @@ import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
+import 'flows/voice_proof_flow.dart'; // voice-proof
 import 'support/harness.dart';
 
 void main() {
@@ -82,6 +83,9 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // voice-proof: "Hey Assisto" + voice actions through the emulator's virtual
+  // mic -> opt-in only (voice-emu.yml start+voiceproof)
+  if (only.split(',').contains('voiceproof')) registerVoiceProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {
