@@ -197,4 +197,6 @@ def revoke_by_id(user, sid, current=None):
     if current is not None and is_session(current) and current.pk == s.pk:
         return "current"
     revoke(s, "signed_out_remote")
+    from . import device_link   # circle-extras: one truth with Linked devices
+    device_link.on_session_revoked(s)
     return "ok"

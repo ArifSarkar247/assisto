@@ -2106,3 +2106,15 @@ urlpatterns += [
     path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
 ]
 # ---- /messv2 ----
+
+# ---- circle-extras ---- (row 50: link a second phone by QR + key-ring
+# handover; core/device_link.py). PREPENDED so the literal paths win.
+from . import views_device_link as dlv  # noqa: E402
+urlpatterns[:0] = [
+    path("e2/link/start", dlv.LinkStartView.as_view()),
+    path("e2/link/status", dlv.LinkStatusView.as_view()),
+    path("e2/link/approve", dlv.LinkApproveView.as_view()),
+    path("e2/link/claim", dlv.LinkClaimView.as_view()),
+    path("e2/link/poll", dlv.LinkPollView.as_view()),
+]
+# ---- /circle-extras ----

@@ -1405,12 +1405,10 @@ class CircleDeviceLinkView(APIView):
 class CircleDeviceRevokeView(APIView):
     """POST /circle/devices/<device_id>/revoke -> revoke a companion device."""
     def post(self, request, device_id):
-        row = LinkedDevice.objects.filter(
-            user=request.user, device_id=device_id).first()
-        if row is None:
+        # circle-extras: also signs that phone out (device_link.revoke_device)
+        from . import device_link as DL
+        if DL.revoke_device(request.user, device_id) is None:
             return _not_found()
-        row.revoked = True
-        row.save(update_fields=["revoked"])
         return Response({"ok": True, "revoked": True})
 
 

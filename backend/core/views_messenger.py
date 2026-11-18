@@ -1411,7 +1411,20 @@ class ChannelPostsView(APIView):
             return _notfound()
         posts = ch.posts.filter(deleted=False).exclude(
             content_status__in=["hidden", "removed"])
-        return Response({"results": [self._post_dict(p) for p in posts]})
+        # circle-extras: honour ?limit=&offset= (before: every post at once)
+        try:
+            limit = max(1, min(100, int(request.query_params.get("limit", 30))))
+        except (TypeError, ValueError):
+            limit = 30
+        try:
+            offset = max(0, int(request.query_params.get("offset", 0)))
+        except (TypeError, ValueError):
+            offset = 0
+        total = posts.count()
+        page = posts[offset:offset + limit]
+        return Response({"results": [self._post_dict(p) for p in page],
+                         "count": total, "limit": limit, "offset": offset,
+                         "has_more": offset + limit < total})
 
     def post(self, request, pk):
         # adminsafe: Owner Admin restriction (channel_post) — server-side
@@ -2102,12 +2115,11 @@ class LinkedDevicesView(APIView):
 
     def get(self, request):
         lang = req_lang(request)
-        rows = LinkedDevice.objects.filter(user=request.user, revoked=False)
-        out = [mui.linked_device_view({
-            "device_id": r.device_id, "name": r.name, "platform": r.platform,
-            "role": r.role, "linked_at": r.linked_at.isoformat(),
-            "last_active": r.last_active.isoformat() if r.last_active else None,
-            "revoked": r.revoked}, lang=lang) for r in rows]
+        # circle-extras: last use from the phone's live session; a phone
+        # signed out elsewhere is gone from the list (device_link.listing).
+        from . import device_link as DL
+        out = DL.listing(request.user, lang=lang, current_device_id=(
+            request.META.get("HTTP_X_DEVICE_ID", "") or "").strip()[:64])
         return Response({"devices": out, "count": len(out)})
 
 
@@ -2116,13 +2128,14 @@ class LinkedDeviceRevokeView(APIView):
     companion device (its keys are rotated out by the primary)."""
 
     def post(self, request, device_id):
-        dev = LinkedDevice.objects.filter(
-            user=request.user, device_id=str(device_id)).first()
-        if dev is None:
+        # circle-extras: unlink = the registry row AND the phone's live
+        # sign-in sessions (before: only a flag; the phone stayed signed in).
+        from . import device_link as DL
+        n = DL.revoke_device(request.user, device_id)
+        if n is None:
             return _notfound()
-        dev.revoked = True
-        dev.save(update_fields=["revoked"])
-        return Response({"ok": True, "device_id": dev.device_id, "revoked": True})
+        return Response({"ok": True, "device_id": str(device_id), "revoked": True,
+                         "signed_out": n})
 
 
 # ---- CALLS ----
