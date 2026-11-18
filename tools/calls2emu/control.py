@@ -38,6 +38,11 @@ OUT = "."
 SERIALS = []
 REC = {}           # case -> [Popen]
 SAFE = re.compile(r"[^A-Za-z0-9_.-]+")
+# run 44210333890: started before run.sh puts platform-tools on PATH, so every
+# "adb" here failed ("No such file") and no screen was recorded.
+_SDK = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT") or ""
+ADB = os.path.join(_SDK, "platform-tools", "adb") if _SDK and os.path.exists(
+    os.path.join(_SDK, "platform-tools", "adb")) else "adb"
 
 
 def _append(name, line):
@@ -55,13 +60,13 @@ def _rec(case, on):
             # Its own output is kept (run 44181263539 produced no video, no reason).
             lg = open(os.path.join(OUT, "videos", "rec_%s_%s.log" % (case, side)), "w")
             procs.append(subprocess.Popen(
-                ["timeout", "200", "adb", "-s", s, "shell", "screenrecord", "--verbose",
+                ["timeout", "200", ADB, "-s", s, "shell", "screenrecord", "--verbose",
                  "--time-limit", "170", "/sdcard/c2e_%s.mp4" % case],
                 stdout=lg, stderr=subprocess.STDOUT))
         REC[case] = procs
         return {"recording": case}
     for s in SERIALS:
-        subprocess.run(["timeout", "15", "adb", "-s", s, "shell", "pkill", "-INT", "screenrecord"],
+        subprocess.run(["timeout", "15", ADB, "-s", s, "shell", "pkill", "-INT", "screenrecord"],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     for p in REC.pop(case, []):
         try:
@@ -74,9 +79,9 @@ def _rec(case, on):
         dst = os.path.join(OUT, "videos", "%s_%s.mp4" % (case, side))
         time.sleep(1)
         with open(os.path.join(OUT, "videos", "rec_%s_%s.log" % (case, side)), "a") as lg:
-            subprocess.run(["timeout", "60", "adb", "-s", s, "pull", "/sdcard/c2e_%s.mp4" % case, dst],
+            subprocess.run(["timeout", "60", ADB, "-s", s, "pull", "/sdcard/c2e_%s.mp4" % case, dst],
                            stdout=lg, stderr=subprocess.STDOUT)
-        subprocess.run(["timeout", "15", "adb", "-s", s, "shell", "rm", "-f", "/sdcard/c2e_%s.mp4" % case],
+        subprocess.run(["timeout", "15", ADB, "-s", s, "shell", "rm", "-f", "/sdcard/c2e_%s.mp4" % case],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if os.path.exists(dst) and os.path.getsize(dst) > 0:
             got.append(os.path.basename(dst))
