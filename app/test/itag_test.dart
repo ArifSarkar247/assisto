@@ -713,11 +713,12 @@ void main() {
       c.dispose();
     });
 
-    testWidgets('the real MethodChannel platform: calls + events match ItagChannel.kt',
-        (tester) async {
+    // real async (not fake-async testWidgets: the first version timed out at 10 min)
+    test('the real MethodChannel platform: calls + events match ItagChannel.kt', () async {
+      final messenger = TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
       const ch = MethodChannel('com.assisto/itag');
       final calls = <String>[];
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(ch, (call) async {
+      messenger.setMockMethodCallHandler(ch, (call) async {
         calls.add('${call.method} ${call.arguments ?? ''}');
         return switch (call.method) {
           'state' => {'state': 'location_off', 'sdk': 29},
@@ -729,11 +730,11 @@ void main() {
           _ => null,
         };
       });
-      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(ch, null));
+      addTearDown(() => messenger.setMockMethodCallHandler(ch, null));
       final p = MethodChannelItagPlatform();
       final got = <String>[];
       final sub = p.events.listen((e) => got.add('${e.type.name} ${e.address} ${e.user} ${e.radioOff}'));
-      final st = await p.state();
+      final st = await p.state().timeout(const Duration(seconds: 5));
       expect(st.radio, ItagRadio.locationOff);
       expect(st.nearbyDevicesPermission, isFalse); // Android 10: location, not Nearby devices
       expect((await p.scan()).single.likely, isTrue);
@@ -742,15 +743,19 @@ void main() {
       expect(await p.battery(_a), 64);
       expect(calls, contains('ring {address: $_a, level: 2}'));
       Future<void> native(Map<String, Object?> m) async {
-        await tester.binding.defaultBinaryMessenger.handlePlatformMessage('com.assisto/itag',
-            const StandardMethodCodec().encodeMethodCall(MethodCall('event', m)), (_) {});
+        final done = Completer<void>();
+        unawaited(messenger.handlePlatformMessage('com.assisto/itag',
+            const StandardMethodCodec().encodeMethodCall(MethodCall('event', m)), (_) {
+          if (!done.isCompleted) done.complete();
+        }));
+        await done.future.timeout(const Duration(seconds: 5), onTimeout: () {});
       }
 
       await native({'type': 'button', 'address': _a, 'user': false, 'radioOff': false});
       await native({'type': 'disconnected', 'address': _a, 'user': false, 'radioOff': true});
       await native({'type': 'radio', 'address': '', 'user': false, 'radioOff': false});
       await native({'type': 'connected', 'address': '', 'user': false}); // no address: dropped
-      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(got, [
         'button $_a false false',
         'disconnected $_a false true',

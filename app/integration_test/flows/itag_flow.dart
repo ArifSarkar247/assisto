@@ -76,16 +76,22 @@ class _FakeTagNative {
   void uninstall() => tester.binding.defaultBinaryMessenger
       .setMockMethodCallHandler(const MethodChannel(_chName), null);
 
+  /// native -> Dart "event" (never awaits the messenger itself: the reply
+  /// callback says it was handled; 5 s cap)
   Future<void> send(String type, {bool user = false, bool radioOff = false}) async {
-    await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    final done = Completer<void>();
+    unawaited(tester.binding.defaultBinaryMessenger.handlePlatformMessage(
         _chName,
         const StandardMethodCodec().encodeMethodCall(MethodCall('event', {
           'type': type,
           'address': type == 'radio' ? '' : _tag,
           'user': user,
           'radioOff': radioOff,
-        })),
-        (_) {});
+        })), (_) {
+      if (!done.isCompleted) done.complete();
+    }));
+    await done.future.timeout(const Duration(seconds: 5), onTimeout: () {});
+    await tester.pump();
   }
 }
 

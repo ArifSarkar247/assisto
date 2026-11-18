@@ -2149,8 +2149,13 @@ class _ShotItagPlatform implements ItagPlatform {
   Future<int?> battery(String address) async => 87;
   @override
   Future<void> disconnect(String address) async {}
+  // the real app opens Bluetooth settings over this channel (ItagChannel.kt)
   @override
-  Future<void> openSettings() async {}
+  Future<void> openSettings() async {
+    try {
+      await const MethodChannel('com.assisto/itag').invokeMethod<bool>('openSettings');
+    } catch (_) {} // no native side in tests
+  }
   @override
   Stream<ItagEvent> get events => const Stream.empty();
 }
