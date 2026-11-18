@@ -1,7 +1,7 @@
 // gap-kidswatch (17 Nov): kids watch end to end on the emulator.
 //   A = the parent (the app on screen). The WATCH is simulated from inside the
 //   test over real TCP to the runner's tracker server (10.0.2.2:5023, started
-//   by reality.yml next to Django) speaking the "3G" / SeTracker text
+//   by reality.yml next to Django; opt-in group: reality.yml only=kidswatch) speaking the "3G" / SeTracker text
 //   protocol exactly like a Q12-type watch: LK link, UD position, AL SOS.
 // A pairs the watch (no SOS numbers given -> A's own number is the default)
 // -> the watch connects -> A sees it online with its SOS line -> the child

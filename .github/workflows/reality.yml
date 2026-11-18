@@ -56,7 +56,9 @@ jobs:
           import json, os
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save"]
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
-          sel = [g for g in allg if not want or g in want] or allg
+          # gap-kidswatch: opt-in groups (never in the nightly "all" run)
+          optin = ["kidswatch"]
+          sel = [g for g in allg + optin if not want and g in allg or g in want] or allg
           print("groups=" + json.dumps(sel))
           gpus = [g.strip() for g in (os.environ.get("GPUS") or "").split(",") if g.strip()]
           print("gpus=" + json.dumps(gpus or ["swiftshader_indirect"]))
