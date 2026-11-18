@@ -392,8 +392,12 @@ void registerTrainProofFlows() {
       try {
         await f.shot('paste_preview_bn');
         await f.tap(_k('tr2_paste_send'), settleSeconds: 3);
-        await f.waitFor(find.descendant(of: _k('tr2_paste_result'), matching: find.text(_bn.tr2TextApplied)),
-            seconds: 20, what: 'applied (bn)');
+        // the key sits ON the result Text (matchRoot), run 44223303054
+        await f.waitFor(
+            find.descendant(
+                of: _k('tr2_paste_result'), matching: find.text(_bn.tr2TextApplied), matchRoot: true),
+            seconds: 20,
+            what: 'applied (bn)');
         await f.shot('paste_applied_bn');
       } finally {
         await _lang(f, 'en');
