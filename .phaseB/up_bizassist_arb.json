@@ -1,0 +1,52 @@
+{
+  "_comment": "bizassist (PS Today: dictation, missed calls). All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_bizassist_arb.json",
+  "en": {
+    "psecDictateLabel": "Say or type a task — e.g. \"tomorrow 10 am call Karim bhai\"",
+    "@psecDictateLabel": {
+      "description": "PS Today: label above the speak/type quick-add bar"
+    },
+    "psecTaskAdded": "Added to your reminders. It will ring on time.",
+    "@psecTaskAdded": {
+      "description": "PS Today: snackbar after a dictated task is saved"
+    },
+    "psecCallBack": "Call {name} back",
+    "@psecCallBack": {
+      "description": "PS Today missed-call line: opens the person's chat (call button there)",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "psecMissedDraft": "Sorry {name}, I missed your call. Calling you back now.",
+    "@psecMissedDraft": {
+      "description": "PS Today: chat draft when calling back after a missed call",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "psecAddNote": "Add a note",
+    "@psecAddNote": {
+      "description": "PS Today missed-call line: write a follow-up note"
+    },
+    "psecMissedNoteSeed": "Call {name} back ",
+    "@psecMissedNoteSeed": {
+      "description": "PS Today: starting text of the follow-up note after a missed call; the user adds when",
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    }
+  },
+  "bn": {
+    "psecDictateLabel": "বলুন বা লিখুন একটা কাজ — যেমন \"কাল সকাল ১০টায় করিম ভাইকে ফোন\"",
+    "psecTaskAdded": "রিমাইন্ডারে যোগ হলো। ঠিক সময়ে বাজবে।",
+    "psecCallBack": "{name}-কে ফিরতি কল",
+    "psecMissedDraft": "দুঃখিত {name}, আপনার কলটা ধরতে পারিনি। এখনই ফিরতি কল দিচ্ছি।",
+    "psecAddNote": "নোট লিখুন",
+    "psecMissedNoteSeed": "{name}-কে ফিরতি কল দিতে হবে "
+  }
+}

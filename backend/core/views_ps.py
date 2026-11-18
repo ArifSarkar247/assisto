@@ -14,4 +14,5 @@ class PsTodayView(APIView):
             return Response({"error": "feature_off",
                              "detail": "এই ফিচারটি এখনো চালু হয়নি।" if bn
                              else "This feature is not available yet."}, status=403)
-        return Response(S.today(request.user))
+        # bizassist S2: the phone's own UTC offset in minutes (?tz=360 for Dhaka)
+        return Response(S.today(request.user, tz_offset_min=request.query_params.get("tz")))

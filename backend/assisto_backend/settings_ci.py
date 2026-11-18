@@ -75,6 +75,9 @@ FCM_SERVICE_ACCOUNT_FILE = ""
 PUSH_SYNC = True
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SECRET_KEY = "ci-reality-not-a-secret"
+# bizassist: CI-only time-travel switch for `booking_reminders --ci-24h-before`
+# (never set in settings.py / production).
+REALITY_CI = True
 ANALYTICS_HMAC_KEY = ""
 MEDIA_ROOT = BASE_DIR / "ci_media"
 MEDIA_X_ACCEL = False

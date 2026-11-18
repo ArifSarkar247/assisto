@@ -100,7 +100,10 @@ class Command(BaseCommand):
             self.steps.append({"step": "allow-list A-D for %s" % key, "method": "DB",
                                "path": "feature_flags", "status": 200, "ok": row is not None})
         FF.invalidate()
-        if "flagproof" not in os.environ.get("REALITY_DRIVE", ""):
+        drive = os.environ.get("REALITY_DRIVE", "")
+        # bizassist: its opt-in group (flows 37-38) reuses the same A<->D
+        # family link + D's salon page
+        if "flagproof" not in drive and "bizassist" not in drive:
             return
         from core.models import BusinessProfile, CircleMember
         a, d = users["a"], users["d"]

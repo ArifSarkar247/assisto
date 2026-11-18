@@ -130,7 +130,8 @@ void main() {
       final api = _PsApi();
       await tester.pumpWidget(_app(_stub(api, 'en'), const PsTodayScreen()));
       await _settle(tester);
-      expect(api.paths, contains('/ps/today'));
+      // bizassist S2: the phone's own UTC offset rides along
+      expect(api.paths.where((p) => p.startsWith('/ps/today?tz=')), isNotEmpty);
       expect(find.text("Today's meetings"), findsOneWidget);
       expect(find.textContaining('Bank loan meeting'), findsWidgets);
       expect(find.byKey(const ValueKey('ps-tell-7')), findsOneWidget);
@@ -142,6 +143,30 @@ void main() {
       expect(api.updates.single[0], 'pa/followups');
       expect(api.updates.single[1], 21);
       expect((api.updates.single[2] as Map)['status'], 'done');
+      expect(tester.takeException(), isNull);
+    });
+
+    // bizassist: dictation bar, missed calls (call back + note), bookings,
+    // bills, and every line opens its source row
+    testWidgets('bizassist: dictate bar, missed-call actions, tappable lines', (tester) async {
+      final api = _PsApi();
+      await tester.pumpWidget(_app(_stub(api, 'en'), const PsTodayScreen()));
+      await _settle(tester);
+      final t = AppLocalizations.of(tester.element(find.byType(PsTodayScreen)));
+      expect(find.byKey(const ValueKey('ps-dictate')), findsOneWidget);
+      expect(find.text(t.psecDictateLabel), findsOneWidget);
+      final sc = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('ps-callback-9')), 200, scrollable: sc);
+      expect(find.text(t.psecCallBack('Rahim Bhai')), findsOneWidget);
+      expect(find.byKey(const ValueKey('ps-missednote-501')), findsOneWidget);
+      await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('ps-line-booking_biz-601')), 200, scrollable: sc);
+      await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('ps-line-subscription-701')), 200, scrollable: sc);
+      expect(find.textContaining('please confirm'), findsOneWidget);
+      expect(find.byKey(const ValueKey('ps-line-missed_call-501')), findsNothing); // no screen: not a fake link
+      final tile = tester.getSize(find.byKey(const ValueKey('ps-line-subscription-701')));
+      expect(tile.height, greaterThanOrEqualTo(48));
       expect(tester.takeException(), isNull);
     });
 

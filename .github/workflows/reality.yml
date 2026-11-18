@@ -57,7 +57,7 @@ jobs:
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           # gap-money: opt-in single-feature groups (never part of "all")
-          optin = ["mess"]
+          optin = ["mess", "bizassist"]  # bizassist: PS brief + booking proofs (flows 37-38)
           sel = ([g for g in allg if not want or g in want]
                  + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))
@@ -136,6 +136,13 @@ jobs:
             sleep 2
           done
           echo "::error::Django did not come up"; tail -50 "$REALITY_OUT/django.log"; exit 1
+
+      - name: "bizassist: booking reminder sweep (CI time travel, every 15 s)"
+        if: matrix.group == 'bizassist'
+        working-directory: backend
+        run: |
+          nohup bash -c 'while true; do timeout 60 python manage.py booking_reminders --ci-24h-before --settings=assisto_backend.settings_ci; sleep 15; done' \
+            > "$REALITY_OUT/booking_reminders.log" 2>&1 &
 
       # ------------------------------------------------ app (same build prep as android.yml)
       - uses: actions/setup-java@v4
@@ -247,7 +254,7 @@ jobs:
         env:
           REALITY_ONLY: ${{ env.REALITY_DRIVE }}
           REALITY_TOTAL_SECONDS: "1800"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none ${{ matrix.group == 'bizassist' && '-timezone Asia/Dhaka' || '' }}
         with:
           api-level: 33
           arch: x86_64
@@ -262,7 +269,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot -no-window -gpu ${{ env.REALITY_GPU }} -noaudio -no-boot-anim -camera-back none -camera-front none ${{ matrix.group == 'bizassist' && '-timezone Asia/Dhaka' || '' }}
           # rf1: a "hardware keyboard" so Android never opens the soft IME
           # window (run 40205920547: the emulator segfaulted seconds after
           # the IME opened); run_flows.sh also disables the IME itself.

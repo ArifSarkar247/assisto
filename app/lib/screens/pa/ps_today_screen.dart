@@ -7,6 +7,15 @@ import '../../ps/ps_circle.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
+import '../../widgets/reminders_nlp.dart' show ParsedReminder;
+import '../../reminders/exact_alarm_ui.dart' show maybeAskExactAlarms;
+import '../booking/booking_biz_screen.dart';
+import '../booking/booking_detail_screen.dart';
+import '../booking/booking_source.dart';
+import '../booking/my_bookings_screen.dart';
+import '../reminders_quick_add.dart' show QuickAddBar;
+import '../reminders_screen.dart';
+import '../subscriptions_screen.dart';
 import 'liaison_screen.dart';
 import 'pa_schedule_screen.dart';
 import 'ps_pickup_sheet.dart';
@@ -37,7 +46,9 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
   Future<void> _load() async {
     setState(() => _failed = false);
     try {
-      final b = await context.read<AppState>().api.getJson('/ps/today');
+      // bizassist S2: the phone's own clock (a probashi's brief in their time)
+      final tz = DateTime.now().timeZoneOffset.inMinutes;
+      final b = await context.read<AppState>().api.getJson('/ps/today?tz=$tz');
       if (!mounted) return;
       setState(() => _brief = b);
     } catch (_) {
@@ -55,9 +66,57 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
     if (mounted) _load();
   }
 
-  Future<void> _pickup() async {
-    final added = await showPsPickupSheet(context);
+  Future<void> _pickup({String? seed}) async {
+    final added = await showPsPickupSheet(context, initialText: seed);
     if (added == true && mounted) _load();
+  }
+
+  /// bizassist S6: a spoken / typed task ("কাল সকাল ১০টায় করিম ভাইকে ফোন")
+  /// becomes a reminder in the phone's own clock — the same offline-first
+  /// repo + alarm as the Reminders screen — then the brief reloads.
+  Future<void> _addTask(ParsedReminder p, String title, Map<String, dynamic>? link) async {
+    final t = AppLocalizations.of(context);
+    final app = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+    await app.reminders.add({
+      'title': title,
+      'notes': '',
+      'due_at': p.dateTime?.toUtc().toIso8601String(),
+      'recurrence': p.recurrence?.freq ?? 'none',
+      'recurrence_rule': p.recurrence?.toJson() ?? <String, dynamic>{},
+      'date_only': p.dateOnly,
+      'done': false,
+      'source': 'nlp',
+      if (link != null) 'link': link,
+    });
+    messenger.showSnackBar(SnackBar(content: Text(t.psecTaskAdded)));
+    if (p.dateTime != null && !p.dateOnly && mounted) await maybeAskExactAlarms(context);
+    if (mounted) _load();
+  }
+
+  /// bizassist S7: every brief line opens the row it came from.
+  Widget? _sourceScreen(Map line) {
+    final src = line['src'];
+    if (src is! Map) return null;
+    final id = src['id'];
+    final api = context.read<AppState>().api;
+    switch ('${src['kind']}') {
+      case 'reminder':
+        return const RemindersScreen();
+      case 'schedule':
+        return const PaScheduleScreen();
+      case 'followup':
+        return const LiaisonScreen();
+      case 'subscription':
+        return const SubscriptionsScreen();
+      case 'booking_biz':
+        return id is int
+            ? BookingDetailScreen(source: ApiBookingSource(api), bookingId: id)
+            : const BookingBizScreen();
+      case 'booking_mine':
+        return const MyBookingsScreen();
+    }
+    return null;
   }
 
   Future<void> _markDone(Map line) async {
@@ -110,7 +169,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final b = _brief;
-    final children = <Widget>[_actions(t)];
+    final children = <Widget>[_dictate(t), _actions(t)];
     if (_failed && b == null) {
       children.add(_failedBox(t));
     } else if (b == null) {
@@ -149,6 +208,17 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
       ),
     );
   }
+
+  Widget _dictate(AppLocalizations t) => Padding(
+        key: const ValueKey('ps-dictate'),
+        padding: const EdgeInsets.only(bottom: Gap.sm),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.psecDictateLabel,
+              style: AType.bodyMedium.copyWith(
+                  color: Theme.of(context).colorScheme.ds.muted)),
+          QuickAddBar(onCommit: _addTask),
+        ]),
+      );
 
   Widget _actions(AppLocalizations t) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.md),
@@ -253,10 +323,28 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
         label: Text(t.psecMarkDone),
       ));
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    if (section == 'missed_calls') {
+      // bizassist S4: call back from the chat (its call button) or write a
+      // follow-up note ("call him back tomorrow 11 am") in one tap
+      final who = '${l['counterpart'] ?? ''}';
+      for (final p in people) {
+        buttons.add(DsButton.secondary(
+            buttonKey: ValueKey('ps-callback-${p['id']}'),
+            onPressed: () => psOpenChatWithDraft(context,
+                circleId: p['id'] as int, name: '${p['name']}', text: t.psecMissedDraft('${p['name']}')),
+            icon: Icons.call_rounded,
+            label: t.psecCallBack('${p['name']}')));
+      }
+      buttons.add(TextButton.icon(
+        key: ValueKey('ps-missednote-${(l['src'] as Map?)?['id']}'),
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: () => _pickup(seed: t.psecMissedNoteSeed(who)),
+        icon: const Icon(Icons.edit_note_rounded, size: 18),
+        label: Text(t.psecAddNote),
+      ));
+    }
+    final target = _sourceScreen(l);
+    final row = Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Icon(
@@ -275,7 +363,22 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
                     color: late ? cs.error : cs.ds.text,
                     fontWeight: late ? FontWeight.w600 : FontWeight.normal)),
           ),
-        ]),
+          if (target != null)
+            Icon(Icons.chevron_right_rounded, size: 20, color: cs.ds.muted),
+        ]);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (target == null)
+          row
+        else
+          InkWell(
+            key: ValueKey('ps-line-${(l['src'] as Map?)?['kind']}-${(l['src'] as Map?)?['id']}'),
+            borderRadius: BorderRadius.circular(Radii.sm),
+            onTap: () => _open(target),
+            child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48), child: row),
+          ),
         if (buttons.isNotEmpty)
           Padding(
             padding: const EdgeInsetsDirectional.only(start: Gap.lg),

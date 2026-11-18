@@ -52,14 +52,42 @@ Map<String, dynamic> fakePsecBrief() => {
               'src': {'kind': 'reminder', 'id': 31}},
           ],
         },
+        // bizassist: missed My Circle calls, today's bookings, bills
+        {
+          'key': 'missed_calls', 'title_bn': 'মিসড কল — ফিরতি কল দিন',
+          'title_en': 'Missed calls — call back',
+          'lines': [
+            {'bn': 'রহিম ভাই — ২টি মিসড কল, শেষ সকাল ৯:১০ · ফিরতি কল দিন',
+              'en': 'Rahim Bhai — 2 missed calls, last 9:10 am · call back',
+              'src': {'kind': 'missed_call', 'id': 501}, 'counterpart': 'Rahim Bhai',
+              'circle': [{'id': 9, 'name': 'Rahim Bhai'}], 'circle_ids': [9], 'count': 2},
+          ],
+        },
+        {
+          'key': 'bookings', 'title_bn': 'আজকের বুকিং', 'title_en': "Today's bookings",
+          'lines': [
+            {'bn': 'বিকেল ৫:০০ — চুল কাটা · করিম · নিশ্চিত করুন',
+              'en': '5:00 pm — Haircut · Karim · please confirm',
+              'src': {'kind': 'booking_biz', 'id': 601}, 'state': 'requested'},
+          ],
+        },
+        {
+          'key': 'bills', 'title_bn': 'বিল ও দেনা', 'title_en': 'Bills & dues',
+          'lines': [
+            {'bn': 'লিংক৩ ইন্টারনেট — ৳১,২০০ (১ দিন পরে)',
+              'en': 'Link3 internet — ৳1,200 (in 1 day(s))',
+              'src': {'kind': 'subscription', 'id': 701}},
+          ],
+        },
       ],
-      'counts': {'meetings': 2, 'followups': 1, 'overdue': 1, 'reminders': 1},
+      'counts': {'meetings': 2, 'followups': 1, 'overdue': 1, 'reminders': 1,
+        'missed_calls': 1, 'bookings': 1, 'bills': 1},
       'empty': false,
       'ai_used': false,
     };
 
 Map<String, dynamic>? fakePsecGet(String path, bool empty) {
-  if (path != '/ps/today') return null;
+  if (path.split('?').first != '/ps/today') return null; // bizassist: ?tz=
   if (empty) {
     return {'date': '2026-11-02', 'next': null, 'sections': <dynamic>[],
       'counts': <String, dynamic>{}, 'empty': true, 'ai_used': false};
