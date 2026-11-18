@@ -353,6 +353,49 @@ def _anthropic_error(e):
     return ProviderError("error", type(e).__name__)
 
 
+def stream_sink():
+    """aichat-nine: the live-stream sink of the current provider call (or
+    None). Provider seams (and the CI fakes) feed it raw text deltas."""
+    return _opts().get("stream")
+
+
+def sink_reset(sink):
+    try:
+        sink.reset()
+    except Exception:  # noqa: BLE001 — a preview problem never costs the answer
+        log.warning("ai: stream sink reset failed")
+
+
+def sink_feed(sink, delta):
+    try:
+        sink.feed(delta)
+    except Exception:  # noqa: BLE001
+        log.warning("ai: stream sink feed failed")
+
+
+def _anthropic_stream(client, body, sink, fallback=False):
+    """aichat-nine (first-token latency): the same request, streamed — each
+    text delta goes to the sink (the chat releases complete, guarded
+    sentences to the app at once); the final message is returned exactly as
+    messages.create would, so usage, charging, stop_reason and failover are
+    unchanged. A new attempt (failover) resets the sink first."""
+    sink_reset(sink)
+    mgr = None
+    if fallback:
+        try:
+            mgr = client.beta.messages.stream(
+                betas=["server-side-fallback-2026-07-01"], fallbacks="default", **body)
+        except TypeError:          # SDK without the kwarg -> plain stream
+            mgr = None
+    if mgr is None:
+        mgr = client.messages.stream(**body)
+    with mgr as st:
+        for delta in st.text_stream:
+            if delta:
+                sink_feed(sink, delta)
+        return st.get_final_message()
+
+
 def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     o = _opts()
     client = _anthropic_client(key, o.get("timeout", 45))
@@ -364,7 +407,11 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
         # Gemini grounding quota is used up; at most one search per answer
         body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 1}]
     try:
-        if o.get("server_fallback") and model in C.SERVER_FALLBACK_MODELS:
+        if o.get("stream") is not None:
+            resp = _anthropic_stream(client, body, o["stream"],
+                                     bool(o.get("server_fallback")
+                                          and model in C.SERVER_FALLBACK_MODELS))
+        elif o.get("server_fallback") and model in C.SERVER_FALLBACK_MODELS:
             try:
                 resp = client.beta.messages.create(
                     betas=["server-side-fallback-2026-07-01"], fallbacks="default", **body)
@@ -613,7 +660,7 @@ def _web_search_usd(provider):
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
              extra_system="", history=None, charge_action=None, digits=None,
              task_class=None, mode=None, out_meta=None, upgrade=False, pii=None,
-             level="", web=False):
+             level="", web=False, stream=None):
     """Run one AI job through the router. `task` is the trusted instruction;
     `data` is untrusted user content (wrapped safely). `history` is optional
     prior {"role","content"} turns. `digits='bn'` returns Bangla digits.
@@ -808,6 +855,8 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     opts = {"timeout": conf["timeouts_s"][klass], "klass": klass,
             "effort": C.effort_for(conf, tier, klass),
             "server_fallback": conf["server_fallback"]}
+    if stream is not None:
+        opts["stream"] = stream          # aichat-nine: live sentences to the chat
     if spec is not None:
         from .logic import pricing_40 as P40
         prompt, history = P40.fit_input(system, prompt, history, spec["in_cap"],

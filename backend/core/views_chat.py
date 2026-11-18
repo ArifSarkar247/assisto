@@ -34,6 +34,7 @@ app's offline KB, and an honest "needs a key" for general questions — we never
 invent a fact and never charge for a Brain answer.
 """
 import logging
+import time
 import re
 
 from django.db.models import Q, Max
@@ -629,9 +630,17 @@ def _chat_level(request):
         return None
 
 
+def _live_kw(live):
+    """Only pass `stream` when streaming (test fakes of ai.generate keep
+    their old signature)."""
+    return {"stream": live} if live is not None else {}
+
+
 def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
-                   photo="", level=None, follow="", follow_free=False):
+                   photo="", level=None, follow="", follow_free=False, live=None):
     """Produce the assistant reply for `text` given prior `history`.
+    aichat-nine: `live` (chat_live_stream.LiveSink) receives the model's
+    text as it is generated (Assisto AI's real token stream).
 
     Returns (reply_text, meta_dict, cards). Tries keyed AI when available;
     otherwise (or on any AIUnavailable) falls back to the free, honest Brain.
@@ -730,13 +739,16 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             from .agentcore import trust as _T
             vault = _T.Vault()
             history = vault.mask_request(history=history)[2]
+            if live is not None:
+                live.configure(lang=lang, vault=vault, text=text, data_reply=ctx["reply"],
+                               history=history, strict=ctx.get("level") == "L1")
             if level:
                 reply, cost = ai.generate(
                     task="", extra_system=task_text,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature=("chat.continue" if follow_free else "chat." + level), max_tokens=700,
                     user=payer, history=history, out_meta=meta_out, pii=vault, level=level,
-                    web=use_web)
+                    web=use_web, **_live_kw(live))
                 if use_web:
                     meta_out["web"] = True
             elif mode:
@@ -750,13 +762,13 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat." + mode, max_tokens=700,
                     user=payer, history=history, mode=mode, out_meta=meta_out,
-                    upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault)
+                    upgrade=(mode == "smart" and P40.is_hard_question(text)), pii=vault, **_live_kw(live))
             else:
                 reply, cost = ai.generate(
                     task=task_text,
                     data=chat_data(ai_text, summary),
                     tier=requested_tier, feature="chat", max_tokens=1500,
-                    user=payer, history=history, pii=vault, out_meta=meta_out)
+                    user=payer, history=history, pii=vault, out_meta=meta_out, **_live_kw(live))
             # aieval guard: the chat cannot act outside the app — a sentence
             # claiming it sent / called / paid / posted is removed (honest
             # line); a cure promise / self-prescribed dose is removed too.
@@ -1170,14 +1182,15 @@ class ChatSendView(APIView):
             s.derive_title(text)
 
         history = _history_for(s, upto_id=user_msg.id)
+        fk, ffree = follow_kind(request, text, s)
+        kw = dict(credout=credits_out.supported(request), mode=_chat_mode(request),
+                  photo=_photo_context(request), level=_chat_level(request),
+                  follow=fk, follow_free=ffree)
+        from . import chat_live_stream as LS
+        if LS.enabled():
+            return self._live(u, s, text, lang, history, kw, user_msg, cid)
         try:
-            fk, ffree = follow_kind(request, text, s)
-            reply, meta, cards = _produce_reply(u, s, text, lang, history,
-                                            credout=credits_out.supported(request),
-                                            mode=_chat_mode(request),
-                                            photo=_photo_context(request),
-                                            level=_chat_level(request),
-                                            follow=fk, follow_free=ffree)
+            reply, meta, cards = _produce_reply(u, s, text, lang, history, **kw)
         except credits_out.CreditsOut as e:
             user_msg.delete()        # nothing saved; the title is not saved either
             return credits_out.response(u, lang, e.need)
@@ -1259,14 +1272,15 @@ class ChatStreamView(APIView):
         if first:
             s.derive_title(text)
         history = _history_for(s, upto_id=user_msg.id)
+        fk, ffree = follow_kind(request, text, s)
+        kw = dict(credout=credits_out.supported(request), mode=_chat_mode(request),
+                  photo=_photo_context(request), level=_chat_level(request),
+                  follow=fk, follow_free=ffree)
+        from . import chat_live_stream as LS
+        if LS.enabled():
+            return self._live(u, s, text, lang, history, kw, user_msg, cid)
         try:
-            fk, ffree = follow_kind(request, text, s)
-            reply, meta, cards = _produce_reply(u, s, text, lang, history,
-                                            credout=credits_out.supported(request),
-                                            mode=_chat_mode(request),
-                                            photo=_photo_context(request),
-                                            level=_chat_level(request),
-                                            follow=fk, follow_free=ffree)
+            reply, meta, cards = _produce_reply(u, s, text, lang, history, **kw)
         except credits_out.CreditsOut as e:
             # credout: a plain 402 JSON (not an SSE stream) — nothing saved.
             user_msg.delete()
@@ -1282,6 +1296,89 @@ class ChatStreamView(APIView):
         # guard: action claims, medical, invented money) BEFORE the first
         # token is sent — guarded text only, never raw provider tokens.
         return _sse(reply, asst, cards, meta)
+
+    def _live(self, u, s, text, lang, history, kw, user_msg, cid):
+        """aichat-nine: real streaming — complete, guarded sentences go to
+        the app while the model is still writing (core/chat_live_stream.py).
+        Same producer, same save / Stop / charge as the path above."""
+        from . import chat_live_stream as LS
+        from . import chat_stop
+        t0 = time.monotonic()
+        sink = LS.LiveSink()
+
+        def produce():
+            try:
+                reply, meta, cards = _produce_reply(u, s, text, lang, history, live=sink, **kw)
+                asst = ChatMessage.objects.create(session=s, role="assistant",
+                                                  text=reply, meta=meta)
+                s.save()
+                if chat_stop.after_turn(u, cid, asst.id):   # aileft: a Stop meanwhile
+                    asst.refresh_from_db()
+                    reply, meta = asst.text, asst.meta
+                sink.finish(("done", reply, asst, cards, meta))
+            except credits_out.CreditsOut as e:
+                sink.finish(("credout", e))
+            except Exception as e:  # noqa: BLE001 — reported on the request thread
+                log.exception("chat live stream: producer failed")
+                sink.finish(("error", e))
+        th = LS.run_worker(produce)
+        first = None
+        while first is None:
+            try:
+                first = sink.q.get(timeout=1.0)
+            except Exception:  # noqa: BLE001 — queue.Empty
+                if not th.is_alive() and sink.q.empty():
+                    first = ("error", RuntimeError("producer ended"))
+                elif time.monotonic() - t0 > LS.FIRST_WAIT_S:
+                    first = ("error", RuntimeError("no first event"))
+        if first[0] != "token":
+            th.join(timeout=30)
+            if first[0] == "credout":
+                user_msg.delete()            # credout: plain 402 JSON, nothing saved
+                return credits_out.response(u, lang, first[1].need)
+            if first[0] == "error":
+                raise first[1]
+            _k, reply, asst, cards, meta = first
+            return _sse(reply, asst, cards, meta)
+
+        import json as _j
+
+        def gen():
+            item = first
+            try:
+                while True:
+                    if item[0] == "token":
+                        if sink.first_at is not None and item is first:
+                            log.info("chat live stream: first token %d ms",
+                                     int((sink.first_at - t0) * 1000))
+                        yield "event: token\ndata: " + _j.dumps(
+                            {"chunk": item[1], "text": item[1]}) + "\n\n"
+                    elif item[0] == "done":
+                        _k, reply, asst, cards, meta = item
+                        for piece in LS.suffix_chunks(reply, sink.released):
+                            yield "event: token\ndata: " + _j.dumps(
+                                {"chunk": piece, "text": piece}) + "\n\n"
+                        done = {"message_id": asst.id, "cards": cards,
+                                "ai_used": meta.get("source") == "ai",
+                                "source": meta.get("source"), "text": reply,
+                                "meta": {k: meta[k] for k in _PUBLIC_META if k in meta},
+                                "timing": {"first_token_ms": int(((sink.first_at or time.monotonic())
+                                                                  - t0) * 1000),
+                                           "total_ms": int((time.monotonic() - t0) * 1000)}}
+                        yield "event: done\ndata: " + _j.dumps(done) + "\n\n"
+                        return
+                    else:
+                        # the producer failed after text was shown (should not
+                        # happen: _produce_reply never raises past credout)
+                        return
+                    item = sink.q.get(timeout=LS.FIRST_WAIT_S)
+            finally:
+                th.join(timeout=LS.FIRST_WAIT_S)
+
+        resp = StreamingHttpResponse(gen(), content_type="text/event-stream")
+        resp["Cache-Control"] = "no-cache"
+        resp["X-Accel-Buffering"] = "no"
+        return resp
 
 
 # ---------------------------------------------------------------------------

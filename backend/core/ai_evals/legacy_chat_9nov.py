@@ -84,7 +84,7 @@ def end_at_sentence(text):
 
 
 def chat_task_text(lang, user=None, *, minor=None, tools=None, follow="", photo=False,
-                   out_cap=0, web=False):
+                   out_cap=0, web=False, romanized=False):   # romanized: aichat-nine, ignored
     """The old inline composition in _produce_reply (no format / length /
     web / date rules)."""
     from core import ai_compliance as AC

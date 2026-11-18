@@ -4,6 +4,10 @@
   manage.py ai_exam --gate      release gate: exit 1 when the last exam failed / is stale
   manage.py ai_exam --on [--budget 1.5] [--min-pass 0.85] [--min-win 0.6] --reason "..."
   manage.py ai_exam --off --reason "..."
+  manage.py ai_exam --quality-status          aichat-nine: last answer-quality eval (80 cases + judge)
+  manage.py ai_exam --quality-now --confirm --budget 1.0 [--limit N]
+                                aichat-nine: run the answer-quality eval LIVE now (owner, real
+                                key; refuses in CI); the nightly run is inside --tick
                                 aiqual: the owner's switch from a shell — ONLY the exam keys
                                 of the ai_levels block change, through pricing_apply (the
                                 same audited save as Owner Admin -> AI answer levels)
@@ -32,6 +36,10 @@ class Command(BaseCommand):
         p.add_argument("--min-pass", type=float, dest="min_pass")
         p.add_argument("--min-win", type=float, dest="min_win")
         p.add_argument("--reason", default="")
+        p.add_argument("--quality-status", action="store_true", dest="quality_status")
+        p.add_argument("--quality-now", action="store_true", dest="quality_now")
+        p.add_argument("--confirm", action="store_true")
+        p.add_argument("--limit", type=int)
 
     @track_job("ai_exam")
     def handle(self, *a, **o):
@@ -43,14 +51,39 @@ class Command(BaseCommand):
             if not ok:
                 sys.exit(1)
             return
+        if o["quality_status"] or o["quality_now"]:
+            return self._quality(o)
         if o["status"]:
             s = AE.last()
             s.pop("fails", None)
             self.stdout.write(json.dumps(s, ensure_ascii=False, indent=1))
             return
         n = AE.tick()
+        q = 0
+        try:
+            # aichat-nine: the answer-quality eval runs right after the exam
+            from core import ai_answer_quality as AQ
+            q = AQ.tick()
+        except Exception as e:  # noqa: BLE001 — never breaks the exam job
+            self.stderr.write("ai quality tick failed: %s" % type(e).__name__)
         if not o["quiet"]:
-            self.stdout.write("graded %d" % n)
+            self.stdout.write("graded %d (+%d quality)" % (n, q))
+
+    def _quality(self, o):
+        from django.core.management.base import CommandError
+        from core import ai_answer_quality as AQ
+        if o["quality_status"]:
+            s = AQ.last()
+            s.pop("rows", None)
+            self.stdout.write(json.dumps(s, ensure_ascii=False, indent=1))
+            return
+        if not o["confirm"]:
+            raise CommandError("--quality-now calls the real AI: add --confirm (and --budget)")
+        try:
+            out = AQ.run_now(float(o.get("budget") or AQ.DEFAULT_BUDGET_USD), limit=o.get("limit"))
+        except RuntimeError as e:
+            raise CommandError(str(e))
+        self.stdout.write(json.dumps(out, ensure_ascii=False, indent=1))
 
     def _switch(self, o):
         from django.core.management.base import CommandError

@@ -529,7 +529,11 @@ class _AiChatScreenState extends State<AiChatScreen>
             final doneText = (ev['text'] ?? '').toString();
             setState(() {
               assistant.streaming = false;
-              if (assistant.text.isEmpty && doneText.isNotEmpty) {
+              // aichat-nine: the server streams guarded sentences while the
+              // model writes; the done text is the final, saved answer
+              // (consult line, money note, a cut tidied to a full sentence)
+              // and always wins.
+              if (doneText.isNotEmpty && doneText != assistant.text) {
                 assistant.text = doneText;
               }
               assistant.id = ev['message_id']?.toString();

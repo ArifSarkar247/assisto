@@ -71,8 +71,20 @@ CONT = re.compile(r"Continue EXACTLY|ঠিক সেখান থেকে চ�
 
 def answer_for(user, prompt, history, system):
     """The fake model's reply for one chat turn (deterministic)."""
-    bn = bool(BN.search(user))
+    # aichat-nine: like a real model, the fake follows the chat's language
+    # instruction (a romanized-Bangla question gets the Bangla task)
+    bn = bool(BN.search(user)) or "উত্তর সবসময় বাংলায়" in (system or "")
     low = user.lower()
+    if re.search(r"\b(?:bkash|bikash)\b", low) and not BN.search(user):
+        # aichat-nine (flow e2e2r_ai_romanized): romanized Bangla in -> Bangla
+        # in Bengali script out, streamed sentence by sentence
+        if not bn:
+            return "Open bKash and use Send Money. (CI)"
+        return ("সংক্ষেপে: বিকাশ অ্যাপের সেন্ড মানি দিয়ে কয়েক ধাপে টাকা পাঠানো যায়।\n"
+                "১. বিকাশ অ্যাপ খুলে সেন্ড মানি চাপুন।\n"
+                "২. প্রাপকের নম্বর দিন এবং টাকার অঙ্ক লিখুন।\n"
+                "৩. পিন দিয়ে নিশ্চিত করুন; পিন কাউকে বলবেন না।\n"
+                "পরের ধাপ: প্রথমবার ছোট অঙ্ক পাঠিয়ে দেখুন। (CI)")
     tools = "ACTION:" in (system or "") or "ACTION:" in (prompt or "")
     hist_text = " ".join(str(h.get("content", "")) for h in (history or []))
     ctx = (prompt or "") + " " + hist_text
@@ -136,9 +148,23 @@ def fake_call_anthropic(key, model, system, prompt, max_tokens, history=None):
         text = "ঠিক আছে (CI)" if BN.search(prompt or "") else "OK (CI)"
     cont = bool(CONT.search((system or "") + " " + (prompt or "")))
     cut = bool(user) and bool(LONG_PLAN.search(user)) and not cont
+    from core import ai
+    sink = ai.stream_sink()
+    if sink is not None:
+        # aichat-nine: a streaming request gets its text in pieces, like the
+        # real model (one piece per sentence, E2E_AI_STREAM_MS apart) — the
+        # e2e flows measure the time to the first visible words
+        import os
+        gap = int(os.environ.get("E2E_AI_STREAM_MS", "400")) / 1000.0
+        ai.sink_reset(sink)
+        for piece in re.findall(r"[^\n।.!?]*(?:[।.!?]+\s*|\n|$)", text):
+            if piece:
+                ai.sink_feed(sink, piece)
+                time.sleep(gap)
     record("ai", model=model, q=user[:200], a=text[:300], bn_q=bool(BN.search(user)),
            bn_a=bool(BN.search(text)), history=len(history or []),
-           cut=cut, cont=cont)
+           cut=cut, cont=cont, stream=sink is not None,
+           roman=bool(user) and not BN.search(user) and "Reply in English" not in (system or ""))
     itok = (len(system or "") + len(prompt or "")) // 4 + 1
     return text, itok, len(text) // 4 + 1, {"model": model, "truncated": cut}
 

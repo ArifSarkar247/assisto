@@ -197,8 +197,10 @@ def setup_live_like():
     GB.trip("http_402", "prepayment credits are depleted")
 
 
-def run(now=None, cases=None):
-    """Score every case offline -> scorecard dict. Call inside a test."""
+def run(now=None, cases=None, replay=None):
+    """Score every case offline -> scorecard dict. Call inside a test.
+    aichat-nine: `replay` ({id: recorded output}) for another case set (the
+    answer-quality eval); each row also carries what the user saw."""
     if not _test_db():
         raise RuntimeError("ai_exam_offline runs on a test database only")
     from django.contrib.auth import get_user_model
@@ -206,7 +208,7 @@ def run(now=None, cases=None):
     from . import ai_exam as AE
     now = now or timezone.now()
     cases = cases if cases is not None else AE.load_cases()
-    fake = FakeModels(load_replay())
+    fake = FakeModels(replay if replay is not None else load_replay())
     ledger = []
 
     def charge(user, action, qty=1, note="", min_credits=0, exact=None, paid_only=False):
@@ -249,7 +251,10 @@ def run(now=None, cases=None):
                          "credits_ok": not charge_fails and not err,
                          "ok": not ans_fails and not cf and not charge_fails,
                          "fails": ans_fails + ["contract:" + f for f in cf] + charge_fails,
-                         "charged": [x for x in ledger if x[0] == payer.pk]})
+                         "charged": [x for x in ledger if x[0] == payer.pk],
+                         "answer": ans, "continued": meta.get("continued", ""),
+                         "cut": bool(meta.get("cut")), "cont_charged": meta.get("cont_charged", 0),
+                         "calls": len(calls)})
     return scorecard(rows)
 
 

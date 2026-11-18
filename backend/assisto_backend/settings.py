@@ -176,6 +176,10 @@ MIDDLEWARE = [
     "web.seo.DuplicateHostNoindexMiddleware",
 ]
 
+# aichat-nine: Assisto AI streams guarded sentences while the model writes
+# (core/chat_live_stream.py). "0" = the old whole-answer stream.
+AI_LIVE_STREAM = env_bool("AI_LIVE_STREAM", True)
+
 ROOT_URLCONF = "assisto_backend.urls"
 
 TEMPLATES = [

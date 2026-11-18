@@ -198,88 +198,7 @@ void registerE2eProofFlows() {
     });
   }, timeout: const Duration(minutes: 5));
 
-  // ------------------------------------------------------------ 2 AI chat
-  realityFlow('e2e2_ai_chat_bn', 'E2E proof',
-      'AI chat: Bangla question -> Bangla answer; follow-up uses context; photo + question; photo follow-up',
-      (f) async {
-    await f.home();
-    final api = _apiA(f);
-    final since = await f.net(() => _now(api));
-    await f.step('open the chat; ask in Bangla -> Bangla answer', () async {
-      await f.openHomeChat();
-      await _askHome(f, 'বাংলাদেশের রাজধানী কোথায়?');
-      await f.waitFor(_sees('রাজধানী ঢাকা'), seconds: 40, what: 'Bangla answer');
-      await f.shot('bn-answer');
-      f.expectHttp('POST', '/agent');
-    });
-    await f.step('follow-up "সেখানে কত মানুষ থাকে?" -> answer knows the earlier turn', () async {
-      await _askHome(f, 'সেখানে কত মানুষ থাকে?');
-      await f.waitFor(_sees('আগের প্রশ্নটা মনে আছে'), seconds: 40,
-          what: 'answer built on the earlier turn (history reached the model)');
-      await f.shot('follow-up');
-    });
-    await f.step('photo + question -> photo answer in Bangla', () async {
-      ImagePickerPlatform.instance = _FakePicker([await f.net(() => _png('e2e_photo_$_tag'))]);
-      await f.enter('এই ছবিতে কী আছে?', label: f.t.inputHint);
-      await f.tap(find.byTooltip(f.t.h1AttachPhoto).hitTestable(), settleSeconds: 2);
-      await f.tap(find.text(f.t.h1PhotoGallery).hitTestable(), settleSeconds: 3);
-      await f.shot('photo-sent');
-      await f.waitFor(_sees('লাল বৃত্ত'), seconds: 60, what: 'photo answer');
-      await f.shot('photo-answer');
-    });
-    await f.step('photo follow-up "বৃত্তটা কোন রঙের?" -> answer from the photo', () async {
-      await _askHome(f, 'বৃত্তটা কোন রঙের?');
-      await f.waitFor(_sees('ছবিতে যা দেখেছি'), seconds: 40, what: 'photo-context answer');
-      await f.shot('photo-follow-up');
-    });
-    await f.step('server: every model turn was Bangla in, Bangla out; the photo reached vision', () async {
-      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
-      final chat = ai.where((r) => '${r['q']}'.isNotEmpty).toList();
-      if (chat.length < 3) throw TestFailure('only ${chat.length} chat turns reached the model');
-      final bad = chat.where((r) => r['bn_q'] == true && r['bn_a'] != true).toList();
-      if (bad.isNotEmpty) throw TestFailure('Bangla question answered in another language: $bad');
-      final vis = await f.net(() => _outbox(api, kind: 'vision', since: since));
-      if (vis.isEmpty || ((vis.last['bytes'] as num?) ?? 0) < 100) {
-        throw TestFailure('the photo never reached the vision provider: $vis');
-      }
-      f.note('model turns ${chat.length}, vision calls ${vis.length} (CI fake providers)');
-    });
-  }, timeout: const Duration(minutes: 6));
-
-  // gap-aichat: Assisto AI — a long answer cut at its limit ends at a full
-  // sentence + honest hint + Continue; Continue finishes from the cut point,
-  // free (the server got the Continue note; no credits on the second turn).
-  realityFlow('e2e2c_ai_continue', 'E2E proof',
-      'Assisto AI: long plan cut -> full sentence + hint + Continue -> rest from the cut point, free',
-      (f) async {
-    await f.home();
-    final api = _apiA(f);
-    final since = await f.net(() => _now(api));
-    await f.step('ask a long plan in Assisto AI -> cut answer + hint + Continue', () async {
-      await f.pushScreen(const AiChatScreen());
-      await f.enter('চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও', label: f.t.aichatInputHint);
-      await f.tapTooltip(f.t.aichatSend, settleSeconds: 6);
-      await f.waitFor(_sees('ভাড়া নিন।'), seconds: 40, what: 'cut answer up to a full sentence');
-      if (_sees('সরঞ্জাম কি').evaluate().isNotEmpty) {
-        throw TestFailure('the cut answer still ends mid-word');
-      }
-      await f.waitFor(find.byKey(const ValueKey('aichat_continue')), what: 'Continue button');
-      await f.waitFor(find.byKey(const ValueKey('aichat_cut_hint')), what: 'cut hint');
-      await f.shot('cut-answer');
-    });
-    await f.step('Continue -> the rest from the cut point, free', () async {
-      await f.tap(find.byKey(const ValueKey('aichat_continue')), settleSeconds: 6);
-      await f.waitFor(_sees('সরঞ্জাম কিনুন'), seconds: 40, what: 'continuation');
-      await f.waitFor(_sees(f.t.aibarFreeAnswer), what: 'free credit line');
-      await f.shot('continued');
-    });
-    await f.step('server: the second model turn carried the Continue note', () async {
-      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
-      if (!ai.any((r) => r['cut'] == true)) throw TestFailure('no cut turn: $ai');
-      if (!ai.any((r) => r['cont'] == true)) throw TestFailure('no Continue turn: $ai');
-      f.note('model turns ${ai.length} (CI fake providers)');
-    });
-  }, timeout: const Duration(minutes: 5));
+  registerAichatProofFlows(); // aichat-nine: also alone (e2e.yml group start+aichat)
 
   // ------------------------------------------------------------ 3 My Circle
   realityFlow('e2e3_circle_media', 'E2E proof',
@@ -727,4 +646,140 @@ void registerE2eProofFlows() {
               .any((x) => x['care_call_id'] == ccId && x['kind'] == 'confirmed'));
     });
   }, timeout: const Duration(minutes: 5));
+}
+
+/// aichat-nine: the AI chat proof flows (row 1) — inside the e2e group and
+/// alone with REALITY_ONLY=start,aichat (e2e.yml input group=start+aichat).
+void registerAichatProofFlows() {
+  // ------------------------------------------------------------ 2 AI chat
+  realityFlow('e2e2_ai_chat_bn', 'E2E proof',
+      'AI chat: Bangla question -> Bangla answer; follow-up uses context; photo + question; photo follow-up',
+      (f) async {
+    await f.home();
+    final api = _apiA(f);
+    final since = await f.net(() => _now(api));
+    await f.step('open the chat; ask in Bangla -> Bangla answer', () async {
+      await f.openHomeChat();
+      await _askHome(f, 'বাংলাদেশের রাজধানী কোথায়?');
+      await f.waitFor(_sees('রাজধানী ঢাকা'), seconds: 40, what: 'Bangla answer');
+      await f.shot('bn-answer');
+      f.expectHttp('POST', '/agent');
+    });
+    await f.step('follow-up "সেখানে কত মানুষ থাকে?" -> answer knows the earlier turn', () async {
+      await _askHome(f, 'সেখানে কত মানুষ থাকে?');
+      await f.waitFor(_sees('আগের প্রশ্নটা মনে আছে'), seconds: 40,
+          what: 'answer built on the earlier turn (history reached the model)');
+      await f.shot('follow-up');
+    });
+    await f.step('photo + question -> photo answer in Bangla', () async {
+      ImagePickerPlatform.instance = _FakePicker([await f.net(() => _png('e2e_photo_$_tag'))]);
+      await f.enter('এই ছবিতে কী আছে?', label: f.t.inputHint);
+      await f.tap(find.byTooltip(f.t.h1AttachPhoto).hitTestable(), settleSeconds: 2);
+      await f.tap(find.text(f.t.h1PhotoGallery).hitTestable(), settleSeconds: 3);
+      await f.shot('photo-sent');
+      await f.waitFor(_sees('লাল বৃত্ত'), seconds: 60, what: 'photo answer');
+      await f.shot('photo-answer');
+    });
+    await f.step('photo follow-up "বৃত্তটা কোন রঙের?" -> answer from the photo', () async {
+      await _askHome(f, 'বৃত্তটা কোন রঙের?');
+      await f.waitFor(_sees('ছবিতে যা দেখেছি'), seconds: 40, what: 'photo-context answer');
+      await f.shot('photo-follow-up');
+    });
+    await f.step('server: every model turn was Bangla in, Bangla out; the photo reached vision', () async {
+      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
+      final chat = ai.where((r) => '${r['q']}'.isNotEmpty).toList();
+      if (chat.length < 3) throw TestFailure('only ${chat.length} chat turns reached the model');
+      final bad = chat.where((r) => r['bn_q'] == true && r['bn_a'] != true).toList();
+      if (bad.isNotEmpty) throw TestFailure('Bangla question answered in another language: $bad');
+      final vis = await f.net(() => _outbox(api, kind: 'vision', since: since));
+      if (vis.isEmpty || ((vis.last['bytes'] as num?) ?? 0) < 100) {
+        throw TestFailure('the photo never reached the vision provider: $vis');
+      }
+      f.note('model turns ${chat.length}, vision calls ${vis.length} (CI fake providers)');
+    });
+  }, timeout: const Duration(minutes: 6));
+
+  // gap-aichat: Assisto AI — a long answer cut at its limit ends at a full
+  // sentence + honest hint + Continue; Continue finishes from the cut point,
+  // free (the server got the Continue note; no credits on the second turn).
+  realityFlow('e2e2c_ai_continue', 'E2E proof',
+      'Assisto AI: long plan cut -> full sentence + hint + Continue -> rest from the cut point, free',
+      (f) async {
+    await f.home();
+    final api = _apiA(f);
+    final since = await f.net(() => _now(api));
+    await f.step('ask a long plan in Assisto AI -> cut answer + hint + Continue', () async {
+      await f.pushScreen(const AiChatScreen());
+      await f.enter('চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও', label: f.t.aichatInputHint);
+      await f.tapTooltip(f.t.aichatSend, settleSeconds: 6);
+      await f.waitFor(_sees('ভাড়া নিন।'), seconds: 40, what: 'cut answer up to a full sentence');
+      if (_sees('সরঞ্জাম কি').evaluate().isNotEmpty) {
+        throw TestFailure('the cut answer still ends mid-word');
+      }
+      await f.waitFor(find.byKey(const ValueKey('aichat_continue')), what: 'Continue button');
+      await f.waitFor(find.byKey(const ValueKey('aichat_cut_hint')), what: 'cut hint');
+      await f.shot('cut-answer');
+    });
+    await f.step('Continue -> the rest from the cut point, free', () async {
+      await f.tap(find.byKey(const ValueKey('aichat_continue')), settleSeconds: 6);
+      await f.waitFor(_sees('সরঞ্জাম কিনুন'), seconds: 40, what: 'continuation');
+      await f.waitFor(_sees(f.t.aibarFreeAnswer), what: 'free credit line');
+      await f.shot('continued');
+    });
+    await f.step('server: the second model turn carried the Continue note', () async {
+      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
+      if (!ai.any((r) => r['cut'] == true)) throw TestFailure('no cut turn: $ai');
+      if (!ai.any((r) => r['cont'] == true)) throw TestFailure('no Continue turn: $ai');
+      f.note('model turns ${ai.length} (CI fake providers)');
+    });
+  }, timeout: const Duration(minutes: 5));
+
+
+  // aichat-nine: romanized Bangla in -> Bangla (Bengali script) out, and the
+  // answer STREAMS: the first sentence is on screen while the model is still
+  // writing (CI fake: one sentence every E2E_AI_STREAM_MS = 400 ms).
+  realityFlow('e2e2r_ai_romanized', 'E2E proof',
+      'Assisto AI: romanized Bangla question -> Bangla answer in Bengali script, streamed (first words before the end)',
+      (f) async {
+    await f.home();
+    final api = _apiA(f);
+    final since = await f.net(() => _now(api));
+    int? firstMs;
+    int? fullMs;
+    await f.step('ask "bkash e taka pathabo kivabe?" -> first sentence, then the rest', () async {
+      await f.pushScreen(const AiChatScreen());
+      await f.enter('bkash e taka pathabo kivabe?', label: f.t.aichatInputHint);
+      final sw = Stopwatch()..start();
+      await f.tapTooltip(f.t.aichatSend, settleSeconds: 0);
+      while (sw.elapsedMilliseconds < 45000) {
+        await f.tester.pump(const Duration(milliseconds: 50));
+        if (firstMs == null && _sees('সংক্ষেপে: বিকাশ অ্যাপের').evaluate().isNotEmpty) {
+          firstMs = sw.elapsedMilliseconds;
+        }
+        if (_sees('পরের ধাপ: প্রথমবার ছোট অঙ্ক').evaluate().isNotEmpty) {
+          fullMs = sw.elapsedMilliseconds;
+          break;
+        }
+      }
+      await f.shot('romanized-answer');
+      if (firstMs == null || fullMs == null) {
+        throw TestFailure('answer never shown (first=$firstMs full=$fullMs)');
+      }
+      if (_sees('Send Money').evaluate().isNotEmpty || _sees('Open bKash').evaluate().isNotEmpty) {
+        throw TestFailure('romanized Bangla was answered in English');
+      }
+      if (firstMs! >= fullMs!) {
+        throw TestFailure('not streamed: first words $firstMs ms, full answer $fullMs ms');
+      }
+      f.note('AICHAT9-UI first words ${firstMs}ms, full answer ${fullMs}ms (CI fake, 5 sentences x 400 ms)');
+    });
+    await f.step('server: Bangla task for the romanized question, streamed request', () async {
+      final ai = await f.net(() => _outbox(api, kind: 'ai', since: since));
+      final row = ai.where((r) => '${r['q']}'.contains('bkash e taka')).toList();
+      if (row.isEmpty) throw TestFailure('the question never reached the model: $ai');
+      if (row.last['roman'] != true) throw TestFailure('no Bangla task for romanized Bangla: ${row.last}');
+      if (row.last['bn_a'] != true) throw TestFailure('answer not in Bengali script: ${row.last}');
+      if (row.last['stream'] != true) throw TestFailure('the chat did not stream: ${row.last}');
+    });
+  }, timeout: const Duration(minutes: 4));
 }

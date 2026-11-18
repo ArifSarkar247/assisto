@@ -78,6 +78,10 @@ void main() {
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
+  // aichat-nine: the AI chat proof flows alone (e2e.yml group=start+aichat)
+  if (only.split(',').contains('aichat') && !only.split(',').contains('e2e')) {
+    registerAichatProofFlows();
+  }
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
