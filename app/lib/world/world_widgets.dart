@@ -27,7 +27,7 @@ String uwWhen(BuildContext context, String iso, {bool time = true}) {
       time ? 'd MMM, HH:mm' : 'd MMM yyyy', d.toLocal(), uwLang(context));
 }
 
-/// homefeed: "how long ago" for an ISO time ("20 min ago" / "২০ মিনিট আগে"),
+/// homefeed: "how long ago" for an ISO time ("20 min ago"; Bangla in bn),
 /// Bangla digits in bn. '' when the time is missing or unparseable.
 String uwAgo(BuildContext context, String iso, {DateTime? now}) {
   final d = DateTime.tryParse(iso.trim());
