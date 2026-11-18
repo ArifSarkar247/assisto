@@ -143,14 +143,15 @@ jobs:
             || sudo apt-get install -y -qq --no-install-recommends ffmpeg v4l2loopback-dkms >/dev/null 2>&1 || true
           CAM=emulated
           if sudo modprobe v4l2loopback devices=1 video_nr=0 exclusive_caps=1 card_label=pcfgs-cam; then
-            sudo chmod 666 /dev/video0
-            nohup ffmpeg -hide_banner -loglevel error -re \
+            sudo udevadm settle || true; sleep 1; sudo chmod 666 /dev/video0
+            # sudo: run 44287542968 died with "Permission denied" writing frames
+            sudo nohup ffmpeg -hide_banner -loglevel error -re \
               -f lavfi -i "color=c=0x8a8a7a:s=640x480:r=15" \
               -f lavfi -i "color=c=0x1e2a3a:s=140x300:r=15" \
               -filter_complex "[0][1]overlay=x='mod(t,25)*70-140':y=120:enable='lt(mod(t,25),10)',format=yuyv422" \
               -f v4l2 /dev/video0 > "$RUNNER_TEMP/fakecam.log" 2>&1 &
-            sleep 5
-            if kill -0 $! 2>/dev/null; then CAM=webcam0; fi
+            sleep 5; sudo chmod 666 /dev/video0 || true
+            if pgrep -f "f v4l2 /dev/video0" >/dev/null; then CAM=webcam0; fi
           fi
           echo "PCFGS_CAM=$CAM" >> "$GITHUB_ENV"
           echo "camera-back: $CAM"; cat "$RUNNER_TEMP/fakecam.log" 2>/dev/null | tail -5 || true
