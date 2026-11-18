@@ -22,6 +22,7 @@ import '../../maps/place_search.dart' show PlacePick;
 import '../../state.dart';
 import '../../theme.dart';
 import '../../train/dest_alarm_math.dart';
+import '../../train/dest_alarm_fullscreen.dart' show DestAlarmFullScreen; // gap-nearby
 import '../../train/dest_alarm_service.dart';
 import '../../train/journey_transit.dart';
 import '../../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
@@ -64,6 +65,9 @@ Future<void> startCityJourney(BuildContext context,
   if (!context.mounted) return;
   final ride = option.lastRide;
   final stop = ride?.alight;
+  // gap-nearby: the get-off ring shows full screen (also over the lock
+  // screen) here too — before, only the train alarm screen set it
+  DestAlarmController.ringNotice ??= DestAlarmFullScreen();
   final res = await showAppSheet<({Set<int> ids, bool alarm})>(
     context: context,
     isScrollControlled: true,
@@ -333,6 +337,38 @@ class _CityTripScreenState extends State<CityTripScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
+          // gap-nearby: while the get-off alarm rings, say so here with the
+          // one button that stops it (the trip guide was silent before)
+          ValueListenableBuilder<DestAlarmState>(
+            valueListenable: DestAlarmController.I,
+            builder: (context, s, _) {
+              if (s.phase != DestAlarmPhase.ringing || s.plan == null) return const SizedBox.shrink();
+              final cs = Theme.of(context).colorScheme;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: Gap.lg),
+                child: Material(
+                  key: const ValueKey('city_alarm_ringing'),
+                  color: cs.errorContainer,
+                  borderRadius: BorderRadius.circular(Radii.md),
+                  child: Padding(
+                    padding: const EdgeInsets.all(Gap.md),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                      Text(cityD(context, t.trAlarmRinging(s.plan!.target.name)),
+                          style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800, color: cs.onErrorContainer)),
+                      const SizedBox(height: Gap.sm),
+                      FilledButton.icon(
+                        key: const ValueKey('city_alarm_awake'),
+                        style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                        onPressed: () => unawaited(DestAlarmController.I.confirmAwake()),
+                        icon: const Icon(Icons.check_rounded),
+                        label: Text(t.trImAwake),
+                      ),
+                    ]),
+                  ),
+                ),
+              );
+            },
+          ),
           if (_atStation && exit != null) ...[
             Text(cityD(context, t.cityWhichGateNow(exit.station.label(cityBn(context)))),
                 key: const ValueKey('city_which_gate_now'),

@@ -208,6 +208,11 @@ void registerNearbyCityFlows() {
         await f.eventually('the alarm rings near the stop',
             () async => DestAlarmController.I.value.phase == DestAlarmPhase.ringing, seconds: 30);
         await f.shot('city_alarm_ringing');
+        // the trip guide says so, with the one button that stops it
+        await f.waitFor(find.byKey(const ValueKey('city_alarm_ringing')), what: 'ringing card on the trip guide');
+        await f.tap(find.byKey(const ValueKey('city_alarm_awake')).last, settleSeconds: 2);
+        await f.eventually('"I\'m awake" stops the ring',
+            () async => DestAlarmController.I.value.phase != DestAlarmPhase.ringing, seconds: 15);
       } finally {
         await f.net(() => DestAlarmController.I.stop());
         await _airplane(f, false);

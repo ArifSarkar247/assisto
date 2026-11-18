@@ -11,7 +11,10 @@ import 'package:assisto/city/metro_fare.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/nearby/area_cache.dart';
+import 'package:assisto/screens/city/city_journey.dart';
 import 'package:assisto/screens/city/city_metro_screen.dart';
+import 'package:assisto/train/dest_alarm_math.dart';
+import 'package:assisto/train/dest_alarm_service.dart';
 import 'package:assisto/screens/nearby_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -82,6 +85,7 @@ Future<void> _pull(WidgetTester tester) async {
 final _saved = DateTime(2026, 11, 18, 10, 5);
 
 void main() {
+  _tripRinging();
   group('Nearby pull-to-refresh', () {
     testWidgets('pull really asks the server again and says so', (tester) async {
       NearbyScreen.areaRequests = 0;
@@ -244,6 +248,29 @@ void main() {
         expect(find.byKey(const ValueKey('city_metro_pair_tk_60')), findsOneWidget);
       });
     }
+  });
+}
+
+void _tripRinging() {
+  group('city trip guide while the get-off alarm rings', () {
+    testWidgets('shows "You are near …" + I\'m awake; nothing when not ringing', (tester) async {
+      final opt = CityPlan.from(fakeCityPlan()).options.values.first;
+      final old = DestAlarmController.I;
+      addTearDown(() => DestAlarmController.I = old);
+      DestAlarmController.I = DestAlarmController(useService: false);
+      final (t, _) = await _pump(tester, CityTripScreen(option: opt, debugPositions: const Stream.empty()));
+      expect(find.byKey(const ValueKey('city_alarm_ringing')), findsNothing);
+      DestAlarmController.I.value = const DestAlarmState(
+          phase: DestAlarmPhase.ringing,
+          plan: DestPlan(
+              mode: TransportMode.cityBus,
+              target: DestTarget('Motijheel', 23.733, 90.4177),
+              setM: kCityAlarmM,
+              notifyCircleIds: []));
+      await tester.pumpAndSettle();
+      expect(find.text(t.trAlarmRinging('Motijheel')), findsOneWidget);
+      expect(find.byKey(const ValueKey('city_alarm_awake')), findsOneWidget);
+    });
   });
 }
 
