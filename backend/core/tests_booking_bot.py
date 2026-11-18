@@ -221,9 +221,14 @@ class JourneyTests(_Base):
         # the slot is gone for everybody
         r = self.g.get("/api/v1/booking/p/rupa-salon/slots", {"service": self.svc, "day": day.isoformat()})
         self.assertNotIn(at(day, 10).isoformat(), [s["start"] for s in r.data["slots"]])
-        # double booking refused
-        r = self.app_book(self.c, at(day, 10))
+        # double booking refused (another account)
+        c2 = APIClient()
+        c2.force_authenticate(self.other)
+        r = self.app_book(c2, at(day, 10))
         self.assertEqual((r.status_code, r.data["error"]), (409, "slot_taken"))
+        # bizassist B2: the SAME customer retrying gets the same booking back
+        r = self.app_book(self.c, at(day, 10))
+        self.assertEqual((r.status_code, r.data["id"]), (200, bid))
         # business sees it today/upcoming WITH the phone; another account cannot
         r = self.o.get("/api/v1/booking/biz/bookings", {"scope": "upcoming"})
         row = r.data["bookings"][0]
