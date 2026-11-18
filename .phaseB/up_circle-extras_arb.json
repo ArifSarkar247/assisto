@@ -1,0 +1,104 @@
+{
+ "_comment": "circle-extras: rows 47/48/50 (link a phone by QR / code)",
+ "en": {
+  "dlkLoginEntry": "Link to my main phone",
+  "dlkNewTitle": "Link to your main phone",
+  "dlkNewStep1": "1. On your main phone: My Circle → ⋮ → Linked devices → Link a phone.",
+  "dlkNewStep2": "2. Point this phone's camera at the code, or type the 8-character code.",
+  "dlkCameraOff": "No camera here — type the 8-character code instead.",
+  "dlkCameraDenied": "Camera is not allowed — type the 8-character code instead (or allow the camera in Settings).",
+  "dlkCodeLabel": "8-character code",
+  "dlkContinue": "Continue",
+  "dlkTypeInstead": "Type the code instead",
+  "dlkScanInstead": "Scan the code",
+  "dlkNotOurQr": "This is not an Assisto link code. Scan the code on your main phone's Linked devices page.",
+  "dlkCodeIncomplete": "Type all 8 characters (for example ABCD-EFGH).",
+  "dlkWaitTitle": "Allow it on your main phone",
+  "dlkWaitBody": "Your main phone now asks to link this phone. Check it shows these same digits, then tap “Link this phone” there:",
+  "dlkRejected": "Your main phone did not allow this link.",
+  "dlkExpiredNew": "Time ran out. Get a new code on your main phone and try again.",
+  "dlkDoneNew": "Linked. Opening your messages…",
+  "dlkCancel": "Cancel",
+  "dlkTryAgain": "Try again",
+  "dlkLinkFailed": "Could not link. Check the internet on both phones and try again.",
+  "dlkHonest": "Your encryption key is copied to the new phone sealed so that only that phone can open it — Assisto's server cannot read it or your messages.",
+  "dlkHeroSub": "Use Assisto on a second phone or tablet — the same messages on both.",
+  "dlkSheetTitle": "Link a phone",
+  "dlkSheetBody": "On the new phone open Assisto, tap “Link to my main phone” on the sign-in page, then scan this code.",
+  "dlkOrType": "Or type this code on the new phone:",
+  "dlkExpiresIn": "Code works for {sec} more seconds",
+  "@dlkExpiresIn": {
+   "placeholders": {
+    "sec": {
+     "type": "int"
+    }
+   }
+  },
+  "dlkExpired": "This code expired.",
+  "dlkNewCode": "New code",
+  "dlkConfirmTitle": "Link {name}?",
+  "@dlkConfirmTitle": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dlkConfirmBody": "The new phone must show exactly these digits:",
+  "dlkConfirmWarn": "Only link your own phone: it will read and send all your My Circle messages. You can log it out here any time.",
+  "dlkAllow": "Link this phone",
+  "dlkDeny": "Don't link",
+  "dlkLinkedOk": "{name} is linked. Messages now arrive on both phones.",
+  "@dlkLinkedOk": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "dlkUnlinkBody": "This phone is signed out at once and can no longer read or send your messages.",
+  "dlkEmptyBody": "No other phone is linked. Link one to read and send your My Circle messages on both — they stay end-to-end encrypted.",
+  "dlkThisPhone": "This phone",
+  "dlkUnnamedPhone": "Phone"
+ },
+ "bn": {
+  "dlkLoginEntry": "মূল ফোন দিয়ে লিংক করুন",
+  "dlkNewTitle": "মূল ফোনের সাথে লিংক",
+  "dlkNewStep1": "১. মূল ফোনে: My Circle → ⋮ → লিংকড ডিভাইস → ফোন লিংক করুন।",
+  "dlkNewStep2": "২. এই ফোনের ক্যামেরা কোডের দিকে ধরুন, অথবা ৮ অক্ষরের কোডটি লিখুন।",
+  "dlkCameraOff": "এখানে ক্যামেরা নেই — ৮ অক্ষরের কোডটি লিখুন।",
+  "dlkCameraDenied": "ক্যামেরার অনুমতি নেই — ৮ অক্ষরের কোডটি লিখুন (অথবা সেটিংসে ক্যামেরা চালু করুন)।",
+  "dlkCodeLabel": "৮ অক্ষরের কোড",
+  "dlkContinue": "এগিয়ে যান",
+  "dlkTypeInstead": "কোড লিখে দিন",
+  "dlkScanInstead": "কোড স্ক্যান করুন",
+  "dlkNotOurQr": "এটি Assisto-র লিংক কোড নয়। মূল ফোনের \"লিংকড ডিভাইস\" পাতার কোডটি স্ক্যান করুন।",
+  "dlkCodeIncomplete": "পুরো ৮টি অক্ষর লিখুন (যেমন ABCD-EFGH)।",
+  "dlkWaitTitle": "মূল ফোনে অনুমতি দিন",
+  "dlkWaitBody": "মূল ফোন এখন এই ফোন লিংকের অনুমতি চাইছে। সেখানে ঠিক এই সংখ্যাগুলো দেখাচ্ছে কি না মিলিয়ে \"এই ফোন লিংক করুন\" চাপুন:",
+  "dlkRejected": "মূল ফোন এই লিংকের অনুমতি দেয়নি।",
+  "dlkExpiredNew": "সময় শেষ। মূল ফোনে নতুন কোড নিয়ে আবার চেষ্টা করুন।",
+  "dlkDoneNew": "লিংক হয়েছে। আপনার মেসেজ খুলছে…",
+  "dlkCancel": "বাতিল",
+  "dlkTryAgain": "আবার চেষ্টা করুন",
+  "dlkLinkFailed": "লিংক করা যায়নি। দুই ফোনেই ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "dlkHonest": "আপনার এনক্রিপশন কী নতুন ফোনে সিল করে পাঠানো হয় — শুধু সেই ফোনই খুলতে পারে; Assisto-র সার্ভার কী বা মেসেজ পড়তে পারে না।",
+  "dlkHeroSub": "দ্বিতীয় ফোন বা ট্যাবে Assisto চালান — দুটোতেই একই মেসেজ।",
+  "dlkSheetTitle": "ফোন লিংক করুন",
+  "dlkSheetBody": "নতুন ফোনে Assisto খুলে সাইন-ইন পাতায় \"মূল ফোন দিয়ে লিংক করুন\" চাপুন, তারপর এই কোডটি স্ক্যান করুন।",
+  "dlkOrType": "অথবা নতুন ফোনে এই কোডটি লিখুন:",
+  "dlkExpiresIn": "কোডটি আর {sec} সেকেন্ড চলবে",
+  "dlkExpired": "এই কোডের সময় শেষ।",
+  "dlkNewCode": "নতুন কোড",
+  "dlkConfirmTitle": "{name} লিংক করবেন?",
+  "dlkConfirmBody": "নতুন ফোনে ঠিক এই সংখ্যাগুলো দেখাতে হবে:",
+  "dlkConfirmWarn": "শুধু নিজের ফোন লিংক করুন: এটি আপনার My Circle-এর সব মেসেজ পড়তে ও পাঠাতে পারবে। যেকোনো সময় এখান থেকে লগ আউট করতে পারবেন।",
+  "dlkAllow": "এই ফোন লিংক করুন",
+  "dlkDeny": "লিংক করবেন না",
+  "dlkLinkedOk": "{name} লিংক হয়েছে। এখন দুই ফোনেই মেসেজ আসবে।",
+  "dlkUnlinkBody": "এই ফোনটি সঙ্গে সঙ্গে সাইন-আউট হবে, আর আপনার মেসেজ পড়তে বা পাঠাতে পারবে না।",
+  "dlkEmptyBody": "আর কোনো ফোন লিংক করা নেই। একটি লিংক করলে দুই ফোনেই My Circle-এর মেসেজ পড়া ও পাঠানো যাবে — মেসেজ এন্ড-টু-এন্ড এনক্রিপ্টেডই থাকবে।",
+  "dlkThisPhone": "এই ফোন",
+  "dlkUnnamedPhone": "ফোন"
+ }
+}

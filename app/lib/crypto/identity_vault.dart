@@ -218,6 +218,29 @@ class IdentityVault {
     return merged.length;
   }
 
+  /// circle-extras (row 50): this phone was LINKED to the account's main
+  /// phone — the main phone's [current] key becomes THIS phone's identity
+  /// (even if one exists: both phones must hold the same key so every
+  /// message opens on both, and the re-published key id is unchanged for
+  /// friends). Earlier keys of this phone stay in the ring. Returns the ring
+  /// size, or 0 when the store could not be written.
+  Future<int> adoptLinked(IdentityKeyPair current,
+      List<IdentityKeyPair> keys) async {
+    final have = await _storedRing();
+    final curRaw = await _s.read(slot);
+    final curNow = curRaw == null ? null : _decode(curRaw);
+    final merged = <IdentityKeyPair>[];
+    for (final k in [current, ...keys, if (curNow != null) curNow, ...have]) {
+      if (!merged.any((m) => m.keyId == k.keyId)) merged.add(k);
+    }
+    if (!await _s.write(slot, _encode(current))) return 0;
+    _cached = current;
+    rekeyed = false;
+    volatile = false;
+    await _writeRing(merged);
+    return merged.length;
+  }
+
   /// TESTS: forget in-memory state (simulates an app restart).
   void resetForTests() {
     _cached = null;

@@ -311,3 +311,14 @@ class PushRouting {
     return PushTarget(chatNavRoute: r);
   }
 }
+
+
+/// circle-extras (row 48): the channel a "new channel post" push opens, or
+/// null (any other push). The server sends {route: channels, channel_id}.
+int? channelPostTarget(Map<String, String> data) {
+  final kind = data['kind'] ?? data['type'] ?? '';
+  final route = data['route'] ?? '';
+  if (kind != 'channel_post' && route != 'channels') return null;
+  final id = int.tryParse(data['channel_id'] ?? '');
+  return (id != null && id > 0) ? id : null;
+}

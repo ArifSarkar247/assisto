@@ -11,14 +11,16 @@ import '../../state.dart';
 import '../../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
+import '../../widgets/notif_models.dart' show notifAgo; // circle-extras
+import 'link_phone_sheet.dart'; // circle-extras
 
 /// MY CIRCLE HUB ⋮ → Linked devices (SPEC §2).
 ///
-/// Shows the QR/link token minted by the backend (`link-start`) so a web or
-/// desktop client can link, lists the already-linked devices with their last
-/// active time, and lets the user log each one out. The link payload is
-/// NON-SECRET (a short-lived session token, never a private key) — chats stay
-/// end-to-end encrypted.
+/// circle-extras (row 50): "Link a phone" shows a real QR + 8-character code
+/// for a SECOND PHONE (its sign-in page → "Link to my main phone"); the list
+/// shows each linked phone with its last use; "Log out" signs that phone out
+/// at once (server revokes its session). Chats stay end-to-end encrypted:
+/// the key ring is sealed to the new phone on this phone.
 ///
 /// Degrades to honest loading / empty / error states while the backend agent
 /// finishes the endpoints — no dead taps.
@@ -33,7 +35,6 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
   bool _loading = true;
   bool _failed = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
-  bool _linkBusy = false;
   List<Map<String, dynamic>> _devices = [];
 
   @override
@@ -63,67 +64,19 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  /// circle-extras: the real QR + 8-character code, live status, confirm
+  /// with the SAME 6 digits as the new phone, then the key ring is sealed
+  /// on this phone to the new phone's one-time key (lib/crypto/device_link).
   Future<void> _startLink() async {
-    setState(() => _linkBusy = true);
-    Map<String, dynamic>? payload;
-    try {
-      payload = await _api.hubLinkStart();
-    } catch (_) {
-      payload = null;
-    }
-    if (!mounted) return;
-    setState(() => _linkBusy = false);
-    if (payload == null) {
-      _snack(_t.msgrLinkStartFailed);
-      return;
-    }
-    await _showQrSheet(payload);
-    if (mounted) _load();
-  }
-
-  Future<void> _showQrSheet(Map<String, dynamic> payload) async {
-    final t = _t;
-    final token = '${payload['token'] ?? payload['qr'] ?? ''}';
-    await showAppSheet<void>(
+    final linked = await showAppSheet<String>(
       context: context,
       showDragHandle: true,
-      builder: (ctx) {
-        final scheme = Theme.of(ctx).colorScheme;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.xl),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(t.msgrLinkDevice,
-                  style: Theme.of(ctx).textTheme.titleMedium),
-              const SizedBox(height: Gap.lg),
-              // The server returns the token; we render it as a scannable
-              // block. A full QR bitmap is drawn by the web client that reads
-              // this token — here we show the code the user confirms.
-              Container(
-                padding: const EdgeInsets.all(Gap.lg),
-                decoration: BoxDecoration(
-                  color: scheme.ds.cardHighest,
-                  borderRadius: BorderRadius.circular(Radii.md),
-                ),
-                child: Icon(Icons.qr_code_2_rounded,
-                    size: 160, color: scheme.ds.text),
-              ),
-              const SizedBox(height: Gap.md),
-              if (token.isNotEmpty)
-                SelectableText(token,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 13, color: scheme.ds.muted)),
-              const SizedBox(height: Gap.md),
-              Text(t.msgrLinkScanHint,
-                  textAlign: TextAlign.center,
-                  style:
-                      TextStyle(color: scheme.ds.muted, height: 1.3)),
-            ]),
-          ),
-        );
-      },
+      isScrollControlled: true,
+      builder: (_) => LinkPhoneSheet(api: _api),
     );
+    if (!mounted) return;
+    if (linked != null) _snack(_t.dlkLinkedOk(linked));
+    _load();
   }
 
   Future<void> _logout(Map<String, dynamic> d) async {
@@ -133,7 +86,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
       builder: (ctx) => AlertDialog(
         scrollable: true, // insets: 200% text / keyboard
         title: Text(t.msgrLinkedLogoutTitle),
-        content: Text(t.msgrLinkedLogoutBody),
+        content: Text(t.dlkUnlinkBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -176,18 +129,14 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                 child: DsHeroCard(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: ListTile(
+                  key: const Key('dlk-start'),
                   leading: DsAvatar(child: Icon(Icons.qr_code_2_rounded,
                       color: Theme.of(context).colorScheme.ds.primaryInk)),
                   title: Text(t.msgrLinkDevice,
                       style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-                  subtitle: Text(t.msgrLinkScanHint),
-                  trailing: _linkBusy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.chevron_right_rounded),
-                  onTap: _linkBusy ? null : _startLink,
+                  subtitle: Text(t.dlkHeroSub),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _startLink,
                 ),
               )),
               Expanded(
@@ -209,24 +158,39 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
 
   Widget _row(Map<String, dynamic> d) {
     final t = _t;
-    final name = '${d['name'] ?? d['platform'] ?? ''}';
-    final last = '${d['last_active'] ?? d['linked_at'] ?? ''}';
+    final name = '${d['name'] ?? ''}'.trim();
+    final plat = '${d['platform_label'] ?? d['platform'] ?? ''}';
+    // circle-extras: "5 min ago" with Bangla digits (was a raw ISO string)
+    final last = notifAgo(context, '${d['last_active'] ?? d['linked_at'] ?? ''}');
+    final current = d['current'] == true;
     return ListTile(
-      leading: DsAvatar(size: 40, child: Icon(Icons.devices_rounded, size: 20,
+      key: ValueKey('dlk-row-${d['device_id'] ?? d['id']}'),
+      leading: DsAvatar(size: 40, child: Icon(Icons.smartphone_rounded, size: 20,
           color: Theme.of(context).colorScheme.ds.primaryInk)),
-      title: Text(name.isEmpty ? '?' : name),
-      subtitle: last.isEmpty
+      title: Text(name.isEmpty ? (plat.isEmpty ? t.dlkUnnamedPhone : plat) : name),
+      subtitle: Text([
+        if (current) t.dlkThisPhone,
+        if (last.isNotEmpty) '${t.msgrLinkedLastActive}: $last',
+      ].join(' · ')),
+      trailing: current
           ? null
-          : Text('${t.msgrLinkedLastActive}: $last'),
-      trailing: TextButton(
-        onPressed: () => _logout(d),
-        child: Text(t.msgrLinkedLogout),
-      ),
+          : TextButton(
+              key: ValueKey('dlk-unlink-${d['device_id'] ?? d['id']}'),
+              onPressed: () => _logout(d),
+              child: Text(t.msgrLinkedLogout),
+            ),
     );
   }
 
-  Widget _empty() => _centeredState(
-      Icons.devices_rounded, _t.msgrLinkedEmptyTitle, _t.msgrLinkedEmptyBody);
+  Widget _empty() => ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        MsgrEmptyState(
+          icon: Icons.devices_rounded,
+          title: _t.msgrLinkedEmptyTitle,
+          body: _t.dlkEmptyBody,
+          action: DsButton(
+              onPressed: _startLink, icon: Icons.qr_code_2_rounded, label: _t.dlkSheetTitle),
+        ),
+      ]);
 
   Widget _error() {
     final t = _t;
@@ -241,6 +205,4 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     ]);
   }
 
-  Widget _centeredState(IconData icon, String title, String body) =>
-      MsgrEmptyState(icon: icon, title: title, body: body);
 }

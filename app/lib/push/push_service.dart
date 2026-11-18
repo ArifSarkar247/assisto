@@ -11,6 +11,7 @@ import '../train/dest_alarm_fullscreen.dart' show DestAlarmFullScreen; // sjtrai
 import '../train/dest_alarm_service.dart' show DestAlarmController; // sjtrain
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
+import '../screens/messenger/channel_detail_screen.dart' show ChannelDetailScreen; // circle-extras
 import '../crypto/key_wiring.dart';
 import 'dart:async';
 
@@ -768,6 +769,16 @@ class PushService {
                 businessId: kc.businessId,
                 partyId: kc.partyId,
                 title: kc.name)));
+        return;
+      }
+    }
+    // circle-extras (row 48): a new channel post -> THAT channel (was the
+    // Channels list only; the push always carried channel_id).
+    final chId = channelPostTarget(p.data);
+    if (chId != null && action == null) {
+      final n = _nav?.currentState;
+      if (n != null) {
+        n.push(MaterialPageRoute(builder: (_) => ChannelDetailScreen(channelId: chId)));
         return;
       }
     }

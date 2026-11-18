@@ -76,6 +76,7 @@ dependencies:
   # QR with any app OR by pasting the token; Assisto adds NO scanner plugin.
   # Lazy: QrImageView is only built inside the Sell screen, never at launch.
   qr_flutter: ^4.1.0
+  zxing2: 0.2.4               # circle-extras: pure-Dart QR decode (link a phone; no native code)
   # #79 Hands-free Voice SOS — foreground service (persistent notification +
   # microphone FGS type) that keeps speech_to_text listening with the screen off
   # and fires the EXISTING SOS (api.journeySos) on the chosen wake phrase.

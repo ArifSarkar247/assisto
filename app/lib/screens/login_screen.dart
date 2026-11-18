@@ -12,6 +12,7 @@ import '../otp_api.dart';
 import '../services/phone_canon.dart';
 import 'otp/otp_login_screen.dart';
 import 'otp/otp_verify_screen.dart';
+import 'link_phone_screen.dart'; // circle-extras
 import 'account_standing_screen.dart'; // adminsafe
 import '../widgets/robo_id.dart';
 
@@ -290,6 +291,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   emailMode: true))),
                       icon: const Icon(Icons.email_rounded, size: 18),
                       label: Text(t.fbLoginWithEmailCode),
+                    ),
+                  // circle-extras (row 50): sign in by linking to the main
+                  // phone (QR / 8-character code) — no password, no SMS.
+                  if (!_register)
+                    TextButton.icon(
+                      key: const Key('login-link-phone'),
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => const LinkPhoneScreen())),
+                      icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+                      label: Text(t.dlkLoginEntry),
                     ),
                 ],
               ),
