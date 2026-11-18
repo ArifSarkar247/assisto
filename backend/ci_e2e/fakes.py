@@ -84,8 +84,10 @@ def answer_for(user, prompt, history, system):
     # gap-aichat: a long plan is cut at the length limit (mid-word); the
     # Continue turn (the chat's Continue note in the system block) finishes it
     if CONT.search((system or "") + " " + (prompt or "")):
+        # the Bangla Continue note = a Bangla chat (the tap may say "Continue")
+        bn = bn or "ঠিক সেখান থেকে চালিয়ে যাও" in (system or "") + (prompt or "")
         return ("২. সরঞ্জাম কিনুন: চুলা, কেটলি ও কাপ। পরের ধাপ: আজই তিনটি জায়গা দেখে আসুন।"
-                if bn or "চালিয়ে" in user else
+                if bn else
                 "2. Buy the kit: stove, kettle and cups. Next step: visit three spots today.") + tag
     if LONG_PLAN.search(user):
         return ("ছোট চায়ের দোকান শুরু করতে প্রথম মাসে মোটামুটি ৩০,০০০ টাকা লাগে।\n"

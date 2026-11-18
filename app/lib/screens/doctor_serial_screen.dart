@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -162,11 +163,7 @@ class _DoctorSerialScreenState extends State<DoctorSerialScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.doctorLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -236,11 +233,7 @@ class _UpcomingTab extends StatelessWidget {
         icon: Icons.event_available_rounded,
         title: tr.doctorUpcomingWelcomeTitle,
         message: tr.doctorUpcomingWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: onAdd,
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.doctorAddAppt),
-        ),
+        action: DsButton(onPressed: onAdd, icon: Icons.add_rounded, label: tr.doctorAddAppt),
       );
     }
     return ListView(
@@ -276,7 +269,7 @@ class _UpcomingTab extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(tr.doctorReminderDue('$n'),
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: scheme.ds.primaryInk,
                   fontWeight: FontWeight.w600)),
         ),
@@ -340,8 +333,7 @@ class _ApptCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final color = _statusColor(context, appt.derived);
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,13 +399,12 @@ class _ApptCard extends StatelessWidget {
             if (appt.notes.isNotEmpty) ...[
               const SizedBox(height: Gap.sm),
               Text(appt.notes,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.ds.muted, height: 1.3)),
             ],
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _statusPill(BuildContext context, String status, Color color) {
@@ -457,9 +448,7 @@ class _ApptCard extends StatelessWidget {
 // ----------------------------------------------------------- shared cards
 Widget _trackerNote(BuildContext context, AppLocalizations tr) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
+  return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
         Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
@@ -470,16 +459,14 @@ Widget _trackerNote(BuildContext context, AppLocalizations tr) {
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
-    ),
-  );
+    ));
 }
 
 // Honest key-gated LIVE-booking seam. The booking-partner key is absent, so we
 // show "connect a booking partner" and never fabricate a serial/booking.
 Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    child: Padding(
+  return DsCard(padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
         Icon(Icons.link_off_rounded, color: scheme.ds.muted),
@@ -489,7 +476,7 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(tr.doctorBookingSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(tr.doctorBookingSeamBody,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -497,8 +484,7 @@ Widget _bookingSeamCard(BuildContext context, AppLocalizations tr) {
           ),
         ),
       ]),
-    ),
-  );
+    ));
 }
 
 // ----------------------------------------------------------- status helpers
@@ -711,8 +697,7 @@ Future<Map<String, dynamic>?> _apptSheet(
               const SizedBox(height: Gap.lg),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
+                child: DsButton(onPressed: () {
                     if (doctorC.text.trim().isEmpty) {
                       ScaffoldMessenger.of(ctx)
                         ..clearSnackBars()
@@ -740,9 +725,7 @@ Future<Map<String, dynamic>?> _apptSheet(
                       'status': status,
                       'notes': notesC.text.trim(),
                     });
-                  },
-                  child: Text(tr.save),
-                ),
+                  }, label: tr.save),
               ),
             ]),
           ),
@@ -764,8 +747,7 @@ Future<bool?> _confirm(BuildContext context, String title, String body) {
         TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(tr.cancel)),
-        FilledButton(
-            onPressed: () => Navigator.pop(ctx, true), child: Text(tr.delete)),
+        DsButton.danger(onPressed: () => Navigator.pop(ctx, true), label: tr.delete),
       ],
     ),
   );

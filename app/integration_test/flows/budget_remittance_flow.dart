@@ -6,6 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/crypto/e2e.dart';
+
 import '../support/harness.dart';
 
 const _said = 'ভাই ২০ হাজার টাকা পাঠাইছে বিকাশে';
@@ -17,8 +19,15 @@ void registerBudgetRemittanceFlows() {
     final api = await f.h.backend();
     await f.step('open Budget and Remittance', () async {
       await f.openFeature(f.t.rmtTitle, 'remittance');
-      await f.waitFor(find.byKey(const ValueKey('rmt_quick')), what: 'quick entry box');
+      // flagproof: run 44007111431 (C) — the quick box sits BELOW the
+      // first-visit guide + month cards in a lazy ListView, so it was never
+      // built. A user reads the guide, taps "Got it", then scrolls down.
+      await f.waitFor(find.text(f.t.rmtTabBudget), what: 'Budget and Remittance tabs');
       await f.shot('month');
+      if (await f.appears(find.text(f.t.rmtGotIt), seconds: 4)) {
+        await f.tap(find.text(f.t.rmtGotIt), settleSeconds: 2);
+      }
+      await _scrollDownTo(f, find.byKey(const ValueKey('rmt_quick')), 'quick entry box');
       f.expectHttp('GET', '/remit/overview');
     });
     await f.step('the owner\'s sentence fills the form; Save; server has it', () async {
@@ -29,6 +38,7 @@ void registerBudgetRemittanceFlows() {
       await f.waitFor(find.text(f.t.rmtUnderstoodCheck), what: 'understood banner');
       await f.shot('form-filled');
       final save = find.byKey(const ValueKey('rmt_save'));
+      await _scrollDownTo(f, save, 'Save on the entry form'); // lazy list (run 44049525968)
       await f.tester.ensureVisible(save);
       await f.tap(save, settleSeconds: 3);
       await f.shot('saved');
@@ -40,10 +50,12 @@ void registerBudgetRemittanceFlows() {
     });
     await f.step('family plan: food 10,000 + a 2,500 spending', () async {
       await f.tap(find.text(f.t.rmtTabBudget), settleSeconds: 2);
+      await _scrollDownTo(f, find.byKey(const ValueKey('rmt_plan_edit')), 'edit plan button');
       await f.tap(find.byKey(const ValueKey('rmt_plan_edit')), settleSeconds: 2);
       await f.tester.enterText(find.byKey(const ValueKey('rmt_plan_food')), '10000');
       await f.tap(find.byKey(const ValueKey('rmt_sheet_save')), settleSeconds: 3);
       final add = find.byKey(const ValueKey('rmt_spend_add'));
+      await _scrollDownTo(f, add, 'add a spending button');
       await f.tester.ensureVisible(add);
       await f.tap(add, settleSeconds: 2);
       await f.tester.enterText(find.byKey(const ValueKey('rmt_spend_amount')), '2500');
@@ -61,6 +73,14 @@ void registerBudgetRemittanceFlows() {
       f.expectHttp('GET', '/remit/year');
     });
     await f.step('report: nothing sent until Share; then shared with user B', () async {
+      // flagproof: B's phone publishes its key first (as on a real phone) —
+      // run 44061342419: without it the report waited in the outbox, so no
+      // encrypted message reached the server.
+      final e2e = SoftwareE2E();
+      final idB = e2e.generateIdentity();
+      final apiB = await f.h.backend(userB: true);
+      await f.net(() => apiB.postJson('/circle/keys',
+          {'public_key': idB.publicKeyB64, 'key_id': idB.keyId, 'scheme': e2e.scheme}));
       final mark = f.httpMark;
       await f.tap(find.byKey(const ValueKey('rmt_report_btn')), settleSeconds: 3);
       await f.waitFor(find.byKey(const ValueKey('rmt_report_text')), what: 'report text');
@@ -94,4 +114,17 @@ void registerBudgetRemittanceFlows() {
       f.note('offline entry + later sync is proven in test/budrem_test.dart (the emulator network is not toggled here)');
     });
   });
+}
+
+/// flagproof: drag the visible VERTICAL list (never the tab PageView) until
+/// [target] is built, like a user scrolling down.
+Future<void> _scrollDownTo(RFlow f, Finder target, String what) async {
+  final list = find.byWidgetPredicate(
+      (w) => w is Scrollable && (w.axisDirection == AxisDirection.down)).hitTestable();
+  for (var i = 0; i < 20 && target.evaluate().isEmpty; i++) {
+    if (list.evaluate().isEmpty) break;
+    await f.tester.drag(list.first, const Offset(0, -300), warnIfMissed: false);
+    await f.tester.pump(const Duration(milliseconds: 350));
+  }
+  await f.waitFor(target, what: what);
 }

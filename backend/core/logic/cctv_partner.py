@@ -6,11 +6,17 @@ an APPROVED partner types / scans it and from then on sees ONLY the setup
 status of that site (cameras added / online, box connected, hours, zones) —
 never video, never photos, never alerts. The site owner ends it any time.
 
-COMMISSION: a PROPOSAL only (needs owner approval). Nothing is paid, queued
-or promised automatically; Owner Admin shows what the proposal WOULD give.
+COMMISSION (OWNER-DECIDED 17 Nov 2026 12:35): 10 % of the site's NET monthly
+Premium AI part, ONLY on Premium AI sites, never on the base 500 Tk / 2-camera
+plan; first 12 paid Premium AI months; a free-trial month never counts. Each
+paid Premium AI order writes ONE ledger entry (CctvCommissionEntry, status
+"owed"); nothing is paid automatically — a person records each payout in
+Owner Admin -> CCTV installer partners.
 """
 import hashlib
 import secrets
+
+from . import plan_book as PB
 
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"   # no 0/O, 1/I
 CODE_LEN = 8
@@ -22,21 +28,23 @@ AREA_MAX = 80
 QR_PREFIX = "https://lifeassisto.com/install/"
 GATEWAY_FRESH_MIN = 15          # a box / phone heartbeat this recent = connected
 
-# The proposal the owner decides on (owner_actions/CCTV_PRICING_V3_BN.md).
-COMMISSION_PROPOSAL = {
-    "approved": False,          # ONLY the owner flips this (never code)
-    "pct_of_net": 5,            # of the site's NET monthly Premium AI price
-    "months": 12,               # for the first 12 paid months of a site
-    # ONLY Premium AI sites: the base plan has 40.9 % worst case — no room
-    # for a recurring commission (a 10 % one drops it to 33.5 %); with the
-    # proposed 400 Tk/camera AI tier, 5 % keeps 41.3 % (cctv_premium_ai).
-    # On base-only sites the installer earns the install fee from the
-    # customer, as today.
-    "applies_to": "premium_ai",
+# The owner's decision (17 Nov 12:35, owner_actions/CCTV_PRICING_V3_BN.md);
+# the numbers come from plan_book.CCTV_DECIDED (one source).
+COMMISSION_RULES = {
+    "approved": True,           # owner-decided 17 Nov 12:35
+    "decided_at": PB.CCTV_DECIDED_AT,
+    "pct_of_net": PB.CCTV_DECIDED["installer_commission_pct"],     # 10
+    "months": PB.CCTV_DECIDED["installer_commission_months"],      # 12
+    # ONLY Premium AI sites, of the NET Premium AI part: worst row 40.4 %
+    # (cctv_premium_ai.forty_check). The base plan has 40.9 % worst case —
+    # no room for a commission (10 % would drop it to 33.5 %). On base-only
+    # sites the installer earns the install fee from the customer, as today.
+    "applies_to": PB.CCTV_DECIDED["installer_commission_applies_to"],
     "min_paid_months": 1,       # a site counts after its first full paid month
     "trial_counts": False,      # a free-trial month never counts
     "auto_payout": False,       # never — payouts are recorded by a person
 }
+COMMISSION_PROPOSAL = COMMISSION_RULES      # old name (cctvroles callers)
 
 
 class PartnerError(ValueError):
@@ -104,10 +112,10 @@ def setup_done(steps):
 
 def proposed_commission(net_monthly_bdt, paid_months, in_trial, proposal=None,
                         premium_ai=True):
-    """What the PROPOSAL would give for one site this month (taka, rounded
-    down). 0 in a trial, before min_paid_months, after `months`, or for a
-    site that is not on Premium AI."""
-    p = dict(COMMISSION_PROPOSAL, **(proposal or {}))
+    """The commission for one site this month (taka, rounded down) from the
+    site's NET Premium AI part (never the base plan). 0 in a trial, before
+    min_paid_months, after `months`, or for a site not on Premium AI."""
+    p = dict(COMMISSION_RULES, **(proposal or {}))
     if p.get("applies_to") == "premium_ai" and not premium_ai:
         return 0
     try:

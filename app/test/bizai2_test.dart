@@ -57,6 +57,8 @@ void main() {
     expect(find.textContaining('runs out in about 2 days'), findsOneWidget);
     await tester.scrollUntilVisible(find.byKey(const ValueKey('bizai2-daily-switch')), 200);
     expect(find.text('What really came back this week'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('bizai2-daily-switch'))); // gap-bizai
+    await _settle(tester);
     await tester.tap(find.byKey(const ValueKey('bizai2-daily-switch')));
     await _settle(tester);
     expect(calls, [false]);

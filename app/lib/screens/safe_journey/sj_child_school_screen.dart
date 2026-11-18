@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -13,6 +14,7 @@ import '../../widgets/journey_ride.dart' show jDigits;
 import '../kids_watch/school_mode_child_screen.dart';
 import '../kids_watch/school_plan_form.dart';
 import 'sj_live_api.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import 'kids_corner.dart'; // sjkids
 
 /// The four moments of a school day, in order: (today-key, event for the
@@ -47,7 +49,8 @@ class SjChildSchoolScreen extends StatefulWidget {
   State<SjChildSchoolScreen> createState() => _SjChildSchoolScreenState();
 }
 
-class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
+class _SjChildSchoolScreenState extends State<SjChildSchoolScreen>
+    with AdBlockedState<SjChildSchoolScreen> {
   List<Map<String, dynamic>> _plans = [];
   List<Map<String, dynamic>> _mine = [];
   List<Map<String, dynamic>> _cams = [];
@@ -371,20 +374,21 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
     final cs = Theme.of(context).colorScheme;
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (_error) {
-      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Text(t.sjlWhereError, style: AType.bodyMedium),
-        const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.sjlRetry),
+      // design3: DS error state (illustration card + one retry button)
+      body = StateMessage(
+        icon: Icons.cloud_off_rounded,
+        title: t.sjlWhereError,
+        tint: cs.ds.danger,
+        action: DsButton(
+            label: t.sjlRetry,
+            icon: Icons.refresh_rounded,
             onPressed: () {
               setState(() => _loading = true);
               _load();
             }),
-      ]);
+      );
     } else {
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),

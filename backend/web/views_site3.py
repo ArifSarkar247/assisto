@@ -249,7 +249,8 @@ def _render(request, page, preview, group=None, status=200):
         "font_in": {"w%d" % w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
         "jsonld": V3.jsonld(lang, site, en_url if lang == "en" else bn_url, page,
                             faq if page in ("home", "help", "landing") else None, crumbs,
-                            install_url=(SC.play_url(lang) if pub else site + "/get" + ("?lang=en" if lang == "en" else ""))),
+                            install_url=(SC.play_url(lang) if pub else site + "/get" + ("?lang=en" if lang == "en" else "")),
+                            on_play=pub),
         "year": 2026,
     }
     from .site_about import ABOUT

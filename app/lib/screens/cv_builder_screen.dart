@@ -9,6 +9,7 @@ import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -234,7 +235,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(c, 'stay'), child: Text(t.cancel)),
           TextButton(onPressed: () => Navigator.pop(c, 'discard'), child: Text(t.lbWCvDiscard)),
-          FilledButton(onPressed: () => Navigator.pop(c, 'save'), child: Text(t.save)),
+          DsButton(onPressed: () => Navigator.pop(c, 'save'), label: t.save),
         ],
       ),
     );
@@ -360,11 +361,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.cvLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.retry),
-          ),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -412,11 +409,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           icon: Icons.description_rounded,
           title: t.cvWelcomeTitle,
           message: t.cvWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: () => setState(() => _started = true),
-            icon: const Icon(Icons.edit_rounded),
-            label: Text(t.cvStart),
-          ),
+          action: DsButton(onPressed: () => setState(() => _started = true), icon: Icons.edit_rounded, label: t.cvStart),
         ),
       ),
     );
@@ -464,14 +457,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   Widget _careerBar() => Padding(
         padding: const EdgeInsets.only(bottom: Gap.md),
         child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          FilledButton.icon(
-              onPressed: _hasAnyData ? _openExport : null,
-              icon: const Icon(Icons.picture_as_pdf_rounded),
-              label: Text(t.crrCvExportAction)),
-          OutlinedButton.icon(
-              onPressed: _fillFromProfile,
-              icon: const Icon(Icons.person_pin_rounded),
-              label: Text(t.crrFillProfile)),
+          DsButton(onPressed: _hasAnyData ? _openExport : null, icon: Icons.picture_as_pdf_rounded, label: t.crrCvExportAction),
+          DsButton.secondary(onPressed: _fillFromProfile, icon: Icons.person_pin_rounded, label: t.crrFillProfile),
         ]),
       );
 
@@ -606,11 +593,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         const SizedBox(height: Gap.lg),
 
         // --- preview / copy / share actions ---
-        FilledButton.icon(
-          onPressed: _hasAnyData ? _preview : null,
-          icon: const Icon(Icons.visibility_rounded, size: 18),
-          label: Text(t.cvPreview),
-        ),
+        DsButton.secondary(onPressed: _hasAnyData ? _preview : null, icon: Icons.visibility_rounded, label: t.cvPreview),
         const SizedBox(height: Gap.xl),
 
         // --- honest AI-enhance seam ---
@@ -675,7 +658,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
+                              AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                       if (subtitle.trim().isNotEmpty) ...[
                         const SizedBox(height: Gap.xxs),
                         Text(subtitle,
@@ -806,9 +789,7 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -837,8 +818,7 @@ class _SectionCard extends StatelessWidget {
                 ),
               ],
             ]),
-      ),
-    );
+      )));
   }
 }
 
@@ -1041,12 +1021,11 @@ Widget _sheetActions(BuildContext context, {required VoidCallback onSave}) {
   final t = AppLocalizations.of(context);
   return Row(children: [
     Expanded(
-      child: OutlinedButton(
-          onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
+      child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: t.cancel),
     ),
     const SizedBox(width: Gap.md),
     Expanded(
-      child: FilledButton(onPressed: onSave, child: Text(t.cvDone)),
+      child: DsButton(onPressed: onSave, label: t.cvDone),
     ),
   ]);
 }
@@ -1098,8 +1077,7 @@ class _PreviewSheet extends StatelessWidget {
             const SizedBox(height: Gap.md),
             Row(children: [
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: () async {
+                child: DsButton(onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: text));
                     AdExit.taskDone(AdExitPlacement.cvAfterDownload);
                     if (context.mounted) {
@@ -1107,20 +1085,13 @@ class _PreviewSheet extends StatelessWidget {
                         ..clearSnackBars()
                         ..showSnackBar(SnackBar(content: Text(t.copied)));
                     }
-                  },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
-                  label: Text(t.copy),
-                ),
+                  }, icon: Icons.copy_rounded, label: t.copy),
               ),
               const SizedBox(width: Gap.sm),
-              OutlinedButton.icon(
-                onPressed: () {
+              DsButton.secondary(onPressed: () {
                   AdExit.taskDone(AdExitPlacement.cvAfterDownload);
                   Share.share(text, subject: t.cvTitle);
-                },
-                icon: const Icon(Icons.ios_share_rounded, size: 18),
-                label: Text(t.cvShare),
-              ),
+                }, icon: Icons.ios_share_rounded, label: t.cvShare),
             ]),
           ]),
         );
@@ -1153,7 +1124,7 @@ class _AiPolishCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.cvAiPolishTitle,
-                    style: const TextStyle(
+                    style: AType.titleSmall.copyWith(
                         fontWeight: FontWeight.w700, height: 1.4)),
                 const SizedBox(height: Gap.xxs),
                 Text(t.cvAiPolishBody,

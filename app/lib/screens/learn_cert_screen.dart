@@ -16,6 +16,7 @@ import '../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
 import '../widgets/local_counter.dart';
 import '../widgets/skeleton.dart';
 import 'language_partner_screen.dart';
+import '../ds/ds.dart';
 
 /// learncert — ASSISTO LEARNING CERTIFICATE (owner order 3 Nov, part C;
 /// flag `learning_certificate`, OFF until the owner's real-phone proof).
@@ -570,23 +571,20 @@ class _LearnCertScreenState extends State<LearnCertScreen> {
     final scheme = Theme.of(context).colorScheme;
     final l = _lines(context, c);
     final valid = c['valid'] != false;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         minVerticalPadding: Gap.md,
         leading: Icon(
             c['kind'] == 'quran' ? Icons.menu_book_rounded : Icons.workspace_premium_rounded,
             size: 36, color: valid ? Brand.purple : scheme.ds.muted),
         title: Text('${l['course'] ?? ''}',
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text('${l['level'] ?? ''}\n${l['date'] ?? ''}'),
         isThreeLine: true,
         trailing: Text(valid ? t.lcValid : t.lcRevoked,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 color: valid ? AssistoTokens.of(context).success : scheme.error)),
         onTap: () => _open(c),
-      ),
-    );
+      )));
   }
 }

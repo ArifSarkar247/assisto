@@ -21,6 +21,7 @@ import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/offline_first_flow.dart'; // offline1st
 import 'flows/family_alerts_flow.dart';
+import 'flows/flagproof_flow.dart'; // flagproof
 import 'flows/mess_v2_flow.dart'; // messv2
 import 'flows/family_circle_flow.dart';
 import 'flows/family_v3_flow.dart'; // fcscreen
@@ -37,6 +38,7 @@ import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
+import 'flows/lp_flow.dart'; // gap-lp
 import 'support/harness.dart';
 
 void main() {
@@ -68,8 +70,11 @@ void main() {
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('business')) registerBizQualityFlows(); // qbiz
   if (on('docs')) registerDocsVoiceSettingsFlows();
+  if (on('lp')) registerLpFlows(); // gap-lp: Language Partner (seed allow-lists A + lp_seed)
   // savesweep: per-form fill -> Save -> reopen -> still there (group 'save')
   if (on('save')) registerSaveSweepFlows();
+  // flagproof: hidden features' two-account proofs (group 'flagproof')
+  if (on('flagproof')) registerFlagproofFlows();
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();

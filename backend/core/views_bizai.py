@@ -268,6 +268,30 @@ class ProcharTrackedView(APIView):
         return Response(d)
 
 
+class ProcharRemindView(APIView):
+    """gap-bizai — POST bizai/prochar/remind {item_id, hour?}: remind the
+    person at the shop's best posting hour, with the post's tracked text.
+    The honest scheduler until Meta page-publish is approved: nothing is
+    posted for them, the reminder makes posting one tap at the right time."""
+    def post(self, request):
+        if _off(request):
+            return _refuse(request, "off", 404)
+        prof, role, bad = _require_business(request)
+        if bad:
+            return bad
+        from . import bizai_prochar as BP
+        hour = request.data.get("hour")
+        try:
+            hour = None if hour in (None, "") else int(hour)
+        except (TypeError, ValueError):
+            hour = None
+        d = BP.remind(prof, request.user, str(request.data.get("item_id") or "")[:64],
+                      req_lang(request), hour=hour)
+        if d is None:
+            return _refuse(request, "not_found", 404)
+        return Response(d)
+
+
 # ===================================================================== pillar 4: CCTV accuracy
 def _cctv_off(request):
     return not FF.is_on("cctv_watchman", request.user, is_play_flavour(request))

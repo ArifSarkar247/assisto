@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
@@ -67,11 +68,8 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         icon: Icons.local_shipping_rounded,
         title: tr.vehFleetBusinessTitle,
         message: tr.vehErrBusinessOnly,
-        action: FilledButton(
-          onPressed: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const PlansScreen())),
-          child: Text(tr.vehSeePlans),
-        ),
+        action: DsButton(onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const PlansScreen())), label: tr.vehSeePlans),
       );
     } else if (_error || _data == null) {
       body = StateMessage(
@@ -79,8 +77,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         tint: scheme.error,
         title: tr.loadFailed,
         message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
-        action: FilledButton.tonalIcon(
-            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(tr.retry)),
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
       );
     } else {
       final tot = vehMap(_data!['totals']);
@@ -113,15 +110,11 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
             ),
             const SizedBox(height: Gap.sm),
             if ((vehInt(tot['alerts_today']) ?? 0) > 0)
-              Card(
-                margin: EdgeInsets.zero,
-                color: scheme.ds.dangerBg,
-                child: ListTile(
+              Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.dangerBg, padding: EdgeInsets.zero, child: ListTile(
                   leading: Icon(Icons.notifications_active_rounded, color: scheme.ds.dangerInk),
                   title: Text(tr.vehFleetAlerts(vehNumStr(context, vehInt(tot['alerts_today'])!)),
-                      style: TextStyle(color: scheme.ds.dangerInk)),
-                ),
-              ),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
+                ))),
             const SizedBox(height: Gap.sm),
             if (rows.isEmpty)
               StateMessage(
@@ -173,9 +166,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
         : (live['moving'] == true
             ? tr.vehMovingAt(vehNumStr(context, vehNum(live['speed_kmh']) ?? 0))
             : tr.vehParked);
-    return Card(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: CircleAvatar(
           backgroundColor: (online ? Brand.success : scheme.ds.muted).withValues(alpha: 0.16),
           child: Icon(Icons.directions_car_rounded, color: online ? Brand.success : scheme.ds.muted),
@@ -198,7 +189,6 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
                 MaterialPageRoute(
                     builder: (_) => VehicleTrackerScreen(trackerId: v['id'] as int)))
             : null,
-      ),
-    );
+      )));
   }
 }

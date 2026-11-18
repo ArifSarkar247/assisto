@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -110,7 +111,7 @@ class _SafePlansScreenState extends State<SafePlansScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.spTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _failed || _st == null
               ? _Retry(onTap: _load)
               : RefreshIndicator(
@@ -247,7 +248,7 @@ class _SafePlansScreenState extends State<SafePlansScreen> {
   }
 
   Widget _buyAction(AppLocalizations t, bool onSale, String productId, bool sub, bool current) {
-    if (current) return Text(t.spCurrent, style: const TextStyle(fontWeight: FontWeight.w600));
+    if (current) return Text(t.spCurrent, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600));
     if (!onSale) return Text(t.spNotOnSale);
     final price = _price(productId, '${_st?['base_plan_id']}');
     if (price.isEmpty) {
@@ -320,28 +321,27 @@ class _HeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final ds = DsTokens.of(context);
     return Semantics(
       container: true,
-      child: Container(
-        padding: const EdgeInsets.all(Gap.xl),
-        decoration: BoxDecoration(
-            gradient: Brand.gradient, borderRadius: BorderRadius.circular(Radii.lg)),
+      // design3: soft DS hero (was a loud gradient with white ink)
+      child: DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: tt.bodyMedium?.copyWith(color: Colors.white)),
-          Text(name, style: tt.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+          Text(label, style: tt.bodyMedium?.copyWith(color: ds.muted)),
+          Text(name, style: tt.headlineMedium?.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
           if (badge != null)
             Container(
               margin: const EdgeInsets.only(top: Gap.xs),
               padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
               decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.25),
+                  color: ds.primarySoft,
                   borderRadius: BorderRadius.circular(Radii.pill)),
-              child: Text(badge!, style: tt.labelMedium?.copyWith(color: Colors.white)),
+              child: Text(badge!, style: tt.labelMedium?.copyWith(color: ds.primaryInk)),
             ),
           const SizedBox(height: Gap.sm),
-          Text(line, style: tt.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+          Text(line, style: tt.titleMedium?.copyWith(color: ds.primaryInk, fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
-          Text(note, style: tt.bodySmall?.copyWith(color: Colors.white)),
+          Text(note, style: tt.bodySmall?.copyWith(color: ds.muted)),
         ]),
       ),
     );

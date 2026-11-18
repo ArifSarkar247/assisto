@@ -15,23 +15,27 @@ def _d(v, default="0"):
 
 
 def net_worth(user):
-    """Assets (account balances + savings + investments) minus liabilities."""
-    from .models import Account, Transaction, SavingsGoal, Loan
-    assets = Decimal("0")
-    for acc in Account.objects.filter(user=user):
-        bal = _d(getattr(acc, "opening_balance", 0))
-        agg = Transaction.objects.filter(user=user, account=acc)
-        for t in agg:
-            bal += _d(t.amount) if t.kind == "income" else -_d(t.amount)
-        assets += bal
-    saved = sum((_d(g.saved) for g in SavingsGoal.objects.filter(user=user)), Decimal("0"))
-    liabilities = sum((_d(l.amount) for l in Loan.objects.filter(user=user, kind="taken")),
-                      Decimal("0"))
-    receivable = sum((_d(l.amount) for l in Loan.objects.filter(user=user, kind="given")),
-                     Decimal("0"))
-    nw = assets + saved + receivable - liabilities
-    return {"assets": str(assets + saved), "receivable": str(receivable),
-            "liabilities": str(liabilities), "net_worth": str(nw)}
+    """Assets (account balances + savings goals) + money owed to me − money I
+    owe, all as of NOW.
+
+    gap-money: this used to count every loan at its FULL original amount
+    (repayments and settled loans ignored) and treated a transfer between
+    two of my own accounts as money gone (out subtracted, in never added).
+    Balances and loans now come from the same helpers + money_engine as the
+    net-worth screen (/money/networth), so both pages agree to the poisha;
+    savings goals stay in the assets here as before."""
+    from .logic import money_engine as me
+    from .models import SavingsGoal
+    from .views import _money_accounts, _money_loans
+    nw = me.net_worth(_money_accounts(user), _money_loans(user))
+    # (the field is saved_amount — `g.saved` raised AttributeError -> a 500
+    # for anyone with a savings goal)
+    saved = sum((_d(g.saved_amount) for g in SavingsGoal.objects.filter(user=user)), Decimal("0"))
+    assets = _d(nw["assets"]) + saved
+    receivable, liabilities = _d(nw["receivable"]), _d(nw["liabilities"])
+    return {"assets": str(assets), "receivable": str(receivable),
+            "liabilities": str(liabilities),
+            "net_worth": str(assets + receivable - liabilities)}
 
 
 def zakat(cash=0, gold_value=0, silver_value=0, investments=0, debts=0,

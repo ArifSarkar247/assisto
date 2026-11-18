@@ -24,7 +24,7 @@ import logging
 import os
 import re
 from datetime import date, datetime, time, timedelta
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from django.conf import settings
 from django.utils import timezone
@@ -146,7 +146,9 @@ def _money(v, field, required=True, allow_zero=False):
         return None
     if d < 0 or (d == 0 and not allow_zero) or to_poisha(d) > MAX_AMOUNT_P:
         raise RemitError("bad_amount", field=field)
-    return d.quantize(Decimal("0.01"))
+    # gap-money: half-up on the paisa like every other money path (Decimal
+    # defaults to half-even: 12.345 -> 12.34)
+    return d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def _date(v):
@@ -210,9 +212,9 @@ def clean_entry(user, body, partial=None):
         if tk is None and rate is None:
             raise RemitError("need_rate")
         if tk is None:
-            tk = (amount * rate).quantize(Decimal("0.01"))
+            tk = (amount * rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         if rate is None:
-            rate = (tk / amount).quantize(Decimal("0.0001"))
+            rate = (tk / amount).quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
     if to_poisha(tk) > MAX_AMOUNT_P or tk <= 0:
         raise RemitError("bad_amount", field="taka")
     channel = str(b.get("channel") if has("channel") else cur.get("channel") or "other")

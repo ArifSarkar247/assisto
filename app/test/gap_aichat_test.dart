@@ -199,7 +199,7 @@ void main() {
     await tester.tap(regen);
     await _settle(tester);
     expect(find.text('A new version.'), findsOneWidget);
-    expect(find.text('${t.aibarCreditsUsed('1')} · ${t.aibarCreditsLeft('47')}'),
+    expect(find.text('${t.aibarCreditUsedOne} · ${t.aibarCreditsLeft('47')}'),
         findsOneWidget);
   });
 

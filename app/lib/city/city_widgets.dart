@@ -222,7 +222,7 @@ class CityOptionSummary extends StatelessWidget {
           cityD(
               context,
               [
-                option.changes == 0 ? t.cityNoChange : t.cityChanges('${option.changes}'),
+                option.changes == 0 ? t.cityNoChange : t.cityGChangesN(option.changes),
                 t.cityWalkTotal(cityDistance(context, option.walkM)),
               ].join(' · ')),
           style: AType.bodyMedium.copyWith(color: s.ds.muted)),
@@ -270,7 +270,7 @@ class _Step extends StatelessWidget {
       if (towards.isNotEmpty) lines.add(Text(d(t.cityTowards(towards))));
       lines.add(Text(d(t.cityBoardAt(leg.board?.label(bn) ?? '')),
           style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
-      lines.add(Text(d(t.cityGetOffAt(leg.alight?.label(bn) ?? '', '${leg.stops}')),
+      lines.add(Text(d(t.cityGGetOffAtN(leg.alight?.label(bn) ?? '', leg.stops)),
           style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
       final via = bn && leg.viaBn.any((v) => v.isNotEmpty) ? leg.viaBn : leg.via;
       final viaClean = via.where((v) => v.isNotEmpty).toList();

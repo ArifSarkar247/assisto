@@ -1,10 +1,12 @@
 import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
+import '../widgets/money_digits.dart';
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -167,6 +169,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -182,10 +185,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -236,31 +236,18 @@ class _Welcome extends StatelessWidget {
   const _Welcome({required this.onAdd});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    // design3: DS empty state — benefit + one big button
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        const SizedBox(height: Gap.xl),
-        Icon(Icons.luggage_rounded, size: 56, color: scheme.primary),
-        const SizedBox(height: Gap.md),
-        Text(tr.tvWelcomeTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.w700)),
-        const SizedBox(height: Gap.sm),
-        Text(tr.tvWelcomeBody,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-        const SizedBox(height: Gap.xl),
-        Center(
-          child: FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(tr.tvNewTrip),
-          ),
+        DsEmptyState(
+          icon: Icons.luggage_rounded,
+          title: tr.tvWelcomeTitle,
+          benefit: tr.tvWelcomeBody,
+          actionLabel: tr.tvNewTrip,
+          onAction: onAdd,
         ),
       ],
     );
@@ -276,15 +263,14 @@ class _TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final start = '${trip['start'] ?? ''}';
     final end = '${trip['end'] ?? ''}';
     final days = _tripDays(start, end);
     final cd = _countdown(start, end, _today());
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         onTap: onOpen,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
@@ -298,7 +284,7 @@ class _TripCard extends StatelessWidget {
             const SizedBox(height: Gap.xxs),
             if (start.isNotEmpty && end.isNotEmpty)
               Text('${tvNiceDate(context, start)} → ${tvNiceDate(context, end)}',
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             const SizedBox(height: Gap.xs),
             Wrap(spacing: Gap.sm, children: [
               if (days > 0)
@@ -316,8 +302,7 @@ class _TripCard extends StatelessWidget {
           onPressed: onEdit,
         ),
         isThreeLine: true,
-      ),
-    );
+      )));
   }
 }
 
@@ -348,6 +333,7 @@ class _CountdownChip extends StatelessWidget {
   const _CountdownChip({required this.cd});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     String label;
@@ -381,6 +367,7 @@ class _CountChip extends StatelessWidget {
       {required this.icon, required this.label, required this.tint});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: tint),
       const SizedBox(width: 3),
@@ -476,6 +463,7 @@ class _TravelTripDetailScreenState extends State<TravelTripDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -491,10 +479,7 @@ class _TravelTripDetailScreenState extends State<TravelTripDetailScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.tvLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -592,6 +577,7 @@ class _ItineraryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     var totalActivities = 0;
@@ -619,11 +605,7 @@ class _ItineraryTab extends StatelessWidget {
                 icon: Icons.event_note_rounded,
                 title: tr.tvNoDaysTitle,
                 message: tr.tvNoDaysBody,
-                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
-                  onPressed: () => _editDay(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(tr.tvAddDay),
-                ),
+                action: DsButton(onPressed: () => _editDay(context), icon: Icons.add_rounded, label: tr.tvAddDay),
               ),
             )
           else ...[
@@ -631,7 +613,7 @@ class _ItineraryTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(
                   tr.tvItinerarySummary(/* (activities, days) */ ld(context, totalActivities), ld(context, days.length)),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.onSurfaceVariant,
                       fontWeight: FontWeight.w600)),
             ),
@@ -656,15 +638,14 @@ class _DayCard extends StatelessWidget {
       {required this.day, required this.onEdit, required this.onDelete});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final acts = ((day['activities'] as List?) ?? const [])
         .whereType<Map>()
         .where((a) => '${a['what'] ?? ''}'.trim().isNotEmpty)
         .toList();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -672,7 +653,7 @@ class _DayCard extends StatelessWidget {
               radius: 16,
               backgroundColor: scheme.primaryContainer,
               child: Text(ld(context, day['day'] ?? ''),
-                  style: TextStyle(
+                  style: AType.titleSmall.copyWith(
                       color: scheme.onPrimaryContainer,
                       fontWeight: FontWeight.w700)),
             ),
@@ -682,7 +663,7 @@ class _DayCard extends StatelessWidget {
                   '${day['title'] ?? ''}'.trim().isEmpty
                       ? tr.tvDayN('${day['day'] ?? ''}')
                       : '${day['title']}',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             ),
             IconButton(
                 icon: const Icon(Icons.edit_rounded, size: 20),
@@ -697,7 +678,7 @@ class _DayCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 40, top: Gap.xs),
               child: Text(tr.tvNoActivities,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.onSurfaceVariant,
                       fontStyle: FontStyle.italic)),
             )
@@ -729,8 +710,7 @@ class _DayCard extends StatelessWidget {
                     ]),
               ),
         ]),
-      ),
-    );
+      )));
   }
 }
 
@@ -763,9 +743,7 @@ class _PackingTab extends StatelessWidget {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context), child: Text(tr.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, ctl.text.trim()),
-              child: Text(tr.add)),
+          DsButton(onPressed: () => Navigator.pop(context, ctl.text.trim()), label: tr.add),
         ],
       ),
     );
@@ -776,6 +754,7 @@ class _PackingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final rows =
@@ -803,7 +782,7 @@ class _PackingTab extends StatelessWidget {
               ),
               const SizedBox(width: Gap.sm),
               Text(tr.tvPackingProgress(ld(context, checked), ld(context, total)),
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             ]),
             const SizedBox(height: Gap.md),
           ],
@@ -814,18 +793,12 @@ class _PackingTab extends StatelessWidget {
                 icon: Icons.checklist_rounded,
                 title: tr.tvNoPackingTitle,
                 message: tr.tvNoPackingBody,
-                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
-                  onPressed: () => _add(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(tr.tvAddPacking),
-                ),
+                action: DsButton(onPressed: () => _add(context), icon: Icons.add_rounded, label: tr.tvAddPacking),
               ),
             )
           else
             for (final i in rows)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.xs),
-                child: CheckboxListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsCard(padding: EdgeInsets.zero, child: CheckboxListTile(
                   value: i['checked'] == true,
                   onChanged: (v) => i['id'] is int
                       ? onToggle(i['id'] as int,
@@ -833,7 +806,7 @@ class _PackingTab extends StatelessWidget {
                       : null,
                   title: Text('${i['label'] ?? ''}',
                       style: i['checked'] == true
-                          ? TextStyle(
+                          ? AType.bodyMedium.copyWith(
                               decoration: TextDecoration.lineThrough,
                               color: scheme.onSurfaceVariant)
                           : null),
@@ -844,8 +817,7 @@ class _PackingTab extends StatelessWidget {
                         i['id'] is int ? onDelete(i['id'] as int) : null,
                   ),
                   controlAffinity: ListTileControlAffinity.leading,
-                ),
-              ),
+                ))),
         ],
       ),
     );
@@ -898,7 +870,7 @@ String _fmtBdt(int poisha) {
     if (head.isNotEmpty) parts.insert(0, head);
     grouped = '${parts.join(',')},$tail';
   }
-  return '${neg ? '-' : ''}৳$grouped.${paisa.toString().padLeft(2, '0')}';
+  return moneyDigits('${neg ? '-' : ''}৳$grouped.${paisa.toString().padLeft(2, '0')}'); // design3: Bangla digits in bn
 }
 
 class _BudgetTab extends StatelessWidget {
@@ -931,6 +903,7 @@ class _BudgetTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     var totEst = 0, totAct = 0;
@@ -950,8 +923,7 @@ class _BudgetTab extends StatelessWidget {
         children: [
           if (onSplit != null) ...[
             // p3life: split the trip's costs with travel mates
-            Card(
-              child: ListTile(
+            DsCard(padding: EdgeInsets.zero, child: ListTile(
                 key: const ValueKey('tv-split'),
                 minTileHeight: 56,
                 leading: const Icon(Icons.call_split_rounded),
@@ -959,14 +931,10 @@ class _BudgetTab extends StatelessWidget {
                 subtitle: Text(tr.p3lSplitBody),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: onSplit,
-              ),
-            ),
+              )),
             const SizedBox(height: Gap.sm),
           ],
-          Card(
-            color: (overspent ? scheme.errorContainer : scheme.primaryContainer)
-                .withValues(alpha: 0.35),
-            child: Padding(
+          DsCard(tone: overspent ? DsTone.danger : DsTone.normal, padding: EdgeInsets.zero, child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(children: [
                 Row(children: [
@@ -989,8 +957,7 @@ class _BudgetTab extends StatelessWidget {
                       style: AType.bodySmall.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
                 ],
               ]),
-            ),
-          ),
+            )),
           const SizedBox(height: Gap.sm),
           const _BookingSeamCard(),
           const SizedBox(height: Gap.sm),
@@ -1001,18 +968,12 @@ class _BudgetTab extends StatelessWidget {
                 icon: Icons.account_balance_wallet_rounded,
                 title: tr.tvNoBudgetTitle,
                 message: tr.tvNoBudgetBody,
-                action: FilledButton.tonalIcon( // lifebar: a button, not only the FAB
-                  onPressed: () => _edit(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(tr.tvAddBudget),
-                ),
+                action: DsButton(onPressed: () => _edit(context), icon: Icons.add_rounded, label: tr.tvAddBudget),
               ),
             )
           else
             for (final r in rows)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.xs),
-                child: ListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                   onTap: () => _edit(context, r),
                   title: Text(_catLabel(tr, '${r['category'] ?? 'other'}')),
                   subtitle: Text(tr.tvBudgetLine(/* (actual, estimate) */
@@ -1024,8 +985,7 @@ class _BudgetTab extends StatelessWidget {
                     onPressed: () =>
                         r['id'] is int ? onDelete(r['id'] as int) : null,
                   ),
-                ),
-              ),
+                ))),
         ],
       ),
     );
@@ -1038,6 +998,7 @@ class _BudgetStat extends StatelessWidget {
   const _BudgetStat({required this.label, required this.value, this.tint});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(value,
@@ -1055,6 +1016,7 @@ class _AiSeamCard extends StatelessWidget {
   const _AiSeamCard();
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
@@ -1069,6 +1031,7 @@ class _BookingSeamCard extends StatelessWidget {
   const _BookingSeamCard();
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
@@ -1086,10 +1049,9 @@ class _SeamCard extends StatelessWidget {
       {required this.icon, required this.title, required this.body});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
-      child: Padding(
+    return DsSurface(flat: true, color: DsTokens.of(context).primarySoft, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 20, color: scheme.secondary),
@@ -1099,15 +1061,14 @@ class _SeamCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(body,
                       style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -1144,10 +1105,7 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
 
   Widget _dateButton(String label, TextEditingController c) {
     final v = c.text.trim();
-    return OutlinedButton.icon(
-      icon: const Icon(Icons.calendar_today_rounded, size: 18),
-      label: Text(v.isEmpty ? label : '$label: ${tvNiceDate(context, v)}'),
-      onPressed: () async {
+    return DsButton.secondary(onPressed: () async {
         final now = DateTime.now();
         final cur = DateTime.tryParse(v) ??
             DateTime.tryParse(_start.text.trim()) ?? now;
@@ -1160,8 +1118,7 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
         if (d == null || !mounted) return;
         setState(() => c.text =
             '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}');
-      },
-    );
+      }, icon: Icons.calendar_today_rounded, label: v.isEmpty ? label : '$label: ${tvNiceDate(context, v)}');
   }
 
   void _save() {
@@ -1189,6 +1146,7 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -1220,13 +1178,11 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
         const SizedBox(height: Gap.lg),
         Row(children: [
           Expanded(
-            child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel)),
+            child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: FilledButton(onPressed: _save, child: Text(tr.save)),
+            child: DsButton(onPressed: _save, label: tr.save),
           ),
         ]),
       ]),
@@ -1293,6 +1249,7 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -1335,7 +1292,7 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(tr.tvActivitiesLabel,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           ),
           const SizedBox(height: Gap.sm),
           for (int idx = 0; idx < _activities.length; idx++)
@@ -1358,13 +1315,11 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(tr.cancel)),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: FilledButton(onPressed: _save, child: Text(tr.save)),
+              child: DsButton(onPressed: _save, label: tr.save),
             ),
           ]),
         ]),
@@ -1379,6 +1334,7 @@ class _ActivityRow extends StatelessWidget {
   const _ActivityRow({super.key, required this.activity, this.onRemove});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -1478,6 +1434,7 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -1537,13 +1494,11 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
         const SizedBox(height: Gap.lg),
         Row(children: [
           Expanded(
-            child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel)),
+            child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: FilledButton(onPressed: _save, child: Text(tr.save)),
+            child: DsButton(onPressed: _save, label: tr.save),
           ),
         ]),
       ]),

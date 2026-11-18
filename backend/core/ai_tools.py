@@ -36,7 +36,16 @@ TOOL_RULE = (
     "\"category\"; reminder with \"title\" and \"due\" in local time; note with "
     "\"title\"; profile_name with \"name\"). A number inside a reminder (\"at 9 am\") "
     "is a TIME, never money. Never say it is saved — the user confirms with a "
-    "button first. No ACTION line for questions, feelings, translations or chat.")
+    "button first. No ACTION line for questions, feelings, translations or chat. "
+    # gap-aichat2 (live 10338: expense messages got no confirm card): the
+    # common money cases, said explicitly — the line is the ONLY way the app
+    # can show the Yes button.
+    "When the user tells you an amount they spent or earned and asks to log / "
+    "save / write it (e.g. 'চায়ে ৫০ টাকা খরচ লিখে রাখো', '50 tk khoroch likhe "
+    "rakho', 'spent 200 taka on lunch, note it', 'বেতন ২০০০০ টাকা পেলাম লিখে রাখো') "
+    "you MUST end with ONE line like ACTION: {\"type\": \"expense\", \"amount\": 50, "
+    "\"category\": \"চা\"} (income for money received). Write the amount with "
+    "ASCII digits (৫০ -> 50). Without that line nothing can be saved.")
 
 
 def extract(reply):
@@ -231,3 +240,100 @@ def clean_up(user, ids):
         elif model == "reminder":
             n += Reminder.objects.filter(user=user, source="ai", pk=pk).delete()[0]
     return n
+
+
+# ---------------------------------------------------------------------------
+# gap-aichat2: deterministic SAFETY NET for the money tools. Live 10338: the
+# real model sometimes answers "চায়ে ৫০ টাকা খরচ লিখে রাখো" without the
+# ACTION line -> no confirm card (CI never saw it: the e2e fake always emits
+# the line). When the message is an UNAMBIGUOUS "log X taka spent / earned"
+# and the model gave no proposal, the server builds the same proposal. It is
+# still only a proposal — nothing is written without the user's Yes.
+# ---------------------------------------------------------------------------
+_BN_TO_ASCII = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+_AMT = re.compile(
+    r"([0-9০-৯][0-9০-৯,]*(?:\.[0-9০-৯]+)?)\s*(k(?![a-z])|হাজার|hajar(?![a-z]))?", re.I)
+_CUR = re.compile(r"৳|টাকা|\btaka\b|\btk\b|\bbdt\b|\btakar\b", re.I)
+_SPEND = re.compile(
+    r"খরচ|খরচা|কিনলাম|কিনেছি|কেনা হলো|দিলাম|দিয়েছি|দিয়েছি|"
+    r"\b(?:spent|spend|expense|expenses|bought|paid|khoroch|khorcha|khoros|kinlam|kinechi)\b", re.I)
+_EARN = re.compile(
+    r"আয়|আয়|পেলাম|পেয়েছি|পেয়েছি|বেতন পেলাম|বিক্রি করলাম|"
+    r"\b(?:income|earned|earn|received|got paid|salary|ay|aay|pelam|peyechi|payechi|paisi)\b", re.I)
+_SAVE = re.compile(
+    r"লিখে রাখ|লিখে রেখো|লিখে নাও|লিখো|লিখুন|লেখো|লিখ|হিসাবে রাখ|হিসেবে রাখ|হিসাবে যোগ|"
+    r"হিসেবে যোগ|যোগ কর|সেভ কর|রেকর্ড কর|নোট কর|খাতায়|"
+    r"\b(?:log|save|record|note it|note down|write down|add|track|likhe rakh\w*|likh\w*|"
+    r"rakho|rakhen|add koro|jog koro|save koro)\b", re.I)
+_QUESTION = re.compile(
+    r"[?？]|\b(?:how|what|why|when|which|should|can i|could|kivabe|kemne|koto|ki\b)|"
+    # (no \b next to Bangla: a vowel sign is not \w, so "কি\b" matched "কিনলাম")
+    r"কত|কী|(?:^|\s)কি(?:\s|$)|কীভাবে|কেন|কোন|কিভাবে|উচিত|পারি", re.I)
+_NOT_MONEY_TOOL = re.compile(
+    r"মনে করিয়ে|রিমাইন্ডার|remind|alarm|অ্যালার্ম|ধার|loan|lend|borrow|"
+    r"বাকি দিলাম|পাওনা|due\b", re.I)
+_CAT_STOP = frozenset("""
+আজ আজকে গতকাল কাল আমি আমার এই ওই একটা আর মোট i my today yesterday the a an for on in
+ajke aj kal ami amar total te e
+""".split())
+
+
+def _num(raw):
+    try:
+        return Decimal(raw.translate(_BN_TO_ASCII).replace(",", ""))
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _category(text, span):
+    """A short category from the words around the amount: 'চায়ে ৫০ টাকা'
+    -> 'চা', 'spent 200 taka on lunch' -> 'lunch'. Empty when unsure."""
+    m = re.search(r"\b(?:on|for|from)\s+([A-Za-z][A-Za-z ]{1,24})", text[span[1]:], re.I)
+    if m:
+        w = m.group(1).strip().split()
+        return " ".join(w[:2])[:30]
+    before = text[:span[0]].split()
+    for w in reversed(before[-2:]):
+        w = re.sub(r"[,.;:!]+$", "", w)
+        low = w.lower()
+        if not w or low in _CAT_STOP or _SPEND.search(w) or _SAVE.search(w):
+            continue
+        for suf in ("য়ের", "য়ে", "য়", "েতে", "ের", "ে", "এ", "te", "e"):
+            if len(w) > len(suf) + 1 and w.endswith(suf):
+                w = w[:-len(suf)]
+                break
+        return w[:30]
+    return ""
+
+
+def money_safety_net(text):
+    """A validated expense/income proposal for an unambiguous "log X taka
+    spent / earned" message, else None. Unambiguous = exactly one amount with
+    a currency word (or ৳), a spend XOR earn word, an explicit save word
+    (or a very short statement like "চায়ে ৫০ টাকা খরচ"), not a question, not
+    a reminder / loan."""
+    t = " ".join(str(text or "").split())
+    if not t or len(t) > 160 or _NOT_MONEY_TOOL.search(t) or _QUESTION.search(t):
+        return None
+    if not _CUR.search(t):
+        return None
+    amts = [m for m in _AMT.finditer(t) if m.group(1)]
+    nums = [(m, _num(m.group(1))) for m in amts]
+    nums = [(m, n) for m, n in nums if n is not None and n > 0]
+    if len(nums) != 1:
+        return None
+    m, n = nums[0]
+    if m.group(2):
+        n = n * 1000
+    spend, earn = bool(_SPEND.search(t)), bool(_EARN.search(t))
+    if spend == earn:
+        return None
+    short = len(t.split()) <= 6
+    if not (_SAVE.search(t) or short):
+        return None
+    raw = {"type": "expense" if spend else "income", "amount": str(n),
+           "category": _category(t, m.span())}
+    p = validate(raw)
+    if p is not None:
+        p["safety_net"] = True
+    return p

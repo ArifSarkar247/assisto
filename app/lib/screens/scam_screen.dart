@@ -6,6 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../widgets/scam_result_card.dart';
 import '../widgets/scam_safety_api.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../ads/ad_reward_gate.dart'; // adcontrol
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -112,12 +114,14 @@ class _ScamScreenState extends State<ScamScreen> {
         appBar: AppBar(
           title: Text(t.scamTitle),
           bottom: TabBar(
+            isScrollable: true, // design3: full labels at 2.0x, never cut
+            tabAlignment: TabAlignment.start,
             onTap: (i) {
               if (i == 1) _loadLibrary();
             },
             tabs: [
-              Tab(child: Text(t.scamTabCheck, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.scamTabLearn, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.scamTabCheck, softWrap: false)),
+              Tab(child: Text(t.scamTabLearn, softWrap: false)),
             ],
           ),
         ),
@@ -136,15 +140,10 @@ class _ScamScreenState extends State<ScamScreen> {
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        Container(
-          padding: const EdgeInsets.all(Gap.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.ds.cardHighest,
-            borderRadius: BorderRadius.circular(Radii.md),
-          ),
+        DsHeroCard(
           child: Row(children: [
-            const Icon(Icons.shield_rounded),
-            const SizedBox(width: 10),
+            Icon(Icons.shield_rounded, color: Theme.of(context).colorScheme.ds.primary),
+            const SizedBox(width: Gap.md),
             Expanded(child: Text(t.scamIntro, style: AType.bodyMedium)),
           ]),
         ),
@@ -155,7 +154,6 @@ class _ScamScreenState extends State<ScamScreen> {
           minLines: 3,
           decoration: InputDecoration(
             labelText: t.scamPasteHint,
-            border: const OutlineInputBorder(),
             alignLabelWithHint: true,
             suffixIcon: IconButton(
               tooltip: t.scamPasteButton,
@@ -165,32 +163,32 @@ class _ScamScreenState extends State<ScamScreen> {
           ),
         ),
         const SizedBox(height: Gap.md),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: _checking ? null : _check,
-            icon: _checking
-                ? const SizedBox(
-                    height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.search_rounded),
-            label: Text(t.scamCheckButton),
-          ),
+        DsButton(
+          onPressed: _check,
+          busy: _checking,
+          icon: Icons.search_rounded,
+          expand: true,
+          label: t.scamCheckButton,
         ),
         const SizedBox(height: Gap.lg),
         if (_error)
-          Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          DsCard(
+            tone: DsTone.danger,
+            child: Text(honestFailText(t, _failCause, otherwise: t.scamCheckOffline),
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
+          ),
         if (_result != null && !_error) ...[
           ScamResultCard(result: _result!),
           const SizedBox(height: 14),
-          OutlinedButton.icon(
+          DsButton.secondary(
             onPressed: _reportToFamily,
-            icon: const Icon(Icons.family_restroom_rounded),
-            label: Text(t.scamReportToFamily),
+            icon: Icons.family_restroom_rounded,
+            expand: true,
+            label: t.scamReportToFamily,
           ),
           const SizedBox(height: 6),
           Text(t.scamReportToFamilyNote,
-              style: AType.bodySmall.copyWith(color: Colors.grey)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ],
     );
@@ -199,24 +197,28 @@ class _ScamScreenState extends State<ScamScreen> {
   // ---- learn-the-scams library tab ----
   Widget _learnTab(AppLocalizations t) {
     if (_libLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(count: 5);
     }
     if (_libError) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.cloud_off_rounded, size: 40),
-            const SizedBox(height: Gap.sm),
-            Text(t.scamLibraryOffline, textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            FilledButton.tonal(onPressed: _loadLibrary, child: Text(t.retry)),
-          ]),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: t.scamLibraryOffline,
+          actionLabel: t.retry,
+          onAction: _loadLibrary,
         ),
-      );
+      ]);
     }
     if (_library.isEmpty) {
-      return Center(child: Text(t.scamLibraryEmpty));
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.menu_book_rounded,
+          title: t.scamLibraryEmpty,
+          actionLabel: t.retry,
+          onAction: _loadLibrary,
+        ),
+      ]);
     }
     return ListView(
       padding: const EdgeInsets.all(Gap.md),
@@ -226,10 +228,15 @@ class _ScamScreenState extends State<ScamScreen> {
           child: Text(t.scamLearnIntro, style: AType.bodyMedium),
         ),
         for (final p in _library)
-          Card(
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: DsCard(
+            padding: EdgeInsets.zero,
             child: ExpansionTile(
+              shape: const Border(),
+              collapsedShape: const Border(),
               leading: _levelDot(p['level']),
-              title: Text(p['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600)),
+              title: Text(p['name'] ?? '', style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
               childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, 14),
               children: [
                 _labelled(t.scamWhyLabel, p['why']),
@@ -237,6 +244,7 @@ class _ScamScreenState extends State<ScamScreen> {
                 _labelled(t.scamDoLabel, p['do']),
               ],
             ),
+          ),
           ),
       ],
     );
@@ -251,11 +259,13 @@ class _ScamScreenState extends State<ScamScreen> {
   }
 
   Widget _levelDot(String? level) {
+    final ds = Theme.of(context).colorScheme.ds;
     final c = level == 'high'
-        ? Colors.red
+        ? ds.danger
         : level == 'medium'
-            ? Colors.orange
-            : Colors.green;
+            ? Brand.warning
+            : ds.success;
+
     return Container(width: 12, height: 12,
         decoration: BoxDecoration(color: c, shape: BoxShape.circle));
   }

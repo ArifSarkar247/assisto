@@ -774,6 +774,32 @@ class ShareTests(_X):
         r = self.m.post("/api/v1/shop/events/%d/clip/viewed" % ev.id, {}, format="json")
         self.assertTrue(r.data["deleted"])
 
+    def test_gapcctv_past_clips_page_lists_kept_clips_by_camera_with_honest_keep_time(self):
+        from core.models import ShopEventClip
+        ev, clip, ct, priv, pub, v = self._clip()
+        clip.status = "ready"
+        clip.save(update_fields=["status"])
+        url = "/api/v1/shop/watchman/clips?site=%d" % self.site["id"]
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertEqual([c["id"] for c in r.data["clips"]], [ev.id])
+        self.assertEqual(r.data["default_hours"], 24)
+        self.assertEqual(r.data["premium_days"], 30)
+        self.assertTrue(all(c["keep_days"] == 1 for c in r.data["cameras"]))
+        self.assertTrue(r.data["upsell"])                 # owner, 24-hour cameras
+        day = timezone.localtime(ev.created).date().isoformat()   # the shop's local (Dhaka) day
+        self.assertEqual(len(self.client.get(url + "&day=" + day).data["clips"]), 1)
+        self.assertEqual(len(self.client.get(url + "&day=2001-01-01").data["clips"]), 0)
+        # read-only: listing clips never marks the alert as seen
+        ev.refresh_from_db()
+        self.assertIsNone(ev.opened_at)
+        # someone who is not a viewer of the place gets nothing
+        self.assertEqual(self.m.get(url).status_code, 404)
+        # an expired clip is not offered
+        ShopEventClip.objects.filter(pk=clip.pk).update(
+            expires_at=timezone.now() - timedelta(minutes=1))
+        self.assertEqual(self.client.get(url).data["clips"], [])
+
     def test_gapcctv_sheet_share_tile_only_while_the_server_has_the_clip(self):
         # gap-cctv: after the owner watched (server copy deleted) the alert's
         # Actions sheet must not offer "Share clip" — it has no bytes to send

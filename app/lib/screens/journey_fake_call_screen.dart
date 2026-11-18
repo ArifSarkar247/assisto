@@ -3,6 +3,7 @@ import '../theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 
 /// Fake incoming call (item 9). After a user-chosen delay, a realistic
@@ -22,7 +23,8 @@ class JourneyFakeCallScreen extends StatefulWidget {
   State<JourneyFakeCallScreen> createState() => _JourneyFakeCallScreenState();
 }
 
-class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
+class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen>
+    with AdBlockedState<JourneyFakeCallScreen> {
   Timer? _delayTimer;
   bool _ringing = false;
   bool _answered = false;
@@ -82,12 +84,12 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
             const Icon(Icons.phone_in_talk_rounded, color: Colors.white54, size: 48),
             const SizedBox(height: Gap.lg),
             Text(t.fakeCallArmed(notifLocalizeDigits(context, '${widget.delaySeconds}')),
-                style: const TextStyle(color: Colors.white70)),
+                style: AType.bodyMedium.copyWith(color: Colors.white70)),
             const SizedBox(height: Gap.lg),
             TextButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 child: Text(t.cancel,
-                    style: const TextStyle(color: Colors.white54))),
+                    style: AType.bodyMedium.copyWith(color: Colors.white54))),
           ]),
         ),
       );
@@ -168,7 +170,7 @@ class _CallBtn extends StatelessWidget {
             radius: 36, backgroundColor: color, child: Icon(icon, color: Colors.white, size: 32)),
       ),
       const SizedBox(height: Gap.sm),
-      Text(label, style: const TextStyle(color: Colors.white70)),
+      Text(label, style: AType.bodyMedium.copyWith(color: Colors.white70)),
     ])));
   }
 }

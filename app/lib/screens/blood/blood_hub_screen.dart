@@ -19,6 +19,7 @@ import 'blood_threads_screen.dart';
 import 'blood_verify_screen.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — Blood donor panel hub (route `blood_panel`, flag
 /// `blood_donors`). Three tabs:
@@ -44,7 +45,8 @@ class BloodHubScreen extends StatefulWidget {
   State<BloodHubScreen> createState() => _BloodHubScreenState();
 }
 
-class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProviderStateMixin {
+class _BloodHubScreenState extends State<BloodHubScreen>
+    with AdBlockedState<BloodHubScreen>, SingleTickerProviderStateMixin {
   ApiClient get _api => context.read<AppState>().api;
   late final TabController _tabs =
       TabController(length: 3, vsync: this, initialIndex: widget.initialTab.clamp(0, 2));

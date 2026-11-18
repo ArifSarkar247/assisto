@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../vehicle/veh_setup.dart'; // veh100
@@ -106,22 +107,19 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
   Widget _body(AppLocalizations tr, ColorScheme scheme) {
     if (_loading) return const SkeletonList();
     if (_error) {
-      return StateMessage(
-        icon: Icons.cloud_off_rounded,
-        tint: scheme.error,
-        title: tr.loadFailed,
-        message: honestFailText(tr, _failCause, otherwise: tr.vehLoadError),
-        action: FilledButton.tonalIcon(
-            onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(tr.retry)),
-      );
+      return ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.vehLoadError), actionLabel: tr.retry, onAction: _load)]);
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
-          _HonestCard(),
-          const SizedBox(height: Gap.md),
+          // design3 (page rule): the vehicles first; the hardware note
+          // (a long explanation) moves under them
+          if (_trackers.isEmpty) ...[
+            _HonestCard(),
+            const SizedBox(height: Gap.md),
+          ],
           if (_trackers.isEmpty)
             CvEmptyBlock(
               icon: Icons.gps_not_fixed_rounded,
@@ -137,6 +135,10 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
             _TrackerCard(t: t, onChanged: _load),
             const SizedBox(height: Gap.sm),
           ],
+          if (_trackers.isNotEmpty) ...[
+            const SizedBox(height: Gap.sm),
+            _HonestCard(),
+          ],
         ],
       ),
     );
@@ -148,22 +150,24 @@ class _HonestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.info_outline_rounded, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.vehHonestHardware,
-                style: TextStyle(color: scheme.onSecondaryContainer, height: 1.35)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.35)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
+}
+
+/// design3: a readable text ink for a status fill colour.
+Color _ink(BuildContext context, Color c) {
+  final ds = DsTokens.of(context);
+  if (c == Brand.warning) return Brand.warnInk(context);
+  if (c == Brand.success) return ds.successInk;
+  if (c == Brand.blue) return ds.primaryInk;
+  return c;
 }
 
 class _TrackerCard extends StatelessWidget {
@@ -211,11 +215,7 @@ class _TrackerCard extends StatelessWidget {
     }
     final shared = t['is_owner'] != true;
     final setupAgain = !shared && (state == 'pending' || state == 'expired');
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: state == 'paired'
+    return DsCard(padding: const EdgeInsets.all(Gap.md), onTap: state == 'paired'
             ? () async {
                 await Navigator.push(
                     context,
@@ -230,10 +230,7 @@ class _TrackerCard extends StatelessWidget {
                     await showVehSetupAgain(context, t);
                     onChanged();
                   }
-                : null,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                : null, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.15),
@@ -243,11 +240,13 @@ class _TrackerCard extends StatelessWidget {
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(name.isEmpty ? tr.vehUnnamedTracker : name,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   Text(status,
-                      style: AType.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w600),
+                      // design3: AA ink for the status text (warning/success
+                      // fills as text were ~2.3–3:1 on the card)
+                      style: AType.bodyMedium.copyWith(color: _ink(context, color), fontWeight: FontWeight.w600),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                 ]),
@@ -265,19 +264,16 @@ class _TrackerCard extends StatelessWidget {
                 state == 'pending'
                     ? tr.vehPendingBody(vehTime(context, vehDate(t['pair_expires_at'])))
                     : tr.vehExpiredBody,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
               ),
               if (setupAgain)
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(state == 'pending' ? tr.cvvVehPendingTap : tr.cvvVehExpiredTap,
-                      style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(color: scheme.primary, fontWeight: FontWeight.w600)),
                 ),
             ],
-          ]),
-        ),
-      ),
-    );
+          ]));
   }
 }
 
@@ -399,15 +395,15 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
     }
     return AppSheetBody(
       child: _form(tr, scheme),
-      primary: FilledButton.icon(
+      primary: DsButton(
         key: const ValueKey('veh-pair-submit'),
-        onPressed: _busy ? null : _submit,
-        icon: _busy
-            ? const SizedBox(
-                width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.link_rounded),
-        label: Text(tr.vehPairSubmit),
+        onPressed: _submit,
+        busy: _busy,
+        expand: true,
+        icon: Icons.link_rounded,
+        label: tr.vehPairSubmit,
       ),
+
     );
   }
 
@@ -415,7 +411,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text(tr.vehPairTitle, style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: Gap.xs),
-      Text(tr.vehPairBody, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
+      Text(tr.vehPairBody, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
       const WhereToBuyLink(product: BuyProduct.vehicle, dense: true),
       const SizedBox(height: Gap.sm),
       TextField(
@@ -498,14 +494,14 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       ),
       const SizedBox(height: Gap.md),
       Text(tr.vehMonthlyCost(vehNumStr(context, widget.monthCredits)),
-          style: TextStyle(color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
       if (_inferred) ...[
         const SizedBox(height: Gap.sm),
-        Text(tr.cvvH02Picked, style: TextStyle(color: scheme.primary)),
+        Text(tr.cvvH02Picked, style: AType.bodyMedium.copyWith(color: scheme.primary)),
       ],
       if (_err != null) ...[
         const SizedBox(height: Gap.sm),
-        Text(_err!, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+        Text(_err!, style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
       ],
     ]);
   }

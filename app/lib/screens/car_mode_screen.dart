@@ -12,6 +12,7 @@ import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/car_mode_engine.dart';
 import '../vehicle/route_canvas.dart';
 import '../vehicle/veh_format.dart';
@@ -265,8 +266,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, c.text), child: Text(tr.vehCarNavGo)),
+          DsButton(onPressed: () => Navigator.pop(ctx, c.text), label: tr.vehCarNavGo),
         ],
       ),
     );
@@ -337,10 +337,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
             if (_logging || _eng.trail.isNotEmpty) _liveCard(tr, scheme),
             if (_banner != null) _alertBanner(tr, scheme, _banner!),
             if (_logging)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.md),
-                color: scheme.ds.primarySoft,
-                child: Padding(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(color: scheme.ds.primarySoft, padding: EdgeInsets.zero, child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Row(children: [
                     Icon(Icons.fiber_manual_record_rounded, color: scheme.error),
@@ -349,35 +346,25 @@ class _CarModeScreenState extends State<CarModeScreen> {
                       child: Text(
                         tr.vehCarLogging(vehNumStr(context, _points.length),
                             tr.vehKmh(vehNumStr(context, (_speedKmh ?? 0).clamp(0, 400)))),
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: scheme.ds.primaryInk, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ]),
-                ),
-              ),
+                ))),
             if (_lastTrip != null)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.md),
-                child: ListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                   leading: const Icon(Icons.check_circle_rounded, color: Brand.success),
                   title: Text(tr.vehCarTripSaved),
                   subtitle: Text(
                     '${tr.vehKm(vehNumStr(context, vehNum(_lastTrip!['total_km']) ?? 0, decimals: 1))}  ·  '
                     '${vehDuration(context, tr, vehInt(_lastTrip!['moving_s']) ?? 0)}',
                   ),
-                ),
-              ),
+                ))),
             if (!_logging && _lastTrail.length >= 2)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.md),
-                child: OutlinedButton.icon(
-                  key: const ValueKey('car-save-route'),
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: _saveUsualRoute,
-                  icon: const Icon(Icons.alt_route_rounded),
-                  label: Text(tr.e2eVehSaveRoute, textAlign: TextAlign.center),
-                ),
+                child: DsButton.secondary(buttonKey: const ValueKey('car-save-route'), onPressed: _saveUsualRoute, icon: Icons.alt_route_rounded, label: tr.e2eVehSaveRoute),
               ),
             if (!_logging) _alertSettings(tr, scheme),
             GridView.count(
@@ -392,22 +379,18 @@ class _CarModeScreenState extends State<CarModeScreen> {
               children: tiles,
             ),
             const SizedBox(height: Gap.md),
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.ds.primarySoft,
-              child: Padding(
+            Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.primarySoft, padding: EdgeInsets.zero, child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Icon(Icons.info_outline_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(tr.vehCarHonest,
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: scheme.ds.primaryInk, height: 1.35)),
                   ),
                 ]),
-              ),
-            ),
+              ))),
           ],
         ),
       ),
@@ -424,10 +407,7 @@ extension on _CarModeScreenState {
         : tr.e2eVehStoppedFor(vehNumStr(context, e.stoppedMinutes));
     final d = e.distanceToRouteM;
     final over = _limit > 0 && e.speedKmh > _limit;
-    return Card(
-      key: const ValueKey('car-live'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: const ValueKey('car-live'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           AspectRatio(
@@ -472,13 +452,12 @@ extension on _CarModeScreenState {
                       e.offRoute
                           ? tr.e2eVehOffRoute(vehNumStr(context, d.round()))
                           : tr.e2eVehOnRoute,
-                      style: TextStyle(color: e.offRoute ? scheme.ds.dangerInk : null)),
+                      style: AType.bodyMedium.copyWith(color: e.offRoute ? scheme.ds.dangerInk : null)),
                 ),
             ],
           ),
         ]),
-      ),
-    );
+      )));
   }
 
   Widget _alertBanner(AppLocalizations tr, ColorScheme scheme, CarAlert a) {
@@ -489,17 +468,13 @@ extension on _CarModeScreenState {
       CarAlertKind.offRoute => tr.e2eVehAlertOffRoute(vehNumStr(context, a.distanceM)),
       CarAlertKind.longStop => tr.e2eVehAlertLongStop(vehNumStr(context, a.minutes)),
     };
-    return Card(
-      key: const ValueKey('car-alert'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      color: scheme.ds.dangerBg,
-      child: Semantics(
+    return Padding(key: const ValueKey('car-alert'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(color: scheme.ds.dangerBg, padding: EdgeInsets.zero, child: Semantics(
         liveRegion: true,
         child: ListTile(
           minVerticalPadding: Gap.sm,
           leading: Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           title: Text(text,
-              style: TextStyle(
+              style: AType.titleSmall.copyWith(
                   color: scheme.ds.dangerInk, fontWeight: FontWeight.w700, height: 1.3)),
           trailing: IconButton(
             tooltip: tr.close,
@@ -507,15 +482,11 @@ extension on _CarModeScreenState {
             onPressed: () => _set(() => _banner = null),
           ),
         ),
-      ),
-    );
+      )));
   }
 
   Widget _alertSettings(AppLocalizations tr, ColorScheme scheme) {
-    return Card(
-      key: const ValueKey('car-settings'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: const ValueKey('car-settings'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(tr.e2eVehSpeedAlert, style: Theme.of(context).textTheme.titleSmall),
@@ -545,8 +516,7 @@ extension on _CarModeScreenState {
                   },
           ),
         ]),
-      ),
-    );
+      )));
   }
 }
 

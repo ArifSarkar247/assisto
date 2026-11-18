@@ -137,7 +137,9 @@ class AntiTheftService : Service(), SensorEventListener {
         private const val K_GRAB_LOCKED = "grab_pending_locked"
         private const val K_GRAB_TITLE = "grabTitle"
         private const val K_GRAB_BODY = "grabBody"
-        private const val GRAB_CHANNEL_ID = "assisto_grab_check"
+        // flag-antitheft: v2 = vibrates (a channel's sound/vibration cannot
+        // change after it is created, so a new id)
+        private const val GRAB_CHANNEL_ID = "assisto_grab_check_v2"
         private const val GRAB_NOTIF_ID = 8442
         private val grabLock = Any()
 
@@ -747,6 +749,8 @@ class AntiTheftService : Service(), SensorEventListener {
             intruderPhoto = cfg.optBoolean("intruder_photo", false)
             failThreshold = cfg.optInt("failed_unlock_threshold", 3).coerceIn(2, 10)
             nightGuard = cfg.optBoolean("night_guard", false)
+            // flag-antitheft: the owner's grab sensitivity (low/normal/high)
+            snatch.sensitivity = cfg.optString("snatch_sensitivity", SnatchSensitivity.NORMAL)
             val hw = HashSet<String>()
             cfg.optJSONArray("home_wifi")?.let { a ->
                 for (i in 0 until a.length()) {
@@ -1305,8 +1309,35 @@ class AntiTheftService : Service(), SensorEventListener {
             d.put("face_down_still", faceDownNow(now))
             d.put("hour", hourNow)
             wifiHashNow?.let { d.put("wifi", it) }
+            // flag-antitheft: the motion numbers of the pattern (no location,
+            // no audio) so the server re-checks it with the owner's setting
+            // and real precision can be measured.
+            d.put("screen_on", screenOn)
+            for ((k, v) in snatch.lastFeatures) {
+                d.put(k, if (v is List<*>) JSONArray(v) else v)
+            }
         } catch (_: Throwable) {}
         return d
+    }
+
+    /** flag-antitheft: the owner unlocked the phone with its own SECURE
+     *  screen lock inside the window -> tell the server (snatch_cleared,
+     *  reason owner_unlock: the held grab is dropped, the family never
+     *  hears of it) and end the local window. No secure lock -> nothing. */
+    private fun ownerUnlockDuringGrab(unlockAt: Long) {
+        val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val grabAt = p.getLong(K_GRAB_AT, 0L)
+        if (grabAt <= 0L) return
+        val secure = try {
+            val km = getSystemService(Context.KEYGUARD_SERVICE)
+                as? android.app.KeyguardManager
+            km != null && (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                km.isDeviceSecure else km.isKeyguardSecure)
+        } catch (_: Throwable) { false }
+        if (!GrabCancel.ownerUnlockCancels(grabAt, unlockAt, secure)) return
+        capture("snatch_cleared", JSONObject().put("reason", "owner_unlock")
+            .put("grab_at", grabAt))
+        postCommitGrab()
     }
 
     private fun beginGrabCheck(locked: Boolean) {
@@ -1365,7 +1396,10 @@ class AntiTheftService : Service(), SensorEventListener {
                 ?: return
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 nm.createNotificationChannel(NotificationChannel(
-                    GRAB_CHANNEL_ID, title, NotificationManager.IMPORTANCE_HIGH))
+                    GRAB_CHANNEL_ID, title, NotificationManager.IMPORTANCE_HIGH).apply {
+                    enableVibration(true)
+                    vibrationPattern = longArrayOf(0, 400, 200, 400, 200, 400)
+                })
             }
             val tap = packageManager.getLaunchIntentForPackage(packageName)
             val pi = if (tap != null) PendingIntent.getActivity(
@@ -1445,6 +1479,9 @@ class AntiTheftService : Service(), SensorEventListener {
             Intent.ACTION_USER_PRESENT -> {
                 unlockedNow = true
                 lastUnlockAt = System.currentTimeMillis()
+                // flag-antitheft: unlocked with the OWN secure lock during
+                // "Are you OK?" -> the owner has it; the held grab is dropped
+                try { ownerUnlockDuringGrab(lastUnlockAt) } catch (_: Throwable) {}
                 // fcelder: an unlock is a sign of life for an opted-in Silent
                 // Watch (kept on this phone only; no-op when not opted in)
                 try {

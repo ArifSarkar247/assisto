@@ -243,6 +243,69 @@
           "type": "String"
         }
       }
+    },
+    "cplTrialNoEzviz": "EZVIZ cameras are not in the free trial — with an EZVIZ camera, buy the plan directly. Every other brand gets 7 days free.",
+    "@cplTrialNoEzviz": {
+      "description": "cctvprice: owner 17 Nov 12:35 — honest trial copy, EZVIZ excluded"
+    },
+    "cplTrialEzvizYou": "You have an EZVIZ camera, so the free trial doesn't apply. Buy the plan directly — you can cancel any time in Google Play.",
+    "@cplTrialEzvizYou": {
+      "description": "cctvprice: shown when the server says trial_block = ezviz"
+    },
+    "cplPremiumTitle": "Premium AI",
+    "@cplPremiumTitle": {
+      "description": "cctvprice: Premium AI tier card title"
+    },
+    "cplPremiumBody": "Smart alerts that say in Bangla what happened, and event clips kept for {days} days. Added on top of your CCTV plan.",
+    "@cplPremiumBody": {
+      "description": "cctvprice: Premium AI card body",
+      "placeholders": {
+        "days": {
+          "type": "String"
+        }
+      }
+    },
+    "cplPremiumPrice": "{price} tk per camera per month",
+    "@cplPremiumPrice": {
+      "description": "cctvprice: Premium AI per-camera price",
+      "placeholders": {
+        "price": {
+          "type": "String"
+        }
+      }
+    },
+    "cplPremiumTotal": "For {cameras} cameras: {total} tk a month extra",
+    "@cplPremiumTotal": {
+      "description": "cctvprice: Premium AI total for the camera count",
+      "placeholders": {
+        "cameras": {
+          "type": "String"
+        },
+        "total": {
+          "type": "String"
+        }
+      }
+    },
+    "cplPremiumBuy": "Add Premium AI — {total} tk / month",
+    "@cplPremiumBuy": {
+      "description": "cctvprice: Premium AI buy button",
+      "placeholders": {
+        "total": {
+          "type": "String"
+        }
+      }
+    },
+    "cplPremiumActive": "Premium AI is on",
+    "@cplPremiumActive": {
+      "description": "cctvprice: Premium AI active chip"
+    },
+    "cplPremiumNeedsPlan": "Buy the CCTV plan first, then add Premium AI.",
+    "@cplPremiumNeedsPlan": {
+      "description": "cctvprice: Premium AI needs the base plan"
+    },
+    "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
+    "@biCctvTrialNoEzviz": {
+      "description": "cctvprice: buy sheet line under the trial note"
     }
   },
   "bn": {
@@ -309,6 +372,16 @@
     "cplFailed": "কিছু একটা ভুল হয়েছে। বাড়তি কোনো টাকা কাটা হয়নি। আবার চেষ্টা করুন।",
     "cplLoadError": "প্ল্যান দেখানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
     "cplRetry": "আবার চেষ্টা করুন",
-    "cplLimitsLine": "আমাদের রিলে দিয়ে লাইভ: প্রতি ক্যামেরা মাসে {gb} GB (একই Wi-Fi ও সরাসরি P2P সীমাহীন)। AI ছবি-যাচাই: প্রতি ক্যামেরা মাসে {ai}টি।"
+    "cplLimitsLine": "আমাদের রিলে দিয়ে লাইভ: প্রতি ক্যামেরা মাসে {gb} GB (একই Wi-Fi ও সরাসরি P2P সীমাহীন)। AI ছবি-যাচাই: প্রতি ক্যামেরা মাসে {ai}টি।",
+    "cplTrialNoEzviz": "EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই — EZVIZ ক্যামেরা থাকলে সরাসরি প্ল্যান কিনুন। অন্য সব ব্র্যান্ডে ৭ দিন ফ্রি।",
+    "cplTrialEzvizYou": "আপনার একটি EZVIZ ক্যামেরা আছে, তাই ফ্রি ট্রায়াল প্রযোজ্য নয়। সরাসরি প্ল্যান কিনুন — গুগল প্লে-তে যেকোনো সময় বাতিল করা যায়।",
+    "cplPremiumTitle": "প্রিমিয়াম AI",
+    "cplPremiumBody": "স্মার্ট সতর্কতা — কী ঘটেছে বাংলায় বলে দেয়, আর ইভেন্টের ক্লিপ থাকে {days} দিন। আপনার সিসিটিভি প্ল্যানের ওপর যোগ হয়।",
+    "cplPremiumPrice": "প্রতি ক্যামেরা মাসে {price} টাকা",
+    "cplPremiumTotal": "{cameras}টি ক্যামেরায়: মাসে বাড়তি {total} টাকা",
+    "cplPremiumBuy": "প্রিমিয়াম AI যোগ করুন — মাসে {total} টাকা",
+    "cplPremiumActive": "প্রিমিয়াম AI চালু আছে",
+    "cplPremiumNeedsPlan": "আগে সিসিটিভি প্ল্যান কিনুন, তারপর প্রিমিয়াম AI যোগ করুন।",
+    "biCctvTrialNoEzviz": "EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই।"
   }
 }

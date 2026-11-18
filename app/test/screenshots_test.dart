@@ -372,6 +372,7 @@ import 'cctvcap_shots.dart'; // cctvcap: CCTV caps + extra pack
 import 'cctvactivity_shots.dart'; // cctvactivity W10 activity brain
 import 'cashguard_shots.dart'; // cashguard Smart Cash Guard + Guard Box
 import 'phonecam_shots.dart'; // cctvphone old phone as a camera
+import 'gap_cctv_shots.dart'; // gap-cctv
 import 'ipcam_shots.dart'; // cctvbox IP camera + old phone (no PC)
 import 'cctvx_shots.dart'; // cctvx CCTV extras
 import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
@@ -776,6 +777,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'mess_v2_empty': (build: (_) => const MessAccountingScreen(), mode: FakeMode.empty, full: true),
     'mess_v2_meals': (build: (_) => const MessDetailScreen(messId: 1), mode: FakeMode.data, full: true),
     'mess_v2_month': (build: (_) => const MessDetailScreen(messId: 1, initialTab: 3), mode: FakeMode.data, full: true),
+    // gap-money: edit history says WHAT changed (made-up sample rows)
+    'mess_v2_history': (build: (_) => Scaffold(body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(16), child: MessHistoryList(rows: const [
+      {'actor': 'Babu', 'action': 'bazar.edit', 'at': '2026-11-05T14:20:00+06:00', 'before': {'amount': 50000, 'date': '2026-11-05'}, 'after': {'amount': 500000, 'date': '2026-11-05'}},
+      {'actor': 'Amin', 'action': 'charge.add', 'at': '2026-11-03T09:05:00+06:00', 'before': {}, 'after': {'amount': 70000, 'date': '2026-11-03', 'kind': 'wifi'}},
+      {'actor': 'Chaya', 'action': 'meal.set', 'at': '2026-11-02T23:40:00+06:00', 'before': {'date': '2026-11-03'}, 'after': {'date': '2026-11-03', 'b': 0, 'l': 1, 'd': 1, 'offline_saved_at': '2026-11-02T21:30:00+06:00'}},
+      {'actor': 'Amin', 'action': 'deposit.delete', 'at': '2026-11-02T10:00:00+06:00', 'before': {'amount': 12345678, 'date': '2026-11-02'}, 'after': {}},
+    ])))), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
     'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),
@@ -876,6 +884,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- o1-otp ----
     'otp_verify': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
     'otp_sms_off': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
+    // signup-otp: emailed code — Spam hint, countdown, "Create an account"
+    'otp_email_new_user': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), purpose: 'login', email: 'new@example.com', emailFirst: true, title: 'Assisto', onLeave: (_) {}), mode: FakeMode.data, full: true),
     'otp_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
@@ -1272,6 +1282,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvactivityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvactivity
     for (final e in cashguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cashguard
     for (final e in phonecamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvphone
+    for (final e in gapCctvShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // gap-cctv
     for (final e in ipcamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvbox
     for (final e in cctvxShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvx
     for (final e in cctvevidenceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvevidence

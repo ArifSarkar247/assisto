@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
@@ -310,20 +311,9 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             ),
             const SizedBox(height: Gap.lg),
 
-            // homeshort (owner 9 Nov 11:25): Digital Ledger left the home
-            // shortcuts and is the FIRST tile in My Business — same name and
-            // icon as the old home tile so people find it at once.
-            _HubCard(
-              key: const ValueKey('biz_hub_ledger'),
-              icon: Icons.description_outlined,
-              tint: scheme.primary,
-              title: t.hv2TileLedger,
-              subtitle: t.businessKhataSub,
-              onTap: () => _go(KhataScreen(business: biz)),
-            ),
-            const SizedBox(height: Gap.lg),
-
-            // Net-position snapshot (receivable vs payable).
+            // design3 (lead 17 Nov, gap-bizai): the hub is grouped — most-used
+            // first, a header per section, one distinct icon per card.
+            // Snapshot first (what is owed / low stock / this week), then work.
             _NetPositionCard(
                 key: ValueKey('np-$bizId'), businessId: bizId, isStaff: isStaff),
             const SizedBox(height: Gap.lg),
@@ -337,10 +327,20 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 businessId: bizId,
                 onOpen: () => _go(ProductsScreen(businessId: bizId, lowOnly: true))),
 
-            Text(t.businessManage,
-                style: Theme.of(context).textTheme.titleMedium),
+            // ---- 1. Every day ----
+            DsSectionHeader(t.d3BizDaily),
+            // homeshort (owner 9 Nov 11:25): Digital Ledger left the home
+            // shortcuts and is the FIRST tile in My Business — same name and
+            // icon as the old home tile so people find it at once.
+            _HubCard(
+              key: const ValueKey('biz_hub_ledger'),
+              icon: Icons.description_outlined,
+              tint: scheme.primary,
+              title: t.hv2TileLedger,
+              subtitle: t.businessKhataSub,
+              onTap: () => _go(KhataScreen(business: biz)),
+            ),
             const SizedBox(height: Gap.md),
-
             _HubCard(
               icon: Icons.point_of_sale_rounded,
               tint: scheme.secondary,
@@ -349,6 +349,36 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               onTap: () => _showSelling(bizId, isStaff: isStaff),
             ),
             const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.account_balance_wallet_rounded,
+              tint: AssistoTokens.of(context).success,
+              title: t.cashboxTitle,
+              subtitle: t.businessCashboxSub,
+              onTap: () => _go(CashboxScreen(business: biz)),
+            ),
+            // invoices: 58/80 mm thermal + A4, VAT, QR — owner and staff
+            const SizedBox(height: Gap.md),
+            _HubCard(
+              icon: Icons.receipt_long_rounded,
+              tint: Brand.purple,
+              title: t.invHubTitle,
+              subtitle: t.invHubSub,
+              onTap: () => _go(InvoicesScreen(businessId: bizId)),
+            ),
+            // bizai2: today's shop summary (owner; every plan, no AI)
+            if (!isStaff) ...[
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.today_rounded,
+                tint: Brand.blue,
+                title: t.bizai2DailyTitle,
+                subtitle: t.bizai2DailyHubSub,
+                onTap: () => _go(BizDailyScreen(businessId: bizId)),
+              ),
+            ],
+
+            // ---- 2. Customers & selling ----
+            DsSectionHeader(t.d3BizCustomers),
             // crm100: one page per customer + price quotes with an accept link
             _HubCard(
               icon: Icons.person_search_rounded,
@@ -365,35 +395,67 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               subtitle: t.c100HubQuotesSub,
               onTap: () => _go(ShopQuoteListScreen(business: bizId)),
             ),
-            const SizedBox(height: Gap.md),
-            _HubCard(
-              icon: Icons.account_balance_wallet_rounded,
-              tint: AssistoTokens.of(context).success,
-              title: t.cashboxTitle,
-              subtitle: t.businessCashboxSub,
-              onTap: () => _go(CashboxScreen(business: biz)),
-            ),
-            if (!isStaff) ...[
-              // bizbar: one shop, several phones (staff accounts)
+            // p1-bizagent: the 24/7 AI sales agent for Page / Instagram /
+            // WhatsApp (own seller plans + trial; honest setup states).
+            // feature-flags: the AI sales agent has its own flag.
+            if (FeatureFlags.instance.isOn('business_agent')) ...[
               const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.badge_rounded,
+                icon: Icons.support_agent_rounded,
                 tint: Brand.blue,
-                title: t.bbStaffTitle,
-                subtitle: t.bbStaffHubSub,
-                onTap: () => _go(StaffScreen(businessId: bizId)),
+                title: t.baHubTitle,
+                subtitle: t.baHubSub,
+                onTap: () => _go(const SellerAgentScreen()),
               ),
             ],
-            // invoices: 58/80 mm thermal + A4, VAT, QR — owner and staff
             const SizedBox(height: Gap.md),
+            // AI assistant handles its own Premium gate + upgrade screen; the
+            // hub just shows the Premium badge when the business is unpaid.
             _HubCard(
-              icon: Icons.receipt_long_rounded,
+              icon: Icons.smart_toy_rounded,
               tint: Brand.purple,
-              title: t.invHubTitle,
-              subtitle: t.invHubSub,
-              onTap: () => _go(InvoicesScreen(businessId: bizId)),
+              title: t.businessAiAssistant,
+              subtitle: t.businessAiAssistantSub,
+              locked: !premium,
+              lockedLabel: t.premium,
+              onTap: () => _go(const AiAssistantScreen()),
             ),
+            // bizai pillar 2: segments + the 30/60/90 win-back ladder (owner)
+            if (!isStaff && FeatureFlags.instance.isOn('retention_auto')) ...[
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.replay_rounded,
+                tint: Brand.purple,
+                title: t.bizaiWinbackTitle,
+                subtitle: t.bizaiWinbackHubSub,
+                onTap: () => _go(const WinbackScreen()),
+              ),
+            ],
             if (!isStaff) ...[
+              // mktengine: Marketing Engine v1 (flag marketing_engine)
+              if (FeatureFlags.instance.isOn('marketing_engine')) ...[
+                const SizedBox(height: Gap.md),
+                _HubCard(
+                  icon: Icons.campaign_rounded,
+                  tint: Brand.blue,
+                  title: t.mktTitle,
+                  subtitle: t.mktHubSub,
+                  onTap: () => _go(const MktEngineScreen()),
+                ),
+              ],
+              // Bargaining rules (Premium). The screen enforces the price floor
+              // in code and shows its own gate/upgrade when unpaid; the hub just
+              // mirrors the Premium badge when the business is unpaid.
+              const SizedBox(height: Gap.md),
+              _HubCard(
+                icon: Icons.handshake_rounded,
+                tint: Brand.purple,
+                title: t.bizBargainTitle,
+                subtitle: t.bizBargainHubSub,
+                locked: !premium,
+                lockedLabel: t.premium,
+                onTap: () => _go(const BargainRulesScreen()),
+              ),
               // tagada2: Assisto SMS balance (plan SMS + packs)
               const SizedBox(height: Gap.md),
               _HubCard(
@@ -404,10 +466,13 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 onTap: () => _go(SmsBalanceScreen(businessId: bizId)),
               ),
             ],
+
+            // ---- 3. Money & reports (owner) ----
+            if (!isStaff || FeatureFlags.instance.isOn('business_agent'))
+              DsSectionHeader(t.d3BizMoney),
             if (!isStaff) ...[
-              const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.insights_rounded,
+                icon: Icons.bar_chart_rounded,
                 tint: scheme.tertiary,
                 title: t.businessReports,
                 subtitle: t.businessReportsSub,
@@ -426,18 +491,23 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                   onTap: () => _go(AcctHomeScreen(businessId: bizId)),
                 ),
               ],
-              // mktengine: Marketing Engine v1 (flag marketing_engine)
-              if (FeatureFlags.instance.isOn('marketing_engine')) ...[
-                const SizedBox(height: Gap.md),
-                _HubCard(
-                  icon: Icons.campaign_rounded,
-                  tint: Brand.blue,
-                  title: t.mktTitle,
-                  subtitle: t.mktHubSub,
-                  onTap: () => _go(const MktEngineScreen()),
-                ),
-              ],
               const SizedBox(height: Gap.md),
+            ],
+            // bizai pillar 5: the weekly report + which tracked posts sold
+            if (FeatureFlags.instance.isOn('business_agent')) ...[
+              _HubCard(
+                icon: Icons.date_range_rounded,
+                tint: Brand.cyan,
+                title: t.bizaiWeeklyTitle,
+                subtitle: t.bizaiWeeklyHubSub,
+                onTap: () => _go(WeeklyReportScreen(businessId: bizId)),
+              ),
+              const SizedBox(height: Gap.md),
+            ],
+
+            // ---- 4. Stock & suppliers (owner) ----
+            if (!isStaff) ...[
+              DsSectionHeader(t.d3BizStock),
               _HubCard(
                 icon: Icons.inventory_2_rounded,
                 tint: Brand.cyan,
@@ -447,80 +517,24 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
               ),
               const SizedBox(height: Gap.md),
               _HubCard(
-                icon: Icons.insights_rounded,
+                icon: Icons.travel_explore_rounded,
                 tint: Theme.of(context).colorScheme.error,
                 title: t.demandTitle,
                 subtitle: t.demandHubSub,
                 onTap: () => _go(const DemandMapScreen()),
               ),
-              const SizedBox(height: Gap.md),
-              // Bargaining rules (Premium). The screen enforces the price floor
-              // in code and shows its own gate/upgrade when unpaid; the hub just
-              // mirrors the Premium badge when the business is unpaid.
-              _HubCard(
-                icon: Icons.handshake_rounded,
-                tint: Brand.purple,
-                title: t.bizBargainTitle,
-                subtitle: t.bizBargainHubSub,
-                locked: !premium,
-                lockedLabel: t.premium,
-                onTap: () => _go(const BargainRulesScreen()),
-              ),
             ],
-            const SizedBox(height: Gap.md),
-            // AI assistant handles its own Premium gate + upgrade screen; the
-            // hub just shows the Premium badge when the business is unpaid.
-            _HubCard(
-              icon: Icons.smart_toy_rounded,
-              tint: Brand.purple,
-              title: t.businessAiAssistant,
-              subtitle: t.businessAiAssistantSub,
-              locked: !premium,
-              lockedLabel: t.premium,
-              onTap: () => _go(const AiAssistantScreen()),
-            ),
-            const SizedBox(height: Gap.md),
-            // p1-bizagent: the 24/7 AI sales agent for Page / Instagram /
-            // WhatsApp (own seller plans + trial; honest setup states).
-            // feature-flags: the AI sales agent has its own flag.
-            if (FeatureFlags.instance.isOn('business_agent')) ...[
-              _HubCard(
-                icon: Icons.support_agent_rounded,
-                tint: Brand.blue,
-                title: t.baHubTitle,
-                subtitle: t.baHubSub,
-                onTap: () => _go(const SellerAgentScreen()),
-              ),
-              const SizedBox(height: Gap.md),
-              // bizai pillar 5: the weekly report + which tracked posts sold
-              _HubCard(
-                icon: Icons.insights_rounded,
-                tint: Brand.cyan,
-                title: t.bizaiWeeklyTitle,
-                subtitle: t.bizaiWeeklyHubSub,
-                onTap: () => _go(WeeklyReportScreen(businessId: bizId)),
-              ),
-              const SizedBox(height: Gap.md),
-            ],
-            // bizai2: today's shop summary (owner; every plan, no AI)
+
+            // ---- 5. Team & settings ----
+            DsSectionHeader(t.d3BizTeam),
             if (!isStaff) ...[
+              // bizbar: one shop, several phones (staff accounts)
               _HubCard(
-                icon: Icons.today_rounded,
+                icon: Icons.badge_rounded,
                 tint: Brand.blue,
-                title: t.bizai2DailyTitle,
-                subtitle: t.bizai2DailyHubSub,
-                onTap: () => _go(BizDailyScreen(businessId: bizId)),
-              ),
-              const SizedBox(height: Gap.md),
-            ],
-            // bizai pillar 2: segments + the 30/60/90 win-back ladder (owner)
-            if (!isStaff && FeatureFlags.instance.isOn('retention_auto')) ...[
-              _HubCard(
-                icon: Icons.replay_rounded,
-                tint: Brand.purple,
-                title: t.bizaiWinbackTitle,
-                subtitle: t.bizaiWinbackHubSub,
-                onTap: () => _go(const WinbackScreen()),
+                title: t.bbStaffTitle,
+                subtitle: t.bbStaffHubSub,
+                onTap: () => _go(StaffScreen(businessId: bizId)),
               ),
               const SizedBox(height: Gap.md),
             ],

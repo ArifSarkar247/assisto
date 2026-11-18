@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -29,6 +30,7 @@ import 'battery_guidance_screen.dart';
 import '../train/journey_transit.dart';
 import '../widgets/journey_mode_section.dart';
 import 'train/journey_train_pick_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../maps/address_resolver.dart'; // mapscost
 import '../maps/maps_sdk.dart'; // mapscost
 import '../maps/maps_api.dart'; // jsearch
@@ -90,7 +92,8 @@ class JourneyStartScreen extends StatefulWidget {
   State<JourneyStartScreen> createState() => _JourneyStartScreenState();
 }
 
-class _JourneyStartScreenState extends State<JourneyStartScreen> {
+class _JourneyStartScreenState extends State<JourneyStartScreen>
+    with AdBlockedState<JourneyStartScreen> {
   List<Map<String, dynamic>> _places = [];
   List<Map<String, dynamic>> _watchers = [];
   final Set<int> _selectedWatchers = {};
@@ -215,26 +218,44 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     } catch (_) {
       // best-effort: offline — the start form still loads below
     }
+    // speedproof: the form's reads go out TOGETHER — they used to wait for
+    // each other (places -> members -> habits -> maps/status -> map config:
+    // ~0.7 s of chained round trips in CI, several seconds on 3G).
+    final placesF = api
+        .savedPlaces()
+        .then<List<Map<String, dynamic>>?>((v) => v, onError: (Object _) => null);
+    final membersF = api.getJson('/circle/members')
+        .then<Map<String, dynamic>?>((v) => v, onError: (Object _) => null);
+    final memoryF = JourneyWatcherMemory.load().catchError((Object _) => <int>{});
+    final suggestF = JourneyHabits.enabled(); // sjstart2
+    final psModeF = placeSearchMode(api); // jsearch: never throws
+    final mapF = VehMapConfig.load(api); // never throws; empty = no map
+    final gmapsF = MapsSdk.available(); // mapscost: never throws
+    final places = await placesF; // best-effort: no saved places offline, form still works
+    if (places != null) {
+      _places = places;
+      try {
+        _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
+      } catch (_) {} // best-effort: recents only reorder
+    }
     try {
-      _places = await api.savedPlaces();
-      _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
-    } catch (_) {} // best-effort: no saved places offline, form still works
-    try {
-      final r = await api.getJson('/circle/members');
-      _watchers = journeyWatcherRows(r);
-      // sjstart2: the last watchers again (still in the circle only)
-      final again = JourneyWatcherMemory.stillThere(await JourneyWatcherMemory.load(), _watchers);
-      if (_selectedWatchers.isEmpty) _selectedWatchers.addAll(again);
+      final r = await membersF;
+      if (r != null) {
+        _watchers = journeyWatcherRows(r);
+        // sjstart2: the last watchers again (still in the circle only)
+        final again = JourneyWatcherMemory.stillThere(await memoryF, _watchers);
+        if (_selectedWatchers.isEmpty) _selectedWatchers.addAll(again);
+      }
     } catch (_) {} // best-effort: offline -> empty list shows the add-family step
-    _suggestOn = await JourneyHabits.enabled(); // sjstart2
+    _suggestOn = await suggestF;
     if (_suggestOn && widget.suggest == null) {
       try {
         _usual = sj2UsualTrips(await JourneyHabits.trips(), DateTime.now());
       } catch (_) {} // best-effort: a habit is only a hint
     }
-    _psMode = await placeSearchMode(api); // jsearch: never throws
-    _map = await VehMapConfig.load(api); // never throws; empty = no map
-    _gmaps = await MapsSdk.available(); // mapscost: never throws
+    _psMode = await psModeF;
+    _map = await mapF;
+    _gmaps = await gmapsF;
     if (mounted) setState(() => _loading = false);
     _lastKnown();
     _applySuggestion();
@@ -366,16 +387,6 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               lng: (p['lng'] as num).toDouble()
             )
       ];
-
-  Future<void> _search() async {
-    final got = await showPlaceSearchSheet(context, context.read<AppState>().api,
-        lat: _here?.lat,
-        lng: _here?.lng,
-        mode: _psMode,
-        saved: _savedPicks(AppLocalizations.of(context)),
-        onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null);
-    if (got != null && mounted) _setDest(got.name, got.lat, got.lng, address: got.address);
-  }
 
   Future<({double lat, double lng})?> _mapPoint() =>
       Navigator.of(context).push<({double lat, double lng})>(MaterialPageRoute(
@@ -939,7 +950,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         subtitle: Text(line,
             key: const ValueKey('sj2_from_text'),
             style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600, color: cs.onSurface)),
-        trailing: Text(t.sj2FromChange, style: TextStyle(color: cs.primary)),
+        trailing: Text(t.sj2FromChange, style: AType.bodyMedium.copyWith(color: cs.primary)),
         onTap: _pickFrom,
       ),
     );
@@ -1035,7 +1046,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     if (_loading) {
       return Scaffold(
           appBar: AppBar(title: Text(t.journeyStartTitle)),
-          body: const Center(child: CircularProgressIndicator()));
+          body: const SkeletonList());
     }
     final d = _distM;
     final rough = d == null ? null : jRoughMinutes(d, _mode);
@@ -1178,12 +1189,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               icon: const Icon(Icons.link_rounded),
               label: Text(t.j2PasteLink),
               onPressed: _pasteLink),
-          if (_psMode != PlaceSearchMode.off)
-            OutlinedButton.icon(
-                key: const ValueKey('j2_search'),
-                icon: const Icon(Icons.search_rounded),
-                label: Text(t.j2Search),
-                onPressed: _search),
+          // design3 (lead 17 Nov): no separate "Find a place" button — the
+          // field above IS the place search (it did the same thing twice).
           if (_map.hasTiles || _gmaps)
             OutlinedButton.icon(
                 key: const ValueKey('j2_pick_map'),
@@ -1266,7 +1273,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         // truth: no watcher = nobody can be alerted. Not a dead end: one tap
         // to add a family member, then the list reloads on return.
         if (_watchers.isEmpty) ...[
-          Text(t.journeyNoWatchers, style: TextStyle(color: DsTokens.of(context).muted)),
+          Text(t.journeyNoWatchers, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -1452,19 +1459,13 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            key: const ValueKey('j100_start'),
-            style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
-            onPressed: _starting ? null : _start,
-            icon: _starting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.navigation_rounded),
-            label: Text(t.journeyStartButton,
-                style: AType.titleLarge),
+          // design3: Start = the one glowing DS button (key on the inner button)
+          child: DsButton(
+            buttonKey: const ValueKey('j100_start'),
+            onPressed: _start,
+            busy: _starting,
+            icon: Icons.navigation_rounded,
+            label: t.journeyStartButton,
           ),
         ),
       ]),

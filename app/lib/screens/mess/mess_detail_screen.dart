@@ -335,7 +335,6 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
   }
 
   Future<void> _history() async {
-    final t = AppLocalizations.of(context);
     try {
       final r = await _api.messHistory(widget.messId);
       if (!mounted) return;
@@ -344,60 +343,11 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         context: context,
         isScrollControlled: true,
         showDragHandle: true,
-        builder: (ctx) => AppSheetBody(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(t.mv2History,
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: Gap.sm),
-            if (rows.isEmpty) Text(t.mv2HistoryEmpty),
-            for (final h in rows)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('${h['actor']}: ${_actionLabel(t, '${h['action']}')}'),
-                // gap-money: show WHAT changed (amount / meals / date), not
-                // only who and when — the point of an edit history is trust.
-                subtitle: Text(messDigits(ctx, [
-                  messHistoryDetail(h['before'], h['after']),
-                  _when('${h['at']}'),
-                ].where((x) => x.isNotEmpty).join('\n'))),
-              ),
-          ]),
-        ),
+        builder: (ctx) => AppSheetBody(child: MessHistoryList(rows: rows)),
       );
     } catch (e) {
       if (mounted) _fail(e);
     }
-  }
-
-  String _when(String iso) {
-    final d = DateTime.tryParse(iso)?.toLocal();
-    if (d == null) return iso;
-    String two(int v) => v.toString().padLeft(2, '0');
-    return '${d.day}/${d.month} ${two(d.hour)}:${two(d.minute)}';
-  }
-
-  String _actionLabel(AppLocalizations t, String a) {
-    final kind = a.split('.').first;
-    final op = a.contains('.') ? a.split('.').last : '';
-    final what = switch (kind) {
-      'meal' => t.mv2TabMeals,
-      'bazar' => t.mv2TabBazar,
-      'deposit' => t.mv2Deposits,
-      'charge' => t.mv2ServiceCharges,
-      'turn' => t.mv2Turns,
-      'member' => t.mv2TabMembers,
-      'month' => t.mv2TabMonth,
-      'due' => t.mv2RemindDues,
-      _ => t.mv2Title,
-    };
-    final how = switch (op) {
-      'add' || 'create' => t.mv2OpAdded,
-      'edit' || 'set' => t.mv2OpChanged,
-      'delete' || 'remove' => t.mv2OpRemoved,
-      'close' => t.mv2OpClosed,
-      _ => t.mv2OpChanged,
-    };
-    return '$what — $how';
   }
 
   Future<void> _memberActions(Map<String, dynamic> m) async {
@@ -802,7 +752,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       if (deps.isEmpty) _emptyLine(t.mv2DepositsEmpty),
       for (final e in deps) _entryTile(e, t),
       _sectionTitle(t.mv2ServiceCharges),
-      Text(t.mv2ChargeNote, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(t.mv2ChargeNoteDays, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.sm),
       if (can && _staff)
         _bigButton(t.mv2AddCharge, Icons.receipt_rounded, _busy ? null : () => _addEntry('charge'),
@@ -965,4 +915,65 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       ],
     ]);
   }
+}
+
+/// gap-money: the mess edit history (who, WHAT changed, when) — its own
+/// widget so the gallery can show it (mess_v2_history).
+class MessHistoryList extends StatelessWidget {
+  const MessHistoryList({super.key, required this.rows});
+  final List<Map<String, dynamic>> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text(t.mv2History,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      const SizedBox(height: Gap.sm),
+      if (rows.isEmpty) Text(t.mv2HistoryEmpty),
+      for (final h in rows)
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('${h['actor']}: ${_messActionLabel(t, '${h['action']}')}'),
+          // show WHAT changed (amount / meals / date), not only who and
+          // when — the point of an edit history is trust.
+          subtitle: Text(messDigits(context, [
+            messHistoryDetail(h['before'], h['after']),
+            if ((h['after'] as Map?)?['offline_saved_at'] != null) t.mv2SyncedLateNote,
+            _messWhen('${h['at']}'),
+          ].where((x) => x.isNotEmpty).join('\n'))),
+        ),
+    ]);
+  }
+}
+
+String _messWhen(String iso) {
+  final d = DateTime.tryParse(iso)?.toLocal();
+  if (d == null) return iso;
+  String two(int v) => v.toString().padLeft(2, '0');
+  return '${d.day}/${d.month} ${two(d.hour)}:${two(d.minute)}';
+}
+
+String _messActionLabel(AppLocalizations t, String a) {
+  final kind = a.split('.').first;
+  final op = a.contains('.') ? a.split('.').last : '';
+  final what = switch (kind) {
+    'meal' => t.mv2TabMeals,
+    'bazar' => t.mv2TabBazar,
+    'deposit' => t.mv2Deposits,
+    'charge' => t.mv2ServiceCharges,
+    'turn' => t.mv2Turns,
+    'member' => t.mv2TabMembers,
+    'month' => t.mv2TabMonth,
+    'due' => t.mv2RemindDues,
+    _ => t.mv2Title,
+  };
+  final how = switch (op) {
+    'add' || 'create' => t.mv2OpAdded,
+    'edit' || 'set' => t.mv2OpChanged,
+    'delete' || 'remove' => t.mv2OpRemoved,
+    'close' => t.mv2OpClosed,
+    _ => t.mv2OpChanged,
+  };
+  return '$what — $how';
 }

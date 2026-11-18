@@ -273,7 +273,8 @@ class GuardBoxLinuxSteps extends StatelessWidget {
               child: SelectableText(text,
                   key: Key(key),
                   textDirection: TextDirection.ltr,
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+                  // the app font (a 'monospace' family is not bundled: gallery showed blocks)
+                  style: AType.bodyMedium.copyWith(fontSize: 13, height: 1.4)),
             ),
             IconButton(
               tooltip: t.gcvLinuxCopy,

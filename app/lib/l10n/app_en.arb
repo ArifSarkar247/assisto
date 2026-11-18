@@ -52414,82 +52414,239 @@
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
   },
-  "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
-  "@gcvLinuxTitle": {
-    "description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"
+  "a11ySosSecondsLeft": "{seconds} seconds until the SOS is sent",
+  "@a11ySosSecondsLeft": {
+    "description": "TalkBack: the live SOS countdown number. seconds is already in the UI digits.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   },
-  "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
-  "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
-  "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
-  "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
-  "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
-  "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
-  "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
-  "gcvLinuxCopy": "Copy",
-  "gcvLinuxCopied": "Copied",
-  "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required.",
-  "gcvManageTitle": "People, sharing and notice",
-  "@gcvManageTitle": {
-    "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
+  "a11ySosTalkBackIntro": "SOS countdown. TalkBack is on, so you have {seconds} seconds. The first button is Cancel. Swipe right for Send now.",
+  "@a11ySosTalkBackIntro": {
+    "description": "Spoken once when an SOS countdown opens with TalkBack on.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
   },
-  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
-  "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
-  "@gcvPairOffline": {
-    "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  "a11yDirectionsTo": "Directions to {place}",
+  "@a11yDirectionsTo": {
+    "description": "Tooltip/TalkBack name of a directions icon next to a police station or hospital.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
   },
-  "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
-  "@gcvWarnRecordFirst": {
-    "description": "gap-cctv: box warning tile when no own-voice warning exists"
+  "cplTrialNoEzviz": "EZVIZ cameras are not in the free trial — with an EZVIZ camera, buy the plan directly. Every other brand gets 7 days free.",
+  "@cplTrialNoEzviz": {
+    "description": "cctvprice: owner 17 Nov 12:35 — honest trial copy, EZVIZ excluded"
   },
-  "gcvWarnDeleteAsk": "Delete your recorded warning?",
-  "@gcvWarnDeleteAsk": {
-    "description": "gap-cctv: confirm before deleting the own-voice warning"
+  "cplTrialEzvizYou": "You have an EZVIZ camera, so the free trial doesn't apply. Buy the plan directly — you can cancel any time in Google Play.",
+  "@cplTrialEzvizYou": {
+    "description": "cctvprice: shown when the server says trial_block = ezviz"
   },
-  "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
-  "@gcvEvidenceMaking": {
-    "description": "gap-cctv: progress while building the evidence pack"
+  "cplPremiumTitle": "Premium AI",
+  "@cplPremiumTitle": {
+    "description": "cctvprice: Premium AI tier card title"
   },
-  "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
-  "@gcvEvidencePartial": {
-    "description": "gap-cctv: evidence pack built without watermark copies or PDF"
+  "cplPremiumBody": "Smart alerts that say in Bangla what happened, and event clips kept for {days} days. Added on top of your CCTV plan.",
+  "@cplPremiumBody": {
+    "description": "cctvprice: Premium AI card body",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
   },
-  "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
-  "@gcvThanaUnavailable": {
-    "description": "gap-cctv: thana lookup failed (not 'none nearby')"
+  "cplPremiumPrice": "{price} tk per camera per month",
+  "@cplPremiumPrice": {
+    "description": "cctvprice: Premium AI per-camera price",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
   },
-  "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
-  "@gcvClipExpiredGone": {
-    "description": "gap-cctv: clip expired (24 h or the add-on's days)"
+  "cplPremiumTotal": "For {cameras} cameras: {total} tk a month extra",
+  "@cplPremiumTotal": {
+    "description": "cctvprice: Premium AI total for the camera count",
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
   },
-  "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
-  "@gcvWatchDeleteAsk": {
-    "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
+  "cplPremiumBuy": "Add Premium AI — {total} tk / month",
+  "@cplPremiumBuy": {
+    "description": "cctvprice: Premium AI buy button",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
   },
-  "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
-  "@gcvPhoneGwNoScan": {
-    "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
+  "cplPremiumActive": "Premium AI is on",
+  "@cplPremiumActive": {
+    "description": "cctvprice: Premium AI active chip"
   },
-  "gcvPosUrl": "Address (URL)",
-  "@gcvPosUrl": {
-    "description": "gap-cctv: POS webhook key dialog label"
+  "cplPremiumNeedsPlan": "Buy the CCTV plan first, then add Premium AI.",
+  "@cplPremiumNeedsPlan": {
+    "description": "cctvprice: Premium AI needs the base plan"
   },
-  "gcvPosKeyId": "Key ID",
-  "gcvPosSecret": "Secret key",
-  "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
-  "@gcvUnlinkAsk": {
-    "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
+  "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
+  "@biCctvTrialNoEzviz": {
+    "description": "cctvprice: buy sheet line under the trial note"
   },
-  "gcvReportToday": "Today",
-  "@gcvReportToday": {
-    "description": "gap-cctv: closing report day switch"
+  "stagingUpdatesViaTester": "This is the Assisto Test app. A new test build arrives every day through the App Tester app — open App Tester to update.",
+  "@stagingUpdatesViaTester": {
+    "description": "Update screen in the owner's staging test app (com.assisto.assisto.staging): updates come from Firebase App Tester, not from the in-app updater."
   },
-  "gcvReportYesterday": "Yesterday",
-  "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
-  "@gcvGbLost": {
-    "description": "gap-cctv: Guard Box token refused by the server"
+  "stagingPurchasesOffTitle": "Purchases are off in the test app",
+  "@stagingPurchasesOffTitle": {
+    "description": "Checkout sheet title in the staging test app: nothing can be bought there."
   },
-  "gcvGbForget": "Forget this pairing",
-  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "stagingPurchasesOffBody": "Nothing can be bought in Assisto Test and no money is ever taken. To try a paid plan here, ask the Assisto team to turn on a test plan for your account. Real purchases work in the Assisto app from Google Play.",
+  "@stagingPurchasesOffBody": {
+    "description": "Checkout sheet body in the staging test app."
+  },
+  "stagingPurchasesOffOk": "OK",
+  "@stagingPurchasesOffOk": {
+    "description": "Closes the purchases-off sheet in the staging test app."
+  },
+  "lp2gDraftBack": "Your unfinished answers are back. Carry on from where you stopped.",
+  "@lp2gDraftBack": {
+    "description": "gap-lp: toast when a mock reopens with answers saved on the phone after the app closed"
+  },
+  "lp2gSubmitTitle": "Submit this section?",
+  "@lp2gSubmitTitle": {
+    "description": "gap-lp: title of the confirm sheet before a mock section is submitted"
+  },
+  "lp2gUnanswered": "{count} questions are not answered yet.",
+  "@lp2gUnanswered": {
+    "description": "gap-lp: confirm sheet line, count = unanswered questions or tasks (already in local digits)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2gNoReturn": "In a full mock you cannot come back to this section, like the real exam.",
+  "@lp2gNoReturn": {
+    "description": "gap-lp: confirm sheet line in a full mock"
+  },
+  "lp2gSubmitNow": "Submit",
+  "@lp2gSubmitNow": {
+    "description": "gap-lp: confirm sheet button that submits the section"
+  },
+  "lp2gCert": "Practice certificate (PDF)",
+  "@lp2gCert": {
+    "description": "gap-lp: button under a full mock result that opens the Assisto Practice Certificate PDF"
+  },
+  "lp2gCertFail": "The certificate did not open. Check the internet and try again.",
+  "@lp2gCertFail": {
+    "description": "gap-lp: toast when the certificate PDF could not be downloaded or opened"
+  },
+  "lp2gSavedOffline": "No internet. Tests saved on this phone are below — you can take them now; marking needs internet.",
+  "@lp2gSavedOffline": {
+    "description": "gap-lp: banner on the IELTS page when the mock list cannot load but downloaded mocks exist"
+  },
+  "gbzChaseTapHint": "Tap a name to send that customer a reminder now. The message carries their due link and how to pay.",
+  "gbzChaseSendOne": "Send the reminder",
+  "gbzChaseSendAll": "Send reminders to these {count}",
+  "@gbzChaseSendAll": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzOpenProducts": "Open products and stock",
+  "gbzWbEdit": "Edit",
+  "gbzWbEditTitle": "Write the message your way",
+  "gbzWbEditHint": "Keep {name} and {shop} as they are — they fill in for each customer.",
+  "@gbzWbEditHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbSave": "Save",
+  "gbzWbReach": "In the app now: {on} of {total} — only customers who use Assisto get it here.",
+  "@gbzWbReach": {
+    "placeholders": {
+      "on": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbMessageOthers": "Message the others on your WhatsApp",
+  "gbzBulkStopped": "{count} left out — they said STOP.",
+  "@gbzBulkStopped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzCrmMore": "More",
+  "gbzCrmMoreSub": "Every other CRM tool — tap one to open it.",
+  "gbzRemindPost": "Remind me to post at the best time",
+  "gbzRemindDone": "Reminder set.",
+  "gbzRemindFailed": "Could not set the reminder — please try again.",
+  "gbzBulkNotFound": "{count} could not be found — check their number.",
+  "@gbzBulkNotFound": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gapcEditTooLate": "It's too late to edit this message.",
+  "@gapcEditTooLate": {
+    "description": "gap-circle: group edit refused, outside the 15-minute window"
+  },
+  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
+  "@gapcDeleteMeGroupConfirm": {
+    "description": "gap-circle: confirm delete-for-me in a group chat"
+  },
+  "gapcCallsClear": "Clear call history",
+  "@gapcCallsClear": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsClearBody": "All calls are removed from your call history. The other person keeps theirs.",
+  "@gapcCallsClearBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemove": "Remove from call history",
+  "@gapcCallRemove": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemoveBody": "This call is removed from your call history only. The other person keeps theirs.",
+  "@gapcCallRemoveBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsRemoved": "Removed from your call history.",
+  "@gapcCallsRemoved": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "sosgapSosButtonLine": "Emergency — alert my family",
+  "@sosgapSosButtonLine": {
+    "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
+  },
   "cityGRouteHere": "Go by bus / metro",
   "@cityGRouteHere": {
     "description": "gap-city: button on a place (office, terminal, hospital...) that plans the trip there in City Service"
@@ -52604,6 +52761,94 @@
       }
     }
   },
+  "mv2ChargeNoteDays": "Service charges are not in the meal rate. They are split among members — equally, or by seat or room share — and someone who joins or leaves mid-month pays only for the days they were in the mess.",
+  "@mv2ChargeNoteDays": {
+    "description": "Mess V2: how service charges (Wi-Fi, khala, rent) are split; pro-rated by days present."
+  },
+  "mv2SyncedLateNote": "Saved offline before the cut-off, synced later",
+  "@mv2SyncedLateNote": {
+    "description": "Mess V2 edit history: this meal change was saved on the phone without internet before the meal cut-off and reached the server afterwards."
+  },
+  "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
+  "@gcvLinuxTitle": {
+    "description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"
+  },
+  "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
+  "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
+  "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
+  "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
+  "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
+  "gcvLinuxStep4Where": "When the box asks for a code, open \"Old phone or small box\" on this place, tap \"Use an old phone as a camera\" and type the short code it shows.",
+  "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
+  "gcvLinuxCopy": "Copy",
+  "gcvLinuxCopied": "Copied",
+  "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required.",
+  "gcvManageTitle": "People, sharing and notice",
+  "@gcvManageTitle": {
+    "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
+  },
+  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
+  "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
+  "@gcvPairOffline": {
+    "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  },
+  "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
+  "@gcvWarnRecordFirst": {
+    "description": "gap-cctv: box warning tile when no own-voice warning exists"
+  },
+  "gcvWarnDeleteAsk": "Delete your recorded warning?",
+  "@gcvWarnDeleteAsk": {
+    "description": "gap-cctv: confirm before deleting the own-voice warning"
+  },
+  "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
+  "@gcvEvidenceMaking": {
+    "description": "gap-cctv: progress while building the evidence pack"
+  },
+  "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
+  "@gcvEvidencePartial": {
+    "description": "gap-cctv: evidence pack built without watermark copies or PDF"
+  },
+  "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
+  "@gcvThanaUnavailable": {
+    "description": "gap-cctv: thana lookup failed (not 'none nearby')"
+  },
+  "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
+  "@gcvClipExpiredGone": {
+    "description": "gap-cctv: clip expired (24 h or the add-on's days)"
+  },
+  "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
+  "@gcvWatchDeleteAsk": {
+    "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
+  },
+  "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
+  "@gcvPhoneGwNoScan": {
+    "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
+  },
+  "gcvPosUrl": "Address (URL)",
+  "@gcvPosUrl": {
+    "description": "gap-cctv: POS webhook key dialog label"
+  },
+  "gcvPosKeyId": "Key ID",
+  "gcvPosSecret": "Secret key",
+  "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
+  "@gcvUnlinkAsk": {
+    "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
+  },
+  "gcvReportToday": "Today",
+  "@gcvReportToday": {
+    "description": "gap-cctv: closing report day switch"
+  },
+  "gcvReportYesterday": "Yesterday",
+  "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
+  "@gcvGbLost": {
+    "description": "gap-cctv: Guard Box token refused by the server"
+  },
+  "gcvGbForget": "Forget this pairing",
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "aibarCreditUsedOne": "1 credit used",
+  "@aibarCreditUsedOne": {
+    "description": "AI answer footer when exactly one credit was used (singular of aibarCreditsUsed)"
+  },
   "fceYouAsked": "You asked: {q}",
   "@fceYouAsked": {
     "placeholders": {
@@ -52677,5 +52922,341 @@
     }
   },
   "fcgLedgerFamily": "Family (shared)",
-  "fcgLedgerMine": "Only mine"
+  "fcgLedgerMine": "Only mine",
+  "gcvHowPriced": "{base} tk a month covers 2 cameras. A plan for more cameras adds {extra} tk a month per camera. Phone cameras count too. Without a bigger plan, a camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvHowPriced": {
+    "description": "gap-cctv D2: CCTV plan pricing line (plan size price vs per-camera credits)",
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPairPhone2": "Open menu → CCTV → Shop tools → Shop Box mode, then scan or paste the code below.",
+  "@gcvPairPhone2": {
+    "description": "gap-cctv D3: Shop Box now lives inside CCTV"
+  },
+  "gcvHubTitle": "Old phone or small box",
+  "@gcvHubTitle": {
+    "description": "gap-cctv D3: one entry for old phone / Guard Box / Linux box"
+  },
+  "gcvHubIntro": "No new camera needed. Pick how the old phone (or a small box) helps this place:",
+  "gcvHubPairSub": "The old phone's own camera watches a spot. Show its pairing code here.",
+  "gcvHubThisSub": "You are holding the old phone: turn this phone into the camera now.",
+  "gcvHubGuardBoxSub": "An old phone on the shop Wi-Fi reads your IP camera and checks the cash area.",
+  "gcvShopToolsTitle": "Shop tools: sales, day-end, reports",
+  "@gcvShopToolsTitle": {
+    "description": "gap-cctv D3: Shop Box as a section of CCTV"
+  },
+  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy",
+  "gcvClipsTitle": "Past clips",
+  "@gcvClipsTitle": {
+    "description": "gap-cctv D4: past clips page title"
+  },
+  "gcvClipsEntry": "Past clips",
+  "gcvClipsKeep": "Alert clips are kept {hours} hours, or {days} days with Premium AI. When the owner watches a clip, its server copy is deleted.",
+  "@gcvClipsKeep": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsCamKeep": "{camera}: kept {days} days",
+  "@gcvClipsCamKeep": {
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsUpsell": "Keep clips {days} days with Premium AI",
+  "@gcvClipsUpsell": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsAllCameras": "All cameras",
+  "gcvClipsEmptyTitle": "No clips kept right now",
+  "gcvClipsEmptyBenefit": "When an alert comes with a short clip, it waits here for {hours} hours so you can watch it from anywhere.",
+  "@gcvClipsEmptyBenefit": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsEmptyStep1": "Draw a zone on a camera so alerts send a clip.",
+  "gcvClipsEmptyStep2": "Watched clips are deleted from the server; the photo stays in Alerts.",
+  "gcvClipsCameraUnknown": "Camera",
+  "gcvMoreActions": "More actions",
+  "@gcvMoreActions": {
+    "description": "gap-cctv R1: alert card — siren, warning, thana, evidence, wrong"
+  },
+  "d3SendSmsShort": "Send SMS",
+  "@d3SendSmsShort": {
+    "description": "design3: short label of the Safe Journey live SMS button (fits one line beside Stop)"
+  },
+  "d3BizDaily": "Every day",
+  "@d3BizDaily": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizCustomers": "Customers & selling",
+  "@d3BizCustomers": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizMoney": "Money & reports",
+  "@d3BizMoney": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizStock": "Stock & suppliers",
+  "@d3BizStock": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizTeam": "Team & settings",
+  "@d3BizTeam": {
+    "description": "design3: My Business hub section header"
+  },
+  "cityGGetOffAtN": "Get off at: {stop} ({n, plural, =1{1 stop} other{{n} stops}})",
+  "@cityGGetOffAtN": {
+    "description": "gap-city: replaces cityGetOffAt (fixes '(1 stops)')",
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cityGChangesN": "{n, plural, =1{1 change} other{{n} changes}}",
+  "@cityGChangesN": {
+    "description": "gap-city: replaces cityChanges (fixes '1 change(s)')",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "crfTitleImou": "First remove the camera from Imou Life",
+  "@crfTitleImou": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfTitleEzviz": "First remove the camera from the EZVIZ app",
+  "@crfTitleEzviz": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfTitleDmss": "First remove the device from DMSS",
+  "@crfTitleDmss": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfWhy": "A camera can be in only one cloud account at a time. Removing it from that app is safe: the camera usually keeps its Wi-Fi.",
+  "@crfWhy": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepOpenApp": "Open {app} and tap your camera.",
+  "@crfStepOpenApp": {
+    "description": "imou-real: remove-from-vendor-app guide",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "crfStepSettings": "Tap the settings gear at the top right.",
+  "@crfStepSettings": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepEncryption": "Turn Image Encryption OFF — otherwise Assisto cannot show live view or pictures.",
+  "@crfStepEncryption": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDelete": "Scroll to the bottom, tap Delete Device and confirm.",
+  "@crfStepDelete": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDmssMore": "Open DMSS, go to the device list and tap ⋮ next to your device.",
+  "@crfStepDmssMore": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepDmssDelete": "Tap Delete and confirm.",
+  "@crfStepDmssDelete": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelImou": "Find the SN and the Safety Code on the camera sticker — you type them next.",
+  "@crfStepLabelImou": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelEzviz": "Find the serial number and the 6-letter Verification Code on the sticker — you type them next.",
+  "@crfStepLabelEzviz": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfStepLabelDmss": "Keep the SN and the device's admin password ready — you type them next.",
+  "@crfStepLabelDmss": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfNotInApp": "Never added it to {app}? Just continue.",
+  "@crfNotInApp": {
+    "description": "imou-real: remove-from-vendor-app guide",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "crfContinue": "I removed it — continue",
+  "@crfContinue": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfCancel": "Not now",
+  "@crfCancel": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfLeadChip": "Recommended — no need to delete it from your app",
+  "@crfLeadChip": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfBrandSubRemove": "Serial number + label code (remove it from the brand app first)",
+  "@crfBrandSubRemove": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDevices": "My devices",
+  "@crfSkDevices": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCamera": "Front door camera",
+  "@crfSkCamera": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCamera2": "Shop camera",
+  "@crfSkCamera2": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkLive": "Live",
+  "@crfSkLive": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkSettings": "Settings",
+  "@crfSkSettings": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkEncryption": "Image Encryption",
+  "@crfSkEncryption": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkAlerts": "Alarm notifications",
+  "@crfSkAlerts": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDeviceInfo": "Device info",
+  "@crfSkDeviceInfo": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDelete": "Delete Device",
+  "@crfSkDelete": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkDeleteShort": "Delete",
+  "@crfSkDeleteShort": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeImou": "Safety Code",
+  "@crfSkCodeImou": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeEzviz": "Verification Code",
+  "@crfSkCodeEzviz": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "crfSkCodeDmss": "Password",
+  "@crfSkCodeDmss": {
+    "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "signupOtpSpamHint": "Didn't get the code? Check your Spam or Promotions folder — it can take up to 2 minutes.",
+  "@signupOtpSpamHint": {
+    "description": "signup-otp: shown under an emailed code"
+  },
+  "signupOtpEmailNeutral": "If an account has this email verified, the code is on its way.",
+  "@signupOtpEmailNeutral": {
+    "description": "signup-otp: neutral email-code note (no account enumeration)"
+  },
+  "signupOtpNewHere": "New to Assisto? You don't need a code.",
+  "@signupOtpNewHere": {
+    "description": "signup-otp: code sign-in screens, for people who meant to sign up"
+  },
+  "signupOtpCreateAccount": "Create a profile",
+  "@signupOtpCreateAccount": {
+    "description": "signup-otp: button from code sign-in to sign-up"
+  },
+  "signupOtpUsePhone": "Use phone (SMS) instead",
+  "@signupOtpUsePhone": {
+    "description": "signup-otp: switch an emailed code to SMS"
+  },
+  "signupOtpUsePassword": "Sign in with password instead",
+  "@signupOtpUsePassword": {
+    "description": "signup-otp: email code failed and SMS is off"
+  },
+  "fatOkNotifBody": "Your phone was suddenly grabbed and carried away. If it was you, unlock your phone or open Assisto within 15 seconds — otherwise your trusted contacts will be alerted.",
+  "@fatOkNotifBody": {
+    "description": "flag-antitheft: heads-up notification after a detected grab (window is now 15 s; unlocking with the phone's own lock also cancels)."
+  },
+  "fatOkBody": "Assisto felt your phone being grabbed and carried away. If you are OK, confirm with your Security PIN (or unlock your phone with its own lock) and no one will be alerted. If you need help, tap \"I need help\". With no answer, your trusted contacts are alerted in about 15 seconds.",
+  "@fatOkBody": {
+    "description": "flag-antitheft: body of the in-app 'Are you OK?' dialog after a grab."
+  },
+  "fatSensTitle": "How eager should grab alerts be?",
+  "@fatSensTitle": {
+    "description": "flag-antitheft: title of the grab-sensitivity card in Always-on protection."
+  },
+  "fatSensBody": "Every level needs a hard grab followed by someone running away with the phone. If it was you, unlock your phone within 15 seconds and nobody is alerted.",
+  "@fatSensBody": {
+    "description": "flag-antitheft: explanation under the sensitivity title."
+  },
+  "fatSensLow": "Low: only when lying down",
+  "@fatSensLow": {
+    "description": "flag-antitheft: sensitivity option low."
+  },
+  "fatSensLowBody": "Watches only a phone lying on a table or bed. Never while it is unlocked in your hand. Fewest false alerts.",
+  "@fatSensLowBody": {
+    "description": "flag-antitheft: sensitivity option low, detail."
+  },
+  "fatSensNormal": "Normal (recommended)",
+  "@fatSensNormal": {
+    "description": "flag-antitheft: sensitivity option normal."
+  },
+  "fatSensNormalBody": "Also while it is in your hand, but only when the grab is followed by running away. A bumpy rickshaw ride, a drop, a fast walk or putting it in a bag is ignored.",
+  "@fatSensNormalBody": {
+    "description": "flag-antitheft: sensitivity option normal, detail."
+  },
+  "fatSensHigh": "High: catch more",
+  "@fatSensHigh": {
+    "description": "flag-antitheft: sensitivity option high."
+  },
+  "fatSensHighBody": "Reacts to weaker grabs. Jogging with the phone in your hand can raise a false alert.",
+  "@fatSensHighBody": {
+    "description": "flag-antitheft: sensitivity option high, detail."
+  },
+  "fatSensSaved": "Saved. Grab alerts now use this level.",
+  "@fatSensSaved": {
+    "description": "flag-antitheft: snackbar after the sensitivity was saved."
+  },
+  "d3GwShopboxTitle": "Shop Box (small computer)",
+  "@d3GwShopboxTitle": {
+    "description": "design3: CCTV gateway choice — the Shop Box is now any small computer (Raspberry Pi, Linux mini PC or Windows PC), not only a Windows PC"
+  },
+  "d3CctvSetupGroup": "Cameras & setup",
+  "@d3CctvSetupGroup": {
+    "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  }
 }

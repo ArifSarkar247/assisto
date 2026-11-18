@@ -58,7 +58,7 @@ class DailySummaryTests(APITestCase):
         self.assertEqual(r.status_code, 200, r.data)
         text = " ".join(r.data["lines"])
         self.assertIn("আজ বিক্রি: ২টি, মোট ৳৮০০.০০", text)
-        self.assertIn("নগদ ৳৫০০.০০", text)
+        self.assertIn("ক্যাশ ৳৫০০.০০", text)          # gap-bizai: never "নগদ" (= Nagad too)
         self.assertIn("বিকাশ ৳৩০০.০০", text)
         self.assertIn("১০০% বেশি", text)                     # 800 vs 400 last week
         self.assertIn("আজ খাতায় বাকি আদায়: ৳২০০.০০", text)

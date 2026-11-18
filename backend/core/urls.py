@@ -7,6 +7,7 @@ from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_gap_circle as gapc  # noqa: E402  gap-circle
 from . import views_sjduring as sjd  # sjduring
 from . import views_maps as vmaps   # mapscost
 from . import views_guardian as vg
@@ -548,6 +549,7 @@ urlpatterns = [
     path("circle/messages/<int:pk>/<slug:action>", m5.CircleMessageActionView.as_view()),
     # --- build-61: Messenger M1 calls + privacy ---
     path("circle/calls", b61.CircleCallsView.as_view()),
+    path("circle/calls/hide", gapc.CallLogHideView.as_view()),  # gap-circle
     path("circle/<int:pk>/call", b61.CirclePlaceCallView.as_view()),
     path("circle/<int:pk>/call/answer", b61.CircleAnswerCallView.as_view()),
     path("circle/calls/<int:call_id>/event", b61.CircleCallEventView.as_view()),
@@ -879,6 +881,7 @@ from . import cashguard_views as cg  # noqa: E402
 urlpatterns += [
     path("shop/watchman", wm.WatchmanOverviewView.as_view()),
     path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
+    path("shop/watchman/clips", wm.WatchmanClipsView.as_view()),  # gap-cctv D4
     path("shop/cameras/<int:pk>/check", wm.CameraCheckView.as_view()),
     path("shop/cameras/<int:pk>/zones", wm.CameraZonesView.as_view()),
     # cctvalerts (W3): per-camera alert-type switches + honest vendor support
@@ -1979,6 +1982,7 @@ urlpatterns += [
     path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
     path("bizai/prochar", bzai.ProcharView.as_view()),
     path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/prochar/remind", bzai.ProcharRemindView.as_view()),  # gap-bizai
     path("bizai/daily", bzai.BizDailyView.as_view()),   # bizai2
     path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
     path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),

@@ -51,6 +51,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
   bool _store = false;
   Map<String, String> _offers = const {};
   Map<String, String> _addonOffers = const {};
+  Map<String, String> _premiumOffers = const {}; // cctvprice: Premium AI
 
   int _cams = 2; // 11 = "more than 10"
   bool _yearly = false;
@@ -90,10 +91,12 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     try {
       final d = await _api.load();
       final store = await _buyer.available();
-      Map<String, String> offers = const {}, addon = const {};
+      Map<String, String> offers = const {}, addon = const {}, premium = const {};
       if (store && d['on_sale'] == true) {
         offers = await _buyer.offers('${d['product_id'] ?? ''}');
         addon = await _buyer.offers('${d['addon_product_id'] ?? ''}');
+        final pa = wmMap(d['premium_ai']);
+        if (pa['on_sale'] == true) premium = await _buyer.offers('${pa['product_id'] ?? ''}');
       }
       if (!mounted) return;
       setState(() {
@@ -101,6 +104,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
         _store = store;
         _offers = offers;
         _addonOffers = addon;
+        _premiumOffers = premium;
       });
     } catch (e) {
       if (!mounted) return;
@@ -167,7 +171,11 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final d = _d ?? const {};
     setState(() => _busy = true);
-    final n = await _buyer.restore({'${d['product_id']}', '${d['addon_product_id']}'});
+    final n = await _buyer.restore({
+      '${d['product_id']}',
+      '${d['addon_product_id']}',
+      if (wmMap(d['premium_ai'])['product_id'] != null) '${wmMap(d['premium_ai'])['product_id']}',
+    });
     if (!mounted) return;
     setState(() => _busy = false);
     messenger.showSnackBar(SnackBar(
@@ -254,6 +262,11 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           const SizedBox(height: 16),
           _pickerCard(t, scheme),
           const SizedBox(height: 16),
+          // cctvprice: Premium AI only once it is really on sale (never a dead card)
+          if (wmMap(d['premium_ai'])['on_sale'] == true) ...[
+            _premiumCard(t, scheme),
+            const SizedBox(height: 16),
+          ],
           _addonCard(t, scheme),
           const SizedBox(height: 16),
           _unpaidCard(t, scheme),
@@ -362,7 +375,8 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cplHowManyCameras, style: tt.titleMedium),
           const SizedBox(height: 4),
-          Text(t.cplHowPriced(_n((d['base_price'] as num?)?.toInt() ?? 0),
+          Text(t.gcvHowPriced( // gap-cctv D2: a bigger PLAN, not a per-camera charge
+_n((d['base_price'] as num?)?.toInt() ?? 0),
               _n((d['extra_camera_price'] as num?)?.toInt() ?? 0))),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [
@@ -423,6 +437,12 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
                 const SizedBox(height: 4),
                 Text(t.cplTrialOnlyBase),
               ],
+              // cctvprice (owner 17 Nov 12:35): honest — EZVIZ is not in the trial
+              const SizedBox(height: 4),
+              Text(t.cplTrialNoEzviz, key: const Key('cpl-trial-no-ezviz')),
+            ] else if (!_active && d['trial_block'] == 'ezviz') ...[
+              const SizedBox(height: 10),
+              KeyedSubtree(key: const Key('cpl-trial-ezviz-you'), child: _info(t.cplTrialEzvizYou)),
             ],
             const SizedBox(height: 12),
             _buyArea(t, tier, current),
@@ -594,6 +614,57 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           if (_addonOffers[plan] != null && _active && d['on_sale'] == true)
             Text(t.cplPlayPrice(wmDigits(_lang(), _addonOffers[plan]!)), style: tt.bodySmall),
         ]),
+    );
+  }
+
+  /// cctvprice (owner 17 Nov 12:35): Premium AI — 400 tk per camera per month
+  /// on top of the plan (smart alerts, 30-day clips). Shown only when the
+  /// server says it is on sale; every number comes from the server.
+  Widget _premiumCard(AppLocalizations t, ColorScheme scheme) {
+    final d = _d!;
+    final tt = Theme.of(context).textTheme;
+    final pa = wmMap(d['premium_ai']);
+    final per = (pa['price_per_camera'] as num?)?.toInt() ?? 0;
+    final days = (pa['clip_days'] as num?)?.toInt() ?? 0;
+    final planCams = (_status['cameras'] as num?)?.toInt() ?? 0;
+    final n = (planCams >= 1 ? planCams : _cams).clamp(1, 10).toInt();
+    final total = per * n;
+    final plan = 'ai-c${n.toString().padLeft(2, '0')}';
+    final ps = wmMap(_status['premium_ai']);
+    final on = ps['status'] == 'active';
+    final current = on && ps['base_plan'] == plan;
+    return DsCard(
+      key: const Key('cpl-premium-ai'),
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(Icons.auto_awesome_rounded, color: scheme.primary),
+          const SizedBox(width: 8),
+          Expanded(child: Text(t.cplPremiumTitle, style: tt.titleMedium)),
+        ]),
+        const SizedBox(height: 6),
+        Text(t.cplPremiumBody(wmDigits(_lang(), days))),
+        const SizedBox(height: 8),
+        Text(t.cplPremiumPrice(_n(per)), style: tt.titleSmall),
+        Text(t.cplPremiumTotal(wmDigits(_lang(), n), _n(total)), style: tt.titleMedium),
+        const SizedBox(height: 10),
+        if (on && current)
+          Chip(
+              avatar: const Icon(Icons.check_circle_rounded, size: 18),
+              label: Text(t.cplPremiumActive))
+        else if (!_active)
+          _info(t.cplPremiumNeedsPlan)
+        else if (!_store)
+          _info(t.cplPlayOnly)
+        else
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            onPressed: _busy ? null : () => _buy('${pa['product_id']}', plan),
+            child: Text(t.cplPremiumBuy(_n(total)), textAlign: TextAlign.center),
+          ),
+        if (_premiumOffers[plan] != null && _active)
+          Text(t.cplPlayPrice(wmDigits(_lang(), _premiumOffers[plan]!)), style: tt.bodySmall),
+      ]),
     );
   }
 

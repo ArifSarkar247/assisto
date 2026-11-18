@@ -138,7 +138,8 @@ def any_live(flavour="apk"):
 def config_for(user, flavour, lang="bn"):
     from . import play
     chans = channel_state(flavour)
-    products = {c["id"]: catalog.products(c["id"], lang) for c in chans}
+    cfg = catalog.current_cfg()   # speedproof: one config for every channel
+    products = {c["id"]: catalog.products(c["id"], lang, cfg) for c in chans}
     from . import refunds as R
     blocked = R.purchase_blocked(user)
     return {"channels": chans, "products": products,

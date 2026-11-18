@@ -1043,3 +1043,70 @@ class ImouOAuthCallbackView(APIView):
         resp = HttpResponse(html, status=200 if ok else 400)
         resp["Cache-Control"] = "no-store"
         return resp
+
+
+# ---------------------------------------------------------------- gap-cctv D4
+CLIP_DEFAULT_HOURS = 24          # cash_guard.CLIP_TTL_S
+CLIP_PREMIUM_DAYS = 30           # owner 17 Nov: 30 days with Premium AI
+
+
+def _keep_days(cam):
+    """Days this camera's clips stay on the server: the paid add-on's 7 / 30,
+    else 1 (the 24-hour default). Never raises."""
+    try:
+        from . import cctv_plan_service as CPS
+        return int(CPS.video_addon_days(cam) or 0) or 1
+    except Exception:
+        return 1
+
+
+class WatchmanClipsView(_OwnerBase):
+    """GET shop/watchman/clips?site=<id>[&camera=<id>][&day=YYYY-MM-DD] —
+    gap-cctv D4: the PAST CLIPS still kept on the server (newest first), by
+    camera and day, with each camera's honest keep time. Read-only: unlike the
+    alert list it does not mark anything as seen. A guard / limited viewer
+    sees only their cameras. `day` is the shop's LOCAL date (TIME_ZONE,
+    Asia/Dhaka), the same day the app shows."""
+
+    def get(self, request):
+        from .models import ShopEvent
+        lang = req_lang(request)
+        sid = request.query_params.get("site")
+        s, role = SV._viewable_site(request, sid) if sid else (None, None)
+        if s is None:
+            return SV._err(lang, "সাইট পাওয়া যায়নি।", "Site not found.", status=404)
+        now = timezone.now()
+        cams = list(s.cameras.all().order_by("id"))
+        if role != "owner":
+            from . import cctv_team_views as CTV
+            _r, scope = CTV.scope_for(s, request.user)
+            if scope is not None:
+                cams = [c for c in cams if c.id in set(scope)]
+            CTV.log_access(s, "alerts", user=request.user)
+        ids = [c.id for c in cams]
+        qs = (ShopEvent.objects.filter(site=s, pending=False, camera_id__in=ids,
+                                       clip__status="ready", clip__expires_at__gt=now)
+              .select_related("camera", "clip", "site").order_by("-created"))
+        cam_f = request.query_params.get("camera")
+        if cam_f and str(cam_f).isdigit():
+            qs = qs.filter(camera_id=int(cam_f))
+        day = str(request.query_params.get("day") or "")
+        if len(day) == 10:
+            try:
+                from datetime import datetime as _dt
+                d = _dt.strptime(day, "%Y-%m-%d").date()
+                qs = qs.filter(created__date=d)
+            except ValueError:
+                pass
+        rows = [SV._event_row(e, request) for e in qs[:300]]
+        keep = {c.id: _keep_days(c) for c in cams}
+        short = [c for c in cams if keep[c.id] < CLIP_PREMIUM_DAYS]
+        return Response({
+            "site": s.id, "role": role, "clips": rows,
+            "cameras": [{"id": c.id, "name": c.name or "", "keep_days": keep[c.id]}
+                        for c in cams],
+            "default_hours": CLIP_DEFAULT_HOURS, "premium_days": CLIP_PREMIUM_DAYS,
+            # an upsell line only for the owner, only when some camera keeps
+            # clips for less than 30 days (never to family / staff)
+            "upsell": role == "owner" and bool(short),
+        })

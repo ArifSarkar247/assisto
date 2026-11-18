@@ -7,6 +7,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../ads/ad_reward_gate.dart'; // adcontrol
 import '../widgets/imei_tools.dart';
 import 'report_stolen_screen.dart';
@@ -242,7 +243,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Text(t.upCheckIntro, style: const TextStyle(height: 1.35)),
+          Text(t.upCheckIntro, style: AType.bodyMedium.copyWith(height: 1.35)),
           const SizedBox(height: Gap.lg),
           // --- Tamper check section: compare the IMEI across sources ---
           Text(t.upTamperTitle,
@@ -288,18 +289,12 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
             icon: Icons.sim_card_rounded,
           ),
           const SizedBox(height: Gap.sm),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.search_rounded),
-              label: Text(_busy ? t.upChecking : t.upCheckButton),
-              onPressed: _busy ? null : _check,
-            ),
+          DsButton(
+            icon: Icons.search_rounded,
+            label: _busy ? t.upChecking : t.upCheckButton,
+            busy: _busy,
+            expand: true,
+            onPressed: _check,
           ),
           if (_error != null) ...[
             const SizedBox(height: Gap.md),
@@ -335,11 +330,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           ],
           const SizedBox(height: Gap.lg),
           // Honest info: what changing an IMEI does (and doesn't) defeat.
-          Card(
-            color: scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.info_outline_rounded,
                     size: 20, color: scheme.ds.muted),
                 const SizedBox(width: Gap.sm),
@@ -347,19 +338,13 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                   child: Text(t.imeiHonestNote,
                       style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
                 ),
-              ]),
-            ),
-          ),
+              ])),
           const SizedBox(height: Gap.md),
           // f6 (no showpieces): the "NEIR check not available yet" card is
           // hidden; the registry's limits stay explained in the footer. It
           // returns when the official NEIR check is really wired.
           if (kNeirCheckWired) ...[
-            Card(
-              color: scheme.ds.cardHighest,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Row(children: [
+            DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
                   Icon(Icons.policy_rounded,
                       size: 20, color: scheme.ds.muted),
                   const SizedBox(width: Gap.sm),
@@ -367,19 +352,13 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                     child: Text(_neirMessage ?? t.upNeirNotAvailable,
                         style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ),
-                ]),
-              ),
-            ),
+                ])),
             const SizedBox(height: Gap.md),
           ],
           // sosat: the official BTRC NEIR check has no public API — it is an
           // SMS ("KYD <IMEI>" to 16002). Prepared in the phone's own SMS app;
           // the user taps send (normal operator SMS charge).
-          Card(
-            key: const ValueKey('sosat-neir-card'),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsCard(key: const ValueKey('sosat-neir-card'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(t.saNeirSmsTitle,
                     style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
@@ -392,9 +371,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
                   icon: const Icon(Icons.sms_rounded),
                   label: Text(t.saNeirSmsButton),
                 ),
-              ]),
-            ),
-          ),
+              ])),
           const SizedBox(height: Gap.md),
           // Cross-link: if it's the user's OWN phone that's lost/stolen.
           Align(
@@ -474,7 +451,7 @@ class _ResultCard extends StatelessWidget {
             ]),
             if (body.isNotEmpty) ...[
               const SizedBox(height: Gap.sm),
-              Text(body, style: const TextStyle(height: 1.4)),
+              Text(body, style: AType.bodyMedium.copyWith(height: 1.4)),
             ],
           ],
         ),
@@ -529,7 +506,6 @@ class _ImeiField extends StatelessWidget {
         labelText: label,
         helperText: hint,
         helperMaxLines: 3,
-        border: const OutlineInputBorder(),
         prefixIcon: Icon(icon),
       ),
     );
@@ -557,11 +533,7 @@ class _TamperWarningCard extends StatelessWidget {
       if (tacMismatch) t.upTamperTacMismatch,
       for (final src in invalidImeis) t.upTamperInvalid(src),
     ];
-    return Card(
-      color: Brand.danger.withValues(alpha: 0.14),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(
+    return DsCard(tone: DsTone.danger, padding: const EdgeInsets.all(Gap.lg), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -569,7 +541,7 @@ class _TamperWarningCard extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.upTamperWarnTitle,
-                    style: AType.titleLarge.copyWith(color: Brand.danger, fontWeight: FontWeight.w800)),
+                    style: AType.titleLarge.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk, fontWeight: FontWeight.w800)),
               ),
             ]),
             const SizedBox(height: Gap.sm),
@@ -578,16 +550,14 @@ class _TamperWarningCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Text('•  '),
-                  Expanded(child: Text(l, style: const TextStyle(height: 1.35))),
+                  Expanded(child: Text(l, style: AType.bodyMedium.copyWith(height: 1.35))),
                 ]),
               ),
             const SizedBox(height: Gap.xs),
             Text(t.upTamperAdvice,
-                style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }
 
@@ -618,20 +588,14 @@ class _TacCard extends StatelessWidget {
     if (!available && !kTacSourceWired) return const SizedBox.shrink();
     if (!available) {
       // HONEST: no TAC data source yet — never guess a brand/model.
-      return Card(
-        color: scheme.ds.cardHighest,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.help_outline_rounded, size: 20, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.upTacUnavailable,
                   style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
             ),
-          ]),
-        ),
-      );
+          ]));
     }
     final makeModel = [brand, model]
         .where((s) => s != null && s.trim().isNotEmpty)
@@ -648,12 +612,12 @@ class _TacCard extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.upTacHeading(makeModel),
-                    style: const TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700, height: 1.35)),
               ),
             ]),
             const SizedBox(height: Gap.sm),
-            Text(t.upTacConfirmQuestion, style: const TextStyle(height: 1.35)),
+            Text(t.upTacConfirmQuestion, style: AType.bodyMedium.copyWith(height: 1.35)),
             const SizedBox(height: Gap.sm),
             Row(children: [
               Expanded(

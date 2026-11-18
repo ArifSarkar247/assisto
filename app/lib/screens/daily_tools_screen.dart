@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../services/bangla_calendar.dart' show asciiDigits;
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/daily_tools_engine.dart';
 import 'daily_tools_pages.dart';
@@ -233,9 +234,7 @@ class _DailyToolsScreenState extends State<DailyToolsScreen> {
 
   Widget _tile(String id) {
     final fav = _favs.contains(id);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         minVerticalPadding: Gap.md,
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.ds.primarySoft,
@@ -243,7 +242,7 @@ class _DailyToolsScreenState extends State<DailyToolsScreen> {
           child: Icon(dailyToolIcon(id)),
         ),
         title: Text(dailyToolTitle(t, id),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(dailyToolSub(t, id)),
         trailing: IconButton(
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -253,8 +252,7 @@ class _DailyToolsScreenState extends State<DailyToolsScreen> {
           onPressed: () => _toggleFav(id),
         ),
         onTap: () => _open(id),
-      ),
-    );
+      )));
   }
 
   Widget _header(String text) => Padding(
@@ -304,12 +302,7 @@ class _DailyToolsScreenState extends State<DailyToolsScreen> {
             if (hits.isEmpty) ...[
               Text(t.dtNoMatch),
               const SizedBox(height: Gap.sm),
-              FilledButton.icon(
-                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: () => setState(_search.clear),
-                icon: const Icon(Icons.apps_rounded),
-                label: Text(t.dtShowAll),
-              ),
+              DsButton(onPressed: () => setState(_search.clear), icon: Icons.apps_rounded, label: t.dtShowAll),
             ] else
               for (final id in hits) _tile(id),
           ] else ...[

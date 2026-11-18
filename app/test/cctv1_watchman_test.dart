@@ -186,7 +186,7 @@ void main() {
     await _settle(tester);
     expect(find.text(en.wmSuspiciousLabel), findsNWidgets(2));
     expect(find.textContaining(en.wmSeenTimes('3')), findsOneWidget);
-    await tester.tap(find.widgetWithText(OutlinedButton, en.wmWrong).first);
+    await tester.tap(find.widgetWithText(TextButton, en.wmWrong).first); // design3: light feedback row
     await _settle(tester);
     expect(src.markedVerdict, 'wrong');
     expect(find.text(en.wmMarkedWrong), findsOneWidget);
@@ -301,5 +301,14 @@ void main() {
     await tester.pumpWidget(_app(WatchmanScreen(source: FakeWatchman('viewer'), guide: false)));
     await _settle(tester);
     expect(find.byKey(const ValueKey('wm-manage')), findsNothing);
+  });
+
+  testWidgets('gap-cctv D3: Shop tools is a section of CCTV (one tile)', (tester) async {
+    _phone(tester, height: 3000);
+    await tester.pumpWidget(_app(WatchmanScreen(source: FakeWatchman(), guide: false)));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('wm-shop-tools')), findsOneWidget);
+    expect(find.text(en.gcvHubTitle), findsWidgets);
+    expect(find.text(en.pcOwnerButton), findsNothing, reason: 'inside the one old-phone entry');
   });
 }

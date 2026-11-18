@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -128,31 +129,13 @@ class _SavingsChallengeScreenState extends State<SavingsChallengeScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savechalTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.savechalLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.savechalLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
     if (_plans.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savechalTitle)),
-        body: StateMessage(
-          icon: Icons.savings_rounded,
-          title: tr.savechalWelcomeTitle,
-          message: tr.savechalWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: _addPlan,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(tr.savechalStartChallenge),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.savings_rounded, title: tr.savechalWelcomeTitle, benefit: tr.savechalWelcomeBody, actionLabel: tr.savechalStartChallenge, onAction: _addPlan)]),
       );
     }
     return Scaffold(
@@ -224,14 +207,7 @@ class _PlanCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final p = _SaveMath.progress(plan, deposits, _today());
     final c = _statusColor(context, p.status);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: onOpen,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: const EdgeInsets.all(Gap.md), onTap: onOpen, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
                 child: Text(p.name,
@@ -261,7 +237,7 @@ class _PlanCard extends StatelessWidget {
               Row(children: [
                 Text('${p.percent}%',
                     style:
-                        TextStyle(fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
+                        AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
                 const Spacer(),
                 Text('${p.savedDisplay} / ${p.goalDisplay}',
                     style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
@@ -271,7 +247,7 @@ class _PlanCard extends StatelessWidget {
                 Icon(Icons.savings_rounded, size: 16, color: c),
                 const SizedBox(width: Gap.xs),
                 Text(p.savedDisplay,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700, color: scheme.onSurface)),
                 const Spacer(),
                 Text(tr.savechalOpenEnded,
@@ -287,10 +263,7 @@ class _PlanCard extends StatelessWidget {
                 _miniStat(context, Icons.flag_rounded,
                     tr.savechalProjectedShort(p.projectedDisplay)),
             ]),
-          ]),
-        ),
-      ),
-    );
+          ])));
   }
 
   Widget _miniStat(BuildContext context, IconData icon, String text) {
@@ -368,17 +341,13 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           // headline status + progress ring-ish bar
-          Card(
-            color: c.withValues(alpha: 0.10),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(
+          DsHeroCard(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _statusChip(context, p.status),
                     const SizedBox(height: Gap.sm),
-                    Text(p.savedDisplay,
-                        style: AType.displaySmall.copyWith(fontWeight: FontWeight.bold, color: scheme.onSurface)),
+                    DsNumber(p.savedDisplay),
+
                     Text(
                         p.goal > 0
                             ? tr.savechalOfGoal(p.goalDisplay)
@@ -397,12 +366,10 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                       ),
                       const SizedBox(height: Gap.xs),
                       Text('${p.percent}%',
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               fontWeight: FontWeight.w700, color: c, fontFeatures: AFonts.tabular)),
                     ],
-                  ]),
-            ),
-          ),
+                  ])),
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
@@ -449,12 +416,10 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(tr.savechalNoDepositsYet,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ),
           for (final d in sorted)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                 dense: true,
                 leading: Icon(Icons.savings_rounded, color: scheme.primary),
                 title: Text(_SaveMath.fmtPoisha(
@@ -474,8 +439,7 @@ class _PlanDetailScreenState extends State<_PlanDetailScreen> {
                     }
                   },
                 ),
-              ),
-            ),
+              ))),
           const SizedBox(height: Gap.lg),
           _noMoneyNote(context, tr.savechalNoMoneyNote),
         ],
@@ -596,15 +560,13 @@ class _PlanFormState extends State<_PlanForm> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                     labelText: tr.savechalName,
-                    hintText: tr.savechalNameHint,
-                    border: const OutlineInputBorder()),
+                    hintText: tr.savechalNameHint),
               ),
               const SizedBox(height: Gap.md),
               DropdownButtonFormField<String>(
                 initialValue: _kind,
                 decoration: InputDecoration(
-                    labelText: tr.savechalType,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.savechalType),
                 items: [
                   for (final k in _kindKeys)
                     DropdownMenuItem(value: k, child: Text(_kindLabel(tr, k))),
@@ -626,8 +588,7 @@ class _PlanFormState extends State<_PlanForm> {
                         : (_kind == 'roundup'
                             ? tr.savechalRoundupHelper
                             : null),
-                    prefixText: '৳ ',
-                    border: const OutlineInputBorder()),
+                    prefixText: '৳ '),
               ),
               if (_kind == 'fixed') ...[
                 const SizedBox(height: Gap.md),
@@ -636,8 +597,7 @@ class _PlanFormState extends State<_PlanForm> {
                     child: DropdownButtonFormField<String>(
                       initialValue: _period,
                       decoration: InputDecoration(
-                          labelText: tr.savechalEvery,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.savechalEvery),
                       items: [
                         for (final pk in _periodKeys)
                           DropdownMenuItem(
@@ -654,8 +614,7 @@ class _PlanFormState extends State<_PlanForm> {
                       onChanged: (_) => setState(() {}),
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                          labelText: tr.savechalHowMany,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.savechalHowMany),
                     ),
                   ),
                 ]),
@@ -666,8 +625,7 @@ class _PlanFormState extends State<_PlanForm> {
                 keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
                     labelText: tr.savechalStartDate,
-                    hintText: tr.savechalDateHint,
-                    border: const OutlineInputBorder()),
+                    hintText: tr.savechalDateHint),
               ),
               if (preview.goal > 0) ...[
                 const SizedBox(height: Gap.md),
@@ -682,7 +640,7 @@ class _PlanFormState extends State<_PlanForm> {
                     borderRadius: BorderRadius.circular(Radii.md),
                   ),
                   child: Text(tr.savechalGoalPreview(preview.goalDisplay),
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 ),
               ],
               const SizedBox(height: Gap.lg),
@@ -758,8 +716,7 @@ class _DepositFormState extends State<_DepositForm> {
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                     labelText: tr.savechalAmount,
-                    prefixText: '৳ ',
-                    border: const OutlineInputBorder()),
+                    prefixText: '৳ '),
               ),
               const SizedBox(height: Gap.md),
               TextField(
@@ -767,8 +724,7 @@ class _DepositFormState extends State<_DepositForm> {
                 keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
                     labelText: tr.savechalDate,
-                    hintText: tr.savechalDateHint,
-                    border: const OutlineInputBorder()),
+                    hintText: tr.savechalDateHint),
               ),
               const SizedBox(height: Gap.lg),
               Row(children: [
@@ -846,11 +802,7 @@ Widget _statusChip(BuildContext context, String status) {
 Widget _statCard(BuildContext context, String label, String value, Color color,
     IconData icon) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    margin: EdgeInsets.zero,
-    child: Padding(
-      padding: const EdgeInsets.all(Gap.md),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(icon, size: 15, color: color),
           const SizedBox(width: Gap.xs),
@@ -867,18 +819,12 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: color),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
-      ]),
-    ),
-  );
+      ]));
 }
 
 Widget _noMoneyNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.surfaceContainerHighest,
-    child: Padding(
-      padding: const EdgeInsets.all(Gap.md),
-      child: Row(children: [
+  return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
         Icon(Icons.shield_rounded, size: 18, color: scheme.onSurfaceVariant),
         const SizedBox(width: Gap.sm),
         Expanded(
@@ -886,9 +832,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
               style:
                   AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
         ),
-      ]),
-    ),
-  );
+      ]));
 }
 
 // ===================================================================

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/route_canvas.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/veh_map.dart';
@@ -67,25 +68,25 @@ class _VehicleFenceEditorScreenState extends State<VehicleFenceEditorScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          child: FilledButton(
+          child: DsButton(
             key: const ValueKey('veh-fence-save'),
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            expand: true,
             onPressed: _pts.length >= 3 ? _save : null,
-            child: Text(tr.save),
+            label: tr.save,
           ),
         ),
       ),
       body: cfg == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(padding: EdgeInsets.all(Gap.md), child: DsSkeleton(height: 280))
           : !cfg.hasTiles
               ? Padding(
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Text(tr.psFenceNoMap, // jsearch: no internal "not set up" text
-                      style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
                 )
               : ListView(padding: const EdgeInsets.all(Gap.md), children: [
                   Text(tr.v100FenceDrawHelp,
-                      style: TextStyle(color: scheme.ds.muted, height: 1.35)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
                   const SizedBox(height: Gap.sm),
                   AspectRatio(
                     aspectRatio: 1,
@@ -109,7 +110,7 @@ class _VehicleFenceEditorScreenState extends State<VehicleFenceEditorScreen> {
                   Row(children: [
                     Expanded(
                       child: Text(tr.v100FencePoints(vehNumStr(context, _pts.length)),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                     ),
                     TextButton.icon(
                       style: TextButton.styleFrom(minimumSize: const Size(48, 48)),

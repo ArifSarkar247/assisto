@@ -12,6 +12,7 @@ import '../feature_gates.dart' show kShowKeySeams; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../feature_flags.dart' show FeatureFlags; // p2tools
 import 'daily_tools_screen.dart'; // p2tools
 
@@ -164,10 +165,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
               Text(tt.lbWQtSavedTitle, style: AType.titleMedium),
               const SizedBox(height: Gap.sm),
               for (final it in items)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(_actionLabel(it.action),
                           style: AType.labelLarge.copyWith(fontWeight: FontWeight.w700)),
                       if (DateTime.tryParse(it.savedAt) != null)
@@ -199,9 +197,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
                           },
                         ),
                       ]),
-                    ]),
-                  ),
-                ),
+                    ])),
             ],
           ),
         );
@@ -305,7 +301,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
           const SizedBox(height: Gap.lg),
 
           Text(t.qtToolLabel,
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           Wrap(
             spacing: Gap.sm,
@@ -313,8 +309,8 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
             children: [
               for (final a in kQuickActions)
                 ChoiceChip(
-                  label: Text(_actionLabel(a),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  // design3 (2.0x): a long action name wraps inside its chip
+                  label: Text(_actionLabel(a), softWrap: true, maxLines: 3),
                   selected: _action == a,
                   onSelected: (_) => setState(() {
                     _action = a;
@@ -327,7 +323,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
           if (_action == 'change_tone') ...[
             const SizedBox(height: Gap.lg),
             Text(t.qtToneLabel,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.sm),
             Wrap(
               spacing: Gap.sm,
@@ -346,7 +342,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
           if (_action == 'translate') ...[
             const SizedBox(height: Gap.lg),
             Text(t.qtDirLabel,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.sm),
             Wrap(
               spacing: Gap.sm,
@@ -381,7 +377,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
               )
             else ...[
               Text(t.qtResultLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
               Container(
                 width: double.infinity,
@@ -392,7 +388,7 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
                 ),
                 child: SelectableText(
                   _result!.result.isEmpty ? t.qtResultEmpty : _result!.result,
-                  style: const TextStyle(height: 1.5),
+                  style: AType.bodyMedium.copyWith(height: 1.5),
                 ),
               ),
               if (_result!.action == 'translate' && _result!.phraseHit) ...[

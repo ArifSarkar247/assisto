@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../l10n/app_localizations.dart';
 import '../widgets/life_eid_card.dart';
 import '../widgets/ramadan_countdown.dart';
@@ -240,7 +242,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         ),
       ]),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 5)
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
               children: [
@@ -376,13 +378,19 @@ class _RamadanScreenState extends State<RamadanScreen> {
       ),
       const SizedBox(height: Gap.md),
 
-      // other prayer times
-      if (tm['fajr'] != null) _prayerRow(t.ramadanFajr, '${tm['fajr']}'),
-      if (tm['dhuhr'] != null) _prayerRow(t.ramadanDhuhr, '${tm['dhuhr']}'),
-      if (tm['asr'] != null) _prayerRow(t.ramadanAsr, '${tm['asr']}'),
-      if (tm['maghrib'] != null) _prayerRow(t.ramadanMaghrib, '${tm['maghrib']}'),
-      if (tm['isha'] != null) _prayerRow(t.ramadanIsha, '${tm['isha']}'),
-      const Divider(height: Gap.xl),
+      // other prayer times — one calm DS card (no glow)
+      if (tm['fajr'] != null || tm['isha'] != null)
+        DsCard(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+          child: Column(children: [
+            if (tm['fajr'] != null) _prayerRow(t.ramadanFajr, '${tm['fajr']}'),
+            if (tm['dhuhr'] != null) _prayerRow(t.ramadanDhuhr, '${tm['dhuhr']}'),
+            if (tm['asr'] != null) _prayerRow(t.ramadanAsr, '${tm['asr']}'),
+            if (tm['maghrib'] != null) _prayerRow(t.ramadanMaghrib, '${tm['maghrib']}'),
+            if (tm['isha'] != null) _prayerRow(t.ramadanIsha, '${tm['isha']}'),
+          ]),
+        ),
+      const SizedBox(height: Gap.lg),
 
       // alarms
       _sectionTitle(t.ramadanAlarmsSection),
@@ -435,11 +443,11 @@ class _RamadanScreenState extends State<RamadanScreen> {
         Container(
           padding: const EdgeInsets.all(Gap.sm),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(Radii.sm),
+            color: DsTokens.of(context).cardAlt,
+            borderRadius: BorderRadius.circular(DsRadius.small),
           ),
           child: Row(children: [
-            const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.grey),
+            Icon(Icons.phone_in_talk_rounded, size: 16, color: DsTokens.of(context).muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanWakeCallComing,
@@ -460,12 +468,13 @@ class _RamadanScreenState extends State<RamadanScreen> {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(DsRadius.card),
+        border: Border.all(color: color.withOpacity(0.25)),
       ),
       child: Column(children: [
         Icon(icon, color: color, size: 28),
         const SizedBox(height: Gap.xs),
-        Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+        Text(label, style: AType.titleSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.xxs),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -481,7 +490,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Flexible(child: Text(label)),
-        Text(ld(context, time), style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(ld(context, time), style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -501,16 +510,17 @@ class _RamadanScreenState extends State<RamadanScreen> {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         color: Brand.warning.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(DsRadius.card),
       ),
       child: Row(children: [
         // theme-aware: the fixed dark-amber text was unreadable in dark mode
-        const Icon(Icons.info_outline_rounded, size: 18, color: Brand.warning),
+        Icon(Icons.info_outline_rounded, size: 18, color: Brand.warnInk(context)),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(msg,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.text))),
+
       ]),
     );
   }

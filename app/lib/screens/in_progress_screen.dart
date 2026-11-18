@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
+import '../ds/ds.dart';
 
 /// "In progress" — everything still open: upcoming reminders and
 /// unfinished to-dos, in one calm list.
@@ -69,15 +70,12 @@ class InProgressScreen extends StatelessWidget {
         ]),
       );
 
-  Widget _tile(BuildContext context, String title, String? sub) => Card(
-        margin: const EdgeInsets.only(bottom: Gap.sm),
-        child: ListTile(
+  Widget _tile(BuildContext context, String title, String? sub) => Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
           leading: const Icon(Icons.radio_button_unchecked_rounded, size: 20),
           title: Text(title),
           subtitle: sub == null ? null : Text(sub),
           visualDensity: VisualDensity.compact,
-        ),
-      );
+        )));
 }
 
 class _Empty extends StatelessWidget {
@@ -98,7 +96,7 @@ class _Empty extends StatelessWidget {
           const SizedBox(height: Gap.xs),
           Text(AppLocalizations.of(context).inprogNothingInProgress,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]),
       ),
     );

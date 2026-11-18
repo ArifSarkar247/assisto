@@ -15,6 +15,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/journey_ride.dart' show jDigits;
 import '../../widgets/local_counter.dart';
 import '../../widgets/permission_reason.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// sjkids — Children Corner (Safe Journey v2, owner order 9 Nov 11:15).
 /// Lives on each child's Child School card: the guardian's open question
@@ -302,7 +303,8 @@ class KidsPlacesScreen extends StatefulWidget {
   State<KidsPlacesScreen> createState() => _KidsPlacesScreenState();
 }
 
-class _KidsPlacesScreenState extends State<KidsPlacesScreen> {
+class _KidsPlacesScreenState extends State<KidsPlacesScreen>
+    with AdBlockedState<KidsPlacesScreen> {
   late List<Map<String, dynamic>> _places;
   bool _saving = false;
   bool _changed = false;

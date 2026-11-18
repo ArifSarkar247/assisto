@@ -1,113 +1,215 @@
 {
-  "en": {
-    "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
-    "@gcvLinuxTitle": {
-      "description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"
-    },
-    "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
-    "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
-    "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
-    "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
-    "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
-    "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
-    "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
-    "gcvLinuxCopy": "Copy",
-    "gcvLinuxCopied": "Copied",
-    "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required.",
-    "gcvManageTitle": "People, sharing and notice",
-    "@gcvManageTitle": {
-      "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
-    },
-    "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
-    "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
-    "@gcvPairOffline": {
-      "description": "gap-cctv: pair sheet poll failed after the code is shown"
-    },
-    "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
-    "@gcvWarnRecordFirst": {
-      "description": "gap-cctv: box warning tile when no own-voice warning exists"
-    },
-    "gcvWarnDeleteAsk": "Delete your recorded warning?",
-    "@gcvWarnDeleteAsk": {
-      "description": "gap-cctv: confirm before deleting the own-voice warning"
-    },
-    "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
-    "@gcvEvidenceMaking": {
-      "description": "gap-cctv: progress while building the evidence pack"
-    },
-    "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
-    "@gcvEvidencePartial": {
-      "description": "gap-cctv: evidence pack built without watermark copies or PDF"
-    },
-    "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
-    "@gcvThanaUnavailable": {
-      "description": "gap-cctv: thana lookup failed (not 'none nearby')"
-    },
-    "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
-    "@gcvClipExpiredGone": {
-      "description": "gap-cctv: clip expired (24 h or the add-on's days)"
-    },
-    "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
-    "@gcvWatchDeleteAsk": {
-      "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
-    },
-    "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
-    "@gcvPhoneGwNoScan": {
-      "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
-    },
-    "gcvPosUrl": "Address (URL)",
-    "@gcvPosUrl": {
-      "description": "gap-cctv: POS webhook key dialog label"
-    },
-    "gcvPosKeyId": "Key ID",
-    "gcvPosSecret": "Secret key",
-    "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
-    "@gcvUnlinkAsk": {
-      "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
-    },
-    "gcvReportToday": "Today",
-    "@gcvReportToday": {
-      "description": "gap-cctv: closing report day switch"
-    },
-    "gcvReportYesterday": "Yesterday",
-    "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
-    "@gcvGbLost": {
-      "description": "gap-cctv: Guard Box token refused by the server"
-    },
-    "gcvGbForget": "Forget this pairing",
-    "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code."
+ "en": {
+  "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
+  "@gcvLinuxTitle": {
+   "description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"
   },
-  "bn": {
-    "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
-    "gcvLinuxSub": "Windows লাগে না — বক্সটি দোকানের রাউটারের সব ক্যামেরা দেখে",
-    "gcvLinuxStep1": "৬৪-বিট Raspberry Pi OS (Pi ৪ বা ৫, ২ জিবি RAM-ই যথেষ্ট) অথবা Ubuntu / Debian মিনি পিসি নিন, ক্যামেরার একই রাউটারে।",
-    "gcvLinuxStep2": "বক্সে টার্মিনাল খুলে এই এক লাইন চালান (ইনস্টলের আগে ফাইলের SHA-256 মিলিয়ে নেয়):",
-    "gcvLinuxStep3": "তারপর সেটআপ চালান। এটি ক্যামেরা খুঁজে নেয়, পাসওয়ার্ড শুধু বক্সেই রাখে:",
-    "gcvLinuxStep4": "বক্স কোড চাইলে ওপরের ছোট কোডটি লিখুন। যুক্ত হলেই এখানে সবুজ দেখাবে।",
-    "gcvLinuxStep4Where": "বক্স কোড চাইলে এই জায়গার কার্ডে \"পুরনো ফোনকে ক্যামেরা বানান\" চাপুন, সেখানে দেখানো ছোট কোডটি লিখুন।",
-    "gcvLinuxPrivacy": "ভিডিও বক্সেই থাকে। শুধু সতর্কতার ছবি আর ছোট ক্লিপ পাঠানো হয়। বিদ্যুৎ গেলে নিজে আবার চালু হয়, দিনে একবার নিজে আপডেট নেয়।",
-    "gcvLinuxCopy": "কপি",
-    "gcvLinuxCopied": "কপি হয়েছে",
-    "gcvGwBoxBody": "দোকানে রাখা ছোট একটি বক্স — Raspberry Pi, লিনাক্স মিনি পিসি বা Windows পিসি — যা নিজের AI দিয়ে নেটওয়ার্কের সব ক্যামেরা দেখে। Windows বাধ্যতামূলক নয়।",
-    "gcvManageTitle": "মানুষ, শেয়ার ও নোটিশ",
-    "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ",
-    "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনো চলবে — আমরা দেখতে থাকছি।",
-    "gcvWarnRecordFirst": "এখনো রেকর্ড করা হয়নি — নিজের কণ্ঠে সতর্কবার্তা রেকর্ড করতে চাপুন",
-    "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?",
-    "gcvEvidenceMaking": "প্রমাণ-প্যাক তৈরি হচ্ছে… (ছবি, ক্লিপ, SHA-256 তালিকা, PDF)",
-    "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।",
-    "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।",
-    "gcvClipExpiredGone": "রাখার সময় শেষ হওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।",
-    "gcvWatchDeleteAsk": "গ্রুপের সবার কাছ থেকে এই পোস্টটি সরাবেন?",
-    "gcvPhoneGwNoScan": "এই জায়গার গেটওয়ে একটি পুরনো ফোন, তাই এটি ওয়াই-ফাই-তে DVR বা IP ক্যামেরা খুঁজতে পারে না। ওপরে ব্র্যান্ডের ক্লাউড যুক্ত করুন, অথবা জায়গায় একটি ছোট গার্ড বক্স (Raspberry Pi, লিনাক্স মিনি পিসি বা পিসি) বসান:",
-    "gcvPosUrl": "ঠিকানা (URL)",
-    "gcvPosKeyId": "কী আইডি",
-    "gcvPosSecret": "গোপন চাবি",
-    "gcvUnlinkAsk": "স্মার্ট প্লাগ ও লাইটের সংযোগ খুলবেন? আবার যুক্ত না করা পর্যন্ত স্বয়ংক্রিয় কাজ বন্ধ থাকবে।",
-    "gcvReportToday": "আজ",
-    "gcvReportYesterday": "গতকাল",
-    "gcvGbLost": "সংযোগ নেই — মালিক এই ক্যামেরা বা জোড়া সরিয়েছেন। আবার জোড়া লাগান।",
-    "gcvGbForget": "এই জোড়া ভুলে যান",
-    "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।"
+  "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
+  "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
+  "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
+  "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
+  "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
+  "gcvLinuxStep4Where": "When the box asks for a code, open \"Old phone or small box\" on this place, tap \"Use an old phone as a camera\" and type the short code it shows.",
+  "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
+  "gcvLinuxCopy": "Copy",
+  "gcvLinuxCopied": "Copied",
+  "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required.",
+  "gcvManageTitle": "People, sharing and notice",
+  "@gcvManageTitle": {
+   "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
+  },
+  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
+  "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
+  "@gcvPairOffline": {
+   "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  },
+  "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
+  "@gcvWarnRecordFirst": {
+   "description": "gap-cctv: box warning tile when no own-voice warning exists"
+  },
+  "gcvWarnDeleteAsk": "Delete your recorded warning?",
+  "@gcvWarnDeleteAsk": {
+   "description": "gap-cctv: confirm before deleting the own-voice warning"
+  },
+  "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
+  "@gcvEvidenceMaking": {
+   "description": "gap-cctv: progress while building the evidence pack"
+  },
+  "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
+  "@gcvEvidencePartial": {
+   "description": "gap-cctv: evidence pack built without watermark copies or PDF"
+  },
+  "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
+  "@gcvThanaUnavailable": {
+   "description": "gap-cctv: thana lookup failed (not 'none nearby')"
+  },
+  "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
+  "@gcvClipExpiredGone": {
+   "description": "gap-cctv: clip expired (24 h or the add-on's days)"
+  },
+  "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
+  "@gcvWatchDeleteAsk": {
+   "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
+  },
+  "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
+  "@gcvPhoneGwNoScan": {
+   "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
+  },
+  "gcvPosUrl": "Address (URL)",
+  "@gcvPosUrl": {
+   "description": "gap-cctv: POS webhook key dialog label"
+  },
+  "gcvPosKeyId": "Key ID",
+  "gcvPosSecret": "Secret key",
+  "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
+  "@gcvUnlinkAsk": {
+   "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
+  },
+  "gcvReportToday": "Today",
+  "@gcvReportToday": {
+   "description": "gap-cctv: closing report day switch"
+  },
+  "gcvReportYesterday": "Yesterday",
+  "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
+  "@gcvGbLost": {
+   "description": "gap-cctv: Guard Box token refused by the server"
+  },
+  "gcvGbForget": "Forget this pairing",
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "gcvHowPriced": "{base} tk a month covers 2 cameras. A plan for more cameras adds {extra} tk a month per camera. Phone cameras count too. Without a bigger plan, a camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvHowPriced": {
+   "description": "gap-cctv D2: CCTV plan pricing line (plan size price vs per-camera credits)",
+   "placeholders": {
+    "base": {
+     "type": "String"
+    },
+    "extra": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPairPhone2": "Open menu → CCTV → Shop tools → Shop Box mode, then scan or paste the code below.",
+  "@gcvPairPhone2": {
+   "description": "gap-cctv D3: Shop Box now lives inside CCTV"
+  },
+  "gcvHubTitle": "Old phone or small box",
+  "@gcvHubTitle": {
+   "description": "gap-cctv D3: one entry for old phone / Guard Box / Linux box"
+  },
+  "gcvHubIntro": "No new camera needed. Pick how the old phone (or a small box) helps this place:",
+  "gcvHubPairSub": "The old phone's own camera watches a spot. Show its pairing code here.",
+  "gcvHubThisSub": "You are holding the old phone: turn this phone into the camera now.",
+  "gcvHubGuardBoxSub": "An old phone on the shop Wi-Fi reads your IP camera and checks the cash area.",
+  "gcvShopToolsTitle": "Shop tools: sales, day-end, reports",
+  "@gcvShopToolsTitle": {
+   "description": "gap-cctv D3: Shop Box as a section of CCTV"
+  },
+  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy",
+  "gcvClipsTitle": "Past clips",
+  "@gcvClipsTitle": {
+   "description": "gap-cctv D4: past clips page title"
+  },
+  "gcvClipsEntry": "Past clips",
+  "gcvClipsKeep": "Alert clips are kept {hours} hours, or {days} days with Premium AI. When the owner watches a clip, its server copy is deleted.",
+  "@gcvClipsKeep": {
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsCamKeep": "{camera}: kept {days} days",
+  "@gcvClipsCamKeep": {
+   "placeholders": {
+    "camera": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsUpsell": "Keep clips {days} days with Premium AI",
+  "@gcvClipsUpsell": {
+   "placeholders": {
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsAllCameras": "All cameras",
+  "gcvClipsEmptyTitle": "No clips kept right now",
+  "gcvClipsEmptyBenefit": "When an alert comes with a short clip, it waits here for {hours} hours so you can watch it from anywhere.",
+  "@gcvClipsEmptyBenefit": {
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsEmptyStep1": "Draw a zone on a camera so alerts send a clip.",
+  "gcvClipsEmptyStep2": "Watched clips are deleted from the server; the photo stays in Alerts.",
+  "gcvClipsCameraUnknown": "Camera",
+  "gcvMoreActions": "More actions",
+  "@gcvMoreActions": {
+   "description": "gap-cctv R1: alert card — siren, warning, thana, evidence, wrong"
   }
+ },
+ "bn": {
+  "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
+  "gcvLinuxSub": "Windows লাগে না — বক্সটি দোকানের রাউটারের সব ক্যামেরা দেখে",
+  "gcvLinuxStep1": "৬৪-বিট Raspberry Pi OS (Pi ৪ বা ৫, ২ জিবি RAM-ই যথেষ্ট) অথবা Ubuntu / Debian মিনি পিসি নিন, ক্যামেরার একই রাউটারে।",
+  "gcvLinuxStep2": "বক্সে টার্মিনাল খুলে এই এক লাইন চালান (ইনস্টলের আগে ফাইলের SHA-256 মিলিয়ে নেয়):",
+  "gcvLinuxStep3": "তারপর সেটআপ চালান। এটি ক্যামেরা খুঁজে নেয়, পাসওয়ার্ড শুধু বক্সেই রাখে:",
+  "gcvLinuxStep4": "বক্স কোড চাইলে ওপরের ছোট কোডটি লিখুন। যুক্ত হলেই এখানে সবুজ দেখাবে।",
+  "gcvLinuxStep4Where": "বক্স কোড চাইলে এই জায়গায় \"পুরনো ফোন বা ছোট বক্স\" খুলে \"পুরনো ফোনকে ক্যামেরা বানান\" চাপুন, সেখানে দেখানো ছোট কোডটি লিখুন।",
+  "gcvLinuxPrivacy": "ভিডিও বক্সেই থাকে। শুধু সতর্কতার ছবি আর ছোট ক্লিপ পাঠানো হয়। বিদ্যুৎ গেলে নিজে আবার চালু হয়, দিনে একবার নিজে আপডেট নেয়।",
+  "gcvLinuxCopy": "কপি",
+  "gcvLinuxCopied": "কপি হয়েছে",
+  "gcvGwBoxBody": "দোকানে রাখা ছোট একটি বক্স — Raspberry Pi, লিনাক্স মিনি পিসি বা Windows পিসি — যা নিজের AI দিয়ে নেটওয়ার্কের সব ক্যামেরা দেখে। Windows বাধ্যতামূলক নয়।",
+  "gcvManageTitle": "মানুষ, শেয়ার ও নোটিশ",
+  "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ",
+  "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনো চলবে — আমরা দেখতে থাকছি।",
+  "gcvWarnRecordFirst": "এখনো রেকর্ড করা হয়নি — নিজের কণ্ঠে সতর্কবার্তা রেকর্ড করতে চাপুন",
+  "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?",
+  "gcvEvidenceMaking": "প্রমাণ-প্যাক তৈরি হচ্ছে… (ছবি, ক্লিপ, SHA-256 তালিকা, PDF)",
+  "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।",
+  "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।",
+  "gcvClipExpiredGone": "রাখার সময় শেষ হওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।",
+  "gcvWatchDeleteAsk": "গ্রুপের সবার কাছ থেকে এই পোস্টটি সরাবেন?",
+  "gcvPhoneGwNoScan": "এই জায়গার গেটওয়ে একটি পুরনো ফোন, তাই এটি ওয়াই-ফাই-তে DVR বা IP ক্যামেরা খুঁজতে পারে না। ওপরে ব্র্যান্ডের ক্লাউড যুক্ত করুন, অথবা জায়গায় একটি ছোট গার্ড বক্স (Raspberry Pi, লিনাক্স মিনি পিসি বা পিসি) বসান:",
+  "gcvPosUrl": "ঠিকানা (URL)",
+  "gcvPosKeyId": "কী আইডি",
+  "gcvPosSecret": "গোপন চাবি",
+  "gcvUnlinkAsk": "স্মার্ট প্লাগ ও লাইটের সংযোগ খুলবেন? আবার যুক্ত না করা পর্যন্ত স্বয়ংক্রিয় কাজ বন্ধ থাকবে।",
+  "gcvReportToday": "আজ",
+  "gcvReportYesterday": "গতকাল",
+  "gcvGbLost": "সংযোগ নেই — মালিক এই ক্যামেরা বা জোড়া সরিয়েছেন। আবার জোড়া লাগান।",
+  "gcvGbForget": "এই জোড়া ভুলে যান",
+  "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।",
+  "gcvHowPriced": "মাসে {base} টাকায় ২টি ক্যামেরা। বেশি ক্যামেরার প্ল্যানে প্রতি ক্যামেরায় মাসে {extra} টাকা যোগ হয়। ফোন-ক্যামেরাও ক্যামেরা হিসেবে গণ্য। বড় প্ল্যান না নিলে প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।",
+  "gcvPairPhone2": "মেনু → সিসিটিভি → দোকানের টুল → Shop Box মোড খুলে নিচের কোড স্ক্যান বা পেস্ট করুন।",
+  "gcvHubTitle": "পুরনো ফোন বা ছোট বক্স",
+  "gcvHubIntro": "নতুন ক্যামেরা লাগবে না। পুরনো ফোন (বা ছোট বক্স) কীভাবে এই জায়গায় কাজে লাগবে, বেছে নিন:",
+  "gcvHubPairSub": "পুরনো ফোনের নিজের ক্যামেরা একটি জায়গা দেখবে। এখানে তার জোড়া লাগানোর কোড দেখান।",
+  "gcvHubThisSub": "পুরনো ফোনটি আপনার হাতে থাকলে: এখনই এই ফোনকে ক্যামেরা বানান।",
+  "gcvHubGuardBoxSub": "দোকানের ওয়াই-ফাইয়ে থাকা পুরনো ফোন আপনার IP ক্যামেরা দেখে আর ক্যাশের জায়গা পরীক্ষা করে।",
+  "gcvShopToolsTitle": "দোকানের টুল: বিক্রি, দিনশেষ, রিপোর্ট",
+  "gcvShopToolsSub": "শপ বক্স: ক্যাশ ড্রয়ার ও বিক্রি মেলানো, দিনশেষের হিসাব, ক্যামেরার নির্ভুলতা",
+  "gcvClipsTitle": "আগের ক্লিপ",
+  "gcvClipsEntry": "আগের ক্লিপ",
+  "gcvClipsKeep": "সতর্কতার ক্লিপ {hours} ঘণ্টা রাখা হয়, প্রিমিয়াম AI থাকলে {days} দিন। মালিক ক্লিপ দেখলে সার্ভারের কপি মুছে যায়।",
+  "gcvClipsCamKeep": "{camera}: {days} দিন রাখা হয়",
+  "gcvClipsUpsell": "প্রিমিয়াম AI দিয়ে ক্লিপ {days} দিন রাখুন",
+  "gcvClipsAllCameras": "সব ক্যামেরা",
+  "gcvClipsEmptyTitle": "এখন কোনো ক্লিপ রাখা নেই",
+  "gcvClipsEmptyBenefit": "সতর্কতার সাথে ছোট ক্লিপ এলে তা এখানে {hours} ঘণ্টা থাকে, যেকোনো জায়গা থেকে দেখতে পারবেন।",
+  "gcvClipsEmptyStep1": "ক্যামেরায় একটি জোন আঁকুন, তাহলে সতর্কতার সাথে ক্লিপ আসবে।",
+  "gcvClipsEmptyStep2": "দেখা ক্লিপ সার্ভার থেকে মুছে যায়; ছবিটি সতর্কতায় থাকে।",
+  "gcvClipsCameraUnknown": "ক্যামেরা",
+  "gcvMoreActions": "আরও কাজ"
+ }
 }

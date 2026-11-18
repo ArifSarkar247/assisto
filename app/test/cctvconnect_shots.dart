@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:assisto/cctvconnect/cctv_connect_screen.dart';
 import 'package:assisto/cctvconnect/dvr_health_card.dart';
 import 'package:assisto/cctvconnect/link_devices_screen.dart';
+import 'package:assisto/cctvconnect/remove_first_sheet.dart';
 
 import 'cctvconnect_fakes.dart';
 
@@ -55,4 +56,11 @@ final Map<String, Widget Function(String)> cctvconnectShots = {
       source: FakeCctvConnect(lang: l), linkId: 5, title: 'Hikvision Hik-Connect'),
   'ccn_health_green': (l) => _health(l, 'green'),
   'ccn_health_red': (l) => _health(l, 'red'),
+  // imou-real: "remove it from the vendor app first" (our own drawings)
+  'ccn_remove_imou': (l) => const Scaffold(body: SafeArea(child: CctvRemoveFirstSheet(guide: 'imou_life'))),
+  'ccn_remove_ezviz': (l) => const Scaffold(body: SafeArea(child: CctvRemoveFirstSheet(guide: 'ezviz_app'))),
+  'ccn_remove_dmss': (l) => const Scaffold(body: SafeArea(child: CctvRemoveFirstSheet(guide: 'dmss'))),
+  'ccn_brands_guides': (l) => Builder(
+      builder: (ctx) => CctvConnectScreen(
+          siteId: 1, source: FakeCctvConnect(lang: l, guides: true), onFindOnWifi: () => _wifi(ctx))),
 };

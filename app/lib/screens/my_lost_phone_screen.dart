@@ -13,6 +13,9 @@ import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import 'watched_phones_screen.dart'; // at100
 import '../antitheft_api.dart'; // at100
 import '../services/action_feedback.dart'; // db1
@@ -39,7 +42,8 @@ class MyLostPhoneScreen extends StatefulWidget {
   State<MyLostPhoneScreen> createState() => _MyLostPhoneScreenState();
 }
 
-class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
+class _MyLostPhoneScreenState extends State<MyLostPhoneScreen>
+    with AdBlockedState<MyLostPhoneScreen> {
   bool _loading = true;
   bool _failed = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
@@ -123,7 +127,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _failed
                 ? _errorState(t)
                 : _content(t),
@@ -135,15 +139,12 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        const SizedBox(height: Gap.xxl),
-        Icon(Icons.cloud_off_rounded,
-            size: 48, color: Theme.of(context).colorScheme.ds.muted),
-        const SizedBox(height: Gap.md),
-        Text(honestFailText(t, _failCause, otherwise: t.mlpLoadFailed),
-            textAlign: TextAlign.center),
-        const SizedBox(height: Gap.md),
-        Center(
-          child: FilledButton(onPressed: _load, child: Text(t.retry)),
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: honestFailText(t, _failCause, otherwise: t.mlpLoadFailed),
+          actionLabel: t.retry,
+          onAction: _load,
         ),
       ],
     );
@@ -160,8 +161,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         // at100: a trusted contact reaches the phones they help protect
         // from here too (an alert tap opens that list directly).
         if (_watching > 0) ...[
-          Card(
-            child: ListTile(
+          DsCard(padding: EdgeInsets.zero, child: ListTile(
               key: const Key('at100-mlp-watching'),
               minVerticalPadding: Gap.md,
               leading: const Icon(Icons.shield_rounded),
@@ -172,8 +172,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => const WatchedPhonesScreen()),
               ),
-            ),
-          ),
+            )),
           const SizedBox(height: Gap.md),
         ],
         _statusCard(t, scheme),
@@ -204,8 +203,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
             label: Text(t.mlpTurnOffLost),
           ),
         const SizedBox(height: Gap.sm),
-        Card(
-          child: ListTile(
+        DsCard(padding: EdgeInsets.zero, child: ListTile(
             leading: const Icon(Icons.gavel_rounded),
             title: Text(t.mlpRecoveryHelp),
             subtitle: Text(t.mlpRecoveryHelpBody),
@@ -214,8 +212,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
               context,
               MaterialPageRoute(builder: (_) => const RecoveryScreen()),
             ),
-          ),
-        ),
+          )),
         const SizedBox(height: Gap.md),
         _honestNote(t, scheme),
         const SizedBox(height: Gap.xl),
@@ -235,11 +232,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
     final body = armed ? t.mlpStatusArmedBody2 : t.mlpStatusNotArmedBody;
     final fg = armed ? Brand.success : Brand.warning;
 
-    return Card(
-      color: fg.withValues(alpha: 0.12),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -275,9 +268,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
             if (wentDark != null)
               _wentDarkBlock(t, scheme, _fmtWhen(wentDark)),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _statusChip(String title, String body, IconData icon, Color c) {
@@ -347,10 +338,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
   Widget _locationCard(AppLocalizations t, ColorScheme scheme) {
     final loc = _data['last_location'];
     final hasLoc = loc is Map && loc['lat'] != null && loc['lng'] != null;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.mlpLocationTitle,
@@ -375,17 +363,12 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
               ),
             ],
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _trailCard(AppLocalizations t, ColorScheme scheme) {
     final trail = (_data['trail'] as List?) ?? const [];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.mlpTrailTitle,
@@ -413,9 +396,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 );
               }),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   // ---- intruder photos ---------------------------------------------------
@@ -428,10 +409,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
         .where((e) => '${e['kind'] ?? ''}'.contains('photo') ||
             e['photo_url'] != null)
         .toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.mlpPhotosTitle,
@@ -458,9 +436,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 ],
               ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   // ---- SIM change --------------------------------------------------------
@@ -468,11 +444,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
   Widget _simCard(AppLocalizations t, ColorScheme scheme) {
     final sim = _data['sim_change'];
     final has = sim is Map && sim.isNotEmpty;
-    return Card(
-      color: has ? Brand.warning.withValues(alpha: 0.12) : null,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -496,18 +468,13 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 _kv(t.mlpSimWhen, _fmtWhen(sim['at'])),
             ],
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   // ---- IMEIs -------------------------------------------------------------
 
   Widget _imeiCard(AppLocalizations t, ColorScheme scheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.mlpImeiTitle,
@@ -519,19 +486,14 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
             const SizedBox(height: Gap.xs),
             Text(t.mlpImeiHint, style: Theme.of(context).textTheme.bodySmall),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   // ---- activity log ------------------------------------------------------
 
   Widget _eventsCard(AppLocalizations t, ColorScheme scheme) {
     final events = (_data['events'] as List?) ?? const [];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.mlpEventsTitle,
@@ -554,17 +516,11 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                 );
               }),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _honestNote(AppLocalizations t, ColorScheme scheme) {
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Icon(Icons.info_outline_rounded, size: 18),
@@ -574,9 +530,7 @@ class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
                   style: Theme.of(context).textTheme.bodySmall),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _kv(String k, String v) => Padding(

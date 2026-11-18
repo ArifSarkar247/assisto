@@ -162,8 +162,34 @@ def founding_member(user):
             "premium_until": until.isoformat() if until else None}
 
 
+TEST_PLAN_CHOICES = ("premium", "business")
+
+
+def test_plan(user):
+    """staging: the allow-listed TEST entitlement (settings
+    ASSISTO_TEST_PLAN_USERS="<user id>:<plan>,..."), or "" when this account
+    has none. Lets the owner test paid plans in the "Assisto Test" app, where
+    purchases are disabled. NEVER a purchase: nothing is charged or recorded
+    as paid, and it ends the moment the id leaves the list."""
+    uid = getattr(user, "pk", None)
+    if not uid:
+        return ""
+    try:
+        from django.conf import settings
+        raw = str(getattr(settings, "ASSISTO_TEST_PLAN_USERS", "") or "")
+    except Exception:
+        return ""
+    for part in raw.replace(" ", "").split(","):
+        sid, _, plan = part.partition(":")
+        if sid.isdigit() and int(sid) == uid and plan in TEST_PLAN_CHOICES:
+            return plan
+    return ""
+
+
 def plan_active(user):
     if lifetime_founder(user):
+        return True
+    if test_plan(user):
         return True
     return bool(user.plan_until and user.plan_until > timezone.now())
 
@@ -172,6 +198,9 @@ def effective_plan(user):
     """What the user is actually entitled to right now."""
     if lifetime_founder(user):
         return "founder"
+    tp = test_plan(user)
+    if tp:
+        return tp
     if plan_active(user):
         # Family was folded into Premium (Build 1); any stray "family" row still
         # on a user maps to premium so their 5-member circle keeps working.
@@ -265,6 +294,8 @@ def entitlements(user, lang="bn"):
         "plans_v2": _v2(user),
         "tier": _tier(user),
         "plan_until": user.plan_until.isoformat() if user.plan_until else None,
+        # staging: an allow-listed TEST plan (not paid) — "" for everyone else
+        "test_plan": test_plan(user),
     }
 
 
@@ -286,14 +317,21 @@ def plans_public(lang="bn"):
     from .i18n import pick
     from .logic import pricing
     from . import billing
-    out = pricing.plan_public(lang, billing.cfg())
+    try:
+        from .payments import catalog as _cat
+        cfg = _cat.current_cfg()
+    except Exception:  # noqa: BLE001
+        cfg = billing.cfg()
+    out = pricing.plan_public(lang, cfg)
     # pricing-40: a NEW plan (Plus, Premium Pro) is listed only once one of
     # its Play products is verified ACTIVE and it is for sale — never a plan
     # the user cannot buy.
     try:
         from .payments import catalog
-        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus()
-                if catalog.price(s, "play") or catalog.price(s, "gateway")}
+        # speedproof: ONE config for every sku (each bare call re-read the
+        # pricing row + normalized it: GET plans 1.6 s / 30 SQL in CI)
+        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus(cfg)
+                if catalog.price(s, "play", cfg) or catalog.price(s, "gateway", cfg)}
     except Exception:  # noqa: BLE001
         sold = set()
     out = [r for r in out if r.get("id") not in pricing.NEW_PLAN_ORDER or r.get("id") in sold]

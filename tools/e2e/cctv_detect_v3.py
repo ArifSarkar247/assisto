@@ -357,7 +357,8 @@ ARGS = None
 def run_group(gname):
     """Tune one group on CALIBRATION, then baseline vs pick on HELD-OUT."""
     a = ARGS
-    th = 2 if gname == "vehicles" else 1
+    single = len([g for g in a.groups.split(",") if g]) == 1
+    th = 4 if single else (2 if gname == "vehicles" else 1)
     det = Cached(a.nano, "yolox_nano", threads=th)
     if gname == "vehicles":
         VEH["tiny"] = Cached(a.tiny, "yolox_tiny", threads=th)
@@ -367,6 +368,11 @@ def run_group(gname):
     keys = GROUPS[gname]
     t0 = time.time()
     trials = []
+    if a.fixed:
+        best = {"opt": SHIPPED[gname], "ok": None}
+        print("FIXED %s %s (picked on calibration in CI 43967156868)" % (gname, json.dumps(best["opt"])),
+              flush=True)
+        return held_out(fns, keys, best, trials, det, t0)
     for opt in grids()[gname]:
         cfg = merged(BASELINE, **opt)
         r = [run_one(fns, k, "cal", cfg) for k in keys]
@@ -391,6 +397,19 @@ def run_group(gname):
                                           t["mean_r"], -trials.index(t)))
     print("PICK %s %s (cal ok=%s) %.0fs" % (gname, json.dumps(best["opt"]), best["ok"], time.time() - t0),
           flush=True)
+    return held_out(fns, keys, best, trials, det, t0)
+
+
+SHIPPED = {
+    "vehicles": {"veh_model": "bd", "veh_zoom": True, "veh_thr": 0.15, "veh_union": True,
+                 "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02}},
+    "crowd": {"rules": {"CROWD_SCORE": 0.3, "CROWD_KEEP_S": 20.0}},
+    "post": {"rules": {}},
+    "loiter": {"rules": {}},
+}
+
+
+def held_out(fns, keys, best, trials, det, t0):
     chosen = merged(BASELINE, **best["opt"])
     held = {}
     for key in keys:
@@ -416,6 +435,8 @@ def main():
     ap.add_argument("--n", type=int, default=30)
     ap.add_argument("--real", type=int, default=240, help="Sylhet photos per light")
     ap.add_argument("--groups", default="vehicles,post,loiter,crowd")
+    ap.add_argument("--fixed", action="store_true",
+                    help="no calibration grid: the SHIPPED settings, held-out only (before vs after)")
     a = ap.parse_args()
     N_OLD = N_REAL = a.n
     os.makedirs(a.cache, exist_ok=True)

@@ -135,6 +135,9 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
 
   Future<void> _pressed(String spoken) async {
     unawaited(SilentWatchClient.noteActivity());
+    // a11ysweep: TalkBack already spoke the button's name — the app's own
+    // voice on top of it made both unintelligible
+    if (MediaQuery.maybeOf(context)?.accessibleNavigation ?? false) return;
     await ElderHooks.say(context, spoken);
   }
 

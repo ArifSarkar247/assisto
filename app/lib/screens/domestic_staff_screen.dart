@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -138,10 +139,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.staffLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -152,11 +150,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
           icon: Icons.diversity_3_rounded,
           title: tr.staffWelcomeTitle,
           message: tr.staffWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: _addPerson,
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-            label: Text(tr.staffAddPerson),
-          ),
+          action: DsButton(onPressed: _addPerson, icon: Icons.person_add_alt_1_rounded, label: tr.staffAddPerson),
         ),
       );
     }
@@ -216,9 +210,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
     final String badge = s.state == 'owed'
         ? tr.staffStateOwed
         : (s.state == 'advance_due' ? tr.staffStateAdvanceDue : tr.staffStateSettled);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: InkWell(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: () => _openPerson(s.id),
         child: Padding(
@@ -228,7 +220,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
               CircleAvatar(
                 backgroundColor: scheme.ds.primarySoft,
                 child: Text(_initial(s.name),
-                    style: TextStyle(color: scheme.ds.primaryInk)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -237,7 +229,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                     children: [
                       Text(s.name,
                           style:
-                              const TextStyle(fontWeight: FontWeight.w700),
+                              AType.titleSmall.copyWith(fontWeight: FontWeight.w700),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                       Text(
@@ -272,8 +264,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
             ]),
           ]),
         ),
-      ),
-    );
+      )));
   }
 
   Future<void> _openPerson(dynamic id) async {
@@ -392,15 +383,13 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           // headline net-dues card
-          Card(
-            color: c.withValues(alpha: 0.10),
-            child: Padding(
+          DsSurface(color: c.withValues(alpha: 0.10), padding: EdgeInsets.zero, child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(stateLabel,
-                        style: TextStyle(
+                        style: AType.titleSmall.copyWith(
                             color: c, fontWeight: FontWeight.w700)),
                     const SizedBox(height: Gap.xs),
                     Text(_StaffMath.fmtPoisha(s.netDues.abs().toDouble()),
@@ -411,8 +400,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                         '${_roleLabel(tr, (widget.person['role'] ?? '').toString())} · ${_StaffMath.fmtPoisha(s.salary.toDouble())}${tr.staffPerMonthSuffix}',
                         style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
-            ),
-          ),
+            )),
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
@@ -439,7 +427,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(tr.staffNoMonthsYet,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
           for (final m in s.months) _monthCard(context, m),
           const SizedBox(height: Gap.lg),
@@ -458,15 +446,13 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
     final String badge = m.state == 'owed'
         ? tr.staffMonthOwed
         : (m.state == 'overpaid' ? tr.staffMonthOverpaid : tr.staffMonthSettled);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(m.month,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             ),
             Container(
               padding:
@@ -497,8 +483,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                   tr.staffDaysPresent(m.monthDays ?? 30, m.presentDays!)), // (month, present)
           ]),
         ]),
-      ),
-    );
+      )));
   }
 
   Widget _kv(BuildContext context, String k, String v) {
@@ -510,7 +495,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
           TextSpan(text: '$k '),
           TextSpan(
               text: v,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: scheme.ds.text, fontWeight: FontWeight.w600)),
         ],
       ),
@@ -576,12 +561,9 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(tr.cancel)),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.onError),
+          DsButton.danger(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(tr.delete),
+            label: tr.delete,
           ),
         ],
       ),
@@ -689,23 +671,18 @@ class _PersonFormState extends State<_PersonForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(tr.cancel)),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: (nameOk && salaryOk)
+                  child: DsButton(onPressed: (nameOk && salaryOk)
                         ? () => Navigator.pop(context, <String, dynamic>{
                               'name': _name.text.trim(),
                               'role': _role,
                               'salary': _salary.text.trim(),
                               'join_date': _joinDate.text.trim(),
                             })
-                        : null,
-                    child: Text(tr.save),
-                  ),
+                        : null, label: tr.save),
                 ),
               ]),
             ]),
@@ -814,14 +791,11 @@ class _PaymentFormState extends State<_PaymentForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(tr.cancel)),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: amountOk
+                  child: DsButton(onPressed: amountOk
                         ? () {
                             final out = <String, dynamic>{
                               'kind': _kind,
@@ -836,9 +810,7 @@ class _PaymentFormState extends State<_PaymentForm> {
                             }
                             Navigator.pop(context, out);
                           }
-                        : null,
-                    child: Text(tr.save),
-                  ),
+                        : null, label: tr.save),
                 ),
               ]),
             ]),
@@ -851,9 +823,7 @@ class _PaymentFormState extends State<_PaymentForm> {
 Widget _statCard(BuildContext context, String label, String value, Color color,
     IconData icon) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    margin: EdgeInsets.zero,
-    child: Padding(
+  return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -873,15 +843,12 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
       ]),
-    ),
-  );
+    )));
 }
 
 Widget _noMoneyNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
+  return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
         Icon(Icons.shield_rounded, size: 18, color: scheme.ds.muted),
@@ -892,8 +859,7 @@ Widget _noMoneyNote(BuildContext context, String text) {
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
-    ),
-  );
+    ));
 }
 
 // ===================================================================

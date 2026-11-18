@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
@@ -304,7 +305,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           Row(children: [
             Expanded(
               child: Text(t.bwDraft,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
             ),
           ]),
           const SizedBox(height: Gap.xs),
@@ -320,25 +321,13 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: FilledButton.icon(
-                onPressed: _share,
-                icon: const Icon(Icons.ios_share_rounded, size: 18),
-                label: Text(t.bwShare),
-              ),
+              child: DsButton(onPressed: _share, icon: Icons.ios_share_rounded, label: t.bwShare),
             ),
             const SizedBox(width: Gap.sm),
-            OutlinedButton.icon(
-              onPressed: _copy,
-              icon: const Icon(Icons.copy_rounded, size: 18),
-              label: Text(t.copy),
-            ),
+            DsButton.secondary(onPressed: _copy, icon: Icons.copy_rounded, label: t.copy),
           ]),
           const SizedBox(height: Gap.sm),
-          OutlinedButton.icon(
-            onPressed: _saveDraft,
-            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
-            label: Text(t.save),
-          ),
+          DsButton.secondary(onPressed: _saveDraft, icon: Icons.bookmark_outline_rounded, label: t.save),
           const SizedBox(height: Gap.xl),
           _FullAiCard(),
         ],
@@ -357,10 +346,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
         tint: scheme.error,
         title: t.loadFailed,
         message: honestFailText(t, _failCause, otherwise: t.bwLoadError),
-        action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.retry)),
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
       );
     }
     if (_saved.isEmpty) {
@@ -368,11 +354,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
         icon: Icons.bookmark_border_rounded,
         title: t.bwSavedEmptyTitle,
         message: t.bwSavedEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.edit_rounded, size: 18),
-          label: Text(t.bwTabCompose),
-        ),
+        action: DsButton(onPressed: () => _tabs.animateTo(0), icon: Icons.edit_rounded, label: t.bwTabCompose),
       );
     }
     return RefreshIndicator(
@@ -389,9 +371,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
                   .toString()
               : topic;
           final body = (d['body'] ?? '').toString().replaceAll('\n', ' ').trim();
-          return Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: ListTile(
               onTap: () => _openSaved(d),
               leading: CircleAvatar(
                 backgroundColor: scheme.ds.primarySoft,
@@ -401,20 +381,19 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
               title: Text(title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
               subtitle: Text(
                 body,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: scheme.ds.muted),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline_rounded),
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(d),
               ),
-            ),
-          );
+            )));
         },
       ),
     );
@@ -789,7 +768,7 @@ class _FullAiCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.bwFullAiTitle,
                 style:
-                    const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                    AType.titleSmall.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.bwFullAiBody,
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted,

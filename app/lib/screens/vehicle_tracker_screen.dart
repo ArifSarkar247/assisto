@@ -9,6 +9,7 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/car_mode_engine.dart';
 import '../vehicle/route_canvas.dart';
 import '../vehicle/veh_map.dart';
@@ -369,16 +370,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
-                  title: tr.loadFailed,
-                  message: tr.vehLoadError,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
-                )
+              ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: tr.vehLoadError, actionLabel: tr.retry, onAction: _load)])
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
@@ -398,9 +390,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       ],
                       _aiCard(tr, scheme),
                       const SizedBox(height: Gap.md),
-                      Card(
-                        margin: EdgeInsets.zero,
-                        child: ListTile(
+                      DsCard(padding: EdgeInsets.zero, child: ListTile(
                           leading: const Icon(Icons.car_repair_rounded),
                           title: Text(tr.vehObdTitle),
                           subtitle: Text(tr.vehObdSubtitle,
@@ -411,8 +401,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                               MaterialPageRoute(
                                   builder: (_) =>
                                       VehicleObdScreen(trackerId: widget.trackerId))),
-                        ),
-                      ),
+                        )),
                       const SizedBox(height: Gap.xl),
                     ],
                   ),
@@ -420,29 +409,33 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     );
   }
 
+  // design3: stat tiles in an even grid (3 or 2 per row, 2 at big text) —
+  // the free Wrap left one tile alone on a row; values wrap, never cut.
+  Widget _statGrid(List<Widget> stats) {
+    return LayoutBuilder(builder: (context, box) {
+      final big = MediaQuery.textScalerOf(context).scale(14) / 14 > 1.3;
+      final cols = big ? (box.maxWidth < 320 ? 1 : 2) : (stats.length == 3 ? 3 : 2);
+      final w = (box.maxWidth - (cols - 1) * Gap.sm) / cols;
+      return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        for (final st in stats) SizedBox(width: w, child: st),
+      ]);
+    });
+  }
+
   Widget _stat(String label, String value, IconData icon, ColorScheme scheme) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 96),
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),
+      padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(
         color: scheme.ds.cardHighest,
-        borderRadius: BorderRadius.circular(Radii.sm),
+        borderRadius: BorderRadius.circular(DsRadius.small),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 18, color: scheme.primary),
-        const SizedBox(width: Gap.xs),
-        Flexible(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(value,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            Text(label,
-                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-          ]),
-        ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 18, color: scheme.ds.primaryInk),
+        const SizedBox(height: Gap.xs),
+        Text(value,
+            style: AType.titleSmall.copyWith(
+                fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular, letterSpacing: -0.2)),
+        Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -455,11 +448,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final ign = t['ignition'];
     final volt = vehNum(t['ext_voltage_v']);
     final lat = vehNum(live['lat']), lng = vehNum(live['lng']);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Container(
               width: 10,
@@ -488,7 +477,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          _statGrid([
             _stat(tr.vehSpeed, tr.vehKmh(vehNumStr(context, speed)), Icons.speed_rounded, scheme),
             _stat(
                 tr.vehIgnition,
@@ -501,18 +490,15 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ]),
           if (lat != null && lng != null) ...[
             const SizedBox(height: Gap.sm),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: OutlinedButton.icon(
-                onPressed: () => _openMaps(lat, lng),
-                icon: const Icon(Icons.map_rounded),
-                label: Text(tr.vehOpenMaps),
-              ),
+            // design3: full-width secondary action (was a half-width pill)
+            DsButton.secondary(
+              expand: true,
+              onPressed: () => _openMaps(lat, lng),
+              icon: Icons.map_rounded,
+              label: tr.vehOpenMaps,
             ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _mapCard(AppLocalizations tr, ColorScheme scheme, Map<String, dynamic> t) {
@@ -532,11 +518,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         ? pts[_playIdx!.clamp(0, pts.length - 1)]
         : null;
     final km = vehNum(_route['total_km']) ?? 0;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(tr.vehRoute24h, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
           AspectRatio(
@@ -582,7 +564,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.sm),
                 child: Text('${vehNumStr(context, _speedX)}×',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
               ),
             ),
           ]),
@@ -613,7 +595,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Text(
               tr.vehPlaybackAt(vehTime(context, playAt.at),
                   tr.vehKmh(vehNumStr(context, playAt.speed))),
-              style: TextStyle(color: scheme.ds.muted),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -631,7 +613,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       tr.e2eVehPlanInfo(vehNumStr(context,
                           vehInt(vehList(vehMap(t['settings'])['routes']).first['corridor_m']) ??
                               300)),
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 ),
               ]),
               Align(
@@ -655,9 +637,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 ),
               ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _summaryCard(AppLocalizations tr, ColorScheme scheme) {
@@ -665,14 +645,10 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     final km = vehNum(_route['total_km']) ?? 0;
     final moving = vehInt(_route['moving_s']) ?? 0;
     final maxSpeed = vehNum(_route['max_speed_kmh']) ?? 0;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.vehTripsToday, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          _statGrid([
             _stat(tr.vehDistance, tr.vehKm(vehNumStr(context, km, decimals: 1)),
                 Icons.straighten_rounded, scheme),
             _stat(tr.vehTrips, vehNumStr(context, trips.length), Icons.route_rounded, scheme),
@@ -684,7 +660,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           if (trips.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
-              child: Text(tr.vehNoTrips, style: TextStyle(color: scheme.ds.muted)),
+              child: Text(tr.vehNoTrips, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
           for (final tp in trips.reversed.take(8))
             ListTile(
@@ -694,7 +670,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               title: Text(
                 '${vehTime(context, vehDate(tp['start']))} – ${vehTime(context, vehDate(tp['end']))}',
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis, style: const TextStyle(fontFeatures: AFonts.tabular),
+                overflow: TextOverflow.ellipsis, style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular),
               ),
               subtitle: Text(
                 '${tr.vehKm(vehNumStr(context, vehNum(tp['km']) ?? 0, decimals: 1))}  ·  '
@@ -704,9 +680,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   String _cmdState(AppLocalizations tr, Map<String, dynamic> c) {
@@ -776,9 +750,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           trailing: const Icon(Icons.chevron_right_rounded),
           onTap: onTap,
         );
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Column(children: [
+    return DsCard(padding: EdgeInsets.zero, child: Column(children: [
         if (owner)
           tile(const ValueKey('veh-share'), Icons.share_location_rounded, tr.v100ShareTitle,
               tr.v100ShareSub, () async {
@@ -802,19 +774,14 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   currentDriverId: vehInt(drv['driver_id']))));
           if (mounted) _refreshLive();
         }),
-      ]),
-    );
+      ]));
   }
 
   Widget _engineCard(AppLocalizations tr, ColorScheme scheme, Map<String, dynamic> t) {
     final cut = t['relay_cut'] == true;
     final pending = _commands.any((c) =>
         ['awaiting_approval', 'queued', 'sent'].contains('${c['state']}'));
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Icon(Icons.power_settings_new_rounded, color: cut ? scheme.error : scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -827,7 +794,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             t['relay_cut'] == null
                 ? tr.vehRelayUnknown
                 : (cut ? tr.vehRelayCut : tr.vehRelayNormal),
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600, color: cut ? scheme.error : Brand.success),
           ),
           const SizedBox(height: Gap.xs),
@@ -842,31 +809,27 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(Icons.info_outline_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
-              Expanded(child: Text(tr.v100ErrCutOff, style: const TextStyle(height: 1.35))),
+              Expanded(child: Text(tr.v100ErrCutOff, style: AType.bodyMedium.copyWith(height: 1.35))),
             ]),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (t['engine_cut_enabled'] == true)
-              FilledButton.icon(
+              DsButton.danger(
                 key: const ValueKey('veh-cut'),
-                style: FilledButton.styleFrom(
-                    minimumSize: const Size(48, 48),
-                    backgroundColor: scheme.error,
-                    foregroundColor: scheme.onError),
                 onPressed: (_sending || pending) ? null : () => _command('engine_cut'),
-                icon: const Icon(Icons.block_rounded),
-                label: Text(tr.vehCutCta),
+                icon: Icons.block_rounded,
+                label: tr.vehCutCta,
               ),
             // cctvveh: with engine-cut OFF and the relay reported NORMAL,
             // "Restore" did nothing useful; it stays when the flag is on, the
             // relay is cut, or its state is unknown (cut by SMS / old app).
             if (t['engine_cut_enabled'] == true || t['relay_cut'] != false)
-            OutlinedButton.icon(
+            DsButton.secondary(
               key: const ValueKey('veh-restore'),
               onPressed: (_sending || pending) ? null : () => _command('engine_restore'),
-              icon: const Icon(Icons.restart_alt_rounded),
-              label: Text(tr.vehRestoreCta),
+              icon: Icons.restart_alt_rounded,
+              label: tr.vehRestoreCta,
             ),
           ]),
           if (_commands.isNotEmpty) ...[
@@ -890,7 +853,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(vehDateTime(context, vehDate(c['created_at'])),
-                    maxLines: 1, style: const TextStyle(fontFeatures: AFonts.tabular)),
+                    maxLines: 1, style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
                 trailing: ['awaiting_approval', 'queued'].contains('${c['state']}')
                     ? TextButton(
                         onPressed: () => _cancelCommand(c['id'] as int),
@@ -898,18 +861,12 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                     : null,
               ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _aiCard(AppLocalizations tr, ColorScheme scheme) {
     final ai = _ai;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             const Icon(Icons.auto_awesome_rounded, color: Brand.purple),
             const SizedBox(width: Gap.sm),
@@ -919,9 +876,9 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.xs),
           if (ai == null)
             Text(tr.vehAiBody,
-                style: TextStyle(color: scheme.ds.muted, height: 1.35))
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35))
           else ...[
-            Text('${ai['text'] ?? ''}', style: const TextStyle(height: 1.4)),
+            Text('${ai['text'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
             const SizedBox(height: Gap.xs),
             Text(
               ai['ai'] == true
@@ -935,18 +892,15 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: FilledButton.tonalIcon(
-              onPressed: _aiBusy ? null : _aiSummary,
-              icon: _aiBusy
-                  ? const SizedBox(
-                      width: Gap.lg, height: Gap.lg, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.manage_search_rounded),
-              label: Text(tr.vehAiCta),
+            child: DsButton.secondary(
+              onPressed: _aiSummary,
+              busy: _aiBusy,
+              icon: Icons.manage_search_rounded,
+              label: tr.vehAiCta,
             ),
+
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -996,10 +950,10 @@ class _CutFinalDialogState extends State<_CutFinalDialog> {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,
             children: [
           Text(tr.v100CutFinalBody(widget.speedText, widget.fixAgo),
-              style: const TextStyle(height: 1.4)),
+              style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.sm),
           Text(tr.v100CutFinalLeft(vehNumStr(context, _left < 0 ? 0 : _left)),
-              style: TextStyle(color: scheme.ds.muted, fontFeatures: AFonts.tabular)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontFeatures: AFonts.tabular)),
         ]),
       ),
       actions: [

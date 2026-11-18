@@ -10,6 +10,8 @@ import '../notifications.dart';
 import '../widgets/life_leave_now_card.dart';
 import '../widgets/meet_model.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 
 /// Meetings / appointments (module-5 "Life") — ADVANCED (SPEC v2.1 §21).
 ///
@@ -267,7 +269,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
 
   Widget _body(AppLocalizations t) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList();
     }
     if (_error) {
       return _ErrorState(onRetry: _load);
@@ -390,7 +392,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
         child: buckets.isEmpty
             ? Center(
                 child: Text(mStr(context, 'mNoneToday'),
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: Theme.of(context).colorScheme.ds.muted)),
               )
             : ListView(
@@ -566,7 +568,7 @@ class _AnchorBar extends StatelessWidget {
         Expanded(
           child: Text(label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ),
         IconButton(
             tooltip: AppLocalizations.of(context).remCalNext,
@@ -616,7 +618,7 @@ class _AgendaRow extends StatelessWidget {
             child: Text('${appt['title']}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     decoration: done ? TextDecoration.lineThrough : null,
                     color: done ? scheme.ds.muted : null)),
           ),
@@ -668,11 +670,7 @@ class _MeetingCard extends StatelessWidget {
     final done = status == kStatusDone;
     final recurring = freqOf(appt) != kFreqNone;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text('${appt['title']}',
@@ -695,7 +693,7 @@ class _MeetingCard extends StatelessWidget {
             Icon(Icons.schedule_rounded, size: 15, color: scheme.primary),
             const SizedBox(width: 6),
             Expanded(
-                child: Text(whenLabel, style: TextStyle(color: scheme.primary))),
+                child: Text(whenLabel, style: AType.bodyMedium.copyWith(color: scheme.primary))),
             if (recurring) ...[
               const SizedBox(width: 6),
               Icon(Icons.repeat_rounded, size: 14, color: scheme.ds.muted),
@@ -710,7 +708,7 @@ class _MeetingCard extends StatelessWidget {
               Icon(Icons.place_rounded, size: 15, color: scheme.ds.muted),
               const SizedBox(width: 6),
               Expanded(
-                  child: Text(place, style: TextStyle(color: scheme.ds.muted))),
+                  child: Text(place, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
             ]),
           ],
           if (people.isNotEmpty) ...[
@@ -758,9 +756,7 @@ class _MeetingCard extends StatelessWidget {
               onTravelChanged: onTravelChanged,
             ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -1041,7 +1037,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(mStr(context, 'mRecurrence'),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           ),
           const SizedBox(height: Gap.xs),
           Wrap(
@@ -1060,7 +1056,7 @@ class _AppointmentEditorState extends State<_AppointmentEditor> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(mStr(context, 'mReminderLead'),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           ),
           const SizedBox(height: Gap.xs),
           Wrap(
@@ -1100,29 +1096,17 @@ class _Empty extends StatelessWidget {
   const _Empty({required this.t, required this.onAdd});
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.event_available_rounded,
-              size: 56, color: Colors.grey),
-          const SizedBox(height: Gap.md),
-          Text(t.meetingsEmptyTitle,
-              textAlign: TextAlign.center,
-              style:
-                  AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: Gap.xs),
-          Text(t.meetingsEmptyBody,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey)),
-          const SizedBox(height: Gap.lg),
-          FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(mStr(context, 'mAddFirst')),
-          ),
-        ]),
-      ),
+    return ListView(
+      padding: const EdgeInsets.all(Gap.lg),
+      children: [
+        DsEmptyState(
+          icon: Icons.event_available_rounded,
+          title: t.meetingsEmptyTitle,
+          benefit: t.meetingsEmptyBody,
+          actionLabel: mStr(context, 'mAddFirst'),
+          onAction: onAdd,
+        ),
+      ],
     );
   }
 }
@@ -1134,10 +1118,10 @@ class _EmptyPast extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.history_rounded, size: 48, color: Colors.grey),
+          Icon(Icons.history_rounded, size: 48, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(height: Gap.md),
           Text(mStr(context, 'mPast'),
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ]),
       ),
     );
@@ -1151,21 +1135,15 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.error_outline_rounded, size: 48, color: Brand.danger),
-          const SizedBox(height: Gap.md),
-          Text(mStr(context, 'mLoadError'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: Gap.md),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.retry),
-          ),
-        ]),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsEmptyState(
+          icon: Icons.error_outline_rounded,
+          danger: true,
+          title: mStr(context, 'mLoadError'),
+          actionLabel: t.retry,
+          onAction: onRetry,
+        ),
       ),
     );
   }

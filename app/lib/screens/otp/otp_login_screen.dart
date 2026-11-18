@@ -64,6 +64,7 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
   final _phone = TextEditingController();
   String? _error;
   bool _busy = false;
+  String? _leaveTo; // signup-otp: 'register' | 'password' from the code step
 
   @override
   void dispose() {
@@ -94,10 +95,13 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
         phone: isEmail ? null : phone,
         email: isEmail ? raw : null,
         emailFirst: widget.emailMode,
-        title: widget.emailMode ? t.fbOtpEmailTitle : t.otpLoginTitle);
+        title: widget.emailMode ? t.fbOtpEmailTitle : t.otpLoginTitle,
+        onLeave: (why) => _leaveTo = why);
     if (!mounted) return;
     if (proof == null) {
       setState(() => _busy = false);
+      // signup-otp: back to the sign-in screen (in sign-up mode for 'register')
+      if (_leaveTo != null) nav.pop(_leaveTo);
       return;
     }
     ({String token, AppUser user})? res;
@@ -190,6 +194,21 @@ class _OtpLoginScreenState extends State<OtpLoginScreen> {
                           ? t.fbOtpEmailSend
                           : t.otpSendCode),
                     ),
+                  ),
+                  // signup-otp (owner-found 17 Nov): new people tapped this
+                  // screen to "sign up" and waited for a code that never
+                  // came. Sign-up needs no code — one tap to it.
+                  const SizedBox(height: Gap.lg),
+                  Text(t.signupOtpNewHere,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium),
+                  TextButton.icon(
+                    key: const Key('otp-login-create-account'),
+                    onPressed:
+                        _busy ? null : () => Navigator.of(context).pop('register'),
+                    icon: const Icon(Icons.person_add_alt_1_rounded),
+                    label: Text(t.signupOtpCreateAccount,
+                        textAlign: TextAlign.center),
                   ),
                 ],
               ),

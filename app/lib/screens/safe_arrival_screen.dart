@@ -2,6 +2,8 @@ import '../l10n/app_localizations.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:share_plus/share_plus.dart';
@@ -231,7 +233,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(AppLocalizations.of(context).aRoutineDays,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
                 Wrap(spacing: 6, children: List.generate(7, (i) {
                   final code = kRoutineDayCodes[i];
                   return FilterChip(
@@ -281,7 +283,7 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context).aTitle)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonList(count: 4),
       );
     }
     return Scaffold(
@@ -290,24 +292,19 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           if (_offline)
-            Container(
-              padding: const EdgeInsets.all(10),
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(Radii.sm),
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.md),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(DsRadius.small),
+                child: DsOfflineStrip(
+                    label: AppLocalizations.of(context).aOffline,
+                    retryLabel: AppLocalizations.of(context).aRetry,
+                    onRetry: _load),
               ),
-              child: Row(children: [
-                Icon(Icons.cloud_off_rounded, size: 18, color: Brand.warnInk(context)),
-                const SizedBox(width: Gap.sm),
-                Expanded(child: Text(AppLocalizations.of(context).aOffline,
-                    style: AType.bodySmall.copyWith(color: Brand.warnInk(context)))),
-                TextButton(onPressed: _load, child: Text(AppLocalizations.of(context).aRetry)),
-              ]),
             ),
           Text(AppLocalizations.of(context).aSubtitle,
               style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-          const SizedBox(height: 10),
+          const SizedBox(height: Gap.md),
           ArrivalTargetCard(
             place: _place,
             eta: _eta,
@@ -319,65 +316,66 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
           ),
           if (_eta != null) ...[
             const SizedBox(height: Gap.sm),
-            OutlinedButton.icon(
+            DsButton.secondary(
               onPressed: _shareLastLocation,
-              icon: const Icon(Icons.my_location_rounded, size: 18),
-              label: Text(AppLocalizations.of(context).aShareLastLocation),
+              icon: Icons.my_location_rounded,
+              expand: true,
+              label: AppLocalizations.of(context).aShareLastLocation,
             ),
           ],
           if (_nightMode) ...[
             const SizedBox(height: Gap.sm),
             Row(children: [
-              Icon(Icons.nightlight_round_rounded, size: 16, color: Colors.indigo.shade300),
+              Icon(Icons.nightlight_round_rounded, size: 16, color: Theme.of(context).colorScheme.ds.primaryInk),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aNightSafetyOn,
-                  style: AType.bodySmall.copyWith(color: Colors.indigo))),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.primaryInk))),
             ]),
           ],
           if (_hasDuress) ...[
             const SizedBox(height: 10),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Icon(Icons.lock_outline_rounded, size: 16, color: Colors.grey),
+              Icon(Icons.lock_outline_rounded, size: 16, color: Theme.of(context).colorScheme.ds.muted),
               const SizedBox(width: 6),
               Expanded(child: Text(AppLocalizations.of(context).aDuressHint,
                   style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted))),
             ]),
           ],
-          const Divider(height: 28),
-
           // ---- recurring routine ----
-          Row(children: [
-            Expanded(child: Text(AppLocalizations.of(context).aRoutineTitle,
-                style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))),
-            TextButton.icon(
-              onPressed: _addRoutine,
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: Text(AppLocalizations.of(context).aRoutineAdd),
-            ),
-          ]),
+          DsSectionHeader(AppLocalizations.of(context).aRoutineTitle,
+              action: AppLocalizations.of(context).aRoutineAdd, onAction: _addRoutine),
           Text(AppLocalizations.of(context).j100RoutineDesc,
               style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-          const SizedBox(height: 6),
+          const SizedBox(height: Gap.sm),
           if (_routines.isEmpty)
-            Text(AppLocalizations.of(context).aRoutineNone,
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted))
+            DsCard(
+              child: Text(AppLocalizations.of(context).aRoutineNone,
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+            )
           else
-            ..._routines.map(_routineTile),
-          const Divider(height: 28),
+            DsGroup(
+              margin: EdgeInsets.zero,
+              children: [..._routines.map(_routineTile)],
+            ),
 
           // ---- history ----
-          Text(AppLocalizations.of(context).aHistoryTitle,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: Gap.xs),
+          DsSectionHeader(AppLocalizations.of(context).aHistoryTitle),
           if (_history.isEmpty)
-            Text(AppLocalizations.of(context).aHistoryNone,
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted))
+            DsCard(
+              child: Text(AppLocalizations.of(context).aHistoryNone,
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+            )
           else
-            ..._history.map((h) => ArrivalHistoryTile(
-                  place: (h['place'] ?? '').toString(),
-                  eta: DateTime.tryParse((h['eta'] ?? '').toString()) ?? DateTime.now(),
-                  arrived: h['arrived'] == true,
-                )),
+            DsGroup(
+              margin: EdgeInsets.zero,
+              children: [
+                ..._history.map((h) => ArrivalHistoryTile(
+                      place: (h['place'] ?? '').toString(),
+                      eta: DateTime.tryParse((h['eta'] ?? '').toString()) ?? DateTime.now(),
+                      arrived: h['arrived'] == true,
+                    )),
+              ],
+            ),
         ]),
       ),
     );
@@ -392,9 +390,9 @@ class _SafeArrivalScreenState extends State<SafeArrivalScreen> {
     final enabled = r['enabled'] == true;
     return ListTile(
       dense: true,
-      contentPadding: EdgeInsets.zero,
       leading: Icon(Icons.repeat_rounded,
-          color: enabled ? Theme.of(context).colorScheme.primary : Colors.grey),
+          color: enabled ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.ds.muted),
+
       title: Text('${AppLocalizations.of(context).aRoutineHomeBy}: $time'),
       subtitle: Text(days),
       trailing: (r['id'] as num?) == null

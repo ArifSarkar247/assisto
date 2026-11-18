@@ -12,6 +12,11 @@ WHAT
   data    the Sylhet set's train/ folders ONLY (cctv_real_set.py, CC BY 4.0);
           its valid/ = calibration, test/ = held-out, and BanglaRoad (Dhaka /
           Sirajganj, CC BY 4.0) = an independent held-out set never used here.
+  negatives (cctvdet3 round 2) licensed COCO train2017 pictures with NO
+          vehicle at all (indoor, people, animals, streets without cars) —
+          the first model, trained on street photos only, called empty
+          spots, night lights and walking people "vehicles"; train2017 is
+          never used by the accuracy harness (val2017), so held-out stays clean.
   labels  the 11 local classes mapped to the COCO ids the box already reports
           (cctv_real_set.TO_COCO): the model drops in for shopbox/person.py
           (same 416 input, same 85-wide output, same decoding).
@@ -120,6 +125,48 @@ def augment(img, boxes, rnd):
     return canvas.transpose(2, 0, 1).astype(np.float32), lab
 
 
+COCO_VEHICLE_CATS = {2, 3, 4, 5, 6, 7, 8, 9}     # bicycle .. boat: never in a negative
+
+
+def coco_negatives(ann_path, cache, n, workers=16):
+    """n licensed COCO train2017 pictures without any vehicle -> [(path, [])]."""
+    import json
+    import urllib.request
+    from concurrent.futures import ThreadPoolExecutor
+    import cv2
+    sys.path.insert(0, HERE)
+    import cctv_accuracy as CA
+    os.makedirs(cache, exist_ok=True)
+    ann = json.load(open(ann_path))
+    has_veh = {a["image_id"] for a in ann["annotations"] if a["category_id"] in COCO_VEHICLE_CATS}
+    ims = [im for im in ann["images"] if im.get("license") in CA.OK_LICENCES and im["id"] not in has_veh]
+    del ann
+    random.Random(20261117).shuffle(ims)
+    ims = ims[: int(n * 1.2)]
+
+    def one(im):
+        p = os.path.join(cache, "neg_%d.jpg" % im["id"])
+        if os.path.exists(p):
+            return p
+        try:
+            with urllib.request.urlopen(im["coco_url"], timeout=30) as r:
+                data = r.read()
+            img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
+            if img is None:
+                return None
+            h, w = img.shape[:2]
+            s = 640.0 / max(h, w)
+            cv2.imwrite(p, cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA),
+                        [cv2.IMWRITE_JPEG_QUALITY, 92])
+            return p
+        except Exception:
+            return None
+
+    with ThreadPoolExecutor(workers) as ex:
+        got = [p for p in ex.map(one, ims) if p]
+    return [(p, []) for p in got[:n]]
+
+
 def batches(items, bs, rnd, max_obj=120):
     import cv2
     import torch
@@ -146,6 +193,8 @@ def main():
     ap.add_argument("--minutes", type=float, default=180.0)
     ap.add_argument("--bs", type=int, default=16)
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--neg-ann", default="", help="instances_train2017.json (vehicle-free negatives)")
+    ap.add_argument("--neg", type=int, default=1500)
     a = ap.parse_args()
     import torch
     torch.set_num_threads(max(1, os.cpu_count() or 4))
@@ -155,8 +204,12 @@ def main():
     items = RS.train_members(a.cache)
     items = [it for it in items if it[1]]
     print("train photos %d (%.0fs)" % (len(items), time.time() - t0), flush=True)
+    if a.neg_ann and a.neg > 0:
+        negs = coco_negatives(a.neg_ann, a.cache + "_neg", 64 if a.smoke else a.neg)
+        print("vehicle-free negatives %d (%.0fs)" % (len(negs), time.time() - t0), flush=True)
+        items += negs
     if a.smoke:
-        items = items[:64]
+        items = items[:48] + [it for it in items if not it[1]][:16]
     model = build_model()
     ck = torch.load(a.weights, map_location="cpu")
     model.load_state_dict(ck["model"] if "model" in ck else ck)

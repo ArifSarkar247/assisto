@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save); empty = all"
+        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess); empty = all"
         required: false
         default: ""
       impeller:
@@ -54,9 +54,12 @@ jobs:
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save"]
+          allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
-          sel = [g for g in allg if not want or g in want] or allg
+          # gap-money: opt-in single-feature groups (never part of "all")
+          optin = ["mess"]
+          sel = ([g for g in allg if not want or g in want]
+                 + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))
           gpus = [g.strip() for g in (os.environ.get("GPUS") or "").split(",") if g.strip()]
           print("gpus=" + json.dumps(gpus or ["swiftshader_indirect"]))
@@ -141,6 +144,7 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
       - name: Add integration_test + flutter_driver (CI-only dev deps)

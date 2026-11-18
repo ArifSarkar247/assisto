@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -195,10 +196,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.fitLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -211,11 +209,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
           icon: Icons.favorite_outline_rounded,
           title: tr.fitWelcomeTitle,
           message: tr.fitWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: _setGoal,
-            icon: const Icon(Icons.flag_rounded),
-            label: Text(tr.fitSetGoal),
-          ),
+          action: DsButton(onPressed: _setGoal, icon: Icons.flag_rounded, label: tr.fitSetGoal),
         ),
       );
     }
@@ -269,23 +263,17 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           child: Text(tr.fitNoWorkoutsYet,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
         Align(
           alignment: Alignment.centerLeft,
-          child: FilledButton.tonalIcon(
-            onPressed: _logWorkout,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(tr.fitLogWorkout),
-          ),
+          child: DsButton.secondary(onPressed: _logWorkout, icon: Icons.add_rounded, label: tr.fitLogWorkout),
         ),
       ];
     }
     return [
       for (final w in sorted.take(12))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             dense: true,
             leading:
                 Icon(_typeIcon(w['type'] as String?), color: scheme.primary),
@@ -309,8 +297,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
                 }
               },
             ),
-          ),
-        ),
+          ))),
     ];
   }
 
@@ -387,9 +374,7 @@ class _GoalHeadline extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final c = _statusColor(context, progress.status);
-    return Card(
-      color: c.withValues(alpha: 0.10),
-      child: Padding(
+    return DsSurface(color: c.withValues(alpha: 0.10), padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,10 +402,9 @@ class _GoalHeadline extends StatelessWidget {
               ),
               const SizedBox(height: Gap.xs),
               Text(ld(context, '${progress.percent}%'),
-                  style: TextStyle(fontWeight: FontWeight.w700, color: c)),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: c)),
             ]),
-      ),
-    );
+      ));
   }
 
   String _headlineValue(AppLocalizations tr) {
@@ -474,9 +458,7 @@ class _CoachTip extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
+    return DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.4), padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.tips_and_updates_rounded,
@@ -487,15 +469,14 @@ class _CoachTip extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(_tip(tr, status),
-                      style: const TextStyle(fontWeight: FontWeight.w500)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w500)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.fitTipFixedNote,
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
   String _tip(AppLocalizations tr, String status) {
@@ -609,14 +590,11 @@ class _GoalFormState extends State<_GoalForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(tr.cancel)),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: (targetOk && weightOk)
+                  child: DsButton(onPressed: (targetOk && weightOk)
                         ? () => Navigator.pop(context, <String, dynamic>{
                               'kind': _kind,
                               'target': _target.text.trim(),
@@ -624,9 +602,7 @@ class _GoalFormState extends State<_GoalForm> {
                                 'start_weight': _startWeight.text.trim(),
                               'start_date': _start.text.trim(),
                             })
-                        : null,
-                    child: Text(tr.save),
-                  ),
+                        : null, label: tr.save),
                 ),
               ]),
             ]),
@@ -730,14 +706,11 @@ class _WorkoutFormState extends State<_WorkoutForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(tr.cancel)),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: minutesOk
+                  child: DsButton(onPressed: minutesOk
                         ? () => Navigator.pop(context, <String, dynamic>{
                               'type': _type,
                               'minutes': _minutes.text.trim(),
@@ -748,9 +721,7 @@ class _WorkoutFormState extends State<_WorkoutForm> {
                                 'steps': _steps.text.trim(),
                               'date': _date.text.trim(),
                             })
-                        : null,
-                    child: Text(tr.save),
-                  ),
+                        : null, label: tr.save),
                 ),
               ]),
             ]),
@@ -809,9 +780,7 @@ Widget _statusChip(BuildContext context, String status) {
 Widget _statCard(BuildContext context, String label, String value, Color color,
     IconData icon) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    margin: EdgeInsets.zero,
-    child: Padding(
+  return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 16, color: color),
@@ -825,15 +794,12 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
             maxLines: 2,
             overflow: TextOverflow.ellipsis),
       ]),
-    ),
-  );
+    )));
 }
 
 Widget _nonMedicalNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
+  return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
         Icon(Icons.favorite_border_rounded, size: 18, color: scheme.ds.muted),
@@ -844,8 +810,7 @@ Widget _nonMedicalNote(BuildContext context, String text) {
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
-    ),
-  );
+    ));
 }
 
 String _fmtKg(double v) {

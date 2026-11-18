@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import 'probashi_source.dart';
 import 'probashi_widgets.dart';
+import '../../ds/ds.dart';
 
 /// probashi-plan: the shared pool this month — per member used / limit and
 /// every spend (who, what, when). AI credits, never money.
@@ -52,20 +53,21 @@ class _ProbashiPoolScreenState extends State<ProbashiPoolScreen> {
   Widget _body(AppLocalizations t) {
     final per = [for (final x in (_d['per_member'] as List? ?? const [])) (x as Map).cast<String, dynamic>()];
     final rows = [for (final x in (_d['rows'] as List? ?? const [])) (x as Map).cast<String, dynamic>()];
-    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+    return ListView(padding: const EdgeInsets.only(bottom: Gap.xl), children: [
       PbsCard(title: t.pbsPoolTitle, icon: Icons.savings_rounded, children: [
         Text(t.pbsPoolLeftShort(pbsNum(context, _d['left'] ?? 0)),
-            style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+        const SizedBox(height: Gap.sm),
         if (per.isEmpty) Text(t.pbsNoSeats),
         for (final p in per)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.symmetric(vertical: Gap.xs + Gap.xxs),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('${(p['member'] as Map?)?['name'] ?? ''}'),
               Text(t.pbsUsedOfCap(pbsNum(context, p['used'] ?? 0), pbsNum(context, p['cap'] ?? 0)),
                   style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 4),
+              const SizedBox(height: Gap.xs),
               LinearProgressIndicator(
                 value: ((p['cap'] as num?) ?? 0) <= 0
                     ? 0

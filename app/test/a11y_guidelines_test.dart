@@ -428,3 +428,16 @@ void main() {
     }
   });
 }
+
+// a11ysweep: shared with a11y_top_flows_test.dart (same harness, same
+// reviewed allow-list, same device-resolution contrast measure).
+const AccessibilityGuideline a11yDeviceResTextContrast = _DeviceResTextContrast();
+List<String> a11ySplit(String? reason) => _split(reason);
+Future<void> a11yPump(WidgetTester tester, String name, gallery.GallerySpec spec,
+        String lang, Brightness b, double scale) =>
+    _pump(tester, name, spec, lang, b, scale);
+Future<void> a11yDrain(WidgetTester tester, gallery.GallerySpec spec) => _drain(tester, spec);
+
+/// The reviewed [_allow] key that covers this finding, or null.
+String? a11yAllowedBy(String screen, String guideline, String detail) =>
+    _Finding(screen, '', guideline, detail).allowedBy();

@@ -14,7 +14,7 @@ import '../../widgets/local_digits.dart';
 import 'mkt_questionnaire.dart';
 import 'mkt_source.dart';
 import '../../plans_v2/buy_inside.dart';
-import '../../bizai/bizai_source.dart' show bizaiTrackedText; // bizai
+import '../../bizai/bizai_source.dart' show bizaiRemindPost, bizaiTrackedText; // bizai
 
 /// mktengine — ASSISTO MARKETING ENGINE v1 (owner P3-D; flag
 /// `marketing_engine`). A shop owner answers a short questionnaire; the
@@ -31,8 +31,15 @@ class MktEngineScreen extends StatefulWidget {
 
   /// bizai: item id -> tracked share text (tests inject; default = server).
   final Future<String?> Function(String itemId)? trackedText;
+
+  /// gap-bizai: item id -> remind me at the best hour (tests inject).
+  final Future<Map<String, dynamic>> Function(String itemId)? remindPost;
   const MktEngineScreen(
-      {super.key, this.source, this.initialSection = 'content', this.trackedText});
+      {super.key,
+      this.source,
+      this.initialSection = 'content',
+      this.trackedText,
+      this.remindPost});
 
   @override
   State<MktEngineScreen> createState() => _MktEngineScreenState();
@@ -189,6 +196,20 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
     try {
       await Share.share(text, subject: '${it['title'] ?? ''}');
     } catch (_) {} // best-effort: the text is already on the clipboard (snack shown)
+  }
+
+  /// gap-bizai — the honest scheduler: a reminder at the shop's best
+  /// posting hour with this post's tracked text inside (nothing is posted
+  /// for them until Meta allows it).
+  Future<void> _remind(Map<String, dynamic> it) async {
+    final t = AppLocalizations.of(context);
+    try {
+      final f = widget.remindPost ?? bizaiRemindPost(context.read<AppState>().api);
+      final r = await f('${it['id']}');
+      if (mounted) _snack('${r['detail'] ?? t.gbzRemindDone}');
+    } catch (e) {
+      if (mounted) _snack(mktError(e) ?? t.gbzRemindFailed);
+    }
   }
 
   Future<void> _polish(Map<String, dynamic> it) => _run('${it['id']}', () async {
@@ -463,6 +484,14 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
         ),
       IconButton(tooltip: t.mktCopy, onPressed: () => _copy(it), icon: const Icon(Icons.copy_rounded)),
       IconButton(tooltip: t.mktShare, onPressed: () => _share(it), icon: const Icon(Icons.share_rounded)),
+      // gap-bizai: post at the best time (a reminder, honestly — no auto-post)
+      if (kind != 'calendar' && kind != 'followup')
+        IconButton(
+          key: ValueKey('gbz-remind-${it['id']}'),
+          tooltip: t.gbzRemindPost,
+          onPressed: () => _remind(it),
+          icon: const Icon(Icons.alarm_add_rounded),
+        ),
       if (ai && kind != 'calendar' && kind != 'followup')
         IconButton(
           tooltip: t.mktPolish,

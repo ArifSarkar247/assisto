@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../state.dart';
 import '../business/business_plans_screen.dart';
 import 'retention_crm.dart';
@@ -159,36 +161,34 @@ class _RetentionScreenState extends State<RetentionScreen> {
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 4);
     if (_featureOff) {
       return RtMessage(icon: Icons.lock_clock_outlined, title: t.rtFeatureOffTitle, body: t.rtFeatureOffBody);
     }
     if (_error != null) {
-      return RtMessage(
-        icon: Icons.cloud_off_rounded,
-        title: t.rtLoadErrorTitle,
-        body: _error!.isNotEmpty ? _error! : t.rtLoadErrorBody,
-        action: FilledButton(
-            style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-            onPressed: _load,
-            child: Text(t.rtRetry)),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: t.rtLoadErrorTitle,
+          benefit: _error!.isNotEmpty ? _error! : t.rtLoadErrorBody,
+          actionLabel: t.rtRetry,
+          onAction: _load,
+        ),
+      ]);
     }
     if (_data['plan_ok'] != true) {
       return ListView(children: [
         if (_showGuide) RetentionGuideCard(onClose: _closeGuide),
-        SizedBox(
-          height: 420,
-          child: RtMessage(
+        Padding(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: DsEmptyState(
             icon: Icons.workspace_premium_outlined,
             title: t.rtPlanTitle,
-            body: t.rtPlanBody,
-            action: FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-              onPressed: () =>
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BusinessPlansScreen())),
-              child: Text(t.rtSeePlans),
-            ),
+            benefit: t.rtPlanBody,
+            actionLabel: t.rtSeePlans,
+            onAction: () =>
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BusinessPlansScreen())),
           ),
         ),
       ]);
@@ -231,46 +231,45 @@ class _RetentionScreenState extends State<RetentionScreen> {
           if (autos.isNotEmpty && autos.length < max)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.rtNew),
+              child: DsButton(
+                icon: Icons.add_rounded,
+                label: t.rtNew,
+                expand: true,
                 onPressed: () => _openWizard(),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Wrap(spacing: 8, runSpacing: 8, children: [
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.cake_outlined),
-                label: Text(t.rtManageBirthdays),
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RetentionBirthdaysScreen(source: _src))),
-              ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.inventory_2_outlined),
-                label: Text(t.rtManageAsks),
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RetentionStockAsksScreen(source: _src))),
-              ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.leaderboard_outlined),
-                label: Text(t.crmAutoScoresTitle),
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RetentionScoresScreen(source: _src))),
-              ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.history_rounded),
-                label: Text(t.crmAutoAuditTitle),
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => RetentionAuditScreen(source: _src))),
-              ),
-            ]),
-          ),
+          const SizedBox(height: Gap.sm),
+          // design3: the four tools as rows of ONE DS group (no odd button wrap)
+          DsGroup(children: [
+            DsListRow(
+              leading: const Icon(Icons.cake_outlined),
+              title: t.rtManageBirthdays,
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => RetentionBirthdaysScreen(source: _src))),
+            ),
+            DsListRow(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: t.rtManageAsks,
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => RetentionStockAsksScreen(source: _src))),
+            ),
+            DsListRow(
+              leading: const Icon(Icons.leaderboard_outlined),
+              title: t.crmAutoScoresTitle,
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => RetentionScoresScreen(source: _src))),
+            ),
+            DsListRow(
+              leading: const Icon(Icons.history_rounded),
+              title: t.crmAutoAuditTitle,
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => RetentionAuditScreen(source: _src))),
+            ),
+          ]),
         ],
       ),
     );
@@ -285,19 +284,14 @@ class _Welcome extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(t.rtWelcomeTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 6),
-        Text(t.rtWelcomeBody),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(t.rtCreateFirst),
-          onPressed: onStart,
-        ),
-      ]),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      child: DsEmptyState(
+        icon: Icons.autorenew_rounded,
+        title: t.rtWelcomeTitle,
+        benefit: t.rtWelcomeBody,
+        actionLabel: t.rtCreateFirst,
+        onAction: onStart,
+      ),
     );
   }
 }
@@ -323,13 +317,11 @@ class _AutomationCard extends StatelessWidget {
     final ch = (auto['channel'] ?? 'in_app').toString();
     final sum = rtMap(auto['summary']);
     final on = auto['enabled'] == true;
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      child: DsCard(
         onTap: onResults,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Padding(padding: const EdgeInsets.only(top: 4), child: Icon(rtKindIcon(kind))),
@@ -383,7 +375,6 @@ class _AutomationCard extends StatelessWidget {
                   icon: Icons.block_rounded),
             ]),
           ]),
-        ),
       ),
     );
   }
@@ -456,10 +447,10 @@ class _RetentionLimitsSheetState extends State<RetentionLimitsSheet> {
             Expanded(child: Text(text)),
           ]),
         );
-    return Card(
-      margin: EdgeInsets.zero,
+    return DsCard(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.zero,
+
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.bzSafeTitle, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 4),

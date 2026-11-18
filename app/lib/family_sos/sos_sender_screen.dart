@@ -17,11 +17,13 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/permission_reason.dart';
 import '../widgets/sos_ladder_card.dart';
+import '../widgets/sos_a11y.dart';
 import 'sos_api.dart';
 import 'sos_recorder.dart';
 import 'sos_retry.dart'; // gap-sos
 import 'sos_sms.dart';
 import 'sos_widgets.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// fcsos — Family Care v3 SCREEN 2: the SOS SENDER.
 ///
@@ -101,9 +103,12 @@ class SosSenderScreen extends StatefulWidget {
 
 enum SosPhase { countdown, sending, sent, offline }
 
-class _SosSenderScreenState extends State<SosSenderScreen> {
+class _SosSenderScreenState extends State<SosSenderScreen>
+    with AdBlockedState<SosSenderScreen> {
   SosPhase _phase = SosPhase.countdown;
-  late int _left = widget.countdownSeconds;
+  // a11ysweep: TalkBack users get at least 10 s to reach Cancel
+  late final bool _sr = sosScreenReaderOn();
+  late int _left = sosCountdownSeconds(widget.countdownSeconds, screenReader: _sr);
   Timer? _tick, _poll, _live, _recTick;
   final String _clientId = newSosClientId();
   (double, double)? _pos;
@@ -151,6 +156,12 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) => _send());
     } else {
       HapticFeedback.heavyImpact();
+      if (_sr) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || _phase != SosPhase.countdown) return;
+          sosAnnounce(context, AppLocalizations.of(context).a11ySosTalkBackIntro(_d('$_left')));
+        });
+      }
       _tick = Timer.periodic(const Duration(seconds: 1), (_) {
         if (!mounted) return;
         setState(() => _left--);
@@ -485,53 +496,59 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                             height: 72,
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 6)))
                   else
-                    Text(_d('$_left'),
-                        key: const ValueKey('fcs-countdown-number'),
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            color: Colors.white, fontSize: 96, fontWeight: FontWeight.w900, letterSpacing: -2)),
+                    SosCountdownSemantics(
+                      label: t.a11ySosSecondsLeft(_d('$_left')),
+                      child: Text(_d('$_left'),
+                          key: const ValueKey('fcs-countdown-number'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              color: Colors.white, fontSize: 96, fontWeight: FontWeight.w900, letterSpacing: -2)),
+                    ),
                   const SizedBox(height: Gap.sm),
                   Text(t.fcsCountdownBody,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.white, fontSize: 16, height: 1.35)),
                   const SizedBox(height: Gap.xl),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 64),
-                    child: FilledButton.icon(
-                      key: const ValueKey('fcs-send-now'),
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: kSosRed,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(DsRadius.button))),
-                      onPressed: sending ? null : _send,
-                      icon: const Icon(Icons.send_rounded),
-                      // style on the Text (merges with the theme font);
-                      // ButtonStyle.textStyle would drop the app font
-                      label: Text(t.fcsSendNow,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 20, fontWeight: FontWeight.w800, color: kSosRed)),
+                  // a11ysweep: with TalkBack, Cancel comes FIRST (reading
+                  // order and on screen) so a mis-tap is undone in one swipe
+                  ..._sosButtons(_sr, [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 64),
+                      child: FilledButton.icon(
+                        key: const ValueKey('fcs-send-now'),
+                        style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: kSosRed,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(DsRadius.button))),
+                        onPressed: sending ? null : _send,
+                        icon: const Icon(Icons.send_rounded),
+                        // style on the Text (merges with the theme font);
+                        // ButtonStyle.textStyle would drop the app font
+                        label: Text(t.fcsSendNow,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontSize: 20, fontWeight: FontWeight.w800, color: kSosRed)),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: Gap.md),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 64),
-                    child: OutlinedButton.icon(
-                      key: const ValueKey('fcs-cancel'),
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white, width: 2),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(DsRadius.button))),
-                      onPressed: sending ? null : _cancelCountdown,
-                      icon: const Icon(Icons.close_rounded),
-                      label: Text(t.fcsCancelMistake,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 64),
+                      child: OutlinedButton.icon(
+                        key: const ValueKey('fcs-cancel'),
+                        style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white, width: 2),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(DsRadius.button))),
+                        onPressed: sending ? null : _cancelCountdown,
+                        icon: const Icon(Icons.close_rounded),
+                        label: Text(t.fcsCancelMistake,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
+                      ),
                     ),
-                  ),
+                  ]),
                 ],
               ),
             ),
@@ -539,6 +556,13 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
         ),
       ),
     );
+  }
+
+  /// [send, cancel] in the order the user should meet them.
+  static List<Widget> _sosButtons(bool screenReader, List<Widget> sendCancel) {
+    final first = screenReader ? sendCancel[1] : sendCancel[0];
+    final second = screenReader ? sendCancel[0] : sendCancel[1];
+    return [first, const SizedBox(height: Gap.md), second];
   }
 
   Widget _sent(BuildContext context) {

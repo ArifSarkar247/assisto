@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -175,16 +176,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.tnTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.tnLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.tnLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
     final list = _filtered;
@@ -211,7 +203,6 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search_rounded),
                       hintText: tr.tnSearchHint,
-                      border: const OutlineInputBorder(),
                       isDense: true,
                     ),
                     onChanged: (v) => setState(() => _query = v),
@@ -220,11 +211,7 @@ class _TranscriptionScreenState extends State<TranscriptionScreen> {
                   if (list.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: Gap.xl),
-                      child: StateMessage(
-                        icon: Icons.search_off_rounded,
-                        title: tr.tnNoResultsTitle,
-                        message: tr.tnNoResultsBody,
-                      ),
+                      child: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.search_off_rounded, title: tr.tnNoResultsTitle, benefit: tr.tnNoResultsBody)]),
                     )
                   else
                     ...list.map((n) => _NoteCard(
@@ -251,29 +238,16 @@ class _Welcome extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        const SizedBox(height: Gap.xl),
-        Icon(Icons.graphic_eq_rounded, size: 56, color: scheme.primary),
-        const SizedBox(height: Gap.md),
-        Text(tr.tnWelcomeTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.w700)),
-        const SizedBox(height: Gap.sm),
-        Text(tr.tnWelcomeBody,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        DsEmptyState(
+          icon: Icons.graphic_eq_rounded,
+          title: tr.tnWelcomeTitle,
+          benefit: tr.tnWelcomeBody,
+          actionLabel: tr.tnAddNote,
+          onAction: onAdd,
+        ),
         const SizedBox(height: Gap.lg),
         const _SttSeamCard(),
-        const SizedBox(height: Gap.xl),
-        Center(
-          child: FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(tr.tnAddNote),
-          ),
-        ),
+
       ],
     );
   }
@@ -294,11 +268,7 @@ class _StatsHeader extends StatelessWidget {
       totalDur += _clampDuration(n['duration']);
       if ('${n['transcript'] ?? ''}'.trim().isNotEmpty) transcribed++;
     }
-    return Card(
-      color: scheme.primaryContainer.withValues(alpha: 0.35),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Expanded(
               child: _Stat(
                   label: tr.tnStatCount, value: '${notes.length}')),
@@ -310,9 +280,7 @@ class _StatsHeader extends StatelessWidget {
               child: _Stat(
                   label: tr.tnStatTranscribed,
                   value: '$transcribed/${notes.length}')),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -342,11 +310,7 @@ class _SttSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -354,15 +318,13 @@ class _SttSeamCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.tnSttSeamTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.tnSttSeamBody,
                       style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
                 ]),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -382,9 +344,7 @@ class _NoteCard extends StatelessWidget {
     final source = '${note['source'] ?? ''}';
     final dur = _clampDuration(note['duration']);
     final date = '${note['date'] ?? ''}';
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
@@ -419,7 +379,7 @@ class _NoteCard extends StatelessWidget {
               Text(transcript,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ],
           ],
         ),
@@ -429,8 +389,7 @@ class _NoteCard extends StatelessWidget {
           onPressed: onDelete,
         ),
         isThreeLine: hasTranscript,
-      ),
-    );
+      )));
   }
 }
 
@@ -551,7 +510,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
             controller: _title,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
-                labelText: tr.tnFieldTitle, border: const OutlineInputBorder()),
+                labelText: tr.tnFieldTitle),
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
@@ -560,8 +519,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
                 controller: _minutes,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: tr.tnFieldMinutes,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.tnFieldMinutes),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -570,8 +528,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
                 controller: _seconds,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: tr.tnFieldSeconds,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.tnFieldSeconds),
               ),
             ),
           ]),
@@ -580,8 +537,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
             controller: _date,
             decoration: InputDecoration(
                 labelText: tr.tnFieldDate,
-                hintText: 'YYYY-MM-DD',
-                border: const OutlineInputBorder()),
+                hintText: 'YYYY-MM-DD'),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -589,8 +545,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
             decoration: InputDecoration(
                 labelText: tr.tnFieldAudioRef,
                 helperText: tr.tnAudioRefHelp,
-                helperMaxLines: 3,
-                border: const OutlineInputBorder()),
+                helperMaxLines: 3),
           ),
           const SizedBox(height: Gap.sm),
           CheckboxListTile(
@@ -611,8 +566,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
                 labelText: tr.tnFieldTranscript,
                 helperText: tr.tnTranscriptHelp,
                 helperMaxLines: 3,
-                alignLabelWithHint: true,
-                border: const OutlineInputBorder()),
+                alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -621,8 +575,7 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
                 labelText: tr.tnFieldNotes,
-                alignLabelWithHint: true,
-                border: const OutlineInputBorder()),
+                alignLabelWithHint: true),
           ),
           if (kShowKeySeams) ...[ // truth: no key dead end
             const SizedBox(height: Gap.sm),

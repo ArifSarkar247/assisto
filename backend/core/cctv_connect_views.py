@@ -551,6 +551,9 @@ def import_items(link, user, items, lang="bn"):
     allowed_serials = set(link.serials or [])
     free = max(0, SV._included_cameras(user) - SV.owner_enabled_cameras(user).count())
     added, skipped = [], []
+    # cctvprice (owner 17 Nov 12:35): EZVIZ is not in the free trial
+    from . import cctv_plan_service as CPS
+    no_trial = CPS.trial_refuses_vendor(user, CC.CAMERA_VENDOR.get(link.provider, ""))
     for it in items[:CC.base.MAX_CHANNELS]:
         if not isinstance(it, dict):
             continue
@@ -565,6 +568,9 @@ def import_items(link, user, items, lang="bn"):
         ref = vendor_ref(link.provider, serial, ch)
         if ShopCamera.objects.filter(vendor_ref=ref).exists():
             skipped.append({"serial": serial, "channel": ch, "why": "already_added"})
+            continue
+        if no_trial:
+            skipped.append({"serial": serial, "channel": ch, "why": "trial_no_ezviz"})
             continue
         if free <= 0:
             skipped.append({"serial": serial, "channel": ch, "why": "plan_full"})
@@ -585,7 +591,9 @@ def import_items(link, user, items, lang="bn"):
         free -= 1
         added.append(SV._camera_row(cam))
     msg = ""
-    if any(x["why"] == "plan_full" for x in skipped):
+    if any(x["why"] == "trial_no_ezviz" for x in skipped):
+        msg = pick(lang, CPS.TRIAL_NO_EZVIZ_BN, CPS.TRIAL_NO_EZVIZ_EN)
+    elif any(x["why"] == "plan_full" for x in skipped):
         msg = pick(lang, "প্ল্যানের সব ক্যামেরা ব্যবহার হয়েছে — বাকিগুলো যোগ করতে প্ল্যানে ক্যামেরার সংখ্যা বাড়ান।",
                    "All cameras in your plan are used — raise the camera count in your plan to add the rest.")
     return added, skipped, msg

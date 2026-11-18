@@ -296,6 +296,12 @@ class ApiTests(TestCase):
         self.assertTrue(LpAttempt.objects.filter(user=self.u, kind="mark", band=8.5).exists())
 
     def test_finish_and_certificate(self, _f):
+        # gap-lp: the bands come from the server's own marks / scores
+        for kind, sec, band, extra in (("mark", "listening", 7, {}), ("mark", "reading", 6.5, {}),
+                                       ("writing", "writing", 6, {"task": 2}),
+                                       ("speaking", "speaking", 6.5, {"part": 1})):
+            LpAttempt.objects.create(user=self.u, kind=kind, item_key="ielts-ac-t01", section=sec,
+                                     band=band, data=extra)
         r = self.c.post(V + "/lp/mocks/ielts-ac-t01/finish", {
             "bands": {"listening": 7, "reading": 6.5, "writing": 6, "speaking": 6.5},
             "weak": ["tfng"]}, format="json").json()
@@ -496,7 +502,9 @@ class CompanionTests(TestCase):
         self.assertEqual(r["mistake_counts"], {"tfng": 1, "spelling": 1, "plural": 1})
         self.assertIn("not kept", r["no_content_line"]["en"])
         sheets = self.c.get(V + "/lp/companion/sheets").json()["sheets"]
-        self.assertEqual(sheets[0]["key"], key)
+        self.assertNotIn("key", sheets[0])          # gap-lp: the typed key is never kept
+        self.assertNotIn("key", LpAttempt.objects.get(kind="companion").data)
+        self.assertEqual(sheets[0]["right"], [3, 4])
 
     def test_never_stores_book_content(self, _f):
         long_cell = "The passage says the industrial revolution started in Britain because"

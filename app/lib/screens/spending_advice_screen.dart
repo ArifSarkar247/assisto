@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 // qa1: the insight engine builds Latin-digit strings; show them in the UI's digits.
@@ -169,17 +170,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.truthSpendTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.spendLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.spendLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
 
@@ -220,16 +211,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
               children: [
               if (sourceSwitch != null) sourceSwitch,
-              StateMessage(
-              icon: Icons.insights_rounded,
-              title: tr.spendWelcomeTitle,
-              message: tr.spendWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: _add,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.spendAddCategory),
-              ),
-            ),
+              ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.insights_rounded, title: tr.spendWelcomeTitle, benefit: tr.spendWelcomeBody, actionLabel: tr.spendAddCategory, onAction: _add)]),
               ])
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
@@ -269,11 +251,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                   _aiSeamCard(context, tr),
                 ] else ...[
                   // entered rows exist but no positive spend yet
-                  StateMessage(
-                    icon: Icons.insights_rounded,
-                    title: tr.spendNotEnoughTitle,
-                    message: tr.spendNotEnoughBody,
-                  ),
+                  ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.insights_rounded, title: tr.spendNotEnoughTitle, benefit: tr.spendNotEnoughBody)]),
                   const SizedBox(height: Gap.md),
                   Text(tr.spendByCategory,
                       style: Theme.of(context)
@@ -290,11 +268,7 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
 
   Widget _disclaimerCard(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.successBg,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(tone: DsTone.success, padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.verified_user_rounded,
               size: 20, color: scheme.ds.successInk),
           const SizedBox(width: Gap.sm),
@@ -302,22 +276,17 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             child: Text(tr.spendDisclaimer,
                 style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.successInk)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _totalsCard(
       BuildContext context, AppLocalizations tr, _SResult r) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.spendTotalSpent,
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.xxs),
             Text(notifLocalizeDigits(context, r.totalSpentDisplay),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -338,52 +307,42 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                   child: Text(
                     notifLocalizeDigits(context, tr.spendVsPrevious(
                         r.totalDeltaDisplay!, r.totalDeltaPct.abs())),
-                    style: TextStyle(color: scheme.ds.muted),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                   ),
                 ),
               ]),
             ],
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _obsCard(
       BuildContext context, AppLocalizations tr, _SObservation o) {
     final scheme = Theme.of(context).colorScheme;
     final over = o.key == 'over_budget';
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(over ? Icons.warning_amber_rounded : Icons.lightbulb_outline_rounded,
               size: 20, color: over ? scheme.error : scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(notifLocalizeDigits(context, _obsText(tr, o)),
-                style: const TextStyle(height: 1.4)),
+                style: AType.bodyMedium.copyWith(height: 1.4)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _categoryCard(BuildContext context, AppLocalizations tr, _SCategory c,
       Future<void> Function(Map<String, dynamic>)? onEdit,
       Future<void> Function(Map<String, dynamic>)? onDelete) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.sm, Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.sm, Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(c.category,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
             Text(notifLocalizeDigits(context, c.spentDisplay),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: FontWeight.w700, color: scheme.primary)),
             if (onEdit != null && onDelete != null)
             PopupMenuButton<String>(
@@ -423,19 +382,16 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
                   tr.spendChangeChip(c.deltaDisplay!, c.deltaPct.abs()),
                   c.up == true ? scheme.error : scheme.primary),
           ]),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _rawRowCard(BuildContext context, AppLocalizations tr,
       Map<String, dynamic> r,
       Future<void> Function(Map<String, dynamic>) onEdit,
       Future<void> Function(Map<String, dynamic>) onDelete) {
-    return Card(
-      child: ListTile(
+    return DsCard(padding: EdgeInsets.zero, child: ListTile(
         title: Text((r['category'] ?? '').toString(),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle:
             Text(notifLocalizeDigits(context, _SMath.fmtBdt(_SMath.toMinor(r['amount'])))),
         trailing: PopupMenuButton<String>(
@@ -448,32 +404,25 @@ class _SpendingAdviceScreenState extends State<SpendingAdviceScreen> {
             PopupMenuItem(value: 'delete', child: Text(tr.delete)),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _aiSeamCard(BuildContext context, AppLocalizations tr) {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.auto_awesome_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.spendAiSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: 6),
           Text(tr.spendAiSeamBody,
               style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _chip(BuildContext context, String label, Color color) {
@@ -558,8 +507,7 @@ Future<Map<String, dynamic>?> _entrySheet(
             controller: catCtl,
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-                labelText: tr.spendFieldCategory,
-                border: const OutlineInputBorder()),
+                labelText: tr.spendFieldCategory),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -568,8 +516,7 @@ Future<Map<String, dynamic>?> _entrySheet(
                 const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
                 labelText: tr.spendFieldAmount,
-                prefixText: '৳ ',
-                border: const OutlineInputBorder()),
+                prefixText: '৳ '),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -579,8 +526,7 @@ Future<Map<String, dynamic>?> _entrySheet(
             decoration: InputDecoration(
                 labelText: tr.spendFieldBudget,
                 helperText: tr.spendFieldBudgetHelp,
-                prefixText: '৳ ',
-                border: const OutlineInputBorder()),
+                prefixText: '৳ '),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -590,8 +536,7 @@ Future<Map<String, dynamic>?> _entrySheet(
             decoration: InputDecoration(
                 labelText: tr.spendFieldPrevious,
                 helperText: tr.spendFieldPreviousHelp,
-                prefixText: '৳ ',
-                border: const OutlineInputBorder()),
+                prefixText: '৳ '),
           ),
           const SizedBox(height: Gap.sm),
           Text(tr.spendEntryNote,

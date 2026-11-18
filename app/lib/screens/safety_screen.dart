@@ -16,6 +16,7 @@ import '../widgets/subs_common.dart' show fmtInt;
 import '../ds/ds.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)
@@ -28,7 +29,8 @@ class SafetyScreen extends StatefulWidget {
   State<SafetyScreen> createState() => _SafetyScreenState();
 }
 
-class _SafetyScreenState extends State<SafetyScreen> {
+class _SafetyScreenState extends State<SafetyScreen>
+    with AdBlockedState<SafetyScreen> {
   // SOS
   int _sosCountdown = 5;
   // check-in (local, surfaced to family via foreground poll)
@@ -194,7 +196,7 @@ class _SafetyScreenState extends State<SafetyScreen> {
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         // ---- discreet SOS (full flow: nearest help + helplines + duress) ----
         SosButton(
-          label: t.emergencySosButton,
+          label: t.sosgapSosButtonLine,
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => JourneySosScreen(countdownSeconds: _sosCountdown))),
         ),

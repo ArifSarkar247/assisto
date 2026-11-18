@@ -35,4 +35,17 @@ final Map<String, Widget Function(String)> cctvpriceShots = {
           }),
       previewOffers: kCctvOffers),
   'cpl_apk': (_) => CctvPlanScreen(api: FakeCctvApi(), preview: cctvPlanPayload()),
+  // cctvprice (owner 17 Nov 12:35): an EZVIZ owner (no trial, honest line)
+  'cpl_trial_ezviz': (_) => CctvPlanScreen(
+      api: FakeCctvApi(),
+      preview: cctvPlanPayload(trial: false, trialBlock: 'ezviz', cameras: const [
+        {'id': 21, 'name': 'Gate', 'vendor': 'ezviz'},
+      ]),
+      previewOffers: kCctvOffers),
+  // ... and Premium AI 400 tk / camera once it is on sale
+  'cpl_premium_ai': (_) => CctvPlanScreen(
+      api: FakeCctvApi(),
+      preview: cctvPlanPayload(
+          trial: false, used: 3, premiumOnSale: true, status: cctvActiveStatus(cams: 3)),
+      previewOffers: kCctvOffers),
 };

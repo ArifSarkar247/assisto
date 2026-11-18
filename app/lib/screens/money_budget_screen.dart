@@ -529,7 +529,7 @@ class _PlanTabState extends State<_PlanTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(moneyCatLabel(t, s['category']),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                       Text('${t.budgetPlanAvg}: ${tkOf(context, s['avg_spent'])}'),
                       Wrap(
                         alignment: WrapAlignment.spaceBetween,
@@ -618,7 +618,7 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                     const SizedBox(width: Gap.sm),
                     Expanded( // remhbud: wraps at 200% instead of overflowing
                       child: Text(rollover ? t.budgetRolloverOn : t.budgetRolloverOff,
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                          style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
                     ),
                   ]),
                   const SizedBox(height: Gap.md),
@@ -629,10 +629,9 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                         leading: Icon(Icons.savings_rounded,
                             color: DsTokens.of(context).primaryInk),
                         title: Text(t.budgetCarryForward,
-                            style: TextStyle(
-                                color: DsTokens.of(context).primaryInk)),
+                            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk)),
                         trailing: Text(tkOf(context, carry),
-                            style: TextStyle(fontFeatures: AFonts.tabular,
+                            style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular,
                                 fontWeight: FontWeight.bold,
                                 color: DsTokens.of(context).primaryInk)),
                       ),

@@ -8,6 +8,7 @@ import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
@@ -464,18 +465,10 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         const SizedBox(height: Gap.lg),
         Row(children: [
           Expanded(
-            child: FilledButton.icon(
-              onPressed: _analyzeNow,
-              icon: const Icon(Icons.search_rounded, size: 18),
-              label: Text(t.caAnalyze),
-            ),
+            child: DsButton(onPressed: _analyzeNow, icon: Icons.search_rounded, label: t.caAnalyze),
           ),
           const SizedBox(width: Gap.sm),
-          OutlinedButton.icon(
-            onPressed: _saveAnalysis,
-            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
-            label: Text(t.save),
-          ),
+          DsButton.secondary(onPressed: _saveAnalysis, icon: Icons.bookmark_outline_rounded, label: t.save),
         ]),
         if (_result != null) ...[
           const SizedBox(height: Gap.xl),
@@ -522,7 +515,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.caNoFlags,
-                    style: const TextStyle(height: 1.4))),
+                    style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
         )
       else
@@ -556,7 +549,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(_checkLabel(t, k),
-                      style: const TextStyle(height: 1.4))),
+                      style: AType.bodyMedium.copyWith(height: 1.4))),
             ]),
           )),
 
@@ -593,7 +586,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         tint: Brand.danger,
         title: t.caLoadError,
         message: serverFailText(t, _failCause),
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton(onPressed: _load, label: t.retry),
       );
     }
     if (_saved.isEmpty) {
@@ -601,11 +594,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         icon: Icons.description_rounded,
         title: t.caEmptyTitle,
         message: t.caEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.search_rounded, size: 18),
-          label: Text(t.caTabAnalyze),
-        ),
+        action: DsButton(onPressed: () => _tabs.animateTo(0), icon: Icons.search_rounded, label: t.caTabAnalyze),
       );
     }
     return RefreshIndicator(
@@ -617,9 +606,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
         itemBuilder: (_, i) {
           final row = _saved[i];
           final preview = (row['text'] ?? '').toString();
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            child: ListTile(
+          return DsCard(padding: EdgeInsets.zero, child: ListTile(
               title: Text((row['title'] ?? t.caUntitled).toString(),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
@@ -632,8 +619,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(row),
               ),
-            ),
-          );
+            ));
         },
       ),
     );
@@ -693,7 +679,7 @@ class _DeeperAiCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.caDeeperTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.caDeeperBody,
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -749,7 +735,7 @@ class _FlagCard extends StatelessWidget {
         Row(children: [
           Expanded(
             child: Text(title,
-                style: const TextStyle(fontWeight: FontWeight.w800, height: 1.3)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800, height: 1.3)),
           ),
           Container(
             padding:

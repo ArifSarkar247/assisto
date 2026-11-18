@@ -1,0 +1,17 @@
+{
+  "_comment": "gap-money (feature gap lane, Mess and Money): service bills are pro-rated by days in the mess. NEW key replacing the use of mv2ChargeNote. Integrator: bin/arb_apply.py .phaseB/up_gap-money_arb.json",
+  "en": {
+    "mv2ChargeNoteDays": "Service charges are not in the meal rate. They are split among members — equally, or by seat or room share — and someone who joins or leaves mid-month pays only for the days they were in the mess.",
+    "@mv2ChargeNoteDays": {
+      "description": "Mess V2: how service charges (Wi-Fi, khala, rent) are split; pro-rated by days present."
+    },
+    "mv2SyncedLateNote": "Saved offline before the cut-off, synced later",
+    "@mv2SyncedLateNote": {
+      "description": "Mess V2 edit history: this meal change was saved on the phone without internet before the meal cut-off and reached the server afterwards."
+    }
+  },
+  "bn": {
+    "mv2ChargeNoteDays": "সার্ভিস চার্জ মিল রেটে ধরা হয় না। সদস্যদের মধ্যে ভাগ হয় — সমান ভাগে, অথবা সিট বা রুমের ভাগ অনুযায়ী; মাসের মাঝে কেউ এলে বা চলে গেলে তিনি শুধু মেসে থাকা দিনগুলোর ভাগ দেন।",
+    "mv2SyncedLateNote": "কাট-অফের আগে অফলাইনে সেভ, পরে সিঙ্ক হয়েছে"
+  }
+}

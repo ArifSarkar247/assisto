@@ -22,7 +22,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.50.0'  # pinned 17 Nov: the release toolchain b324/b325 went fully green on (was unpinned stable)
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           channel: stable
           cache: true
 

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/exam_board_picker.dart';
 import '../widgets/exam_gpa_explainer.dart';
@@ -116,7 +117,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
         content: Text('${w['label'] ?? ''}'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(t.lifebarExamStop)),
+          DsButton.danger(onPressed: () => Navigator.pop(c, true), label: t.lifebarExamStop),
         ],
       ),
     );
@@ -305,12 +306,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
             _banner(Icons.info_outline_rounded, Brand.warning, t.examUrlNotOfficial),
           ],
           const SizedBox(height: Gap.sm),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.calendar_today_rounded, size: 16),
-            label: Text(_expected == null
-                ? t.examPickDate
-                : t.examExpectedOn(df.format(_expected!))),
-            onPressed: () async {
+          DsButton.secondary(onPressed: () async {
               final d = await showDatePicker(
                 context: context,
                 initialDate: _expected ?? DateTime.now(),
@@ -318,8 +314,9 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
                 lastDate: DateTime.now().add(const Duration(days: 365)),
               );
               if (d != null) setState(() => _expected = d);
-            },
-          ),
+            }, icon: Icons.calendar_today_rounded, label: _expected == null
+                ? t.examPickDate
+                : t.examExpectedOn(df.format(_expected!))),
           if (_expected != null && phase.state == 'waiting') ...[
             const SizedBox(height: Gap.sm),
             Align(
@@ -330,15 +327,11 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              icon: _saving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.notifications_active_rounded),
-              label: Text(_saving ? t.examSaving : t.examWatch),
-              onPressed: _saving ? null : _saveWatcher,
+            child: DsButton(
+              icon: Icons.notifications_active_rounded,
+              busy: _saving,
+              label: _saving ? t.examSaving : t.examWatch,
+              onPressed: _saveWatcher,
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -448,9 +441,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
         ? t.lifebarExamReady
         : (checking ? t.lifebarExamChecking : t.lifebarExamReminderOnly);
     final label = '${w['label'] ?? ''}'.trim();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -483,8 +474,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
               ),
             ),
         ]),
-      ),
-    );
+      )));
   }
 
   Widget _phaseBanner(AppLocalizations t, ({String state, int days}) phase) {

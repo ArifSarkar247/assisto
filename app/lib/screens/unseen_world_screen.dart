@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/permission_reason.dart';
@@ -360,14 +361,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         .toList();
 
     if (results.isEmpty) {
-      return StateMessage(
-        icon: _showWishlist ? Icons.bookmark_border_rounded : Icons.search_off_rounded,
-        title: _showWishlist ? t.unseenNoWishlist : t.nothingFound,
-        message: _showWishlist ? t.unseenNoWishlistHint : t.lifebarUwNoMatchHint,
-        // lifebar: never a dead end
-        action: FilledButton.tonalIcon(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: () {
+      return ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: _showWishlist ? Icons.bookmark_border_rounded : Icons.search_off_rounded, title: _showWishlist ? t.unseenNoWishlist : t.nothingFound, benefit: _showWishlist ? t.unseenNoWishlistHint : t.lifebarUwNoMatchHint, actionLabel: _showWishlist ? t.lifebarUwBrowseAll : t.lifebarClearFilters, onAction: () {
             _searchCtrl.clear();
             setState(() {
               _query = '';
@@ -375,11 +369,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
               _division = null;
               _showWishlist = false;
             });
-          },
-          icon: Icon(_showWishlist ? Icons.explore_rounded : Icons.filter_alt_off_rounded),
-          label: Text(_showWishlist ? t.lifebarUwBrowseAll : t.lifebarClearFilters),
-        ),
-      );
+          })]);
     }
 
     final showExtras = !_showWishlist && _query.isEmpty && _cat == null;
@@ -436,9 +426,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
     final stops = trip.stops();
     final bnUi = Localizations.localeOf(context).languageCode == 'bn'; // lifebar
     final (lo, hi) = trip.approxCost();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ExpansionTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ExpansionTile(
         leading: CircleAvatar(
           backgroundColor: meta.tint.withValues(alpha: 0.16),
           child: Icon(meta.icon, color: meta.tint, size: 20),
@@ -469,7 +457,6 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
                 style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
           ),
         ],
-      ),
-    );
+      )));
   }
 }

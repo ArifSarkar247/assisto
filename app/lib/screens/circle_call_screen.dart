@@ -37,6 +37,7 @@ import '../widgets/robo_id.dart';
 import '../widgets/paywall_sheet.dart'; // circle2
 import 'referral_screen.dart'; // circle2
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
@@ -131,7 +132,8 @@ class CircleCallScreen extends StatefulWidget {
   State<CircleCallScreen> createState() => _CircleCallScreenState();
 }
 
-class _CircleCallScreenState extends State<CircleCallScreen> {
+class _CircleCallScreenState extends State<CircleCallScreen>
+    with AdBlockedState<CircleCallScreen> {
   CallController? _c;
   CallVideoSurface? _surface;
   bool _owns = false;
@@ -682,9 +684,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             ]),
           )
         : SafeArea(
-      child: Column(
-        children: [
-          _topBar(c),
+      // design3 (2.0x font): at big text (> 1.3x) the live call scrolls when
+      // it is taller than the screen (name + notice + upgrade card + controls);
+      // at normal sizes it stays the plain column, so taps / pinch / double-tap
+      // on the empty middle still reach the video behind (cde_video_test).
+      child: Column(children: [
+        _topBar(c),
+        Expanded(
+          child: LayoutBuilder(builder: (context, box) {
+            final body = Column(children: [
           const Spacer(),
           if (!remoteVideo) ...[
             _avatar(56),
@@ -709,8 +717,17 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live) _noticeBanner(c),
           if (live) _upgradeCard(c),
           if (c == null || !c.isEnded) _controls(c),
-        ],
-      ),
+            ]);
+            if (MediaQuery.textScalerOf(context).scale(14) / 14 <= 1.3) return body;
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: box.maxHeight),
+                child: IntrinsicHeight(child: body),
+              ),
+            );
+          }),
+        ),
+      ]),
     );
     const gradient = DecoratedBox(decoration: BoxDecoration(gradient: Brand.heroDark));
     if (showSelf) {
@@ -1093,7 +1110,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     if (mounted) setState(() => _pipAllowed = v);
                   },
                   child: Text(t.callpipPipTurnOn,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
@@ -1776,10 +1793,9 @@ class _CtlButton extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Gap.xs),
+          // design3: the label wraps, never ellipsized (2.0x font)
           Text(label,
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               style: AType.bodySmall.copyWith(color: CallInk.textSoft)),
         ],
       ),

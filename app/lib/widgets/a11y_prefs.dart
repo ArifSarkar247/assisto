@@ -179,3 +179,30 @@ ThemeData applyHighContrast(ThemeData base) {
     dividerTheme: base.dividerTheme.copyWith(color: outline, thickness: 1.2),
   );
 }
+
+/// a11ysweep: the text scale every screen gets. Before this the in-app
+/// setting REPLACED the phone's font size, so an elder who set Android's font
+/// to 200% still saw 100% text in Assisto. Now the larger of the two wins:
+///   * the phone's own scaler (kept as-is, so Android 14+ non-linear scaling
+///     still applies) when it is at least as big as the in-app choice;
+///   * otherwise the in-app linear scale.
+/// Both are capped at [maxEffectiveTextScale] (200%, the WCAG 1.4.4 bar) —
+/// above that 360 dp phones cannot fit a button label on one screen.
+const double maxEffectiveTextScale = 2.0;
+
+TextScaler effectiveTextScaler(TextScaler system, double inApp) {
+  final sys = system.clamp(maxScaleFactor: maxEffectiveTextScale);
+  // compare at body size (14 sp): non-linear scalers grow small text more
+  final sysAt14 = sys.scale(14) / 14;
+  if (inApp > sysAt14) {
+    return TextScaler.linear(inApp.clamp(1.0, maxEffectiveTextScale));
+  }
+  return sys;
+}
+
+/// a11ysweep: lines a label may use. [normal] at normal sizes; two more once
+/// the text is over 140% (phone or in-app setting), so a name or a button
+/// label wraps instead of being cut to "Kari…" for the people who need big
+/// text most.
+int a11yMaxLines(BuildContext context, int normal) =>
+    MediaQuery.textScalerOf(context).scale(14) / 14 > 1.4 ? normal + 2 : normal;

@@ -4,12 +4,14 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../api.dart';
 import '../wrapped_api.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/wrapped_cards.dart';
 import '../widgets/wrapped_share.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'money_screen.dart' show MoneyScreen; // moneybar
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/bn_day_periods.dart' show appDateLocale;
@@ -129,6 +131,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.wrappedTitle)),
@@ -146,10 +149,10 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         icon: Icons.cloud_off_rounded,
         title: t.wrappedErrorTitle,
         message: honestFailText(t, _failCause, otherwise: t.wrappedErrorHint),
-        action: FilledButton.icon(
+        action: DsButton(
           onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.retry),
+          icon: Icons.refresh_rounded,
+          label: t.retry,
         ),
       );
 
@@ -162,16 +165,15 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       // qa1: locale digits (the count had Latin digits in the Bangla UI)
       message: t.wrappedEmptyHint(fmtInt(context, need), fmtInt(context, have)),
       // moneybar: the empty state was a dead end — one tap to the ledger
-      action: FilledButton.icon(
-        key: const ValueKey('mb-wrapped-add'),
-        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+      action: DsButton(
+        buttonKey: const ValueKey('mb-wrapped-add'),
         onPressed: () async {
           await Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => const MoneyScreen()));
           if (mounted) _load();
         },
-        icon: const Icon(Icons.add_rounded),
-        label: Text(t.mbWrappedAddTxn),
+        icon: Icons.add_rounded,
+        label: t.mbWrappedAddTxn,
       ),
     );
   }
@@ -205,11 +207,8 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: i == _page
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.35),
+                        ? DsTokens.of(context).primary
+                        : DsTokens.of(context).border,
                     borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                 ),
@@ -219,13 +218,11 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         // Share the currently-visible card as a festival-style image.
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _share(t),
-              icon: const Icon(Icons.ios_share_rounded),
-              label: Text(t.wrappedShare),
-            ),
+          child: DsButton(
+            expand: true,
+            onPressed: () => _share(t),
+            icon: Icons.ios_share_rounded,
+            label: t.wrappedShare,
           ),
         ),
       ],
@@ -270,7 +267,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       eyebrow: t.wrappedSpentEyebrow,
       footer: monthLbl,
       child: WrappedBigStat(
-        value: tkFmt(d['total_spent']),
+        value: tkOf(context, d['total_spent']),
         caption: t.wrappedSpentCaption,
         icon: Icons.north_east_rounded,
       ),
@@ -286,8 +283,8 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedLineStat(
           icon: Icons.south_west_rounded,
           title: t.wrappedEarnedTitle,
-          value: tkFmt(d['total_earned']),
-          note: t.wrappedSavedNote(tkFmt(d['total_saved'])),
+          value: tkOf(context, d['total_earned']),
+          note: t.wrappedSavedNote(tkOf(context, d['total_saved'])),
         ),
       ));
 
@@ -314,7 +311,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedLineStat(
           icon: Icons.local_fire_department_rounded,
           title: topCat.toString(),
-          value: tkFmt(d['top_category_amount']),
+          value: tkOf(context, d['top_category_amount']),
           note: t.wrappedTopCategoryNote,
         ),
       ));
@@ -332,7 +329,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
           title: (biggest['category']?.toString().isNotEmpty == true)
               ? biggest['category'].toString()
               : t.wrappedBiggestTitle,
-          value: tkFmt(biggest['amount']),
+          value: tkOf(context, biggest['amount']),
           note: t.wrappedBiggestNote(_dateLabel(biggest['date'])),
         ),
       ));
@@ -349,7 +346,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedTrend(
           up: up,
           pct: (trend['pct'] as num?)?.toInt() ?? 0,
-          deltaValue: tkSigned(dbl(trend['delta'])),
+          deltaValue: moneyDigitsOf(context, tkSigned(dbl(trend['delta']))),
           title: t.wrappedTrendTitle,
           caption:
               up ? t.wrappedTrendUp : t.wrappedTrendDown,
@@ -380,7 +377,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
     final busiest = d['busiest_day'] as Map?;
     if (busiest != null) {
       facts.add(t.wrappedFactBusiest(
-          _dateLabel(busiest['date']), tkFmt(busiest['amount'])));
+          _dateLabel(busiest['date']), tkOf(context, busiest['amount'])));
     }
     cards.add(WrappedCardFrame(
       index: idx++,

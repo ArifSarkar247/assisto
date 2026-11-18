@@ -23,6 +23,7 @@ import '../feature_flags.dart'; // famcare: probashi tab
 import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/action_feedback.dart'; // db1
 import '../family_alerts_api.dart'; // family100
 import '../widgets/family_push_banner.dart'; // family100
@@ -38,7 +39,8 @@ class FamilyScreen extends StatefulWidget {
   State<FamilyScreen> createState() => _FamilyScreenState();
 }
 
-class _FamilyScreenState extends State<FamilyScreen> {
+class _FamilyScreenState extends State<FamilyScreen>
+    with AdBlockedState<FamilyScreen> {
   List<Map<String, dynamic>> today = [];
   List<Map<String, dynamic>> meds = [];
   List<Map<String, dynamic>> members = [];
@@ -106,7 +108,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
         leading: Icon(Icons.notifications_active_rounded,
             color: n > 0 ? Brand.danger : Theme.of(context).colorScheme.primary),
         title: Text(t.fa100Title,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(n > 0
             ? t.fa100TileNew(notifLocalizeDigits(context, '$n'))
             : t.fa100TileSub),
@@ -173,8 +175,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                                             Text('• $reason'),
                                           const SizedBox(height: Gap.sm),
                                           Text(r['advice'] ?? '',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.w600)),
+                                              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
                                         ]),
                                     actions: [
                                       TextButton(
@@ -447,7 +448,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: Gap.xs),
                       Text(subtitle,
-                          style: TextStyle(color: DsTokens.of(context).muted)),
+                          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                     ],
                   ]),
             ),
@@ -722,10 +723,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
     Color? stockColor;
     String? stockText;
     if (status == 'out') {
-      stockColor = Brand.danger;
+      stockColor = DsTokens.of(context).dangerInk;
       stockText = t.medOutOfStockOne(m['name'] ?? '');
     } else if (status == 'soon' && daysLeft != null) {
-      stockColor = Brand.warning;
+      stockColor = Brand.warnInk(context);
       stockText = t.medDaysLeftValue(notifLocalizeDigits(context, '$daysLeft'));
     } else if (daysLeft != null) {
       stockText = t.medDaysLeftValue(notifLocalizeDigits(context, '$daysLeft'));
@@ -745,18 +746,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Text(m['name'] ?? '',
                       style: Theme.of(context).textTheme.titleMedium),
                   if (sub.isNotEmpty)
-                    Text(sub, style: TextStyle(color: DsTokens.of(context).muted)),
+                    Text(sub, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                 ]),
               ),
               if (adh != null && !prn)
                 Text(notifLocalizeDigits(context, '$adh%'),
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                         color: adh >= 85
-                            ? Brand.success
+                            ? DsTokens.of(context).successInk
                             : adh >= 60
-                                ? Brand.warning
-                                : Brand.danger)),
+                                ? Brand.warnInk(context)
+                                : DsTokens.of(context).dangerInk)),
               IconButton(
                   icon: const Icon(Icons.edit_rounded),
                   tooltip: t.edit,
@@ -773,7 +773,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               Row(children: [
                 Icon(Icons.inventory_2_rounded, size: 16, color: stockColor),
                 const SizedBox(width: Gap.xs),
-                Text(stockText, style: TextStyle(color: stockColor)),
+                Text(stockText, style: AType.bodyMedium.copyWith(color: stockColor)),
               ]),
             ],
             if ((m['predicted_refill'] ?? '').toString().isNotEmpty) ...[
@@ -842,19 +842,16 @@ class _FamilyScreenState extends State<FamilyScreen> {
     ]);
   }
 
+  // design3: the caregiver header is the soft DS hero (was a loud gradient).
   Widget _brandHeader(String title) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
+    final ds = DsTokens.of(context);
+    return DsHeroCard(
       child: Row(children: [
-        const Icon(Icons.volunteer_activism_rounded, color: Colors.white),
+        Icon(Icons.volunteer_activism_rounded, color: ds.primaryInk),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(title,
-              style: AType.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              style: AType.titleMedium.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
         ),
       ]),
     );
@@ -887,7 +884,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Text(isSelf ? t.medForSelf : (p['name'] ?? ''),
                       style: Theme.of(context).textTheme.titleMedium),
                   Text(t.medTakenOfTotal(taken, due),
-                      style: TextStyle(color: DsTokens.of(context).muted)),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                 ]),
               ),
               if ((p['phone']?.toString() ?? '').trim().isNotEmpty)
@@ -903,7 +900,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               Row(children: [
                 const Icon(Icons.check_circle_outline_rounded, size: 18, color: Brand.success),
                 const SizedBox(width: Gap.sm),
-                Text(t.medAllDoneToday, style: const TextStyle(color: Brand.success)),
+                Text(t.medAllDoneToday, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).successInk)),
               ])
             else if (nextDue != null)
               Row(children: [
@@ -914,13 +911,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
             if (lowStock.isNotEmpty) ...[
               const SizedBox(height: Gap.sm),
               Text(t.medLowStockHeading,
-                  style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: Brand.warning)),
+                  style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: Brand.warnInk(context))),
               for (final ls in lowStock)
                 Text(
                   ls['status'] == 'out'
                       ? t.medOutOfStockOne(ls['name'] ?? '')
                       : t.medLowStockOne(ls['name'] ?? '', ls['days_left'] ?? 0),
-                  style: AType.bodyMedium.copyWith(color: ls['status'] == 'out' ? Brand.danger : Brand.warning),
+                  style: AType.bodyMedium.copyWith(color: ls['status'] == 'out' ? DsTokens.of(context).dangerInk : Brand.warnInk(context)),
                 ),
             ],
             const SizedBox(height: Gap.sm),
@@ -949,13 +946,18 @@ class _FamilyScreenState extends State<FamilyScreen> {
         : adh >= 60
             ? Brand.warning
             : Brand.danger;
+    final ink = adh >= 85
+        ? DsTokens.of(context).successInk
+        : adh >= 60
+            ? Brand.warnInk(context)
+            : DsTokens.of(context).dangerInk;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
-      child: Text('$adh%', style: TextStyle(fontWeight: FontWeight.w700, color: c)),
+      child: Text('$adh%', style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: ink)),
     );
   }
 

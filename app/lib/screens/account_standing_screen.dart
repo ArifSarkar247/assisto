@@ -11,6 +11,7 @@
 //  * blocked        -> the sign-in 403 body {reason: account_blocked, detail,
 //                      standing, appeal_token}; no session — refresh / appeal
 //                      go through account/*/blocked with the token.
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:flutter/material.dart';
 import '../ds/ds.dart';
 import 'package:provider/provider.dart';
@@ -114,7 +115,7 @@ class _AccountStandingScreenState extends State<AccountStandingScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final body = _data == null
-        ? (_failed ? _Failed(onRetry: _load) : const Center(child: CircularProgressIndicator()))
+        ? (_failed ? _Failed(onRetry: _load) : const SkeletonList())
         : RefreshIndicator(
             onRefresh: _load,
             child: _StandingList(
@@ -144,18 +145,13 @@ class _Failed extends StatelessWidget {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(24)),
       children: [
-        const Icon(Icons.cloud_off_outlined, size: 48),
-        const SizedBox(height: 12),
-        Text(t.astdLoadFailed, textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 16),
-        Center(
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(t.astdRetry),
-          ),
+        // design3: DS error state — drawn illustration + one retry button
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.astdLoadFailed,
+          danger: true,
+          actionLabel: t.astdRetry,
+          onAction: onRetry,
         ),
       ],
     );

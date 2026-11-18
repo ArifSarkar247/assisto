@@ -21,6 +21,12 @@ confirms them from a Bangladesh network (FEATURE_CARD_SERVICE_GUIDE_BN.md).
 """
 
 CHECKED = "2026-11-03"
+# flagproof (17 Nov 2026): every Probashi + Student number, amount and link
+# re-checked against its official source (owner_actions/OFFICIAL_CORNERS_SOURCES_BN.md).
+# Fixed: Ami Probashi -> OEP (BMET registration moved 19 Nov 2025);
+# educationboard.gov.bd has no working HTTPS -> board results site; 999 source
+# -> Bangladesh Police (999.gov.bd refuses connections).
+CHECKED_CORNERS = "2026-11-17"
 
 OFFICIAL_HOST_SUFFIXES = (
     ".gov.bd", ".ac.bd", ".edu.bd", "worldbank.org", "un.org", "amiprobashi.com",
@@ -170,14 +176,14 @@ PROBASHI = {
          "name": _t("জাতীয় জরুরি সেবা (বাংলাদেশে)", "National emergency service (in Bangladesh)"),
          "display": _t("৯৯৯", "999"),
          "note": _t("দেশে থাকা পরিবারের বিপদে — পুলিশ, ফায়ার, অ্যাম্বুলেন্স", "For family in Bangladesh — police, fire, ambulance"),
-         "source": "https://999.gov.bd"},
+         "source": "https://www.police.gov.bd"},
     ],
     "links": [
         _src("বিদেশে বাংলাদেশ দূতাবাস/মিশনের তালিকা (পররাষ্ট্র মন্ত্রণালয়)", "Bangladesh missions abroad (Ministry of Foreign Affairs)", "https://mofa.gov.bd"),
         _src("ওয়েজ আর্নার্স কল্যাণ বোর্ড", "Wage Earners' Welfare Board", "https://wewb.gov.bd"),
         _src("BMET — লাইসেন্সপ্রাপ্ত এজেন্সি যাচাই", "BMET — check a licensed agency", "https://www.bmet.gov.bd"),
         _src("প্রবাসী কল্যাণ ও বৈদেশিক কর্মসংস্থান মন্ত্রণালয়", "Ministry of Expatriates' Welfare and Overseas Employment", "https://probashi.gov.bd"),
-        _src("আমি প্রবাসী (সরকারি অ্যাপ: BMET নিবন্ধন, ছাড়পত্র)", "Ami Probashi (official app: BMET registration, clearance)", "https://www.amiprobashi.com"),
+        _src("ওভারসিজ এমপ্লয়মেন্ট প্ল্যাটফর্ম (OEP): BMET নিবন্ধন, ছাড়পত্র", "Overseas Employment Platform (OEP): BMET registration, clearance", "https://employee.oep.gov.bd"),
     ],
     "welfare": [
         {"id": "death_grant",
@@ -253,14 +259,13 @@ STUDENT = {
                     "Each deadline comes in the official notice. Read it, then 'Save a deadline' below — Assisto reminds you. Never pay anyone for a scholarship."),
          "links": [_src("শিক্ষা মন্ত্রণালয় (মাধ্যমিক ও উচ্চশিক্ষা বিভাগ)", "Ministry of Education (Secondary & Higher Education Division)", "https://shed.gov.bd"),
                    _src("মাধ্যমিক ও উচ্চ শিক্ষা অধিদপ্তর (মাউশি)", "Directorate of Secondary & Higher Education (DSHE)", "https://dshe.gov.bd"),
-                   _src("শিক্ষা বোর্ড (বোর্ড বৃত্তির ফল)", "Education boards (board scholarship results)", "https://educationboard.gov.bd"),
+                   _src("শিক্ষা বোর্ড ফল (বোর্ড বৃত্তির ফলসহ)", "Education board results (incl. board scholarships)", "https://www.educationboardresults.gov.bd"),
                    _src("বিশ্ববিদ্যালয় মঞ্জুরি কমিশন (UGC)", "University Grants Commission (UGC)", "https://ugc.gov.bd")]},
         {"id": "board_exams",
          "title": _t("এসএসসি / এইচএসসি রুটিন ও ফল", "SSC / HSC routine and results"),
          "note": _t("পরীক্ষার রুটিন বোর্ড প্রকাশ করে; ফলের দিন Assisto-র 'পরীক্ষার ফলাফল' নিজে খুঁজে জানায়।",
                     "The boards publish the exam routine; on result day Assisto's 'Exam result' checks for you."),
-         "links": [_src("আন্তঃশিক্ষা বোর্ড", "Inter-education boards", "https://educationboard.gov.bd"),
-                   _src("ঢাকা শিক্ষা বোর্ড (নোটিশ)", "Dhaka Education Board (notices)", "https://dhakaeducationboard.gov.bd"),
+         "links": [_src("ঢাকা শিক্ষা বোর্ড (নোটিশ)", "Dhaka Education Board (notices)", "https://dhakaeducationboard.gov.bd"),
                    _src("মাদ্রাসা শিক্ষা বোর্ড", "Madrasah Education Board", "https://bmeb.gov.bd"),
                    _src("কারিগরি শিক্ষা বোর্ড", "Technical Education Board", "https://bteb.gov.bd"),
                    _src("শিক্ষা বোর্ড ফল", "Education board results", "https://www.educationboardresults.gov.bd")]},
@@ -289,7 +294,7 @@ def probashi_public(lang):
     p = PROBASHI
     r = p["remit"]
     return {
-        "checked": CHECKED,
+        "checked": CHECKED_CORNERS,
         "helplines": [{"id": h["id"], "dial": h["dial"], "name": _loc(h["name"], lang),
                        "display": _loc(h["display"], lang), "note": _loc(h["note"], lang),
                        "source": h["source"]} for h in p["helplines"]],
@@ -305,7 +310,7 @@ def probashi_public(lang):
 
 def student_public(lang):
     return {
-        "checked": CHECKED,
+        "checked": CHECKED_CORNERS,
         "groups": [{"id": g["id"], "title": _loc(g["title"], lang), "note": _loc(g["note"], lang),
                     "links": _loc_links(g["links"], lang)} for g in STUDENT["groups"]],
         "books_note": _loc(STUDENT["books_note"], lang),

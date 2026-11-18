@@ -10,6 +10,9 @@ import '../../phonecam/phonecam_clips.dart';
 import '../../state.dart';
 import 'cash_guard_clip.dart';
 import 'cctvx_actions.dart';
+import 'cctv_escalate.dart' show police999Launch; // gap-cctv R1
+import '../shop_live_screen.dart'; // gap-cctv R1
+import '../../cctvguard/vendor_live_screen.dart'; // gap-cctv R1
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
@@ -97,6 +100,37 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
         phoneSource: clip['phonecam'] == true ? _phoneSrc() : null,
         previewStatus: (clip['status'] ?? '').toString());
     if (mounted) await _load();
+  }
+
+  /// gap-cctv R1: Live straight from the card (the right player per brand).
+  void _openLive(Map<String, dynamic> e) {
+    final cam = (e['camera'] as num?)?.toInt();
+    if (cam == null) return;
+    final name = (e['camera_name'] ?? '').toString();
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => e['live_path'] == 'vendor'
+            ? VendorLiveScreen(cameraId: cam, cameraName: name)
+            : ShopLiveScreen(cameraId: cam, cameraName: name)));
+  }
+
+  /// gap-cctv R1: 999 asks first, then only opens the dialer (never calls).
+  Future<void> _call999() async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.cx999),
+        content: Text(t.cx999Sub),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+          FilledButton(
+              key: const ValueKey('wm-alert-999-yes'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.cx999Call)),
+        ],
+      ),
+    );
+    if (ok == true) await police999Launch(Uri.parse('tel:999'));
   }
 
   Future<void> _actions(Map<String, dynamic> e) async {
@@ -319,7 +353,8 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
             if (snap.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(t.wmNoSnapshot, style: Theme.of(context).textTheme.bodySmall),
+                child: Text(t.wmNoSnapshot,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
               ),
             // cctvaicheck: the AI label of the photo (server words, viewer's
             // language) — never hides the alert, only helps the owner tune
@@ -354,30 +389,51 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               ),
             if (widget.owner) ...[
               const SizedBox(height: 8),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.bolt_rounded),
-                label: Text(t.cxActions),
-                onPressed: () => _actions(e),
-              ),
-              const SizedBox(height: 8),
-              Row(children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: const Icon(Icons.thumb_up_alt_outlined),
-                    label: Text(t.wmCorrect),
-                    onPressed: _busy.contains(id) || verdict == 'correct' ? null : () => _mark(e, 'correct'),
+              // gap-cctv R1: the first moves on the card itself — Live and
+              // Call 999 — the rest (siren, own-voice warning, thana,
+              // evidence, wrong alert) one tap away in "More actions"
+              Wrap(spacing: 8, runSpacing: 8, children: [
+                if (e['live_path'] == 'webrtc' || e['live_path'] == 'vendor')
+                  FilledButton.icon(
+                    key: ValueKey('wm-alert-live-$id'),
+                    style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                    icon: const Icon(Icons.live_tv_rounded),
+                    label: Text(t.cv3Live),
+                    onPressed: () => _openLive(e),
                   ),
+                OutlinedButton.icon(
+                  key: ValueKey('wm-alert-999-$id'),
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                      foregroundColor: Theme.of(context).colorScheme.error),
+                  icon: const Icon(Icons.local_police_rounded),
+                  label: Text(t.cx999),
+                  onPressed: _call999,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: const Icon(Icons.thumb_down_alt_outlined),
-                    label: Text(t.wmWrong),
-                    onPressed: _busy.contains(id) || verdict == 'wrong' ? null : () => _mark(e, 'wrong'),
-                  ),
+                OutlinedButton.icon(
+                  key: ValueKey('wm-alert-more-$id'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.bolt_rounded),
+                  label: Text(t.gcvMoreActions),
+                  onPressed: () => _actions(e),
+                ),
+              ]),
+              // design3 (flagship): the right/wrong feedback is a light row
+              // under a hairline — the alert's own actions above stay the
+              // visual weight (it was three equal outlined boxes)
+              const Divider(height: Gap.lg),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.thumb_up_alt_outlined),
+                  label: Text(t.wmCorrect),
+                  onPressed: _busy.contains(id) || verdict == 'correct' ? null : () => _mark(e, 'correct'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.thumb_down_alt_outlined),
+                  label: Text(t.wmWrong),
+                  onPressed: _busy.contains(id) || verdict == 'wrong' ? null : () => _mark(e, 'wrong'),
                 ),
               ]),
             ],

@@ -210,10 +210,13 @@ class VocabState {
 }
 
 /// Words due today: studied words whose due day has come, then new words
-/// (up to [newPerDay]) in list order.
-List<String> dueWords(List<String> order, Map<String, VocabState> state, int today, {int newPerDay = 10}) {
+/// (up to [newPerDay] a day — gap-lp: minus the [introducedToday] words
+/// already started today, so the daily goal really ends) in list order.
+List<String> dueWords(List<String> order, Map<String, VocabState> state, int today,
+    {int newPerDay = 10, int introducedToday = 0}) {
   final due = [for (final id in order) if (state[id] != null && state[id]!.due <= today) id];
-  final fresh = [for (final id in order) if (state[id] == null) id].take(newPerDay);
+  final room = newPerDay - introducedToday;
+  final fresh = [for (final id in order) if (state[id] == null) id].take(room < 0 ? 0 : room);
   return [...due, ...fresh];
 }
 

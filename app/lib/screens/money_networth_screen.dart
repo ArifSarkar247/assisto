@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Net worth: assets + receivables - liabilities, plus a net-worth-over-time
@@ -44,6 +45,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
@@ -72,31 +74,26 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     final series =
         (_data?['series'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Container(
-        decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(Radii.lg)),
-        padding: const EdgeInsets.all(Gap.xl),
+      // design3: net worth = the soft DS hero, big tight number
+      DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.moneyNetWorthLabel,
-              style: const TextStyle(color: Colors.white70)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xs),
-          Text(tkFmt(nw),
-              style: AType.displaySmall.copyWith(fontFeatures: AFonts.tabular, color: Colors.white,
-                  fontWeight: FontWeight.bold)),
+          DsNumber(tkOf(context, nw), color: nw < 0 ? DsTokens.of(context).dangerInk : null),
         ]),
       ),
       const SizedBox(height: Gap.md),
-      statCard(context, t.moneyAssets, tkFmt(assets), AssistoTokens.of(context).success,
+      statCard(context, t.moneyAssets, tkOf(context, assets), AssistoTokens.of(context).success,
           Icons.account_balance_wallet_rounded),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
-            child: statCard(context, t.moneyReceivable, tkFmt(receivable),
+            child: statCard(context, t.moneyReceivable, tkOf(context, receivable),
                 Theme.of(context).colorScheme.primary, Icons.call_received_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
-            child: statCard(context, t.moneyLiabilities, tkFmt(liabilities),
+            child: statCard(context, t.moneyLiabilities, tkOf(context, liabilities),
                 DsTokens.of(context).dangerInk, Icons.call_made_rounded)),
       ]),
       const SizedBox(height: Gap.xl),
@@ -105,8 +102,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
       const SizedBox(height: Gap.md),
       if (series.isEmpty)
         Text(t.moneyNoTransactionsHint,
-            style: TextStyle(
-                color: DsTokens.of(context).muted))
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
       else
         Card(
           child: Padding(
@@ -120,8 +116,8 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
           dense: true,
           title: Text(moneyMonth(context, p['month'])),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text(tkFmt(p['net_worth']),
-                style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
+            Text(tkOf(context, p['net_worth']),
+                style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
             const SizedBox(width: Gap.md),
             deltaChip(context, dbl(p['delta']), upIsBad: false),
           ]),

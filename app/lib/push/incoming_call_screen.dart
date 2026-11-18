@@ -14,6 +14,7 @@ import 'lock_screen_guard.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
 import 'push_service.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Ringing screen for a My Circle call that arrived by push (the full-screen
 /// intent or a tap on the call notification). Accept hands over to the
@@ -45,7 +46,8 @@ class IncomingCallScreen extends StatefulWidget {
   State<IncomingCallScreen> createState() => _IncomingCallScreenState();
 }
 
-class _IncomingCallScreenState extends State<IncomingCallScreen> {
+class _IncomingCallScreenState extends State<IncomingCallScreen>
+    with AdBlockedState<IncomingCallScreen> {
   StreamSubscription<String>? _sub;
   StreamSubscription<String>? _rtSub;
   Timer? _timeout;

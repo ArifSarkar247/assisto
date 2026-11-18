@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -97,22 +98,18 @@ class _InviteScreenState extends State<InviteScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.p5InviteTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _error || _d == null
               ? _errorView(t)
               : RefreshIndicator(onRefresh: _load, child: _body(t)),
     );
   }
 
-  Widget _errorView(AppLocalizations t) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.loadFailed, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            FilledButton(onPressed: _load, child: Text(t.retry)),
-          ]),
-        ),
+  Widget _errorView(AppLocalizations t) => StateMessage(
+        icon: Icons.cloud_off_rounded,
+        title: t.loadFailed,
+        tint: DsTokens.of(context).danger,
+        action: DsButton(onPressed: _load, label: t.retry),
       );
 
   Widget _body(AppLocalizations t) {
@@ -131,43 +128,37 @@ class _InviteScreenState extends State<InviteScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
-        // ---- code card (brand gradient, white text) ----
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: const LinearGradient(
-                colors: [kBrandBlue, Color(0xFF0B8F6A)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight),
-          ),
+        // ---- code card: design3 soft DS hero, share = the one glowing action
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.p5YourCode,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    // a11y1: bold = WCAG large text (white on the gradient's
-                    // light end is 4.2:1).
-                    fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(
+                    color: scheme.ds.muted, fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             SelectableText(code,
                 key: const ValueKey('p5_code'),
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
+                style: AType.displaySmall.copyWith(
+                    color: scheme.ds.primaryInk,
                     letterSpacing: 4,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
             Wrap(spacing: 8, runSpacing: 8, children: [
-              _whiteButton(Icons.copy_rounded, t.p5Copy, () {
-                Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(t.p5Copied)));
-              }),
-              _whiteButton(Icons.share_rounded, t.p5ShareInvite,
-                  () => Share.share(shareText)),
-              _whiteButton(Icons.image_rounded, t.p5ShareAsImage,
-                  () => showBrandedShare(context,
+              DsButton(
+                  icon: Icons.share_rounded,
+                  label: t.p5ShareInvite,
+                  onPressed: () => Share.share(shareText)),
+              DsButton.secondary(
+                  icon: Icons.copy_rounded,
+                  label: t.p5Copy,
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: code));
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.p5Copied)));
+                  }),
+              DsButton.secondary(
+                  icon: Icons.image_rounded,
+                  label: t.p5ShareAsImage,
+                  onPressed: () => showBrandedShare(context,
                       body: shareText, label: t.p5InviteTitle)),
             ]),
           ]),
@@ -223,17 +214,17 @@ class _InviteScreenState extends State<InviteScreen> {
               // disabled until a code is typed (never a dead tap)
               ValueListenableBuilder<TextEditingValue>(
                 valueListenable: _codeCtl,
-                builder: (_, v, __) => FilledButton(
-                    onPressed:
-                        (_claiming || v.text.trim().isEmpty) ? null : _claim,
-                    child: Text(t.p5EnterButton)),
+                builder: (_, v, __) => DsButton.secondary(
+                    onPressed: v.text.trim().isEmpty ? null : _claim,
+                    busy: _claiming,
+                    label: t.p5EnterButton),
               ),
             ]),
             if (_claimMsg != null && _claimMsg!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(_claimMsg!,
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
           ]),
         ],
@@ -256,7 +247,7 @@ class _InviteScreenState extends State<InviteScreen> {
           const SizedBox(width: 8),
           Expanded(
               child: Text(t.p5FoundingYou(n(number)),
-                  style: const TextStyle(fontWeight: FontWeight.w700))),
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700))),
         ]),
         if ((f['my_credits'] ?? 0) is num && (f['my_credits'] as num) > 0)
           Padding(
@@ -273,7 +264,7 @@ class _InviteScreenState extends State<InviteScreen> {
       Text(t.p5FoundingOpen(n(taken), n(seats), n(act['need']), n(f['credits']))),
       const SizedBox(height: 6),
       Text(t.p5FoundingProgress(n(act['days']), n(act['need'])),
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
     ];
   }
 
@@ -293,27 +284,14 @@ class _InviteScreenState extends State<InviteScreen> {
               rules['phone_otp'] == true
                   ? t.p5ClaimNeedPhoneOtp
                   : t.p5ClaimNeedPhone,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ),
     ]);
   }
 
-  Widget _whiteButton(IconData icon, String label, VoidCallback onTap) =>
-      FilledButton.icon(
-        style: FilledButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF0057B8)),
-        onPressed: onTap,
-        icon: Icon(icon, size: 18),
-        label: Text(label),
-      );
-
   Widget _section(String title, List<Widget> children) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    return DsCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
               style: Theme.of(context)
@@ -323,7 +301,6 @@ class _InviteScreenState extends State<InviteScreen> {
           const SizedBox(height: 10),
           ...children,
         ]),
-      ),
     );
   }
 
@@ -338,18 +315,16 @@ class _InviteScreenState extends State<InviteScreen> {
 
   Widget _stat(String label, String value, double width) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    return SizedBox(
       width: width,
+      child: DsSurface(
+      flat: true,
+      color: scheme.ds.cardHighest,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: scheme.ds.cardHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-        Text(label, style: TextStyle(color: scheme.ds.muted)),
+        DsNumber(value, small: true),
+        Text(label, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       ]),
-    );
+    ));
   }
 }

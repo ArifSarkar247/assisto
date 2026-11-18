@@ -2,7 +2,7 @@
 {% block heading %}{{ L.title }}{% endblock %}
 {% block content %}
 <p class="mut small">{{ L.intro }}</p>
-<div class="card" id="cctv-partner-rules"><b>{{ L.rules }}</b>{% if not approved %} <span class="pill warn">PROPOSAL</span>{% endif %}<p class="small">{{ rules_line }}</p></div>
+<div class="card" id="cctv-partner-rules"><b>{{ L.rules }}</b>{% if not approved %} <span class="pill warn">PROPOSAL</span>{% else %} <span class="pill ok">OWNER-DECIDED</span>{% endif %}<p class="small">{{ rules_line }}</p></div>
 <h3>{{ L.partners }}</h3>
 {% if rows %}
 <div class="card tbl"><table id="cctv-partners"><thead><tr><th>{{ L.name }}</th><th>{{ L.area }}</th><th>{{ L.status }}</th><th>{{ L.sites }}</th><th>{{ L.proposed }}</th><th></th></tr></thead><tbody>
@@ -16,5 +16,12 @@
 <p class="small">{{ L.total }}: <b>{{ total }}</b></p>
 {% else %}<p class="empty">{{ L.none }}</p>{% endif %}
 <h3>{{ L.payouts }}</h3>
-<p class="small" id="cctv-payouts">{{ L.payouts_none }}</p>
+<p class="small" id="cctv-ledger-sums">{{ L.sum_owed }}: <b>{{ sums.owed }}</b> · {{ L.sum_paid }}: <b>{{ sums.paid }}</b></p>
+{% if ledger %}
+<div class="card tbl"><table id="cctv-ledger"><thead><tr>{% for c in L.ledger_cols %}<th>{{ c }}</th>{% endfor %}</tr></thead><tbody>
+{% for e in ledger %}<tr><td>{{ e.created|date:"Y-m-d" }}</td><td>{{ e.partner }}</td><td>#{{ e.site_id|default:"—" }}</td><td>{{ e.no }} ({{ e.month }})</td><td>{{ e.net }}</td><td><b>{{ e.amount }}</b></td><td>{{ e.status_label }}{% if e.paid_ref %} · {{ e.paid_ref }}{% endif %}</td>
+<td>{% if e.status == 'owed' %}<form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="entry" value="{{ e.id }}"><input name="paid_ref" placeholder="{{ L.paid_ref }}" maxlength="80" size="12"><input name="reason" placeholder="{{ L.reason }}" maxlength="200" required size="12">
+<button class="btn" name="action" value="mark_paid">{{ L.mark_paid }}</button><button class="btn ghost" name="action" value="mark_void">{{ L.mark_void }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="small" id="cctv-payouts">{{ L.payouts_none }}</p>{% endif %}
 {% endblock %}
