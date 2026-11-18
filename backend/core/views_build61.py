@@ -1163,6 +1163,19 @@ def _journey_dict(j, lang="bn", traveller=True):
             (w.member.name or "").strip()[:40]
             for w in j.watchers.select_related("member").order_by("id")[:6]
             if (w.member.name or "").strip()]
+        # safety-plan: a child also sees every guardian who gets this trip
+        chosen = {w.member.peer_user_id for w in j.watchers.select_related("member")}
+        for g in JW.child_guardian_users(j)[:4]:
+            if g.pk not in chosen:
+                nm = (PUSH.seen_name(j.traveller, g) or "").strip()[:40]
+                if nm and nm not in out["watcher_names"]:
+                    out["watcher_names"].append(nm)
+        # safety-plan: paid map calls this trip made (capped per journey)
+        try:
+            from . import maps_cost as MC
+            out["map_calls"] = MC.journey_map_calls(j)
+        except Exception:  # noqa: BLE001
+            pass
         # owner idea 1: the always-visible "<name> is watching — Stop" banner
         g = j.guardian_requests.select_related("requester").first()
         if g is not None:
@@ -1867,8 +1880,13 @@ class JourneyWatchingView(APIView):
                 .select_related("journey", "journey__traveller")
                 .order_by("-journey__created_at")[:20])
         out = []
-        for w in rows:
-            j = w.journey
+        # safety-plan: + a guarded child's trips (both guardians see them)
+        js, seen = [], set()
+        for j in [w.journey for w in rows] + JW.guardian_child_journeys(request.user, now):
+            if j.id not in seen:
+                seen.add(j.id)
+                js.append(j)
+        for j in js[:20]:
             live = j.status == "active" or j.sos_active
             fx = JW.fix_of(j) if live else None
             st, mins = JW.overdue(j, now)

@@ -469,7 +469,63 @@ def watcher_users(j):
             continue
         seen.add(u.pk)
         out.append(u)
+    # safety-plan (row 49 PART 6 "both guardians get all alerts"): a CHILD's
+    # trip also reaches every current guardian of the child (approved second
+    # guardian, kids watch / school plan guardians, verified parents) — even
+    # when the child picked only one of them. The child sees them by name.
+    for u in child_guardian_users(j):
+        if u.pk not in seen:
+            seen.add(u.pk)
+            out.append(u)
     return out
+
+
+def child_guardian_users(j):
+    """The guardians of a CHILD traveller (known minor, or a child with an
+    approved second guardian). Adults: [] — an adult's trip reaches only the
+    people they chose. Errors -> [] (never blocks a journey)."""
+    try:
+        from . import guardian_links as GL
+        from . import guardianship as G
+        from .models import User
+        t = j.traveller
+        if not (G.is_known_minor(t) or GL.approved_ids(t.id)):
+            return []
+        ids = sorted(GL.guardian_ids(t) - {t.id})
+        users = {u.pk: u for u in User.objects.filter(pk__in=ids, is_active=True)}
+        return [users[i] for i in ids if i in users]
+    except Exception:  # noqa: BLE001
+        log.warning("child_guardian_users failed", exc_info=True)
+        return []
+
+
+def guardian_child_journeys(user, now, limit=20):
+    """Journeys of children `user` guards (not chosen as a Circle watcher) —
+    for the guardian's 'watching' list / board. Live or in the privacy
+    window only; each re-checked through child_guardian_users."""
+    try:
+        from . import guardian_links as GL
+        from . import guardianship as G
+        from .models import CircleMember, GuardianLink, Journey
+        kids = set(GuardianLink.objects.filter(guardian=user, state="approved")
+                   .values_list("child_id", flat=True))
+        kids |= GL.child_ids_owned_by(user.id)
+        kids |= {c.get("child_user_id") for c in G.children_of(user) if c.get("child_user_id")}
+        kids |= set(CircleMember.objects.filter(user=user, state="accepted", blocked=False,
+                                                relation=G.CHILD_EDGE, peer_user__isnull=False)
+                    .values_list("peer_user_id", flat=True))
+        kids.discard(user.id)
+        if not kids:
+            return []
+        out = []
+        for j in (Journey.objects.filter(traveller_id__in=kids, expires_at__gt=now)
+                  .select_related("traveller").order_by("-created_at")[:limit]):
+            if any(u.pk == user.pk for u in child_guardian_users(j)):
+                out.append(j)
+        return out
+    except Exception:  # noqa: BLE001
+        log.warning("guardian_child_journeys failed", exc_info=True)
+        return []
 
 
 def close_family_users(j):

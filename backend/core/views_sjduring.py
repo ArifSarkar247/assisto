@@ -260,8 +260,8 @@ class WatchBoardView(APIView):
                 .select_related("journey", "journey__traveller")
                 .order_by("-journey__created_at")[:30])
         active, finished, seen = [], [], set()
-        for w in rows:
-            j = w.journey
+        # safety-plan: + a guarded child's trips (both guardians see them)
+        for j in [w.journey for w in rows] + JW.guardian_child_journeys(request.user, now):
             if j.id in seen or (j.destination or {}).get("share"):
                 continue
             seen.add(j.id)

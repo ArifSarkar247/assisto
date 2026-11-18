@@ -192,7 +192,7 @@ def _session_mark(session):
 
 
 def allow(api, user, now=None, session=None):
-    """(ok, reason) — reason '' | 'user_cap' | 'plan_cap' | 'global_cap'. Counts the call
+    """(ok, reason) — reason '' | 'user_cap' | 'journey_cap' | 'plan_cap' | 'global_cap'. Counts the call
     when allowed, counts the refusal when not. Day = Bangladesh local date.
 
     sjp0 (owner P0 9 Nov): with a search session token (autocomplete +
@@ -225,6 +225,59 @@ def allow(api, user, now=None, session=None):
     return ok, why
 
 
+# safety-plan (board row 49, "no runaway map cost"): a hard budget of PAID
+# calls per live journey, on top of the per-user and global daily caps. The
+# live trip itself (location, arrival, late check, SOS) needs ZERO calls; these
+# cover the start ETA + a couple of "road time" taps / an address. Counted in
+# MapsUsage rows api "j<journey>:<code>" (day = the journey's start day).
+JOURNEY_CAPS = {"routes": 3, "geocode": 4, "autocomplete": 2, "place_details": 2,
+                "text_search": 1}
+_JCODE = {"routes": "rt", "geocode": "gc", "autocomplete": "ac", "place_details": "pd",
+          "text_search": "ts"}
+
+
+def _journey_key(jid, api):
+    return "j%d:%s" % (int(jid), _JCODE[api])
+
+
+def _active_journey(uid):
+    from .models import Journey
+    if not uid:
+        return None
+    return (Journey.objects.filter(traveller_id=uid, status="active")
+            .order_by("-created_at").values_list("id", "created_at").first())
+
+
+def journey_map_calls(j):
+    """{api: paid calls made during journey j} + the caps — for the trip
+    screen, the owner and the e2e proof (honest per-journey cost)."""
+    from .models import MapsUsage
+    day = timezone.localdate(j.created_at)
+    rows = dict(MapsUsage.objects.filter(
+        day=day, user_id=j.traveller_id,
+        api__in=[_journey_key(j.pk, a) for a in APIS]).values_list("api", "count"))
+    calls = {a: int(rows.get(_journey_key(j.pk, a)) or 0) for a in APIS}
+    usd = sum(calls[a] * float(config()["apis"][a]["usd_per_1000"]) / 1000.0 for a in APIS)
+    return {"calls": calls, "caps": dict(JOURNEY_CAPS), "total": sum(calls.values()),
+            "usd_max": round(usd, 4)}
+
+
+def _journey_ok(api, uid):
+    """(ok, journey_row) — False when the caller's live journey already used
+    its paid budget for this API (the app then gets the free fallback)."""
+    from .models import MapsUsage
+    try:
+        jr = _active_journey(uid)
+    except Exception:
+        return True, None
+    if jr is None:
+        return True, None
+    day = timezone.localdate(jr[1])
+    used = MapsUsage.objects.filter(day=day, api=_journey_key(jr[0], api), user_id=uid) \
+        .values_list("count", flat=True).first() or 0
+    return used < int(JOURNEY_CAPS.get(api, 0)), jr
+
+
 def _allow_once(api, user, uid, day):
     from .models import MapsUsage
     c = config()["apis"][api]
@@ -234,6 +287,11 @@ def _allow_once(api, user, uid, day):
         if mine >= int(c["user_day"]):
             _bump(day, api, uid, "capped")
             return False, "user_cap"
+    jok, jr = _journey_ok(api, uid) if uid else (True, None)
+    if not jok:
+        _bump(day, api, uid, "capped")
+        _bump(timezone.localdate(jr[1]), _journey_key(jr[0], api), uid, "capped")
+        return False, "journey_cap"
     if uid and not _plan_allowed(user):
         _bump(day, api, uid, "capped")
         return False, "plan_cap"
@@ -242,6 +300,8 @@ def _allow_once(api, user, uid, day):
         _bump(day, api, uid, "capped")
         return False, "global_cap"
     _bump(day, api, uid, "count")
+    if jr is not None:
+        _bump(timezone.localdate(jr[1]), _journey_key(jr[0], api), uid, "count")
     if uid:
         _plan_note(user)
     return True, ""

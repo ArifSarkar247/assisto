@@ -77,3 +77,33 @@ class SosRespondingView(APIView):
         if out is None:
             return Response({"detail": "not_found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"ok": True, **out})
+
+
+# ---- safety-plan (board row 49): the family safety plan ----
+class SafetyPlanView(APIView):
+    """GET  /safety-plan  -> {mine, shared, defaults, limits}
+    PUT  /safety-plan  {meeting_point, meeting_point_far, numbers, call_order,
+                        shared_with, note} -> the overview
+    DELETE /safety-plan
+    Never flag-gated, never billed, no ads (a safety screen)."""
+    def get(self, request):
+        from . import safety_plan as SPL
+        from .i18n import req_lang
+        return Response(SPL.overview(request.user, req_lang(request)))
+
+    def put(self, request):
+        from . import safety_plan as SPL
+        from .i18n import req_lang
+        try:
+            SPL.save(request.user, request.data or {})
+        except SPL.PlanError as e:
+            return Response({"detail": e.code}, status=e.status)
+        return Response(SPL.overview(request.user, req_lang(request)))
+
+    post = put
+
+    def delete(self, request):
+        from . import safety_plan as SPL
+        from .i18n import req_lang
+        SPL.delete(request.user)
+        return Response(SPL.overview(request.user, req_lang(request)))

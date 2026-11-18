@@ -1705,6 +1705,7 @@ urlpatterns += [
     path("guardians/join", g2v.GuardianJoinView.as_view()),
     path("guardians/links/<int:pk>/<str:action>", g2v.GuardianLinkActionView.as_view()),
     path("family/alerts/<int:pk>/responding", g2v.SosRespondingView.as_view()),
+    path("safety-plan", g2v.SafetyPlanView.as_view()),   # safety-plan (row 49)
 ]
 # ---- /guardian2 ----
 
