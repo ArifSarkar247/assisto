@@ -51,15 +51,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       # ---------------------------------------------- audio tools (background)
       - name: Audio tools (eSpeak NG, PulseAudio) + Python venv for TTS / Whisper
         run: |
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq espeak-ng pulseaudio pulseaudio-utils >/dev/null
-          python3 -m venv /tmp/vp
+          python -m venv /tmp/vp
           /tmp/vp/bin/pip install -q --upgrade pip
-          /tmp/vp/bin/pip install -q torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          /tmp/vp/bin/pip install -q torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
           /tmp/vp/bin/pip install -q transformers==4.46.3 scipy numpy uroman faster-whisper==1.1.1
       - name: Make the clips + start local Whisper (background, while the APK builds)
         run: |
@@ -71,9 +74,6 @@ jobs:
             > "$REALITY_OUT/voiceproof/stt.log" 2>&1 &
 
       # ---------------------------------------------- backend (in-runner)
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
       - name: Backend deps
         run: python -m pip install -q -r backend/requirements.txt pyyaml
       - name: Migrate + seed + CI speech-to-text (local Whisper) + credits
