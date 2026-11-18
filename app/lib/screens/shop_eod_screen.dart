@@ -141,7 +141,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                               style: AType.titleSmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.xs),
                           DsNumber(taka(context, _todayCash)),
-                          Text(t.shopEodTodayCount(fmtInt(context, _todayCount)),
+                          Text(t.gcvPlEodTodayCount(_todayCount, fmtInt(context, _todayCount)),
                               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.sm),
                           Text(t.shopEodExplain(taka(context, _tolerance)),

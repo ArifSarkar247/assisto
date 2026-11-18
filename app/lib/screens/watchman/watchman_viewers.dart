@@ -208,7 +208,8 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
                     famDigits(context, (v['phone'] ?? '').toString()),
                     if (v['role'] != null) ctmRoleName(t, v['role'].toString()),
                     if (v['role'] == 'guard' || v['all_cameras'] == false)
-                      t.ctmCamerasCount(famDigits(context, '${(v['cameras'] as List?)?.length ?? 0}')),
+                      t.gcvPlCamerasCount((v['cameras'] as List?)?.length ?? 0,
+                          famDigits(context, '${(v['cameras'] as List?)?.length ?? 0}')),
                     if (v['live_ok'] == true) t.ctmLiveOkShort,
                   ].join(' · ')),
                   // cctvteam: tap → what this person may see
