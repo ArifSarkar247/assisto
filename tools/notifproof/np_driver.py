@@ -705,6 +705,7 @@ def case_carecall(A, B, Ah, tokens):
         btn = ui_find(root, "হয়ে গেছে", pkg=PKG)
     if not c.check("the big Done button is on the ring screen", btn is not None, ui_texts(root, pkg=PKG)[:40]):
         return c.done()
+    t_done = time.time()
     tap_node(btn)
     from django.db import close_old_connections
     from core.models import CareCallRing
@@ -722,10 +723,11 @@ def case_carecall(A, B, Ah, tokens):
     told = []
     end = time.time() + 30
     while time.time() < end and not told:
-        told = [r for r in _outbox_rows(t0 - 5, user_id=B_ID[0], push_kind="carecall_status")
-                if (r.get("data") or {}).get("status") == "done"]
+        # real-FCM mode logs no payload; the only carecall_status push to B
+        # after the Done tap is the "confirmed" one (B has no phone here: sent=0)
+        told = _outbox_rows(t_done - 1, user_id=B_ID[0], push_kind="carecall_status")
         time.sleep(2)
-    c.check("B (family) is told: 'confirmed' push to B", bool(told), len(told))
+    c.check("B (family) is told: the backend pushed 'confirmed' to B right after Done", bool(told), len(told))
     st, mj = B.req("GET", "/carecall")
     c.check("B's Care Call feed shows it confirmed", st == 200 and any(
         x.get("care_call_id") == cc["id"] and x.get("kind") == "confirmed" for x in mj.get("feed") or []),
