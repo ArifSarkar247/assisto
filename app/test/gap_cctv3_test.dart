@@ -208,4 +208,13 @@ void main() {
       });
     }
   }
+
+  test('recording times are the camera\'s Dhaka time shown in the phone\'s zone', () {
+    // 07:05 in Dhaka is 01:05 UTC — whatever zone this test machine is in
+    final want = DateTime.utc(2026, 11, 18, 1, 5).toLocal();
+    String two(int x) => x.toString().padLeft(2, '0');
+    expect(pbRecordLocalHhmm('2026-11-18 07:05:00'), '${two(want.hour)}:${two(want.minute)}');
+    expect(pbRecordLocalHhmm('07:05'), '07:05');
+    expect(pbRecordLocalHhmm('soon'), 'soon');
+  });
 }

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
+import 'package:assisto/screens/shop_box_screen.dart';
 import 'package:assisto/screens/watchman/watchman_add_camera.dart';
 import 'package:assisto/screens/watchman/watchman_alerts.dart';
 import 'package:assisto/screens/watchman/watchman_screen.dart';
@@ -23,6 +24,15 @@ import 'package:assisto/theme.dart';
 import 'cctv1_fakes.dart';
 import 'cctv1_shots.dart';
 import 'fake_api.dart';
+
+// gap-cctv: a Premium user whose CCTV plan (or trial) is active
+class _CctvPlanApi extends FakeApi {
+  @override
+  Future<Map<String, dynamic>> getJson(String path) async {
+    if (path == '/shop/watchman') return {'feature_on': true, 'sites': const [], 'can_shop': true};
+    return super.getJson(path);
+  }
+}
 
 AppState _state() {
   final s = AppState();
@@ -310,5 +320,45 @@ void main() {
     expect(find.byKey(const ValueKey('wm-shop-tools')), findsOneWidget);
     expect(find.text(en.gcvHubTitle), findsWidgets);
     expect(find.text(en.pcOwnerButton), findsNothing, reason: 'inside the one old-phone entry');
+  });
+
+  testWidgets('gap-cctv: Shop Box opens for an active CCTV plan, same rule as the server',
+      (tester) async {
+    _phone(tester, height: 2000);
+    FakeApi.planSlug = 'premium';
+    final st = _state()..api = _CctvPlanApi();
+    await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+        value: st,
+        child: MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const ShopBoxScreen(),
+        )));
+    await _settle(tester);
+    expect(find.text(en.shopBoxSeePlans), findsNothing, reason: 'not locked');
+    // without a CCTV plan: the lock names BOTH plans and offers the CCTV plan
+    await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+        value: _state(),
+        child: MaterialApp(
+          key: UniqueKey(),
+          locale: const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const ShopBoxScreen(),
+        )));
+    await _settle(tester);
+    expect(find.text(en.gcvShopBoxPlanNote), findsOneWidget);
+    expect(find.byKey(const Key('sb-cctv-plan')), findsOneWidget);
   });
 }
