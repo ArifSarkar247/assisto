@@ -52322,5 +52322,139 @@
   "d2LeadScoreHint": "The coloured number is the lead score: higher means more likely to buy.",
   "@d2LeadScoreHint": {
     "description": "design2: one-line legend above the CRM leads list explaining the score badge"
+  },
+  "bpShareReqMine": "Share this request",
+  "@bpShareReqMine": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: share the open request (requester)"
+  },
+  "bpShareReqOther": "Share — someone you know may help",
+  "@bpShareReqOther": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: share the open request (other donor)"
+  },
+  "bpShareReqSub": "WhatsApp, Facebook or Messenger. No phone number is included — add one yourself only if you want.",
+  "@bpShareReqSub": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: under the share button"
+  },
+  "bpShareReqText": "Urgent blood needed: {group}, {units} bag(s)\nHospital: {hospital}\nArea: {place}\nNeeded by: {when}\nIf you can donate, open Assisto → Blood donor and tap \"I can donate\": {link}",
+  "@bpShareReqText": {
+    "description": "gap-quranblood (17 Nov): Blood request share text (no phone number, no note)",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "units": {
+        "type": "String"
+      },
+      "hospital": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "bpCompatChip": "All groups that can give to {group}",
+  "@bpCompatChip": {
+    "description": "gap-quranblood (17 Nov): Blood find: include compatible donor groups",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "bpMePhoneShown": "Your number: shown",
+  "@bpMePhoneShown": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row (public)"
+  },
+  "bpMePhoneShownSub": "Anyone in Assisto who searches your blood group near you can see and call it. Tap to hide it.",
+  "@bpMePhoneShownSub": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row sub (public)"
+  },
+  "bpMePhoneHidden": "Your number: private",
+  "@bpMePhoneHidden": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row (private)"
+  },
+  "bpMePhoneHiddenSub": "People message you inside the app. Tap if you also want to show your number.",
+  "@bpMePhoneHiddenSub": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row sub (private)"
+  },
+  "bpPhonePublicConfirmTitle": "Show your phone number?",
+  "@bpPhonePublicConfirmTitle": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm making the number public"
+  },
+  "bpPhonePublicConfirmBody": "Anyone in Assisto who searches your blood group near you will see your number and can call or SMS you — including people you do not know. You can hide it again any time from the \"Me as donor\" tab.",
+  "@bpPhonePublicConfirmBody": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm making the number public (who sees it)"
+  },
+  "bpPhonePublicConfirmOk": "Yes, show my number",
+  "@bpPhonePublicConfirmOk": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm button"
+  },
+  "bpPhoneKeepPrivate": "Keep it private",
+  "@bpPhoneKeepPrivate": {
+    "description": "gap-quranblood (17 Nov): Blood: keep the number private"
+  },
+  "bpPhonePublicWhoSub": "Off (recommended): people message you in the app. On: anyone searching your group nearby sees your number.",
+  "@bpPhonePublicWhoSub": {
+    "description": "gap-quranblood (17 Nov): Blood setup: phone switch sub-line (who sees it)"
+  },
+  "bpDonatedOtherDay": "I donated on another day",
+  "@bpDonatedOtherDay": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: pick the real donation day"
+  },
+  "qrnTabJuz": "Para (Juz)",
+  "@qrnTabJuz": {
+    "description": "gap-quranblood (17 Nov): Quran: para tab"
+  },
+  "qrnJuzStarts": "Starts at {sura}, verse {aya}",
+  "@qrnJuzStarts": {
+    "description": "gap-quranblood (17 Nov): Quran para list: where the para starts",
+    "placeholders": {
+      "sura": {
+        "type": "String"
+      },
+      "aya": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnGoTo": "Go to {sura} {ref}",
+  "@qrnGoTo": {
+    "description": "gap-quranblood (17 Nov): Quran search: jump to sura:verse",
+    "placeholders": {
+      "sura": {
+        "type": "String"
+      },
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnNextSura": "Next sura: {name}",
+  "@qrnNextSura": {
+    "description": "gap-quranblood (17 Nov): Quran reader: end of sura",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "qvNextSura": "Next sura",
+  "@qvNextSura": {
+    "description": "gap-quranblood (17 Nov): Ayah view: last verse -> next sura"
+  },
+  "qrnEnOffline": "English: Pickthall (public domain, offline copy). The Saheeh International meaning loads when you are online.",
+  "@qrnEnOffline": {
+    "description": "gap-quranblood (17 Nov): Quran reader: English source line when offline"
+  },
+  "qrnMeaningOffline": "Bangla meaning could not load (no internet or the source is down). The Arabic is always here.",
+  "@qrnMeaningOffline": {
+    "description": "gap-quranblood (17 Nov): Quran reader: meaning failed to load"
   }
 }
