@@ -47,3 +47,12 @@ if os.getenv("E2E_REAL_FCM") == "1":
     FCM_TOKEN_URI = os.environ["E2E_FCM_TOKEN_URI"]
     FCM_SEND_URL = os.environ["E2E_FCM_SEND_URL"]
     PUSH_SYNC = True
+
+# calls-quality (two-emulator TURN proof, .github/workflows/calls2emu.yml):
+# the job runs a throw-away coturn on the runner with a per-run random secret;
+# the emulators reach it at 10.0.2.2:3478. Off unless that job sets the secret.
+if os.getenv("C2E_TURN_SECRET"):
+    TURN_STATIC_SECRET = os.environ["C2E_TURN_SECRET"]
+    TURN_HOST = os.getenv("C2E_TURN_HOST", "10.0.2.2")
+    TURN_PORT = 3478
+    TURN_TLS_PORT = 0

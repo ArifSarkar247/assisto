@@ -86,6 +86,7 @@ void main() {
   // calls-2emu: needs the SECOND emulator running the call peer + the control
   // channel (calls2emu.yml / tools/calls2emu/run.sh) -> opt-in only
   if (only.split(',').contains('calls2emu')) registerCallsTwoEmuFlows();
+  if (only.split(',').contains('calls2emu')) registerCallsQualityFlows(); // calls-quality
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {

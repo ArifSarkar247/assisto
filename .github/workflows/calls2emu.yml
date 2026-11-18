@@ -18,6 +18,11 @@ name: Calls two emulators
 # emulators per case (calls2emu/videos), logcat of both, commands log.
 # Never the live server, never the owner account.
 #
+# calls-quality (opt-in, additive): flows 18q_relay / 18q_lossy / 18q_netswitch /
+# 18q_pip / 18q_audio — push ci/calls-quality-run** or dispatch with
+# ids=...18q_*. Only then a real coturn runs on the runner (throw-away secret,
+# TURN_HOST 10.0.2.2) and the control channel shapes / switches the network.
+#
 # Trigger: push to ci/calls-2emu-run**; by hand: gh workflow run calls2emu.yml -f ref=<sha|branch>;
 # from the release gate: uses: ./.github/workflows/calls2emu.yml (workflow_call).
 
@@ -28,14 +33,22 @@ on:
         description: commit sha or branch to test
         required: false
         default: ""
+      ids:
+        description: flow ids (empty = the four 18w cases; 18q_* = calls-quality)
+        required: false
+        default: ""
   workflow_call:
     inputs:
       ref:
         type: string
         required: false
         default: ""
+      ids:
+        type: string
+        required: false
+        default: ""
   push:
-    branches: ['ci/calls-2emu-run**']   # the emulator run on purpose; ci/calls-2emu-arb = checks only
+    branches: ['ci/calls-2emu-run**', 'ci/calls-quality-run**']   # the emulator run on purpose; ci/calls-2emu-arb = checks only
 
 permissions:
   contents: read
@@ -64,7 +77,7 @@ jobs:
       ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
       REALITY_OUT: ${{ github.workspace }}/reality_out
       E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
-      C2E_IDS: 01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d
+      C2E_IDS: ${{ inputs.ids || (startsWith(github.ref, 'refs/heads/ci/calls-quality-run') && '01_language,02_login,03_onboarding,18q_relay,18q_lossy,18q_netswitch,18q_pip,18q_audio') || '01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,6 +91,25 @@ jobs:
           python-version: '3.12'
       - name: Backend deps
         run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: TURN server on the runner (calls-quality cases only)
+        if: contains(env.C2E_IDS, '18q_')
+        run: |
+          set -eo pipefail
+          mkdir -p "$REALITY_OUT/calls2emu"
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq coturn iproute2 >/dev/null
+          sudo systemctl stop coturn 2>/dev/null || true
+          IP=$(hostname -I | awk '{print $1}')
+          SECRET=$(openssl rand -hex 16)   # throw-away, this run only
+          echo "::add-mask::$SECRET"
+          nohup turnserver -n --listening-port=3478 --relay-ip="$IP" --external-ip="$IP" \
+            --min-port=49160 --max-port=49460 --use-auth-secret --static-auth-secret="$SECRET" \
+            --realm=calls2emu.ci --no-tls --no-dtls --no-cli --allow-loopback-peers \
+            --log-file="$REALITY_OUT/calls2emu/turnserver.log" --simple-log --verbose \
+            > "$REALITY_OUT/calls2emu/turnserver.out" 2>&1 &
+          echo $! > "$REALITY_OUT/calls2emu/turn.pid"
+          echo "C2E_TURN_SECRET=$SECRET" >> "$GITHUB_ENV"
+          for i in $(seq 1 15); do ss -lun | grep -q ':3478 ' && { echo "coturn up on $IP:3478"; exit 0; }; sleep 1; done
+          echo "::error::coturn did not start"; cat "$REALITY_OUT/calls2emu/turnserver.out"; exit 1
       - name: Throw-away backend with CI fakes
         run: |
           mkdir -p "$REALITY_OUT/calls2emu"
@@ -96,6 +128,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
           cache: true
       - name: CI-only dev deps + a real build number
         working-directory: app
@@ -166,6 +199,8 @@ jobs:
         run: |
           kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
           kill "$(cat "$REALITY_OUT/calls2emu/control.pid" 2>/dev/null)" 2>/dev/null || true
+          kill "$(cat "$REALITY_OUT/calls2emu/turn.pid" 2>/dev/null)" 2>/dev/null || true
+          sudo tc qdisc del dev lo root 2>/dev/null || true
       - name: Verdict (every case must pass; per-case frames table)
         if: always()
         run: |

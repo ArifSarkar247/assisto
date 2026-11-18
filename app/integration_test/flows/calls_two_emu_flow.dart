@@ -42,6 +42,10 @@ import 'package:assisto/calls/webrtc_media.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 
+import 'package:assisto/audio/audio_route_service.dart'; // calls-quality
+import 'package:assisto/calls/call_native.dart'; // calls-quality
+
+import '../support/call_quality_watch.dart'; // calls-quality
 import '../support/harness.dart';
 
 const _ctl = String.fromEnvironment('CALLS2EMU_CTL', defaultValue: 'http://10.0.2.2:8710');
@@ -356,6 +360,340 @@ void registerCallsTwoEmuFlows() {
       await f.step('B\'s camera becomes available and turns on; A sees it within 12 s',
           () => e.bCameraOnAndFirstFrame('d_back'));
       await f.step('video both ways after the camera came back', () => e.prove('d_back'));
+      await f.step('A hangs up', e.aHangsUp);
+    });
+  }, timeout: t);
+}
+
+// ======================================================== calls-quality
+// Opt-in quality cases on the same two emulators (calls2emu.yml with the
+// quality id set: push ci/calls-quality-run** or dispatch with ids=...). The
+// job runs a real coturn on the runner for these (TURN_HOST 10.0.2.2 =
+// the runner), and the control channel's /host actions change the network.
+//
+//   18q_relay      TURN relay ONLY on both sides: the call connects through the
+//                  TURN server and media flows both ways (pair = relay on both)
+//   18q_lossy      3G-like link on the TURN legs (tc netem: ~300 ms RTT, ~3 %
+//                  loss each way, 3 Mbit shared): audio keeps flowing, video
+//                  keeps moving — no freeze > 2 s on either side; measured
+//   18q_netswitch  Wi-Fi -> mobile data -> Wi-Fi on A mid-call: the call
+//                  survives through an ICE restart (A caller, then A callee)
+//   18q_pip        Home mid video call: picture-in-picture shows and video
+//                  keeps flowing both ways; back to the app restores the call
+//   18q_audio      voice call: speaker <-> earpiece toggling changes the
+//                  phone's REAL communication device (AudioManager), audio
+//                  keeps flowing; a video call starts on the speaker
+//
+// HONEST LIMIT: emulators on one host; netem shapes only the TURN legs; the
+// emulator's "cellular" is a virtual radio; there is no real earpiece/speaker
+// sound (the route is read back from Android's AudioManager).
+extension _Quality on _TwoEmu {
+  /// A places a call with extra answer options for B (relayOnly, ...).
+  Future<Map<String, dynamic>> qCall({required bool video, Map<String, dynamic> bArgs = const {}}) async {
+    await openChatWithB();
+    final seen = ((await b('incomingCount'))['count'] as num).toInt();
+    final ans = await send('answer', {'seen': seen, 'cameraBlocked': false, 'timeout': 40, ...bArgs});
+    await f.tap(find.byTooltip(video ? f.t.circleVideo : f.t.circleVoiceCall), settleSeconds: 2);
+    await f.waitFor(find.byType(CircleCallScreen), what: 'call screen on A');
+    final r = await result(ans, 'answer A\'s ${video ? 'video' : 'voice'} call', seconds: 90);
+    await connectedOnA();
+    return r;
+  }
+
+  Future<Map<String, dynamic>> host(String op, [Map<String, dynamic> args = const {}]) async {
+    final r = await f.net(() => _req('POST', '/host', {'op': op, ...args}));
+    return r;
+  }
+
+  WebRtcCallMedia get aMedia {
+    final m = a.media;
+    if (m is! WebRtcCallMedia) throw TestFailure('A media is not WebRTC');
+    return m;
+  }
+
+  /// Both sides measured over the SAME window: A here, B on emulator 2.
+  /// [pumping] false = A waits without pumping frames (picture-in-picture).
+  Future<(Map<String, dynamic>, Map<String, dynamic>)> watchBoth(String label, int seconds,
+      {bool pumping = true}) async {
+    final m = aMedia;
+    final id = await send('watch', {'seconds': seconds, 'label': label});
+    final wa = await watchQuality(() => f.net(m.debugQuality), Duration(seconds: seconds),
+        tick: pumping
+            ? () => f.tester.pump(const Duration(milliseconds: 250))
+            : () => f.net(() => Future<void>.delayed(const Duration(milliseconds: 250))));
+    final wb = await result(id, 'watch $label', seconds: seconds + 30);
+    final line = '$label: A sees [${qualityLine(wa)}] | B sees [${qualityLine(wb)}]';
+    f.note(line);
+    try {
+      await f.net(() => _req('POST', '/sample', {'case': label, 'line': line, 'a': wa, 'b': wb}));
+    } catch (_) {}
+    return (wa, wb);
+  }
+
+  void needMoving(String label, Map<String, dynamic> wa, Map<String, dynamic> wb,
+      {int maxVideoGapMs = 0, int maxAudioGapMs = 0}) {
+    for (final (side, w) in [('A', wa), ('B', wb)]) {
+      if (((w['video_frames'] as num?) ?? 0) <= 0) {
+        throw TestFailure('$label: $side decoded NO new video frame (${qualityLine(w)})');
+      }
+      if (((w['audio_packets'] as num?) ?? 0) <= 0) {
+        throw TestFailure('$label: $side received NO audio (${qualityLine(w)})');
+      }
+      final vg = (w['video_max_gap_ms'] as num?) ?? 0, ag = (w['audio_max_gap_ms'] as num?) ?? 0;
+      if (maxVideoGapMs > 0 && vg > maxVideoGapMs) {
+        throw TestFailure('$label: $side video froze $vg ms (> $maxVideoGapMs) (${qualityLine(w)})');
+      }
+      if (maxAudioGapMs > 0 && ag > maxAudioGapMs) {
+        throw TestFailure('$label: $side audio stopped $ag ms (> $maxAudioGapMs) (${qualityLine(w)})');
+      }
+    }
+  }
+
+  Future<void> waitLive(String what, {int seconds = 30}) async {
+    final end = DateTime.now().add(Duration(seconds: seconds));
+    while (DateTime.now().isBefore(end)) {
+      final c = CallRuntime.instance.currentCall;
+      if (c != null && c.phase == CallPhase.connected) return;
+      if (c == null || c.isEnded) throw TestFailure('$what: the call ENDED (${c?.endReason}, log ${c?.log})');
+      await f.tester.pump(const Duration(milliseconds: 300));
+    }
+    final c = CallRuntime.instance.currentCall;
+    throw TestFailure('$what: not connected again in $seconds s (phase ${c?.phase}, log ${c?.log})');
+  }
+
+  Future<AudioRoute?> osRoute() => f.net(() => MethodChannelAudioRoutePlatform().active());
+}
+
+void registerCallsQualityFlows() {
+  const t = Duration(minutes: 8);
+  realityFlow('18q_relay', 'My Circle', 'Two emulators: TURN relay only on both sides, media both ways',
+      (f) async {
+    await f.home();
+    final e = _TwoEmu(f);
+    await e.reset();
+    await e.kase('q_relay', () async {
+      WebRtcCallMedia.debugIcePolicy = 'relay';
+      try {
+        await f.step('A video-calls B with relay-only ICE on BOTH sides; B answers', () async {
+          await e.qCall(video: true, bArgs: {'relayOnly': true});
+          if (!e.a.turnAvailable) {
+            throw TestFailure('the backend gave A no TURN server (rtc config not configured)');
+          }
+        });
+        await f.step('video + audio both ways through TURN', () => e.prove('q_relay'));
+        await f.step('the pair in use is a TURN relay on both sides', () async {
+          final (wa, wb) = await e.watchBoth('q_relay_path', 6);
+          if (!isRelayed(wa) || !isRelayed(wb)) {
+            throw TestFailure('not relayed: A ${wa['local']}->${wa['remote']}, B ${wb['local']}->${wb['remote']}');
+          }
+          e.needMoving('q_relay_path', wa, wb);
+          await f.shot('q-relay');
+        });
+        await f.step('A hangs up', e.aHangsUp);
+      } finally {
+        WebRtcCallMedia.debugIcePolicy = null;
+      }
+    });
+  }, timeout: t);
+
+  realityFlow('18q_lossy', 'My Circle', 'Two emulators: 3G-like lossy link (300 ms RTT, 3 % loss) — audio flows, video never freezes > 2 s',
+      (f) async {
+    await f.home();
+    final e = _TwoEmu(f);
+    await e.reset();
+    await e.kase('q_lossy', () async {
+      WebRtcCallMedia.debugIcePolicy = 'relay'; // all media on the shaped TURN legs
+      try {
+        await f.step('A video-calls B (through TURN); B answers', () async {
+          await e.qCall(video: true, bArgs: {'relayOnly': true});
+        });
+        await f.step('baseline: 10 s on a clean link', () async {
+          final (wa, wb) = await e.watchBoth('q_lossy_clean', 10);
+          e.needMoving('q_lossy_clean', wa, wb);
+        });
+        await f.step('3G-like link: ~300 ms RTT, ~3 % loss each way, 3 Mbit — 30 s measured', () async {
+          final n = await e.host('netem', {'on': true, 'delay_ms': 75, 'jitter_ms': 10, 'loss_pct': 1.5, 'rate_kbit': 3000});
+          if ((n['errors'] as List?)?.isNotEmpty ?? true) throw TestFailure('netem not applied: $n');
+          await f.pumpFor(const Duration(seconds: 5)); // let congestion control react
+          final (wa, wb) = await e.watchBoth('q_lossy_3g', 30);
+          final rtt = (wa['rtt_median_ms'] as num?) ?? 0;
+          if (rtt < 200) throw TestFailure('netem had no effect (A rtt $rtt ms) — not a lossy test');
+          e.needMoving('q_lossy_3g', wa, wb, maxVideoGapMs: 2000, maxAudioGapMs: 2000);
+          if (!e.a.isLive) throw TestFailure('call not live on the lossy link (${e.a.phase})');
+        });
+      } finally {
+        await e.host('netem', {'on': false});
+        WebRtcCallMedia.debugIcePolicy = null;
+      }
+      await f.step('link clean again: media recovers (8 s)', () async {
+        final (wa, wb) = await e.watchBoth('q_lossy_after', 8);
+        e.needMoving('q_lossy_after', wa, wb, maxVideoGapMs: 2000);
+      });
+      await f.step('A hangs up', e.aHangsUp);
+    });
+  }, timeout: t);
+
+  realityFlow('18q_netswitch', 'My Circle', 'Two emulators: Wi-Fi <-> mobile data mid-call, the call survives (ICE restart)',
+      (f) async {
+    await f.home();
+    final e = _TwoEmu(f);
+    await e.reset();
+    Future<void> switchAndSurvive(String label, bool wifiOn) async {
+      final before = e.a.log.length;
+      final n0 = await e.host('net', {'side': 'A'});
+      final sw = Stopwatch()..start();
+      final h = await e.host('wifi', {'side': 'A', 'on': wifiOn});
+      // B measures the outage as the user on the other phone sees it
+      final id = await e.send('watch', {'seconds': 30, 'label': label});
+      // the phone reports the switch (Android default-network callback) ->
+      // "Reconnecting" + ICE restart; then the call must be connected again
+      final seenBy = DateTime.now().add(const Duration(seconds: 12));
+      while (DateTime.now().isBefore(seenBy) && !e.a.log.skip(before).any((x) => x.startsWith('net:'))) {
+        await f.tester.pump(const Duration(milliseconds: 250));
+      }
+      await e.waitLive(label, seconds: 45);
+      final wa = await watchQuality(() => f.net(e.aMedia.debugQuality), const Duration(seconds: 8),
+          tick: () => f.tester.pump(const Duration(milliseconds: 250)));
+      final wb = await e.result(id, 'watch $label', seconds: 70);
+      final n1 = await e.host('net', {'side': 'A'});
+      final newLog = e.a.log.skip(before).toList();
+      final restarted = newLog.any((x) => x.startsWith('restart_offer') || x.startsWith('restart_request') ||
+          x.contains('restart'));
+      final line = '$label: wifi ${wifiOn ? 'ON' : 'OFF'} (${h['svc']}) default ${n0['lines']} -> ${n1['lines']}; '
+          'live again ${sw.elapsedMilliseconds} ms; B outage (max video gap) ${wb['video_max_gap_ms']} ms, '
+          'audio gap ${wb['audio_max_gap_ms']} ms; A after [${qualityLine(wa)}]; A log $newLog';
+      f.note(line);
+      try {
+        await f.net(() => _req('POST', '/sample', {'case': label, 'line': line, 'a': wa, 'b': wb}));
+      } catch (_) {}
+      if (!newLog.any((x) => x.startsWith('net:'))) {
+        throw TestFailure('$label: A never saw the network change (log $newLog)');
+      }
+      if (!restarted) throw TestFailure('$label: no ICE restart after the switch (log $newLog)');
+      if (((wa['video_frames'] as num?) ?? 0) <= 0 || ((wa['audio_packets'] as num?) ?? 0) <= 0) {
+        throw TestFailure('$label: media did not come back on A (${qualityLine(wa)})');
+      }
+      final q = await e.b('quality', const {}, 20);
+      if (q['phase'] != '${CallPhase.connected}') throw TestFailure('$label: B not connected ($q)');
+    }
+
+    await e.kase('q_net', () async {
+      try {
+        await f.step('A (caller) video-calls B; B answers', () => e.qCall(video: true));
+        await f.step('media both ways on Wi-Fi', () => e.prove('q_net_wifi'));
+        await f.step('A: Wi-Fi OFF -> mobile data; the call survives', () => switchAndSurvive('q_net_to_cell', false));
+        await f.step('A: Wi-Fi back ON; the call survives', () => switchAndSurvive('q_net_to_wifi', true));
+        await f.step('media both ways after both switches', () => e.prove('q_net_after'));
+        await f.step('A hangs up', e.aHangsUp);
+        await f.step('B (caller) video-calls A; A answers', () => e.bCallsA(video: true));
+        await f.step('A (callee): Wi-Fi OFF -> mobile data; B restarts ICE on A\'s request',
+            () => switchAndSurvive('q_net_callee_to_cell', false));
+        await f.step('B hangs up', () async {
+          await e.b('hangup', const {}, 30);
+          await f.backToHome();
+        });
+      } finally {
+        await e.host('wifi', {'side': 'A', 'on': true});
+      }
+    });
+  }, timeout: const Duration(minutes: 10));
+
+  realityFlow('18q_pip', 'My Circle', 'Two emulators: Home mid video call -> picture-in-picture, video keeps flowing, return restores',
+      (f) async {
+    await f.home();
+    final e = _TwoEmu(f);
+    await e.reset();
+    await e.kase('q_pip', () async {
+      await f.step('A video-calls B; B answers', () => e.qCall(video: true));
+      await f.step('video both ways', () => e.prove('q_pip_before'));
+      await f.step('A presses Home: the call shrinks into picture-in-picture', () async {
+        await e.host('key', {'side': 'A', 'key': 'HOME'});
+        final sw = Stopwatch()..start();
+        while (!CallNative.inPip.value && sw.elapsed < const Duration(seconds: 8)) {
+          await f.net(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+        }
+        final st = await e.host('pip', {'side': 'A'});
+        f.note('q_pip: inPip=${CallNative.inPip.value} after ${sw.elapsedMilliseconds} ms; '
+            'system pinned=${st['pinned']} ${st['lines']}');
+        if (!CallNative.inPip.value) throw TestFailure('no picture-in-picture after Home ($st, log ${e.a.log})');
+        if (st['pinned'] != true) throw TestFailure('the app says PiP but Android shows no pinned task ($st)');
+      });
+      await f.step('in PiP: video + audio still flow both ways (camera not paused)', () async {
+        final (wa, wb) = await e.watchBoth('q_pip_in', 8, pumping: false);
+        e.needMoving('q_pip_in', wa, wb);
+        if (e.a.cameraPausedBg) throw TestFailure('A paused its camera in PiP');
+      });
+      await f.step('A returns to the app: full-screen call again', () async {
+        final sw = Stopwatch()..start();
+        final r = await e.host('launch', {'side': 'A'});
+        while (CallNative.inPip.value && sw.elapsed < const Duration(seconds: 10)) {
+          await f.net(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+        }
+        if (CallNative.inPip.value) throw TestFailure('still in PiP after returning ($r)');
+        await f.waitFor(find.byType(CircleCallScreen), seconds: 10, what: 'call screen after PiP');
+        await e.waitLive('after PiP', seconds: 10);
+        f.note('q_pip: back full screen in ${sw.elapsedMilliseconds} ms');
+        await f.shot('q-pip-back');
+      });
+      await f.step('video both ways after PiP', () => e.prove('q_pip_after'));
+      await f.step('A hangs up', e.aHangsUp);
+    });
+  }, timeout: t);
+
+  realityFlow('18q_audio', 'My Circle', 'Two emulators: speaker <-> earpiece toggling changes the real audio route, audio keeps flowing',
+      (f) async {
+    await f.home();
+    final e = _TwoEmu(f);
+    await e.reset();
+    Future<void> expectRoute(String label, AudioRoute want) async {
+      AudioRoute? os;
+      final end = DateTime.now().add(const Duration(seconds: 5));
+      while (DateTime.now().isBefore(end)) {
+        os = await e.osRoute();
+        if (e.a.route == want && os == want) break;
+        await f.tester.pump(const Duration(milliseconds: 250));
+      }
+      final d = await e.host('audio', {'side': 'A'});
+      f.note('$label: app route ${e.a.route.name}, Android route ${os?.name}, routes ${e.a.routes}; '
+          'dumpsys ${(d['lines'] as List?)?.take(8).toList()}');
+      if (e.a.route != want || os != want) {
+        throw TestFailure('$label: wanted ${want.name}, app ${e.a.route.name}, Android ${os?.name}');
+      }
+    }
+
+    await e.kase('q_audio', () async {
+      await f.step('A voice-calls B; B answers', () => e.qCall(video: false));
+      await f.step('a voice call starts on the earpiece', () => expectRoute('q_audio_start', AudioRoute.earpiece));
+      await f.step('tap Speaker: the loudspeaker', () async {
+        await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);
+        await expectRoute('q_audio_speaker', AudioRoute.speaker);
+      });
+      await f.step('tap again: back to the earpiece', () async {
+        await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);
+        await expectRoute('q_audio_earpiece', AudioRoute.earpiece);
+      });
+      await f.step('speaker once more, then audio still flows both ways', () async {
+        await f.tap(find.byKey(const Key('call-speaker')), settleSeconds: 1);
+        await expectRoute('q_audio_speaker2', AudioRoute.speaker);
+        final s = await e.sample('q_audio', 't1');
+        await f.pumpFor(const Duration(seconds: 4));
+        final s2 = await e.sample('q_audio', 't2');
+        if ((s2.a.audioPacketsIn ?? 0) <= (s.a.audioPacketsIn ?? 0) || (s2.bAudio ?? 0) <= (s.bAudio ?? 0)) {
+          throw TestFailure('audio stopped after route changes: A ${s.a.audioPacketsIn}->${s2.a.audioPacketsIn}, '
+              'B ${s.bAudio}->${s2.bAudio}');
+        }
+      });
+      await f.step('A hangs up: Android leaves call audio mode', () async {
+        await e.aHangsUp();
+        final d = await e.host('audio', {'side': 'A'});
+        f.note('q_audio_end: dumpsys ${(d['lines'] as List?)?.take(8).toList()}');
+      });
+    });
+    await e.kase('q_audio_v', () async {
+      await f.step('A video-calls B: a video call starts on the speaker', () async {
+        await e.qCall(video: true);
+        await expectRoute('q_audio_video', AudioRoute.speaker);
+      });
       await f.step('A hangs up', e.aHangsUp);
     });
   }, timeout: t);

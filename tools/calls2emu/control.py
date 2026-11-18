@@ -17,6 +17,15 @@ and the port is not exposed outside it).
   *  POST /log      {"side", "line"}                   -> appended to <out>/peer_<side>.log
   A  POST /rec      {"case": "a", "on": true|false}    -> host screenrecord on BOTH emulators
                                                           (best effort, never fails a case)
+  A  POST /host     {"op": ..., ...}                   -> calls-quality: a whitelisted HOST action
+        netem   {on, delay_ms, jitter_ms, loss_pct, rate_kbit}  tc netem on lo for the TURN
+                legs (UDP port 3478 both ways) — client<->TURN only, adb/backend untouched
+        wifi    {side, on}     Wi-Fi off/on on that emulator (mobile data stays on)
+        key     {side, key}    HOME / BACK / APP_SWITCH key on that emulator
+        launch  {side}         the app's launcher intent (brings a PiP task back full screen)
+        pip     {side}         dumpsys: is the app's task pinned (picture-in-picture)
+        audio   {side}         dumpsys audio: mode + communication device lines
+        net     {side}         dumpsys connectivity: the default network
 
 usage: control.py --out DIR [--port 8710] [--serials emulator-5554,emulator-5556]
 """
@@ -86,6 +95,92 @@ def _rec(case, on):
         if os.path.exists(dst) and os.path.getsize(dst) > 0:
             got.append(os.path.basename(dst))
     return {"videos": got}
+
+
+PKG = "com.assisto.assisto"
+TURN_PORT = int(os.environ.get("C2E_TURN_PORT", "3478"))
+
+
+def _run(cmd, t=30):
+    try:
+        p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=t)
+        return p.returncode, p.stdout.decode("utf-8", "replace")
+    except Exception as e:  # noqa: BLE001 - evidence only
+        return -1, repr(e)
+
+
+def _sh(side, *args, t=30):
+    serial = SERIALS[0 if side == "A" else 1]
+    return _run(["timeout", str(t), ADB, "-s", serial, "shell"] + list(args), t + 5)
+
+
+def _grep(text, pat, n=25):
+    rx = re.compile(pat, re.I)
+    return [ln.strip() for ln in text.splitlines() if rx.search(ln)][:n]
+
+
+def _netem(b):
+    """client<->TURN legs only: prio qdisc with a 4th band that only the
+    UDP-3478 filters reach (bands 1-3 keep the default priomap)."""
+    _run(["sudo", "tc", "qdisc", "del", "dev", "lo", "root"], 15)
+    if not b.get("on"):
+        return {"netem": "off", "qdisc": _run(["tc", "-s", "qdisc", "show", "dev", "lo"])[1][-1500:]}
+    _run(["sudo", "modprobe", "sch_netem"], 15)
+    steps = [
+        ["sudo", "tc", "qdisc", "add", "dev", "lo", "root", "handle", "1:", "prio", "bands", "4",
+         "priomap", "1", "2", "2", "2", "1", "2", "0", "0", "1", "1", "1", "1", "1", "1", "1", "1"],
+        ["sudo", "tc", "qdisc", "add", "dev", "lo", "parent", "1:4", "handle", "40:", "netem",
+         "delay", "%dms" % int(b.get("delay_ms", 75)), "%dms" % int(b.get("jitter_ms", 10)),
+         "loss", "%.2f%%" % float(b.get("loss_pct", 1.5))]
+        + (["rate", "%dkbit" % int(b["rate_kbit"])] if b.get("rate_kbit") else []),
+    ]
+    for d in ("dport", "sport"):
+        steps.append(["sudo", "tc", "filter", "add", "dev", "lo", "protocol", "ip", "parent", "1:0",
+                      "prio", "1", "u32", "match", "ip", "protocol", "17", "0xff",
+                      "match", "ip", d, str(TURN_PORT), "0xffff", "flowid", "1:4"])
+    errs = []
+    for c in steps:
+        rc, o = _run(c, 15)
+        if rc != 0:
+            errs.append("%s -> %s" % (" ".join(c[2:6]), o.strip()[:200]))
+    return {"netem": "on", "errors": errs, "args": b,
+            "qdisc": _run(["tc", "-s", "qdisc", "show", "dev", "lo"])[1][-1500:]}
+
+
+def _host(b):
+    op = str(b.get("op"))
+    side = "A" if str(b.get("side", "A")) == "A" else "B"
+    if op == "netem":
+        return _netem(b)
+    if op == "wifi":
+        on = bool(b.get("on"))
+        _sh(side, "svc", "data", "enable")
+        rc, o = _sh(side, "svc", "wifi", "enable" if on else "disable")
+        rc2, o2 = _sh(side, "cmd", "wifi", "set-wifi-enabled", "enabled" if on else "disabled")
+        return {"wifi": on, "svc": [rc, o.strip()[:200]], "cmd": [rc2, o2.strip()[:200]]}
+    if op == "key":
+        key = {"HOME": "KEYCODE_HOME", "BACK": "KEYCODE_BACK", "APP_SWITCH": "KEYCODE_APP_SWITCH"}.get(
+            str(b.get("key", "HOME")), "KEYCODE_HOME")
+        rc, o = _sh(side, "input", "keyevent", key)
+        return {"key": key, "rc": rc}
+    if op == "launch":
+        rc, o = _sh(side, "am", "start", "-a", "android.intent.action.MAIN",
+                    "-c", "android.intent.category.LAUNCHER", "-f", "0x10200000",
+                    "-n", "%s/.MainActivity" % PKG)
+        return {"rc": rc, "out": o.strip()[:400]}
+    if op == "pip":
+        rc, o = _sh(side, "dumpsys", "activity", "activities", t=40)
+        lines = _grep(o, r"pinned", 15)
+        # API 33: "* Task{... type=standard mode=pinned ... A=10xxx:com.assisto.assisto}"
+        return {"pinned": any("mode=pinned" in ln for ln in lines), "lines": lines}
+    if op == "audio":
+        rc, o = _sh(side, "dumpsys", "audio", t=40)
+        return {"lines": _grep(o, r"communication|speakerphone|mode now|audio mode|forceuse|"
+                                  r"preferred.*device", 30)}
+    if op == "net":
+        rc, o = _sh(side, "dumpsys", "connectivity", t=40)
+        return {"lines": _grep(o, r"Active default network|NetworkAgentInfo\{", 6)}
+    return {"error": "unknown op %s" % op}
 
 
 class H(BaseHTTPRequestHandler):
@@ -191,6 +286,11 @@ class H(BaseHTTPRequestHandler):
                 return self._send(200, _rec(str(b.get("case", "case")), bool(b.get("on"))))
             except Exception as e:  # recording is evidence only
                 return self._send(200, {"error": repr(e)})
+        if u.path == "/host":  # calls-quality
+            r = _host(b)
+            _append("host_ops.log", "%s %s -> %s" % (time.strftime("%H:%M:%S"), json.dumps(b),
+                                                     json.dumps(r)[:1500]))
+            return self._send(200, r)
         return self._send(404, {"error": "unknown path"})
 
 

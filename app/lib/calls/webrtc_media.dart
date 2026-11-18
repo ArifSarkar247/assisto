@@ -63,6 +63,12 @@ class WebRtcCallMedia
   RTCRtpSender? _audioSender;
   MediaPlan? _plan;
   List<Map<String, dynamic>> _iceServers = const [];
+
+  /// calls-quality (two-emulator TURN proof): 'relay' makes every NEW peer
+  /// gather TURN relay candidates only, so the call must go through the TURN
+  /// server. Tests only; null (the app) = normal ICE (host, srflx, relay).
+  @visibleForTesting
+  static String? debugIcePolicy;
   MediaStream? _local;
   final RTCVideoRenderer localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
@@ -295,6 +301,7 @@ class WebRtcCallMedia
       // setLocalDescription, which is early enough (the offer is pre-sent
       // while it rings).
       'iceCandidatePoolSize': 0,
+      if (debugIcePolicy != null) 'iceTransportPolicy': debugIcePolicy, // calls-quality
     });
     _pc = pc;
     final local = _local;
@@ -678,6 +685,96 @@ class WebRtcCallMedia
     out['rtp'] = rtp;
     out['local_video_track'] = _videoTrack?.id;
     out['has_remote_video'] = hasRemoteVideo.value;
+    return out;
+  }
+
+  /// calls-quality: ONE read-only snapshot of what a viewer sees and hears —
+  /// the ICE pair in use (relay or direct, Wi-Fi or cellular, RTT, available
+  /// bitrate), inbound video (frames decoded, libwebrtc freeze counters,
+  /// size, fps, loss), inbound audio (packets, loss, concealment), outbound
+  /// video (frames, size, fps, why the quality is limited). Never changes
+  /// any state (stats() keeps its own loss counters). Never called by the app.
+  @visibleForTesting
+  Future<Map<String, dynamic>> debugQuality() async {
+    final pc = _pc;
+    if (pc == null) return {'pc': null};
+    final reports = await pc.getStats();
+    final byId = <String, Map<dynamic, dynamic>>{for (final r in reports) r.id: r.values};
+    String? sel;
+    for (final r in reports) {
+      if (r.type == 'transport' && r.values['selectedCandidatePairId'] != null) {
+        sel = '${r.values['selectedCandidatePairId']}';
+      }
+    }
+    num n(Object? v) => v is num ? v : 0;
+    Map<String, dynamic> cand(Object? id) {
+      final c = byId['$id'];
+      if (c == null) return const {};
+      return {
+        'type': c['candidateType'],
+        'protocol': c['protocol'],
+        'relayProtocol': c['relayProtocol'],
+        'networkType': c['networkType'],
+        'address': c['address'] ?? c['ip'],
+        'port': c['port'],
+      };
+    }
+    final out = <String, dynamic>{'t_ms': DateTime.now().millisecondsSinceEpoch};
+    var vinFrames = 0, vinFreezes = 0, vinLost = 0, vinRecv = 0;
+    var vinFreezeS = 0.0;
+    var ainPk = 0, ainLost = 0, aoutPk = 0, voutFrames = 0;
+    var ainConcealed = 0, ainSamples = 0;
+    for (final r in reports) {
+      final v = r.values;
+      final kind = v['kind'] ?? v['mediaType'];
+      if (r.type == 'candidate-pair') {
+        final isSel = sel != null
+            ? r.id == sel
+            : (v['nominated'] == true && v['state'] == 'succeeded');
+        if (!isSel) continue;
+        final rtt = v['currentRoundTripTime'];
+        final ab = v['availableOutgoingBitrate'];
+        out['pair'] = {
+          'state': v['state'],
+          'rtt_ms': rtt is num ? (rtt * 1000).round() : null,
+          'avail_kbps': ab is num ? (ab / 1000).round() : null,
+          'local': cand(v['localCandidateId']),
+          'remote': cand(v['remoteCandidateId']),
+        };
+      } else if (r.type == 'inbound-rtp' && kind == 'video') {
+        vinFrames += n(v['framesDecoded']).toInt();
+        vinFreezes += n(v['freezeCount']).toInt();
+        vinFreezeS += n(v['totalFreezesDuration']).toDouble();
+        vinLost += n(v['packetsLost']).toInt();
+        vinRecv += n(v['packetsReceived']).toInt();
+        if (v['frameWidth'] != null) out['vin_w'] = v['frameWidth'];
+        if (v['frameHeight'] != null) out['vin_h'] = v['frameHeight'];
+        if (v['framesPerSecond'] != null) out['vin_fps'] = v['framesPerSecond'];
+      } else if (r.type == 'inbound-rtp' && kind == 'audio') {
+        ainPk += n(v['packetsReceived']).toInt();
+        ainLost += n(v['packetsLost']).toInt();
+        ainConcealed += n(v['concealedSamples']).toInt();
+        ainSamples += n(v['totalSamplesReceived']).toInt();
+        if (v['jitter'] is num) out['a_jitter_ms'] = ((v['jitter'] as num) * 1000).round();
+      } else if (r.type == 'outbound-rtp' && kind == 'video') {
+        voutFrames += n(v['framesEncoded']).toInt();
+        if (v['frameWidth'] != null) out['vout_w'] = v['frameWidth'];
+        if (v['frameHeight'] != null) out['vout_h'] = v['frameHeight'];
+        if (v['framesPerSecond'] != null) out['vout_fps'] = v['framesPerSecond'];
+        if (v['qualityLimitationReason'] != null) out['vout_limit'] = v['qualityLimitationReason'];
+        if (v['targetBitrate'] is num) out['vout_target_kbps'] = ((v['targetBitrate'] as num) / 1000).round();
+      } else if (r.type == 'outbound-rtp' && kind == 'audio') {
+        aoutPk += n(v['packetsSent']).toInt();
+      }
+    }
+    out.addAll({
+      'vin_frames': vinFrames, 'vin_freezes': vinFreezes,
+      'vin_freeze_ms': (vinFreezeS * 1000).round(),
+      'vin_lost': vinLost, 'vin_recv': vinRecv,
+      'ain_packets': ainPk, 'ain_lost': ainLost,
+      'ain_concealed': ainConcealed, 'ain_samples': ainSamples,
+      'aout_packets': aoutPk, 'vout_frames': voutFrames,
+    });
     return out;
   }
 

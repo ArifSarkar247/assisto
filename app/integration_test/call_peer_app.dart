@@ -26,6 +26,8 @@ import 'package:assisto/calls/webrtc_media.dart';
 import 'package:assisto/config.dart';
 import 'package:assisto/realtime/realtime_transport.dart';
 
+import 'support/call_quality_watch.dart'; // calls-quality
+
 const _ctl = String.fromEnvironment('CALLS2EMU_CTL', defaultValue: 'http://10.0.2.2:8710');
 const _phoneB = String.fromEnvironment('REALITY_PHONE_B', defaultValue: '01700000002');
 const _password = String.fromEnvironment('REALITY_PASSWORD', defaultValue: 'Reality#2026');
@@ -158,6 +160,8 @@ class Peer extends ChangeNotifier {
         final inc = await _until('A\'s call ringing on B', () => incoming.length > seen ? incoming.last : null,
             (a['timeout'] as num?)?.toInt() ?? 30);
         final id = (inc['call_id'] as num).toInt();
+        // calls-quality: relay-only ICE when A asks for the TURN proof
+        WebRtcCallMedia.debugIcePolicy = a['relayOnly'] == true ? 'relay' : null;
         _set('answering call $id (video=${inc['video']}, camera ${blocked ? 'UNAVAILABLE' : 'ok'})');
         await api.postJson('/circle/calls/$id/event', {'event': 'ringing'});
         final m = media = WebRtcCallMedia(cameraBlocked: blocked);
@@ -180,6 +184,7 @@ class Peer extends ChangeNotifier {
         final members = await api.getJson('/circle/members');
         final edge = (((members['results'] ?? members['members']) as List).cast<Map>())
             .firstWhere((m) => '${m['name']}'.contains('Rahim'));
+        WebRtcCallMedia.debugIcePolicy = a['relayOnly'] == true ? 'relay' : null; // calls-quality
         final m = media = WebRtcCallMedia(cameraBlocked: blocked);
         final c = call = CallController(
           media: m,
@@ -277,6 +282,19 @@ class Peer extends ChangeNotifier {
       }
       case 'incomingCount': {
         return {'count': incoming.length};
+      }
+      // calls-quality: one quality snapshot / a measured window on B
+      case 'quality': {
+        final c = _need();
+        return {...await (c.media as WebRtcCallMedia).debugQuality(), 'phase': '${c.phase}'};
+      }
+      case 'watch': {
+        final c = _need();
+        final m = c.media as WebRtcCallMedia;
+        final secs = (a['seconds'] as num?)?.toInt() ?? 10;
+        final w = await watchQuality(m.debugQuality, Duration(seconds: secs));
+        _set('watch ${a['label'] ?? ''}: ${qualityLine(w)}');
+        return {...w, 'phase': '${c.phase}', 'log': c.log.skip(c.log.length > 80 ? c.log.length - 80 : 0).toList()};
       }
     }
     throw ArgumentError('unknown command $cmd');
