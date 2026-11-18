@@ -53258,5 +53258,94 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "uwAgoJustNow": "just now",
+  "@uwAgoJustNow": {
+    "description": "homefeed: Today facts freshness"
+  },
+  "uwAgoMin": "{n} min ago",
+  "@uwAgoMin": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "uwAgoHours": "{n} h ago",
+  "@uwAgoHours": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "uwAgoDays": "{n} days ago",
+  "@uwAgoDays": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "uwOfflineCopyAgo": "You're offline — showing the copy saved {ago}.",
+  "@uwOfflineCopyAgo": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "uwSavedCopyRefreshing": "Copy saved {ago} — getting the latest…",
+  "@uwSavedCopyRefreshing": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "uwSourceStaleAgo": "The source isn't responding — last updated {ago}.",
+  "@uwSourceStaleAgo": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "uwPriceMayHaveChanged": "Entered {ago} — the price may have changed. Tap the source for today's.",
+  "@uwPriceMayHaveChanged": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "uwPrayerForDate": "Times for {date}",
+  "@uwPrayerForDate": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uwSourceDownSince": "the source is not responding — last good data {ago}",
+  "@uwSourceDownSince": {
+    "description": "homefeed: Today facts freshness",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "uwSavedCopyTooOld": "the saved copy is too old — turn on the internet to update",
+  "@uwSavedCopyTooOld": {
+    "description": "homefeed: Today facts freshness"
   }
 }
