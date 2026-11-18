@@ -79,9 +79,12 @@ jobs:
       - name: Migrate + seed + CI speech-to-text (local Whisper) + credits
         working-directory: backend
         run: |
-          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
-          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$REALITY_OUT/seed.json"
-          python manage.py shell --settings=assisto_backend.settings_ci -c "
+          # a throw-away integrations key for this job only (never a secret)
+          export VP_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())")
+          echo "VP_FERNET_KEY=$VP_FERNET_KEY" >> "$GITHUB_ENV"
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_voiceproof -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_voiceproof --out "$REALITY_OUT/seed.json"
+          python manage.py shell --settings=assisto_backend.settings_voiceproof -c "
           from core import integrations as I, billing
           from core.models import Integration
           from core.phone import find_user
@@ -95,7 +98,7 @@ jobs:
       - name: Start Django on :8700
         working-directory: backend
         run: |
-          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_voiceproof \
             > "$REALITY_OUT/django.log" 2>&1 &
           echo $! > "$REALITY_OUT/django.pid"
           for i in $(seq 1 60); do
