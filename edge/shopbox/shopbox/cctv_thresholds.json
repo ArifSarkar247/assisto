@@ -3,7 +3,7 @@
   "person_score_day": 0.45,
   "person_score_night": 0.3,
   "night_side": 416,
-  "night_spread_max": 10.0,
+  "night_spread_max": 3.0,
   "night_luma_max": 40.0,
   "night_pre": "clahe",
   "night_clahe_clip": 2.0,

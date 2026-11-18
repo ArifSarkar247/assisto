@@ -87,7 +87,8 @@ const kGateConfirmFrames = 3;
 /// the photo is grey / IR or dark — same rule as the Shop Box night.py).
 const kPersonScoreDay = 0.45;
 const kPersonScoreNight = 0.30;
-const kNightSpreadMax = 10.0;
+// cctv-accuracy: 10 -> 3 (real IR = spread 0.0; grey daylight 3.4-9.8, tools/cctvacc)
+const kNightSpreadMax = 3.0;
 const kNightLumaMax = 40.0;
 
 /// cctvacc2: night enhancement (GuardBoxChannel.kt enhanceNight = night.py

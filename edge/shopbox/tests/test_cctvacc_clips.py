@@ -149,3 +149,17 @@ def test_clip_list_is_licensed_sourced_and_labelled_by_hand():
 
 
 PENDING = set()
+
+
+def test_shipped_night_line_grey_rainy_day_is_day_ir_is_night():
+    """cctv-accuracy: NIGHT_SPREAD_MAX 10 -> 3 (real IR = 0.0, grey daylight
+    3.4-9.8 on the labelled clips)."""
+    from shopbox import night
+
+    rainy_day = np.empty((360, 640, 3), np.uint8)
+    rainy_day[:] = (128, 132, 134)                   # spread 6, bright: DAY
+    assert not night.is_night(rainy_day)
+    assert night.person_threshold(rainy_day) == 0.45
+    ir = np.full((360, 640, 3), 110, np.uint8)       # IR camera: no colour at all
+    assert night.is_night(ir)
+    assert night.NIGHT_SPREAD_MAX == 3.0

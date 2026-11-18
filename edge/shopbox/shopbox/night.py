@@ -25,7 +25,11 @@ import numpy as np
 PERSON_SCORE_DAY = 0.45
 PERSON_SCORE_NIGHT = 0.30
 NIGHT_SIDE = 416
-NIGHT_SPREAD_MAX = 10.0
+# cctv-accuracy (18 Nov): 10 -> 3. On REAL clips (tools/cctvacc, CI) every
+# IR night camera has a colour spread of exactly 0.0, but grey DAYLIGHT
+# (rain, overcast street, rain on the lens) is 3.4-9.8 — with 10 those day
+# pictures were treated as IR night (lower threshold, the 2-check night rule).
+NIGHT_SPREAD_MAX = 3.0
 NIGHT_LUMA_MAX = 40.0
 NIGHT_PRE = "clahe"
 NIGHT_CLAHE_CLIP = 2.0

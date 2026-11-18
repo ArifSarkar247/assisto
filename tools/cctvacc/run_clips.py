@@ -57,6 +57,8 @@ from fetch import load_clips, local_name  # noqa: E402
 
 FPS = 3.0                 # Shop Box sample_fps = phone ~3 pictures a second
 CACHE_THR = 0.10
+SHIP_SPREAD_MAX = 3.0     # the shipped grey=IR line (night.py, see main())
+BEFORE_SPREAD_MAX = 10.0  # the line before cctv-accuracy (18 Nov)
 PERSON_TYPES = ("person_detected", "zone_intrusion", "line_crossing",
                 "hand_in_cash_zone", "after_hours")
 
@@ -484,8 +486,21 @@ def main(argv=None) -> int:
     ids = [c["id"] for c in clips if c["id"] in frames_by]
     dev = {i for i in ids if int(i[1:]) % 2 == 1}
     held = {i for i in ids if int(i[1:]) % 2 == 0}
-    before = shipped("before")
-    after, sweep = pick(clips, frames_by, before, dev)
+    before = replace(shipped("before"), spread_max=BEFORE_SPREAD_MAX)
+    best_dev, sweep = pick(clips, frames_by, before, dev)
+    # cctv-accuracy: the SHIPPED change = (1) the IP-camera night re-check
+    # (a bug fix) and (2) the grey=IR line moved from 10 to 3 — calibrated on
+    # a physical measurement, not on alert counts: every IR clip here has a
+    # colour spread of exactly 0.0, grey daylight / rain 3.4-9.8 (see the
+    # "decoded" lines). The sweep's best-on-dev setting and two stricter
+    # variants are reported next to it so nothing is hidden.
+    after = replace(before, name="after", ipcam_night_recheck=True, spread_max=SHIP_SPREAD_MAX)
+    variants = {
+        "best_on_dev": best_dev,
+        "after+day_confirm2": replace(after, day_confirm=2),
+        "after+day0.50": replace(after, day_thr=0.50),
+        "after+day0.50+confirm2": replace(after, day_thr=0.50, day_confirm=2),
+    }
 
     report = {"clips": len(ids), "seconds": round(sum(f[-1].t + 1 / FPS for f in frames_by.values()), 1),
               "dev": sorted(dev), "held_out": sorted(held),
@@ -503,6 +518,13 @@ def main(argv=None) -> int:
                 "per_clip": per_all,
             }
         report["paths"][path] = rp
+    report["variants"] = {}
+    for vn, vs in variants.items():
+        report["variants"][vn] = {"setting": vs.short(), **{
+            p: {part: aggregate([v for k, v in evaluate(clips, frames_by, vs, p).items()
+                                 if ids_part is None or k in ids_part])
+                for part, ids_part in (("all", None), ("held_out", held))}
+            for p in ("shopbox", "ipcam", "phone")}}
     # motion-only fallback (model could not load / old phone): what it costs
     mo = replace(before, name="motion_only", model=False)
     report["motion_only"] = {p: aggregate(list(evaluate(clips, frames_by, mo, p).values()))
@@ -542,6 +564,12 @@ def main(argv=None) -> int:
             b = rp["before"]["by_scene"][sc]
             print("    %-13s false %3d -> %3d   found %d/%d -> %d/%d" % (
                 sc, b["fp"], g["fp"], b["found"], b["visits"], g["found"], g["visits"]))
+    for vn, v in report["variants"].items():
+        print("variant %-24s %s" % (vn, v["setting"]))
+        for p in ("shopbox", "ipcam", "phone"):
+            g = v[p]["all"]
+            print("    %-7s all: alerts %d precision %s recall %s (%d/%d) false %d" % (
+                p, g["alerts"], g["precision"], g["recall"], g["found"], g["visits"], g["fp"]))
     print("motion-only fallback:", json.dumps(report["motion_only"]))
     print("detector per second before:", report["detector_before"],
           "after:", report["detector_after"], "vehicles:", report["vehicle_frames"])
