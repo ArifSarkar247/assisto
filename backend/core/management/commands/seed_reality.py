@@ -177,6 +177,26 @@ class Command(BaseCommand):
 
         A, B = self._client(tokens["a"]), self._client(tokens["b"])
 
+        # ads-nine: the opt-in "ads" proof group needs ONE plain Free account
+        # (no trial, no plan) next to A's Premium trial — CI DB only.
+        if "ads" in os.environ.get("REALITY_DRIVE", "").replace("+", ",").split(","):
+            from core.test_accounts import refuse_real_account
+            ephone = "01700000005"
+            e = find_user(ephone) or User.objects.filter(phone=ephone).first()
+            refuse_real_account(e, phone=ephone, tool="seed_reality")
+            if e is None:
+                e = User.objects.create_user(name="Reality Free", phone=ephone,
+                                             email="free@reality.test",
+                                             password=DEMO_PASSWORD)
+            e.plan, e.plan_until = "free", None
+            e.trial_until = now - timedelta(days=1)
+            e.language = "en"
+            e.save()
+            from core import plans as _plans
+            self.steps.append({"step": "ads: Free account E", "method": "DB",
+                               "path": "users", "status": 200,
+                               "ok": _plans.effective_plan(e) == "free"})
+
         # --- login through the real endpoint (proves the credentials work)
         lc = Client()
         r = lc.post("/api/v1/auth/login", data=json.dumps(

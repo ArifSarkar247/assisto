@@ -44,6 +44,7 @@ class AdmobHeroAdBridge implements HeroAdBridge {
     // one tracker per NativeAd object: 1 impression, <=1 click, 1 paid
     final tr = AdTelemetry.track(telemetryPlacement, 'native');
     try {
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine
       ad = NativeAd(
         adUnitId: unitId,
         request: AdmobSdk.request(),
@@ -74,6 +75,7 @@ class AdmobHeroAdBridge implements HeroAdBridge {
             try {
               a.dispose();
             } catch (_) {}
+            tr.failed();
             if (!done.isCompleted) done.complete(null);
           },
           onAdImpression: (_) {
@@ -95,9 +97,11 @@ class AdmobHeroAdBridge implements HeroAdBridge {
       try {
         ad?.dispose();
       } catch (_) {}
+      tr.failed();
       if (!done.isCompleted) done.complete(null);
     }
     return done.future.timeout(const Duration(seconds: 12), onTimeout: () {
+      tr.failed();
       if (!done.isCompleted) done.complete(null);
       try {
         ad?.dispose();

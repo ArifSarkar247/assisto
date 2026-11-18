@@ -8,6 +8,7 @@
 // Evidence: <external files>/reality/{results.json,shots/*.png} on the device
 // (pulled by tools/reality/run_flows.sh) + the driver's response JSON.
 // A single flow's failure is recorded (class C) and the next flow still runs.
+import 'flows/ads_proof_flow.dart'; // ads-nine
 import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
@@ -76,6 +77,9 @@ void main() {
   // flagproof: hidden features' two-account proofs (group 'flagproof')
   if (on('flagproof')) registerFlagproofFlows();
   if (on('sweep')) registerSweepFlow();
+  // ads-nine: the ads proof (Premium / blocked screens = 0 requests, a Free
+  // test banner, airplane = no gap) -> opt-in only (reality.yml only=ads)
+  if (only.split(',').contains('ads')) registerAdsProofFlows();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
   // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)

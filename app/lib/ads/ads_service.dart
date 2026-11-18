@@ -164,10 +164,33 @@ class AdsService with WidgetsBindingObserver {
   }
 
   /// main.dart: the login screen is showing (logout, first sign-in...).
-  void noteSignedOut() => _sawSignedOut = true;
+  /// ads-nine: the next account may be Premium — forget the old plan NOW
+  /// (no ad until the new account's /ads/config says Free).
+  void noteSignedOut() {
+    _sawSignedOut = true;
+    _dropConfig();
+  }
+
+  /// ads-nine: who [config] belongs to (user id; null = nobody yet).
+  int? _configUser;
+
+  void _dropConfig() {
+    _configAt = null;
+    _configUser = null;
+    config = AdConfig.none;
+    AdBlockContext.planAllowsAds = null; // unknown = blocked
+  }
 
   Future<void> start(AppState app) async {
-    if (_started) return;
+    if (_started) {
+      // ads-nine: a new AppState (tests / a re-created app tree) takes over;
+      // its account may differ, so its plan is read again before any ad
+      if (!identical(_app, app)) {
+        _app = app;
+        _dropConfig();
+      }
+      return;
+    }
     _started = true;
     _app = app;
     try {
@@ -240,6 +263,12 @@ class AdsService with WidgetsBindingObserver {
   Future<AdConfig> refreshConfig({bool force = false}) {
     final app = _app;
     if (app == null || !app.loggedIn) return Future.value(config);
+    // ads-nine: another account signed in on this phone -> its own plan
+    // (a Premium account never inherits a Free account's "ads allowed")
+    final uid = app.user?.id;
+    if (_configAt != null && uid != _configUser) {
+      _dropConfig();
+    }
     if (!force &&
         _configAt != null &&
         DateTime.now().difference(_configAt!) < const Duration(minutes: 30)) {
@@ -250,8 +279,12 @@ class AdsService with WidgetsBindingObserver {
 
   Future<AdConfig> _fetch(AppState app) async {
     try {
+      final uid = app.user?.id;
       final j = await app.api.getJson('/ads/config');
+      // ads-nine: the account changed while this was in flight -> drop it
+      if (app.user?.id != uid || !identical(app, _app)) return config;
       config = AdConfig.fromJson(j);
+      _configUser = uid;
       // ads-guard: Premium / Plus / Business / minor -> the SDK is never
       // initialised and every on-screen slot hides at once
       AdBlockContext.planAllowsAds = config.adsEnabled && !config.paid;
@@ -342,6 +375,7 @@ class AdsService with WidgetsBindingObserver {
         gap: cfg.appOpenMinGap,
         lastShownAt:
             lastMs == null ? null : DateTime.fromMillisecondsSinceEpoch(lastMs),
+        lastFullScreenAt: _msTime(prefs.getInt(_kFsLast)),
       );
       if (!pre.allowed) return;
       final sb = _sb;
@@ -395,6 +429,9 @@ class AdsService with WidgetsBindingObserver {
       _showing = false;
     }
   }
+
+  static DateTime? _msTime(int? ms) =>
+      ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
 
   Future<void> _markShown(SharedPreferences prefs, String today, int count) async {
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -627,6 +664,7 @@ class AdsService with WidgetsBindingObserver {
     sponsorBackend = null;
     config = AdConfig.none;
     _configAt = null;
+    _configUser = null;
     _configInFlight = null;
     _sawSignedOut = false;
     _firstLaunchSession = false;

@@ -20,7 +20,8 @@ from django.utils import timezone
 from .logic import ads as A
 
 # per user per hour; a phone that really shows ads sends far fewer
-RATE_PER_HOUR = 240
+# ads-nine: x2 — a banner page now also reports its request (+ no_fill)
+RATE_PER_HOUR = 480
 
 
 def _rate_ok(user):
@@ -103,6 +104,12 @@ def record_event(user, data):
     if ev is None:
         return 400, {"ok": False, "reason": why}
     if not _is_free(user):
+        # ads-nine: a paid account must NEVER make an ad request. Count the
+        # leak (aggregate row fmt "paid_leak", no user id) so Owner Admin
+        # shows it; a non-zero number is a bug to fix (or an upgrade that
+        # happened seconds ago).
+        if _rate_ok(user):
+            _count_paid_leak(ev)
         return 200, {"ok": False, "reason": "not_free"}
     if not _rate_ok(user):
         return 429, {"ok": False, "reason": "rate_limited"}
@@ -137,7 +144,9 @@ def record_event(user, data):
         if not n:
             return 200, {"ok": True, "counted": False, "reason": "clicks_capped"}
         return 200, {"ok": True, "counted": True}
-    inc = {"impression": {"impressions": F("impressions") + 1},
+    inc = {"request": {"requests": F("requests") + 1},
+           "no_fill": {"no_fill": F("no_fill") + 1},
+           "impression": {"impressions": F("impressions") + 1},
            "exit": {"impressions": F("impressions") + 1},
            "paid": {"paid_events": F("paid_events") + 1,
                     "revenue_micros": F("revenue_micros") + ev["value_micros"],
@@ -155,6 +164,27 @@ def record_event(user, data):
     return 200, {"ok": True, "counted": True}
 
 
+def _count_paid_leak(ev):
+    """ads-nine: +1 on today's `paid_leak` row for this placement (request
+    or impression events only). Never raises."""
+    if ev.get("kind") not in ("request", "impression"):
+        return
+    from .models import AdPlacementStat
+    key = dict(date=timezone.localdate(), placement=ev["placement"], fmt="paid_leak",
+               currency="", test=False)
+    try:
+        for _ in range(2):
+            if AdPlacementStat.objects.filter(**key).update(impressions=F("impressions") + 1):
+                return
+            try:
+                with transaction.atomic():
+                    AdPlacementStat.objects.create(**key)
+            except IntegrityError:
+                pass
+    except Exception:
+        pass
+
+
 def placement_stats(days=7, test=False):
     """Owner Admin: per-placement totals for the last `days` local days —
     REAL ads only (test=False) unless asked for the test rows."""
@@ -163,9 +193,11 @@ def placement_stats(days=7, test=False):
     since = timezone.localdate() - timedelta(days=days - 1)
     rows = (AdPlacementStat.objects.filter(date__gte=since, test=bool(test))
             .values("placement", "fmt", "currency")
+            .exclude(fmt="paid_leak")
             .annotate(impressions=Sum("impressions"), clicks=Sum("clicks"),
                       paid_events=Sum("paid_events"),
-                      revenue_micros=Sum("revenue_micros")))
+                      revenue_micros=Sum("revenue_micros"),
+                      requests=Sum("requests"), no_fill=Sum("no_fill")))
     return A.placement_report([dict(r, format=r["fmt"]) for r in rows])
 
 
@@ -181,11 +213,24 @@ def stats_source(days=7):
     days = max(1, min(90, int(days or 7)))
     since = timezone.localdate() - timedelta(days=days - 1)
     out = {"source": "app_events", "api_connected": False, "last_event_at": None,
-           "real_impressions": 0, "test_impressions": 0, "real_ids_on": False}
+           "real_impressions": 0, "test_impressions": 0, "real_ids_on": False,
+           "real_requests": 0, "test_requests": 0, "real_no_fill": 0,
+           "test_no_fill": 0, "fill_pct": None, "paid_leaks": 0}
     try:
-        for r in (AdPlacementStat.objects.filter(date__gte=since).exclude(fmt="exit")
-                  .values("test").annotate(n=Sum("impressions"))):
-            out["test_impressions" if r["test"] else "real_impressions"] = int(r["n"] or 0)
+        for r in (AdPlacementStat.objects.filter(date__gte=since)
+                  .exclude(fmt__in=("exit", "paid_leak"))
+                  .values("test").annotate(n=Sum("impressions"), q=Sum("requests"),
+                                           f=Sum("no_fill"))):
+            side = "test" if r["test"] else "real"
+            out[side + "_impressions"] = int(r["n"] or 0)
+            out[side + "_requests"] = int(r["q"] or 0)
+            out[side + "_no_fill"] = int(r["f"] or 0)
+        # ads-nine: fill rate of whatever ran (real ids on -> real side)
+        q = out["real_requests"] or out["test_requests"]
+        n = out["real_impressions"] if out["real_requests"] else out["test_impressions"]
+        out["fill_pct"] = round(min(100.0, 100.0 * n / q), 1) if q else None
+        out["paid_leaks"] = int(AdPlacementStat.objects.filter(
+            date__gte=since, fmt="paid_leak").aggregate(n=Sum("impressions"))["n"] or 0)
         out["last_event_at"] = AdEventSeen.objects.aggregate(m=Max("at"))["m"]
         from . import billing
         out["real_ids_on"] = bool((billing.cfg().get("ad_rewards") or {})

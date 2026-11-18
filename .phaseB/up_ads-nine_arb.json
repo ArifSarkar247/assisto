@@ -1,0 +1,52 @@
+{
+  "_comment": "ads-nine (row 54): the honest 'Why this ad?' sheet opened from every Ad label. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_ads-nine_arb.json",
+  "en": {
+    "adWhyTapLabel": "Why this ad?",
+    "@adWhyTapLabel": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyTitle": "Why am I seeing this ad?",
+    "@adWhyTitle": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyFree": "Ads keep Assisto free for everyone. Premium removes every ad.",
+    "@adWhyFree": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyGoogle": "Google chooses and shows this ad, not Assisto. Assisto is paid only when people see or tap ads.",
+    "@adWhyGoogle": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyNoShare": "Assisto never gives advertisers your name, phone number, contacts, messages, photos or your family's location.",
+    "@adWhyNoShare": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyPersonal": "This ad may be matched to your interests by Google using your phone's advertising ID. You can reset or delete that ID in your phone's Settings → Privacy → Ads.",
+    "@adWhyPersonal": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyNonPersonal": "This ad is not personalised: it is not based on your interests, only on general things like this page and your country.",
+    "@adWhyNonPersonal": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyNever": "You never see ads on SOS, calls, Safe Journey and other safety screens, children's screens, Quran, blood donor, payment, login or permission screens.",
+    "@adWhyNever": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    },
+    "adWhyRemove": "Remove ads with Premium",
+    "@adWhyRemove": {
+      "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+    }
+  },
+  "bn": {
+    "adWhyTapLabel": "এই বিজ্ঞাপন কেন?",
+    "adWhyTitle": "এই বিজ্ঞাপন কেন দেখছেন?",
+    "adWhyFree": "বিজ্ঞাপনের কারণেই Assisto সবার জন্য ফ্রি। Premium নিলে কোনো বিজ্ঞাপন থাকে না।",
+    "adWhyGoogle": "এই বিজ্ঞাপন Google বাছাই করে দেখায়, Assisto নয়। মানুষ বিজ্ঞাপন দেখলে বা চাপলে Assisto টাকা পায়।",
+    "adWhyNoShare": "Assisto কখনো বিজ্ঞাপনদাতাকে আপনার নাম, ফোন নম্বর, কন্টাক্ট, মেসেজ, ছবি বা পরিবারের লোকেশন দেয় না।",
+    "adWhyPersonal": "Google আপনার ফোনের বিজ্ঞাপন-আইডি দিয়ে আপনার আগ্রহ অনুযায়ী এই বিজ্ঞাপন বাছতে পারে। ফোনের Settings → Privacy → Ads-এ আইডিটি রিসেট বা মুছে ফেলতে পারেন।",
+    "adWhyNonPersonal": "এই বিজ্ঞাপন আপনার আগ্রহ দেখে বাছা নয়: শুধু সাধারণ তথ্য, যেমন এই পাতা আর আপনার দেশ দেখে।",
+    "adWhyNever": "SOS, কল, নিরাপদ যাত্রা ও অন্যান্য নিরাপত্তা পাতায়, শিশুদের পাতায়, কুরআন, রক্তদাতা, পেমেন্ট, লগইন বা অনুমতির পাতায় কখনো বিজ্ঞাপন দেখাবে না।",
+    "adWhyRemove": "Premium নিয়ে বিজ্ঞাপন সরান"
+  }
+}

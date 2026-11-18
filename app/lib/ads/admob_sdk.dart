@@ -94,6 +94,12 @@ class AdmobSdk {
   static bool get personalisedNow =>
       personalized && AdConsent.instance.mayPersonalise;
 
+  /// ads-nine: [request] would succeed right now (consent gate passed, a
+  /// confirmed Free plan, no safety / call screen). Bridges count a request
+  /// only then.
+  static bool get requestAllowed =>
+      AdConsent.instance.canServe && AdBlockContext.sdkAllowed;
+
   /// The ONLY way to build an ad request. Throws [StateError] (every caller
   /// is inside a try -> "no ad") when the consent gate has not passed in
   /// this session — so an ad can never be requested before UMP.

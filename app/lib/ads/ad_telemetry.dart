@@ -36,7 +36,10 @@ class AdEventRecord {
   /// app_open | native | banner | interstitial | rewarded
   final String format;
 
-  /// impression | click | paid | exit (Ad impact: app backgrounded right after an interstitial closed)
+  /// request | no_fill | impression | click | paid | exit (Ad impact: app
+  /// backgrounded right after an interstitial closed). ads-nine: `request`
+  /// = one SDK load started, `no_fill` = that load failed / timed out —
+  /// Owner Admin shows requests, impressions and the fill rate.
   final String kind;
 
   /// The ad instance's random id (one per loaded SDK ad object); '' only
@@ -65,6 +68,25 @@ class AdTelemetry {
   AdTelemetry._();
 
   static void Function(AdEventRecord e)? sink;
+
+  /// ads-nine: every ad REQUEST of this app process (placement + when),
+  /// in memory only, newest last, at most [_maxLog]. The reality proof
+  /// (integration_test/flows/ads_proof_flow.dart) reads it to prove ZERO
+  /// requests for Premium and on SOS / call / Quran / blood screens; no
+  /// user data, never sent anywhere.
+  static final List<AdRequestLog> requestLog = <AdRequestLog>[];
+  static const _maxLog = 200;
+
+  /// Requests started since the app process began (never reset by caps).
+  static int requestCount = 0;
+
+  static void _logRequest(String placement, String format) {
+    requestCount++;
+    requestLog.add(AdRequestLog(placement, format, DateTime.now()));
+    if (requestLog.length > _maxLog) requestLog.removeAt(0);
+    // ignore: avoid_print
+    print('ASSISTO_AD_REQUEST $format $placement'); // logcat proof line
+  }
 
   static void _emit(AdEventRecord e) {
     try {
@@ -140,6 +162,31 @@ class AdInstanceTracker {
   bool _impressed = false;
   bool _clicked = false;
   bool _paid = false;
+  bool _requested = false;
+  bool _failed = false;
+  DateTime? _requestedAt;
+
+  /// ads-nine: when [requested] ran (load-to-paint timing).
+  DateTime? get requestedAt => _requestedAt;
+
+  /// ads-nine: the SDK load for this instance started — once.
+  void requested() {
+    if (_requested) return;
+    _requested = true;
+    _requestedAt = DateTime.now();
+    AdTelemetry._logRequest(placement, format);
+    AdTelemetry._emit(AdEventRecord(
+        placement: placement, format: format, kind: 'request', eventId: eventId));
+  }
+
+  /// ads-nine: that load failed (no fill, error, timeout) — once, and only
+  /// after [requested] and before any impression.
+  void failed() {
+    if (!_requested || _failed || _impressed) return;
+    _failed = true;
+    AdTelemetry._emit(AdEventRecord(
+        placement: placement, format: format, kind: 'no_fill', eventId: eventId));
+  }
 
   bool get impressed => _impressed;
   bool get clicked => _clicked;
@@ -178,4 +225,12 @@ class AdInstanceTracker {
         currency: currency.trim().toUpperCase(),
         precision: precision));
   }
+}
+
+/// ads-nine: one ad request of this process (proof log; no user data).
+class AdRequestLog {
+  const AdRequestLog(this.placement, this.format, this.at);
+  final String placement;
+  final String format;
+  final DateTime at;
 }

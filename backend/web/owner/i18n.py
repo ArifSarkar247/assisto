@@ -2613,3 +2613,22 @@ BN.update({
     "ads_src_step4": "এগুলো ডেভেলপারকে দিন; তারপর AdMob অ্যাকাউন্ট দিয়ে একবার সাইন-ইন (scope admob.readonly)। AdMob API-তে service account চলে না।",
 })
 # ---- /ads-guard ----
+
+# ---- ads-nine ---- Ads page: requests, fill rate, paid-plan leak check
+EN.update({
+    "adm_requests": "Requests", "adm_fill": "Fill rate",
+    "ads_src_requests": "Ad requests (app events)",
+    "ads_src_real_short": "real", "ads_src_test_short": "test",
+    "ads_src_nofill": "Failed / no fill",
+    "ads_src_leaks": "Ad events from paid (Premium / Plus / Business) accounts",
+    "ads_src_leaks_bad": "must be 0. A few right after an upgrade are possible; more means a bug — tell the developer.",
+})
+BN.update({
+    "adm_requests": "অনুরোধ", "adm_fill": "পূরণের হার",
+    "ads_src_requests": "বিজ্ঞাপন অনুরোধ (অ্যাপের ইভেন্ট)",
+    "ads_src_real_short": "আসল", "ads_src_test_short": "টেস্ট",
+    "ads_src_nofill": "ব্যর্থ / বিজ্ঞাপন আসেনি",
+    "ads_src_leaks": "পেইড (Premium / Plus / Business) অ্যাকাউন্ট থেকে বিজ্ঞাপন-ইভেন্ট",
+    "ads_src_leaks_bad": "শূন্য হওয়া উচিত। আপগ্রেডের ঠিক পরে দু-একটা হতে পারে; বেশি হলে বাগ — ডেভেলপারকে জানান।",
+})
+

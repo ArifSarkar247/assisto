@@ -46,7 +46,10 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
     }
     final done = Completer<RewardOutcome>();
     var earned = false;
+    // one tracker per ad object: 1 request, 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track(placement, 'rewarded');
     try {
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine
       await RewardedAd.load(
         adUnitId: unitId,
         request: AdmobSdk.request(),
@@ -60,8 +63,6 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
               await ad.setServerSideOptions(ServerSideVerificationOptions(
                   userId: userId, customData: customData));
             } catch (_) {}
-            // one tracker per ad object: 1 impression, <=1 click, 1 paid
-            final tr = AdTelemetry.track(placement, 'rewarded');
             ad.onPaidEvent = (Ad _, double micros, PrecisionType p, String cur) =>
                 tr.paid(
                     valueMicros: micros,
@@ -89,11 +90,13 @@ class AdmobPhotoAdBridge implements PhotoAdBridge {
             }
           },
           onAdFailedToLoad: (_) {
+            tr.failed();
             if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
           },
         ),
       );
     } catch (_) {
+      tr.failed();
       if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
     }
     return done.future.timeout(const Duration(minutes: 2), onTimeout: () {

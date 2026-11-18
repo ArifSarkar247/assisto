@@ -411,7 +411,8 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
 # POST /ads/event {placement, format, kind: impression|click|paid, ...}
 # exit = Ad impact: the app went to the background right after an
 # interstitial closed (aggregate count only)
-EVENT_KINDS = ("impression", "click", "paid", "exit")
+# ads-nine: + request (one SDK load started) and no_fill (that load failed)
+EVENT_KINDS = ("impression", "click", "paid", "exit", "request", "no_fill")
 FORMATS = ("app_open", "native", "banner", "interstitial", "rewarded")
 _PLACEMENT_RE = re.compile(r"^[a-z][a-z0-9_]{1,39}$")
 _CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
@@ -490,7 +491,10 @@ def placement_report(rows):
         key = (r.get("placement") or "", r.get("format") or "")
         a = by.setdefault(key, {"placement": key[0], "format": key[1],
                                 "impressions": 0, "clicks": 0, "paid_events": 0,
+                                "requests": 0, "no_fill": 0,
                                 "revenue": {}})
+        a["requests"] += int(r.get("requests") or 0)
+        a["no_fill"] += int(r.get("no_fill") or 0)
         a["impressions"] += int(r.get("impressions") or 0)
         a["clicks"] += int(r.get("clicks") or 0)
         a["paid_events"] += int(r.get("paid_events") or 0)
@@ -503,6 +507,10 @@ def placement_report(rows):
                                       for c, m in sorted(a["revenue"].items())) or "—"
         a["ctr_pct"] = (round(100.0 * a["clicks"] / a["impressions"], 2)
                         if a["impressions"] else 0.0)
+        # ads-nine: impressions per request (capped at 100: old builds sent
+        # impressions without requests). None = no request data yet.
+        a["fill_pct"] = (round(min(100.0, 100.0 * a["impressions"] / a["requests"]), 1)
+                         if a["requests"] else None)
         a["exits"] = exits.get(a["placement"], 0) if a["format"] == "interstitial" else 0
         a["exit_pct"] = (round(100.0 * min(a["exits"], a["impressions"]) / a["impressions"], 1)
                          if a["impressions"] else 0.0)

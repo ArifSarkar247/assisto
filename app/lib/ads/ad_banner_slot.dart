@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../widgets/home_hero.dart' show CompactAdFrame;
 import 'ad_placements.dart';
 import 'ad_rules.dart';
+import 'ad_why_sheet.dart';
 import 'admob_banner_bridge.dart';
 import 'admob_platform.dart';
 import 'ads_service.dart';
@@ -94,6 +95,19 @@ class AdBannerSlot extends StatefulWidget {
   /// Test / gallery seam for the page the "Remove ads" link opens.
   @visibleForTesting
   static WidgetBuilder? debugPlansBuilder;
+
+  /// ads-nine: the last measured "ad load started -> first frame with the
+  /// ad" time in ms (banner or native card), -1 before any. The reality
+  /// proof reads it; also printed as `ASSISTO_AD_PAINT <placement> <ms>`.
+  static int lastLoadToPaintMs = -1;
+
+  /// ads-nine: how long the slot grows in (no sudden jump of the page).
+  static const reveal = Duration(milliseconds: 220);
+
+  /// ads-nine: the FIRST ad on a page appears only after the screen was
+  /// untouched for [AdTouchGuard.quiet] — never under a finger that is
+  /// scrolling or about to tap. Gives up (no ad this round) after this.
+  static const quietMaxWait = Duration(seconds: 15);
 
   @override
   State<AdBannerSlot> createState() => _AdBannerSlotState();
@@ -235,9 +249,16 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
       if (unit == null) return;
       final width = MediaQuery.sizeOf(context).width;
       BannerPacer.markLoaded(s, DateTime.now());
-      final ad = await _bridge
+      final started = DateTime.now();
+      var ad = await _bridge
           .load(unit, width: width, placement: 'banner_$s')
           .timeout(const Duration(seconds: 12), onTimeout: () => null);
+      if (ad != null && _ad == null && !await _waitQuiet()) {
+        try {
+          ad.dispose();
+        } catch (_) {}
+        ad = null;
+      }
       if (!mounted) {
         try {
           ad?.dispose();
@@ -247,6 +268,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
       if (ad != null) {
         final old = _ad;
         setState(() => _ad = ad);
+        _notePaint('banner_$s', started);
         // the old AdWidget leaves the tree in this frame: dispose after it
         if (old != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -276,9 +298,16 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     final unit = cfg.unitFor(AdKind.native, builtAppId: AdsService.builtAppId);
     if (unit == null) return;
     BannerPacer.markLoaded(s, DateTime.now());
-    final ad = await _nativeBridge
+    final started = DateTime.now();
+    var ad = await _nativeBridge
         .load(unit, startMuted: true)
         .timeout(const Duration(seconds: 12), onTimeout: () => null);
+    if (ad != null && _native == null && !await _waitQuiet()) {
+      try {
+        ad.dispose();
+      } catch (_) {}
+      ad = null;
+    }
     if (!mounted) {
       try {
         ad?.dispose();
@@ -288,6 +317,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     if (ad != null) {
       final old = _native;
       setState(() => _native = ad);
+      _notePaint('native_$s', started);
       if (old != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
@@ -303,6 +333,29 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
         paced: true);
   }
 
+  /// ads-nine: wait until nobody touched the screen for
+  /// [AdTouchGuard.quiet]. false = still busy after [quietMaxWait] or the
+  /// slot went away (the caller drops this ad; the next refresh tries).
+  Future<bool> _waitQuiet() async {
+    final since = DateTime.now();
+    while (mounted) {
+      final now = DateTime.now();
+      if (AdTouchGuard.idle(now)) return _showable();
+      if (now.difference(since) > AdBannerSlot.quietMaxWait) return false;
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+    }
+    return false;
+  }
+
+  void _notePaint(String placement, DateTime started) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ms = DateTime.now().difference(started).inMilliseconds;
+      AdBannerSlot.lastLoadToPaintMs = ms;
+      // ignore: avoid_print
+      print('ASSISTO_AD_PAINT $placement $ms'); // logcat proof line
+    });
+  }
+
   void _openPlans() {
     final b = AdBannerSlot.debugPlansBuilder ?? (_) => const PlansScreen();
     Navigator.of(context).push(MaterialPageRoute(builder: b));
@@ -310,9 +363,17 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
 
   // ads-guard: the whole slot (frame + "Remove ads") disappears at once on
   // a call / safety screen / plan change
+  // ads-nine: the slot GROWS in (and shrinks away) over [reveal] instead of
+  // jumping: no clip, the top edge rises from the bottom of the screen, so
+  // the ad view (a platform view) is never clipped mid-animation.
   @override
-  Widget build(BuildContext context) =>
-      AdBlockGate(child: Builder(builder: _buildSlot));
+  Widget build(BuildContext context) => AdBlockGate(
+      child: AnimatedSize(
+          duration: AdBannerSlot.reveal,
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
+          child: Builder(builder: _buildSlot)));
 
   Widget _buildSlot(BuildContext context) {
     final ad = _ad;
@@ -329,7 +390,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
           child: Padding(
             key: const ValueKey('ad-native-slot'),
             padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, Gap.sm),
-            child: CompactAdFrame(onRemoveAds: _openPlans, child: native.view()),
+            child: CompactAdFrame(onRemoveAds: _openPlans, whyIcon: true, child: native.view()),
           ),
         ),
       );
@@ -357,23 +418,8 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
               child: Row(children: [
-                Semantics(
-                  label: t.h1HeroAdSemantics,
-                  excludeSemantics: true,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: scheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(Radii.sm),
-                    ),
-                    child: Text(t.h1AdLabel,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: scheme.onTertiaryContainer)),
-                  ),
-                ),
+                // ads-nine: "Ad ⓘ" opens the honest "Why this ad?" sheet
+                AdLabelChip(onRemoveAds: _openPlans),
                 const SizedBox(width: Gap.sm),
                 // the Remove-ads link is OUTSIDE the AdWidget, with its own
                 // TalkBack label and a 48 dp target

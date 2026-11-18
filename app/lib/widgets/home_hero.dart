@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../safety/ad_block_context.dart' show AdBlockContext;
+import '../ads/ad_why_sheet.dart' show AdLabelChip;
 import '../ads/ads_service.dart' show AdsService;
 import '../ads/hero_ad.dart';
 import '../ads/hero_binding.dart';
@@ -500,19 +501,11 @@ class HeroAdFrame extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          Container(
-            key: const ValueKey('hero-ad-label'),
-            padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
-            decoration: BoxDecoration(
-              color: scheme.tertiaryContainer,
-              borderRadius: BorderRadius.circular(Radii.sm),
-            ),
-            child: Text(t.h1AdLabel,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.onTertiaryContainer)),
-          ),
+          // ads-nine: tappable -> "Why this ad?" (Home look unchanged)
+          AdLabelChip(
+              onRemoveAds: onRemoveAds,
+              whyIcon: false,
+              labelKey: const ValueKey('hero-ad-label')),
           if (hasVideo && startMuted) ...[
             const SizedBox(width: Gap.sm),
             Icon(Icons.volume_off_rounded, size: 16, color: scheme.onSurfaceVariant),
@@ -555,9 +548,15 @@ class HeroAdFrame extends StatelessWidget {
 /// it can never land on the ad (AdMob native policy; no close / X on the ad).
 class CompactAdFrame extends StatelessWidget {
   const CompactAdFrame(
-      {super.key, required this.child, required this.onRemoveAds});
+      {super.key,
+      required this.child,
+      required this.onRemoveAds,
+      this.whyIcon = false});
   final Widget child;
   final VoidCallback onRemoveAds;
+
+  /// ads-nine: show the (i) in the "Ad" chip (false on the frozen Home).
+  final bool whyIcon;
 
   /// Space between the link row and the ad (no tap target overlaps the ad).
   static const double gap = Gap.sm;
@@ -565,27 +564,16 @@ class CompactAdFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(children: [
-          Container(
-            key: const ValueKey('hero-ad-label'),
-            padding:
-                const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
-            decoration: BoxDecoration(
-              color: scheme.tertiaryContainer,
-              borderRadius: BorderRadius.circular(Radii.sm),
-            ),
-            child: Text(t.h1AdLabel,
-                maxLines: 1,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.onTertiaryContainer)),
-          ),
+          // ads-nine: tappable -> "Why this ad?"; the (i) only off Home
+          AdLabelChip(
+              onRemoveAds: onRemoveAds,
+              whyIcon: whyIcon,
+              labelKey: const ValueKey('hero-ad-label')),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Align(

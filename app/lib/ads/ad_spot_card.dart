@@ -155,7 +155,7 @@ class _AdSpotCardState extends State<AdSpotCard> {
       key: ValueKey('ad-spot-${widget.placement}'),
       padding: widget.padding ??
           const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-      child: CompactAdFrame(onRemoveAds: _openPlans, child: ad.view()),
+      child: CompactAdFrame(onRemoveAds: _openPlans, whyIcon: true, child: ad.view()),
     );
   }
 }

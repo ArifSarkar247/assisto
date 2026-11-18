@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess); empty = all"
+        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess, ads); empty = all"
         required: false
         default: ""
       impeller:
@@ -57,7 +57,7 @@ jobs:
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           # gap-money: opt-in single-feature groups (never part of "all")
-          optin = ["mess"]
+          optin = ["mess", "ads"]  # ads-nine: ads proof (Google Play services image + packet capture)
           sel = ([g for g in allg if not want or g in want]
                  + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))
@@ -251,7 +251,9 @@ jobs:
         with:
           api-level: 33
           arch: x86_64
-          target: default   # AOSP, no Google Play services. 22 Oct: the google_apis image
+          # ads-nine: the "ads" group needs Google Play services (the Mobile
+          # Ads SDK); every other group keeps the AOSP image (see below).
+          target: ${{ matrix.group == 'ads' && 'google_apis' || 'default' }}   # AOSP, no Google Play services. 22 Oct: the google_apis image
           # froze the whole emulator (adb wedged) during Play-services activity on
           # EVERY run, build 150's previously-passing code included.
           profile: pixel_5
@@ -280,6 +282,13 @@ jobs:
         run: |
           cp -r /tmp/android-runner "$REALITY_OUT/emu_crash" 2>/dev/null || true
           python3 tools/reality/summarize.py "$REALITY_OUT" | head -60
+          # ads-nine: the runner-side ad-host packet count must be ZERO in
+          # every no-ad phase (Premium, SOS, call, Quran, blood, airplane)
+          if [ -f "$REALITY_OUT/ads_net.json" ]; then
+            cat "$REALITY_OUT/ads_net.md"
+            python3 -c "import json,sys;d=json.load(open('$REALITY_OUT/ads_net.json'));sys.exit(0 if d['verdict']['zero_phases_clean'] else 1)" \
+              || { echo "::error::ad-host traffic in a no-ad phase (ads_net.md)"; exit 1; }
+          fi
       - name: Stop Django
         if: always()
         run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true

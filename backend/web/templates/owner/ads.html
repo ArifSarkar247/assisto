@@ -19,12 +19,14 @@
 </section>
 <section class="card"><h2>{{ T.adm_stats_title }}</h2>
 <form method="get" class="inline"><label>{{ T.period }} <select name="days"><option value="7" {% if stat_days == 7 %}selected{% endif %}>{{ 7|bnd:lang }} {{ T.days }}</option><option value="30" {% if stat_days == 30 %}selected{% endif %}>{{ 30|bnd:lang }} {{ T.days }}</option></select></label><button class="btn ghost">{{ T.show }}</button></form>
-{% if stats %}<div class="tbl"><table><thead><tr><th>{{ T.adm_placement }}</th><th>{{ T.adm_format }}</th><th>{{ T.adm_impressions }}</th><th>{{ T.adm_clicks }}</th><th>{{ T.adm_ctr }}</th><th>{{ T.adm_revenue }}</th></tr></thead><tbody>
-{% for r in stats %}<tr><th>{{ r.placement }}</th><td>{{ r.format }}</td><td class="num">{{ r.impressions|bnd:lang }}</td><td class="num">{{ r.clicks|bnd:lang }}</td><td class="num">{{ r.ctr_pct|bnd:lang }}%</td><td class="num">{{ r.revenue_text }}</td></tr>{% endfor %}
+{% if stats %}<div class="tbl"><table><thead><tr><th>{{ T.adm_placement }}</th><th>{{ T.adm_format }}</th><th>{{ T.adm_requests }}</th><th>{{ T.adm_impressions }}</th><th>{{ T.adm_fill }}</th><th>{{ T.adm_clicks }}</th><th>{{ T.adm_ctr }}</th><th>{{ T.adm_revenue }}</th></tr></thead><tbody>
+{% for r in stats %}<tr><th>{{ r.placement }}</th><td>{{ r.format }}</td><td class="num">{{ r.requests|default:0|bnd:lang }}</td><td class="num">{{ r.impressions|bnd:lang }}</td><td class="num">{% if r.fill_pct is None %}—{% else %}{{ r.fill_pct|bnd:lang }}%{% endif %}</td><td class="num">{{ r.clicks|bnd:lang }}</td><td class="num">{{ r.ctr_pct|bnd:lang }}%</td><td class="num">{{ r.revenue_text }}</td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="mut">{{ T.adm_stats_none }}</p>{% endif %}
 <p class="mut small">{{ T.adm_stats_note }}</p>
 <div id="ads-source" class="note"><p><b>{{ T.ads_src_label }}</b> {% if source.api_connected %}{{ T.ads_src_api }}{% else %}{{ T.ads_src_events }}{% endif %}</p>
 <p class="small">{{ T.ads_src_real }}: {{ source.real_impressions|default:0|bnd:lang }} · {{ T.ads_src_test }}: {{ source.test_impressions|default:0|bnd:lang }} · {{ T.ads_src_last }}: {% if source.last_event_at %}{{ source.last_event_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}</p>
+<p class="small" id="ads-requests">{{ T.ads_src_requests }}: {{ T.ads_src_real_short }} {{ source.real_requests|default:0|bnd:lang }} · {{ T.ads_src_test_short }} {{ source.test_requests|default:0|bnd:lang }} · {{ T.ads_src_nofill }}: {{ source.real_no_fill|add:source.test_no_fill|default:0|bnd:lang }} · {{ T.adm_fill }}: {% if source.fill_pct is None %}—{% else %}{{ source.fill_pct|bnd:lang }}%{% endif %}</p>
+<p class="small" id="ads-paid-leaks">{% if source.paid_leaks %}<b>{{ T.ads_src_leaks }}: {{ source.paid_leaks|bnd:lang }}</b> — {{ T.ads_src_leaks_bad }}{% else %}{{ T.ads_src_leaks }}: {{ 0|bnd:lang }} ✓{% endif %}</p>
 {% if not source.real_ids_on %}<p class="small">{{ T.ads_src_ids_off }}</p>{% endif %}
 {% if not source.api_connected %}<p class="small">{{ T.ads_src_no_api }}</p><ol class="small"><li>{{ T.ads_src_step1 }}</li><li>{{ T.ads_src_step2 }}</li><li>{{ T.ads_src_step3 }}</li><li>{{ T.ads_src_step4 }}</li></ol>{% endif %}
 </div></section>

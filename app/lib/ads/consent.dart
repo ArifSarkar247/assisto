@@ -148,6 +148,7 @@ class AdConsent {
       _canServe && active && consentStatus == UmpConsentStatus.notRequired;
 
   bool _updatedThisSession = false;
+  bool _formTriedThisSession = false; // ads-nine
   Future<bool>? _inFlight;
 
   /// The consent flow can exist at all in this APK.
@@ -222,7 +223,13 @@ class AdConsent {
       }
       // The form waits for the user, so no timeout on it. Shown only when
       // UMP says consent is required (EEA/UK/CH); elsewhere it returns at once.
-      if (showForm && _updatedThisSession) await bridge.loadAndShowIfRequired();
+      // ads-nine: at most ONCE per session — every banner refresh calls
+      // this gate, and a user who closed the form must not get it again
+      // every 60 s (Settings -> "Ad privacy choices" re-opens it).
+      if (showForm && _updatedThisSession && !_formTriedThisSession) {
+        _formTriedThisSession = true;
+        await bridge.loadAndShowIfRequired();
+      }
       await _readPrivacyStatus();
       await _readConsentStatus();
       // Google: even when the update failed, a consent given in an earlier
@@ -273,6 +280,7 @@ class AdConsent {
     consentStatus = UmpConsentStatus.unknown;
     _canServe = false;
     _updatedThisSession = false;
+    _formTriedThisSession = false;
     _inFlight = null;
   }
 }

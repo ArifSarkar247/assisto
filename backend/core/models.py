@@ -3033,6 +3033,9 @@ class AdPlacementStat(models.Model):
     # ads-guard (owner 17 Nov): a Google TEST ad (real ids off, or an owner /
     # staff / tester / Play-reviewer account) — never counted as revenue
     test = models.BooleanField(default=False)
+    # ads-nine: SDK loads started / failed (no fill, error, timeout)
+    requests = models.PositiveIntegerField(default=0)
+    no_fill = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = [("date", "placement", "fmt", "currency", "test")]

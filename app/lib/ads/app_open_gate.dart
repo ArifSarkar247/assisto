@@ -117,6 +117,10 @@ class AppOpenGate {
   /// server bounds 3 h .. 24 h).
   static const minGap = Duration(hours: 3);
 
+  /// ads-nine: minimum time since ANY full-screen ad (same floor as the
+  /// interstitial gap, AdRules.minInterstitialGap).
+  static const fullScreenGap = Duration(seconds: 180);
+
   /// Day 1 = the sign-up (local) day.
   static int dayNumber(DateTime? joined, DateTime now) {
     if (joined == null) return 1;
@@ -138,6 +142,7 @@ class AppOpenGate {
     int shownToday = 0,
     Duration gap = const Duration(hours: 3),
     DateTime? lastShownAt,
+    DateTime? lastFullScreenAt,
   }) {
     if (!loggedIn) return const AdDecision(false, 'logged_out');
     if (paid) return const AdDecision(false, 'paid_plan');
@@ -157,6 +162,12 @@ class AppOpenGate {
     final g = gap < minGap ? minGap : gap;
     if (lastShownAt != null && now.difference(lastShownAt) < g) {
       return const AdDecision(false, 'too_soon');
+    }
+    // ads-nine: never two full-screen ads close together — an interstitial
+    // (or rewarded / sponsor card) a moment ago blocks the app-open ad
+    if (lastFullScreenAt != null &&
+        now.difference(lastFullScreenAt) < fullScreenGap) {
+      return const AdDecision(false, 'after_fullscreen');
     }
     return AdDecision.ok;
   }

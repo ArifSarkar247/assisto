@@ -127,6 +127,26 @@ net_mode() {  # $1 = off|on
         echo "$(date +%T) net $mode $f" >> "$OUT/net.log"
       done ) &
 
+# ads-nine: the ads proof (group "ads"). A runner-side packet capture of
+# DNS + 443 traffic (the emulator's network goes through this host), and the
+# host clock stamped on every `REALITY_ADS_PHASE <name> begin|end` line, so
+# tools/reality/ads_netcount.py counts ad-host traffic per phase on its own
+# (independent of the app's request log).
+case ",${REALITY_ONLY:-}," in
+  *ads*)
+    sudo -n true 2>/dev/null && command -v tcpdump >/dev/null 2>&1 && {
+      ( sudo -n timeout 3000 tcpdump -i any -U -n -s 1500 -w "$OUT/ads.pcap" \
+          'port 53 or port 443' >"$OUT/tcpdump.log" 2>&1 ) &
+      echo "== ads: tcpdump started" | tee -a "$OUT/drive.log"
+    }
+    ( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+        | grep --line-buffered -oE 'REALITY_ADS_PHASE [a-z_]+ (begin|end)' \
+        | while read -r _ name edge; do
+            echo "$(date +%s.%N) $name $edge" >> "$OUT/ads_phases.log"
+          done ) &
+    ;;
+esac
+
 # sjproof: FAKE GPS for the Safe Journey proof. The app prints
 # `REALITY_GEO <lat> <lng> <file>`; the host moves the emulator's GPS
 # (`adb emu geo fix` takes longitude first; works in airplane mode too) and acks.
@@ -252,6 +272,14 @@ fi
 [ -s "$OUT/logcat.txt" ] || cp "$OUT/live_logcat.txt" "$OUT/logcat.txt" 2>/dev/null || true
 grep -E "FATAL|AndroidRuntime|has died|ANR in|signal [0-9]+ \\(SIG" "$OUT/live_logcat.txt" 2>/dev/null | tail -40 || true
 grep -c "REALITY_RESULT" "$OUT/live_logcat.txt" 2>/dev/null || true
+# ads-nine: stop the capture, count ad-host traffic per phase
+if [ -f "$OUT/ads.pcap" ]; then
+  sudo -n pkill -INT -f "tcpdump -i any -U -n -s 1500" 2>/dev/null || true
+  sleep 2
+  sudo -n chmod a+r "$OUT/ads.pcap" 2>/dev/null || true
+  grep -E "ASSISTO_AD_(REQUEST|PAINT)|REALITY_METRIC ads_" "$OUT/live_logcat.txt" > "$OUT/ads_app_log.txt" 2>/dev/null || true
+  python3 "$GITHUB_WORKSPACE/tools/reality/ads_netcount.py" "$OUT" || true
+fi
 # The step must END: background logcat/tail/watchers would otherwise hold it
 # open until their own timeouts (run 39849437970 idled 50 min here).
 pkill -f "tail -n +1 -F $OUT/live_logcat.txt" 2>/dev/null || true

@@ -34,6 +34,7 @@ class AdmobBannerBridge implements BannerBridge {
     // one tracker per BannerAd object: 1 impression, <=1 click, 1 paid
     final tr = AdTelemetry.track(placement, 'banner');
     try {
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine: count + timing
       ad = BannerAd(
         size: size,
         adUnitId: unitId,
@@ -48,6 +49,7 @@ class AdmobBannerBridge implements BannerBridge {
           },
           onAdFailedToLoad: (a, _) {
             a.dispose();
+            tr.failed();
             if (!done.isCompleted) done.complete(null);
           },
           onAdImpression: (_) => tr.impression(),
@@ -64,9 +66,11 @@ class AdmobBannerBridge implements BannerBridge {
       try {
         ad?.dispose();
       } catch (_) {}
+      tr.failed();
       if (!done.isCompleted) done.complete(null);
     }
     return done.future.timeout(const Duration(seconds: 12), onTimeout: () {
+      tr.failed();
       if (!done.isCompleted) done.complete(null);
       try {
         ad?.dispose();

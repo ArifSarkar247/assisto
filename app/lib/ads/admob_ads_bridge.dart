@@ -31,6 +31,7 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
   // the background for a later resume. Never a load-then-show wait, never a
   // late surprise ad over a Home the user is already using.
   AppOpenAd? _appOpen;
+  AdInstanceTracker? _appOpenTr; // ads-nine: the preload's tracker
   String? _appOpenUnit;
   DateTime? _appOpenAt;
   bool _appOpenLoading = false;
@@ -61,6 +62,8 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
     _appOpenLoading = true;
     try {
       if (!await init()) return;
+      final tr = AdTelemetry.track('app_open', 'app_open');
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine
       await AppOpenAd.load(
         adUnitId: unitId,
         request: AdmobSdk.request(),
@@ -68,11 +71,15 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
           onAdLoaded: (ad) {
             _dropAppOpen();
             _appOpen = ad;
+            _appOpenTr = tr;
             _appOpenUnit = unitId;
             _appOpenAt = DateTime.now();
             _appOpenLoading = false;
           },
-          onAdFailedToLoad: (_) => _appOpenLoading = false,
+          onAdFailedToLoad: (_) {
+            tr.failed();
+            _appOpenLoading = false;
+          },
         ),
       );
     } catch (_) {
@@ -97,8 +104,9 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
     _appOpen = null; // one show per ad object
     _appOpenAt = null;
     final done = Completer<bool>();
-    // one tracker per ad object: 1 impression, <=1 click, 1 paid
-    final tr = AdTelemetry.track('app_open', 'app_open');
+    // one tracker per ad object: 1 request, 1 impression, <=1 click, 1 paid
+    final tr = _appOpenTr ?? AdTelemetry.track('app_open', 'app_open');
+    _appOpenTr = null;
     try {
       ad.onPaidEvent = _paid(tr);
       ad.fullScreenContentCallback = FullScreenContentCallback(
@@ -130,7 +138,10 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
     if (!AdmobSdk.unitAllowed(unitId) || !await init()) return false;
     final done = Completer<bool>();
     final loadedFrom = DateTime.now();
+    // one tracker per ad object: 1 request, 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track(placement, 'interstitial');
     try {
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine
       await InterstitialAd.load(
         adUnitId: unitId,
         request: AdmobSdk.request(),
@@ -140,7 +151,6 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
               ad.dispose();
               return;
             }
-            final tr = AdTelemetry.track(placement, 'interstitial');
             ad.onPaidEvent = _paid(tr);
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdImpression: (_) => tr.impression(),
@@ -159,15 +169,18 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
             unawaited(_showWhenIdle(ad, done, loadedFrom));
           },
           onAdFailedToLoad: (_) {
+            tr.failed();
             if (!done.isCompleted) done.complete(false);
           },
         ),
       );
     } catch (_) {
+      tr.failed();
       if (!done.isCompleted) done.complete(false);
     }
     // a slow network must never surprise the user much later
     return done.future.timeout(const Duration(seconds: 6), onTimeout: () {
+      tr.failed();
       if (!done.isCompleted) done.complete(false);
       return false;
     });
@@ -182,7 +195,11 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
         final wait = AdTouchGuard.waitFor(DateTime.now(), since);
         if (wait == null) break;
         if (wait == Duration.zero) {
+          if (done.isCompleted) break; // timed out meanwhile: never late
           ad.show();
+          // ads-nine: counted as shown NOW, so a slow onAdShowed callback
+          // can never let the caps / gap be skipped
+          done.complete(true);
           return;
         }
         await Future<void>.delayed(wait);
@@ -210,7 +227,10 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
     }
     final done = Completer<RewardOutcome>();
     var earned = false;
+    // one tracker per ad object: 1 request, 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track('rewarded_credits', 'rewarded');
     try {
+      if (AdmobSdk.requestAllowed) tr.requested(); // ads-nine
       await RewardedAd.load(
         adUnitId: unitId,
         request: AdmobSdk.request(),
@@ -227,7 +247,6 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
                 await ad.setServerSideOptions(ssv);
               } catch (_) {}
             }
-            final tr = AdTelemetry.track('rewarded_credits', 'rewarded');
             ad.onPaidEvent = _paid(tr);
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdShowedFullScreenContent: (_) => tr.impression(),
@@ -252,11 +271,13 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
             }
           },
           onAdFailedToLoad: (_) {
+            tr.failed();
             if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
           },
         ),
       );
     } catch (_) {
+      tr.failed();
       if (!done.isCompleted) done.complete(RewardOutcome.unavailable);
     }
     return done.future

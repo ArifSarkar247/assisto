@@ -94,7 +94,10 @@ class PaidPlansTests(_Base):
             self.assertFalse(any(j["placements"].values()), plan)
             r = self.ev(u, kind="impression", format="banner", placement="banner_dictionary")
             self.assertEqual(r.json()["reason"], "not_free", plan)
-        self.assertFalse(AdPlacementStat.objects.exists())
+        # ads-nine: nothing is counted as an ad view; the leak itself is
+        # counted apart (fmt "paid_leak") so Owner Admin can show it
+        self.assertFalse(AdPlacementStat.objects.exclude(fmt="paid_leak").exists())
+        self.assertEqual(AS.stats_source(7)["paid_leaks"], 3)
 
 
 from web.tests_o2_owner_admin import OwnerBase  # noqa: E402
