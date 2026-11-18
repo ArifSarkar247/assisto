@@ -611,7 +611,8 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
                             else "outside_7d_window" if person else "outside_24h_window")
             m.save()
             return m
-    r = _graph_send(ch, thread, token, text, comment_id=comment_id, public=public, tag=tag)
+    r = _graph_send(ch, thread, token, text, comment_id=comment_id, public=public, tag=tag,
+                    quick=m.meta.get("quick"))
     if r["ok"]:
         m.status, m.external_id = status_on_ok, r.get("id", "")[:128]
     elif BZ.is_rate_limited(r.get("error", "")):
@@ -628,18 +629,23 @@ def send_text(thread, text, *, kind="text", is_ai=True, comment_id="", public=Fa
     return m
 
 
-def _graph_send(ch, thread, token, text, *, comment_id="", public=False, tag=""):
+def _graph_send(ch, thread, token, text, *, comment_id="", public=False, tag="", quick=None):
     if comment_id and public:
         return G.public_comment_reply(token, comment_id, text,
                                       instagram=(ch.kind == BZ.CH_INSTAGRAM))
     if comment_id:
         return G.private_reply(token, comment_id, text, page_id=ch.external_id)
+    # bizsales-proof: yes/no reply buttons (COD confirmation, order summary)
+    qk = {"quick": quick} if quick else {}
     if ch.kind == BZ.CH_WHATSAPP:
+        if quick:
+            return G.send_whatsapp_buttons(token, ch.external_id, thread.external_user_id,
+                                           text, quick)
         return G.send_whatsapp_text(token, ch.external_id, thread.external_user_id, text)
     if ch.kind == BZ.CH_INSTAGRAM:
-        return G.send_instagram(token, thread.external_user_id, text, tag=tag)
+        return G.send_instagram(token, thread.external_user_id, text, tag=tag, **qk)
     return G.send_messenger(token, thread.external_user_id, text, page_id=ch.external_id,
-                            tag=tag)
+                            tag=tag, **qk)
 
 
 RL_MAX_TRIES = 3
@@ -678,7 +684,7 @@ def retry_rate_limited(now=None, limit=100):
             m.save(update_fields=["status", "send_error"])
             continue
         r = _graph_send(ch, t, token, m.text, comment_id=cid,
-                        public=(m.kind == "comment" and bool(cid)), tag=tag)
+                        public=(m.kind == "comment" and bool(cid)), tag=tag, quick=meta.get("quick"))
         meta["rl_tries"] = int(meta.get("rl_tries") or 1) + 1
         meta["rl_at"] = now.timestamp()
         if r["ok"]:
@@ -734,13 +740,14 @@ def send_image(thread, url, caption=""):
     return m
 
 
-def send_template(thread, name, lang_code="bn", params=None):
+def send_template(thread, name, lang_code="bn", params=None, *, button_payloads=None,
+                  kind="template", meta=None):
     """Outside the 24 h window WhatsApp allows ONLY an approved template.
     salesbar: never to a customer who wrote STOP (WhatsApp Business policy)."""
     from .models import Message
     ch = thread.seller_channel
     m = Message(thread=thread, direction="out", text="[template:%s]" % name, is_ai=False,
-                kind="template", meta={"template": name, "params": params or []})
+                kind=kind, meta=dict(meta or {}, template=name, params=params or []))
     if ch is None or ch.kind != BZ.CH_WHATSAPP:
         m.status, m.send_error = "blocked", "templates_whatsapp_only"
     elif thread.opted_out:
@@ -752,8 +759,9 @@ def send_template(thread, name, lang_code="bn", params=None):
         if not token:
             m.status, m.send_error = "queued", "no_token"
         else:
+            bp = {"button_payloads": button_payloads} if button_payloads else {}
             r = G.send_whatsapp_template(token, ch.external_id, thread.external_user_id, name,
-                                         lang_code, params)
+                                         lang_code, params, **bp)
             if r["ok"]:
                 m.status, m.external_id = "sent", r["id"][:128]
             else:
@@ -1513,6 +1521,12 @@ def handle_message(ch, e):
         GD.audit(ch.business, "opt_in", thread=t)
         send_text(t, G1.opt_in_ack(lang), kind="text", is_ai=True, source="system")
         return "opted_in"
+    # bizsales-proof: a tapped COD yes/no button, or a plain "yes"/"no" to
+    # this chat's open COD confirmation question
+    from . import bizagent_cod as COD
+    cod = COD.on_reply(t, text, str(e.get("payload") or ""), lang)
+    if cod:
+        return cod
     if e.get("cart"):
         return _handle_cart(ch, t, e["cart"], text, lang, inbound)
     media = None

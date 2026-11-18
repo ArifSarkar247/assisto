@@ -1355,6 +1355,7 @@ urlpatterns += [
     path("bizagent/threads/<int:pk>/template", p1.ThreadTemplateView.as_view()),
     path("bizagent/orders/<int:pk>/book", p1.OrderBookView.as_view()),
     path("bizagent/orders/<int:pk>/status", p1.OrderStatusView.as_view()),
+    path("bizagent/orders/<int:pk>/cod", p1.OrderCodView.as_view()),     # bizsales-proof
     path("bizagent/reports", p1.ReportsView.as_view()),
     path("bizagent/plan", p1.PlanView.as_view()),
     path("bizagent/plan/trial", p1.PlanTrialView.as_view()),

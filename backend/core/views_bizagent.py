@@ -621,6 +621,16 @@ class ThreadsView(APIView):
         return Response({"threads": [_thread_row(t) for t in qs]})
 
 
+def _cod_state(o):
+    """bizsales-proof: COD confirmation stage + honest risk (owner/staff app)."""
+    from . import bizagent_cod as COD
+    try:
+        return COD.state(o)
+    except Exception:  # noqa: BLE001 — the chat never fails for this card
+        log.exception("bizsales cod state order=%s", o.pk)
+        return None
+
+
 def _thread(prof, pk):
     return prof.chat_threads.filter(pk=pk).exclude(seller_channel=None).first()
 
@@ -638,7 +648,8 @@ class ThreadDetailView(APIView):
         orders = [{"id": o.id, "status": o.status, "total": str(o.total),
                    "tracking": o.tracking, "courier": o.courier,
                    "courier_live": o.courier_live, "payment_status": o.payment_status,
-                   "items": o.items or [], "draft": o.status == "new" and o.via_agent}
+                   "items": o.items or [], "draft": o.status == "new" and o.via_agent,
+                   "cod": _cod_state(o)}
                   for o in t.orders.all()]
         row = _thread_row(t)
         # biz-v2: when an idle takeover hands the chat back to the agent
@@ -778,6 +789,53 @@ class OrderStatusView(APIView):
                                                       vkey=it["variant"]).update(
                             stock=F("stock") + q)
         return Response({"ok": True, "status": o.status, "sale_id": o.sale_id})
+
+
+class OrderCodView(APIView):
+    """bizsales-proof (row 25): GET = where the COD confirmation stands + the
+    honest risk counts (owner/staff only); POST = send the confirmation with
+    yes/no buttons on the shop's official channel."""
+    def _order(self, request, pk, owner=False):
+        prof, role, a, bad = _ctx(request, owner=owner)
+        if bad:
+            return None, bad
+        from .models import Order
+        o = Order.objects.filter(pk=pk, business=prof).first()
+        if not o:
+            return None, _err(req_lang(request), "অর্ডার পাওয়া যায়নি।", "Order not found.",
+                              status=404)
+        return o, None
+
+    def get(self, request, pk):
+        o, bad = self._order(request, pk)
+        if bad:
+            return bad
+        from . import bizagent_cod as COD
+        return Response({"order_id": o.id, "status": o.status, "cod": COD.state(o)})
+
+    def post(self, request, pk):
+        o, bad = self._order(request, pk)
+        if bad:
+            return bad
+        lang = req_lang(request)
+        from . import bizagent_cod as COD
+        r = COD.ask(o)
+        msgs = {
+            "not_open_cod": ("শুধু নতুন ক্যাশ-অন-ডেলিভারি অর্ডারে নিশ্চিতকরণ পাঠানো যায়।",
+                             "Only a new cash-on-delivery order can be confirmed.", 409),
+            "no_channel": ("এই গ্রাহকের কাছে পৌঁছানোর মতো যুক্ত Messenger/WhatsApp নেই। ফোন করে নিশ্চিত হোন।",
+                           "No connected Messenger/WhatsApp can reach this customer. Call to confirm.", 409),
+            "opted_out": ("এই গ্রাহক STOP লিখেছেন — মেসেজ পাঠানো যাবে না। ফোন করে নিশ্চিত হোন।",
+                          "This customer wrote STOP — no message can be sent. Call to confirm.", 409),
+            "blocked": ("২৪ ঘণ্টার বেশি আগে গ্রাহক লিখেছিলেন, তাই Meta-র নিয়মে মেসেজ যাবে না। ফোন করে নিশ্চিত হোন।",
+                        "The customer last wrote over 24 hours ago, so Meta does not allow a message. Call to confirm.", 409),
+        }
+        if r["ok"] or r["reason"] == "already_asked":
+            return Response({"ok": True, "reason": r["reason"], "cod": COD.state(o)},
+                            status=201 if r["ok"] else 200)
+        bn, en, st = msgs.get(r["reason"], ("পাঠানো যায়নি: " + (r.get("error") or r["reason"]),
+                                            "Could not send: " + (r.get("error") or r["reason"]), 502))
+        return _err(lang, bn, en, status=st, code="cod_" + r["reason"])
 
 
 class ReportsView(APIView):

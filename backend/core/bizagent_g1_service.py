@@ -282,6 +282,11 @@ def process_deferred(now=None, limit=50):
     return n
 
 
+def _cod_sweep(now):
+    from . import bizagent_cod
+    return bizagent_cod.sweep(now)
+
+
 def run_sweeps(now=None):
     """Everything the per-minute cron (manage.py bizagent_process) does for
     G1: human pause ran out → answer the waiting customer; leftover deferred
@@ -290,7 +295,8 @@ def run_sweeps(now=None):
     from . import bizagent_guard as GD
     for name, fn in (("idle_handback", GD.sweep_idle_takeovers), ("resumed", resume_waiting), ("deferred", process_deferred),
                      ("followups", run_followups), ("morning", run_morning),
-                     ("rate_limited", lambda n: S().retry_rate_limited(n))):   # salesbar
+                     ("rate_limited", lambda n: S().retry_rate_limited(n)),   # salesbar
+                     ("cod_confirm", _cod_sweep)):                            # bizsales-proof
         try:
             out[name] = fn(now)
         except Exception:  # noqa: BLE001 — one failing sweep never blocks the rest

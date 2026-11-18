@@ -435,6 +435,35 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     await _load();
   }
 
+  /// bizsales-proof: send the COD confirmation (yes/no buttons) to the customer.
+  Future<void> _codSend(int orderId) async {
+    final t = AppLocalizations.of(context);
+    try {
+      await context.read<AppState>().api.bizAgentCodSend(orderId);
+      _snack(t.bspCodSentDone);
+    } catch (e) {
+      _snack(baErrorText(t, e));
+    }
+    await _load();
+  }
+
+  String _codStage(AppLocalizations t, String stage) {
+    switch (stage) {
+      case 'asked':
+        return t.bspCodStageAsked;
+      case 'reminded':
+        return t.bspCodStageReminded;
+      case 'confirmed':
+        return t.bspCodStageConfirmed;
+      case 'declined':
+        return t.bspCodStageDeclined;
+      case 'no_reply':
+        return t.bspCodStageNoReply;
+      default:
+        return t.bspCodStageNone;
+    }
+  }
+
   Future<void> _openApprovals() async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ApprovalsScreen()));
     if (mounted) _load();
@@ -669,6 +698,32 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                   onPressed: () => _draft((o['id'] as num).toInt(), false),
                   child: Text(t.bv2DraftCancel)),
             ]),
+          ]),
+        ),
+      // bizsales-proof: COD confirmation — stage, honest risk counts, one button
+      for (final o in orders.where((o) => o['cod'] is Map && (o['cod']['can_ask'] == true ||
+          '${o['cod']['stage']}' != 'none' && '${o['cod']['stage']}' != 'closed' &&
+              '${o['cod']['stage']}' != 'not_sent')))
+        BizCard(
+          key: ValueKey('bsp-cod-${o['id']}'),
+          title: bd(context, t.bspCodCardTitle('${o['id']}')),
+          icon: Icons.local_shipping_rounded,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(_codStage(t, '${o['cod']['stage']}'),
+                style: AType.bodyMedium.copyWith(height: 1.4)),
+            if (o['cod']['risk'] is Map) ...[
+              const SizedBox(height: Gap.xs),
+              Text(
+                  bd(context, '${o['cod']['risk'][Localizations.localeOf(context).languageCode == 'bn' ? 'text_bn' : 'text_en'] ?? ''}'),
+                  style: AType.bodyMedium.copyWith(height: 1.4)),
+            ],
+            if (o['cod']['can_ask'] == true) ...[
+              const SizedBox(height: Gap.sm),
+              FilledButton.tonal(
+                  key: ValueKey('bsp-cod-send-${o['id']}'),
+                  onPressed: () => _codSend((o['id'] as num).toInt()),
+                  child: Text(t.bspCodSend)),
+            ],
           ]),
         ),
       for (final o in orders.where((o) => o['payment_status'] == 'pending_verification'))

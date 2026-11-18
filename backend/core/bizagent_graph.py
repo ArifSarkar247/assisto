@@ -122,17 +122,36 @@ def _tagged(body, tag):
     return body
 
 
-def send_messenger(page_token, psid, text, page_id="me", tag=""):
+def _quick_replies(quick):
+    """bizsales-proof: Messenger / Instagram quick-reply chips (max 13, title
+    max 20 chars, payload max 1000) — [{"id": payload, "title": label}]."""
+    out = []
+    for q in (quick or [])[:13]:
+        if isinstance(q, dict) and q.get("id") and q.get("title"):
+            out.append({"content_type": "text", "title": str(q["title"])[:20],
+                        "payload": str(q["id"])[:1000]})
+    return out
+
+
+def send_messenger(page_token, psid, text, page_id="me", tag="", quick=None):
     """Messenger Send API: POST /{page-id}/messages (RESPONSE type — inside the
     24 h window only; MESSAGE_TAG + HUMAN_AGENT for a person's late reply)."""
+    msg = {"text": (text or "")[:2000]}
+    qr = _quick_replies(quick)
+    if qr:
+        msg["quick_replies"] = qr
     return _post("%s/messages" % (page_id or "me"), page_token, _tagged({
         "recipient": {"id": psid}, "messaging_type": "RESPONSE",
-        "message": {"text": (text or "")[:2000]}}, tag))
+        "message": msg}, tag))
 
 
-def send_instagram(page_token, igsid, text, ig_account_id="me", tag=""):
+def send_instagram(page_token, igsid, text, ig_account_id="me", tag="", quick=None):
     """Instagram Messaging (via the linked Page token): POST /{ig-id|me}/messages."""
-    body = {"recipient": {"id": igsid}, "message": {"text": (text or "")[:1000]}}
+    msg = {"text": (text or "")[:1000]}
+    qr = _quick_replies(quick)
+    if qr:
+        msg["quick_replies"] = qr
+    body = {"recipient": {"id": igsid}, "message": msg}
     return _post("%s/messages" % (ig_account_id or "me"), page_token, _tagged(body, tag))
 
 
@@ -218,11 +237,31 @@ def send_whatsapp_text(token, phone_number_id, to, text):
         "to": to, "type": "text", "text": {"preview_url": False, "body": (text or "")[:4096]}})
 
 
-def send_whatsapp_template(token, phone_number_id, to, name, lang_code="bn", params=None):
+def send_whatsapp_buttons(token, phone_number_id, to, text, quick):
+    """bizsales-proof: WhatsApp Cloud API interactive reply buttons (max 3,
+    title max 20 chars, id max 256) — inside the 24 h window only."""
+    btns = [{"type": "reply", "reply": {"id": str(q["id"])[:256], "title": str(q["title"])[:20]}}
+            for q in (quick or [])[:3] if isinstance(q, dict) and q.get("id") and q.get("title")]
+    if not btns:
+        return send_whatsapp_text(token, phone_number_id, to, text)
+    return _post("%s/messages" % phone_number_id, token, {
+        "messaging_product": "whatsapp", "recipient_type": "individual", "to": to,
+        "type": "interactive",
+        "interactive": {"type": "button", "body": {"text": (text or "")[:1024]},
+                        "action": {"buttons": btns}}})
+
+
+def send_whatsapp_template(token, phone_number_id, to, name, lang_code="bn", params=None,
+                           button_payloads=None):
     comps = []
     if params:
         comps = [{"type": "body", "parameters": [{"type": "text", "text": str(p)[:200]}
                                                   for p in params]}]
+    # bizsales-proof: the template's QUICK_REPLY buttons get their payload at
+    # send time (one component per button index) — the reply webhook carries it
+    for i, pl in enumerate((button_payloads or [])[:3]):
+        comps.append({"type": "button", "sub_type": "quick_reply", "index": str(i),
+                      "parameters": [{"type": "payload", "payload": str(pl)[:256]}]})
     tmpl = {"name": name, "language": {"code": lang_code}}
     if comps:
         tmpl["components"] = comps
