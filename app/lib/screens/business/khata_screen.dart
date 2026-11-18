@@ -947,7 +947,7 @@ class _AddPartySheetState extends State<_AddPartySheet> {
     } catch (first) {
       if (!mounted) return;
       Object e = first;
-      if (failKindOf(first) != FailKind.refused) {
+      if (KhataOffline.isRetryable(first)) {
         // bizbar: no internet — keep the new party on this phone; it syncs
         // (with the same id, never twice) and its entries follow it
         try {
@@ -1731,7 +1731,7 @@ class _EntrySheetState extends State<_EntrySheet> {
       if (mounted) Navigator.pop(context, _isEdit ? 'edited' : 'saved');
     } catch (e) {
       if (!mounted) return;
-      if (failKindOf(e) == FailKind.refused) {
+      if (!KhataOffline.isRetryable(e)) {
         // validation / access / conflict: say the server's sentence, keep
         // the sheet open so the owner can fix it (nothing was booked)
         setState(() {

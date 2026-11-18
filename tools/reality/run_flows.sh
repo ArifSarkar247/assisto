@@ -151,7 +151,9 @@ run_group() {  # $1 = group, $2 = attempt label
   left=$(( DEADLINE - $(date +%s) ))
   [ "$left" -gt 120 ] || { echo "== out of time before group $g" | tee -a "$OUT/drive.log"; return 2; }
   if ! alive; then restart_emulator || return 2; fi
-  net_mode on  # offline1st: a flow that died offline never leaves the network off
+  # offline1st: a flow that died offline never leaves the network off
+  # (proof-ledger: except drive 2 of "ledger", which must START offline)
+  [ -n "${LEDGER_KEEP_NET:-}" ] || net_mode on
   local bin=() att="$OUT/.attempt.log"
   [ -n "$APK" ] && [ -f "$APK" ] && [ "${3:-}" != "build" ] && bin=(--use-application-binary "$APK")
   echo "== flutter drive group=$g$2 ($(date +%T), ${left}s left) ${bin[*]:-(builds)}" | tee -a "$OUT/drive.log"
@@ -214,6 +216,26 @@ push_skips() {  # keep the skip list on the device while the drive installs
       sleep 3
     done ) &
 }
+
+# proof-ledger: group "ledger" = TWO drives with a REAL app kill between them.
+# Drive 1 logs in and types khata / cashbox / mess rows in airplane mode
+# (ldg1, ends with the network still OFF); then `am force-stop` kills the app
+# process; drive 2 is a NEW process that starts offline (ldg2: rows still on
+# the phone -> online -> synced once; ldg3 mess month close; ldg4 invoices).
+if [ "$GROUPS_RUN" = "start+ledger" ]; then
+  printf '%s\n' ldg2_after_kill_sync ldg3_mess_month_close ldg4_invoice_papers > "$SKIP_LOCAL"
+  push_skips
+  run_group "start+ledger" " (ledger drive 1)"
+  echo "== ledger: killing the app for real (am force-stop $PKG); airplane mode stays as drive 1 left it" | tee -a "$OUT/drive.log"
+  T=20 A shell am force-stop "$PKG" >/dev/null 2>&1 || true
+  sleep 3
+  echo "pidof after force-stop: '$(T=10 A shell pidof "$PKG" 2>/dev/null | tr -d '\r')'" | tee -a "$OUT/drive.log"
+  printf '%s\n' 01_language 02_login 03_onboarding ldg1_offline_entries > "$SKIP_LOCAL"
+  push_skips
+  LEDGER_KEEP_NET=1 run_group "start+ledger" " (ledger drive 2, after the kill)"
+  net_mode on
+  GROUPS_RUN=""
+fi
 
 for g in $GROUPS_RUN; do
   n=1

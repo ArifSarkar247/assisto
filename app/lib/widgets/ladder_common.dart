@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import 'num_input.dart' show takaToPoishaInput;
 
 /// Shared logic + small helpers for the advanced Payment / Auto-pay Ladder
 /// module. Mirrors backend/core/logic/payment_ladder.py so the client renders
@@ -36,16 +37,13 @@ const kPayableActions = [
 // ---------------------------------------------------------------- money (poisha)
 
 int takaToPoisha(String? input) {
-  if (input == null) return 0;
-  final cleaned = _ascii(input).replaceAll(RegExp(r'[^0-9.]'), '').trim();
-  if (cleaned.isEmpty) return 0;
-  final dot = cleaned.indexOf('.');
-  if (dot < 0) return (int.tryParse(cleaned) ?? 0) * 100;
-  final whole = int.tryParse(cleaned.substring(0, dot)) ?? 0;
-  var frac = cleaned.substring(dot + 1).replaceAll('.', '');
-  if (frac.length > 2) frac = frac.substring(0, 2);
-  frac = frac.padRight(2, '0');
-  return whole * 100 + (int.tryParse(frac) ?? 0);
+  // proof-ledger: the old body kept only digits and dots, so "Tk. 500"
+  // became ".500" = 50 poisha (the b326 P0 bug, still alive here for
+  // subscriptions / bill ladders / landlord / samity), "-500" became +500 and
+  // 12.345 was cut to 12.34. Now the app's one strict parser (half-up; junk,
+  // minus and empty -> 0, which every caller already treats as "no amount").
+  final p = takaToPoishaInput(input);
+  return p == null || p < 0 ? 0 : p;
 }
 
 int poishaOf(Map s, {String poishaKey = 'amount_poisha', String takaKey = 'amount'}) {
@@ -429,19 +427,6 @@ String dueRelative(BuildContext context, AppLocalizations t, dynamic due) {
 }
 
 // ---------------------------------------------------------------- bn digits
-
-String _ascii(String s) {
-  const bnZero = 0x09E6;
-  final b = StringBuffer();
-  for (final ch in s.runes) {
-    if (ch >= bnZero && ch <= bnZero + 9) {
-      b.write(ch - bnZero);
-    } else {
-      b.writeCharCode(ch);
-    }
-  }
-  return b.toString();
-}
 
 String _toBn(String ascii, bool bn) {
   if (!bn) return ascii;

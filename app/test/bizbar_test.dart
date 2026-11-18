@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:assisto/api.dart' show ApiException; // proof-ledger
 import 'package:assisto/cctvx/mini_pdf.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
@@ -25,6 +26,7 @@ import 'package:assisto/screens/business/products_screen.dart';
 import 'package:assisto/screens/business/quick_sell_screen.dart';
 import 'package:assisto/screens/business/statement_pdf.dart';
 import 'package:assisto/screens/business/staff_screen.dart';
+import 'package:assisto/services/cashbox_offline.dart'; // proof-ledger
 import 'package:assisto/services/khata_offline.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
@@ -39,6 +41,8 @@ import 'fake_api.dart';
 class _BzApi extends FakeApi {
   _BzApi({super.lang = 'en'});
   bool cashboxDown = false;
+  bool cashboxRefuse = false; // proof-ledger: a real server refusal (422)
+  bool cashboxDayDown = false; // proof-ledger: the day itself cannot load
   bool profilesDown = false;
   bool offline = false;
   final staff = <Map<String, dynamic>>[];
@@ -48,6 +52,9 @@ class _BzApi extends FakeApi {
   Future<Map<String, dynamic>> getJson(String path) async {
     if (profilesDown && path.startsWith('/business/profiles')) {
       throw const SocketException('offline');
+    }
+    if (cashboxDayDown && path.startsWith('/business/cashbox/')) {
+      throw const SocketException('offline'); // proof-ledger
     }
     if (path.startsWith('/business/staff')) {
       return {'staff': staff, 'max': 10};
@@ -60,6 +67,9 @@ class _BzApi extends FakeApi {
       [Map<String, dynamic> body = const {}]) async {
     if (cashboxDown && path.contains('/business/cashbox/')) {
       throw const SocketException('offline');
+    }
+    if (cashboxRefuse && path.contains('/business/cashbox/')) {
+      throw ApiException('Invalid entry.', 422);
     }
     if (offline && path.contains('/business/khata')) {
       throw const SocketException('offline');
@@ -198,9 +208,9 @@ void main() {
       expect(find.byKey(const ValueKey('bb-cb-share')), findsOneWidget);
     });
 
-    testWidgets('a failed cash-in says so (it used to vanish silently)',
+    testWidgets('a REFUSED cash-in says so (it used to vanish silently)',
         (tester) async {
-      final api = _BzApi()..cashboxDown = true;
+      final api = _BzApi()..cashboxRefuse = true;
       final t = await _pump(tester, const CashboxScreen(business: _biz), api);
       await tester.tap(find.text(t.cashboxCashIn));
       await tester.pumpAndSettle();
@@ -208,6 +218,47 @@ void main() {
       await tester.tap(find.text(t.save));
       await tester.pumpAndSettle();
       expect(find.text(t.actionFailedRetry), findsOneWidget);
+      expect(await CashboxOffline.all(), isEmpty); // nothing kept, nothing booked
+    });
+
+    // proof-ledger: with no internet the sale is KEPT on the phone and goes
+    // up once (it used to say "failed" and the sale was written nowhere)
+    testWidgets('offline cash-in is kept on the phone, then synced once',
+        (tester) async {
+      final api = _BzApi()..cashboxDown = true;
+      final t = await _pump(tester, const CashboxScreen(business: _biz), api);
+      await tester.tap(find.text(t.cashboxCashIn));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Tk. 500');
+      await tester.tap(find.text(t.save));
+      await tester.pumpAndSettle();
+      expect(find.text(t.ldgSavedOffline), findsOneWidget);
+      expect(find.byKey(const ValueKey('cb-pending-banner')), findsOneWidget);
+      expect(find.text(t.ldgPendingChip), findsOneWidget);
+      final ops = await CashboxOffline.all();
+      expect(ops.single.amountPoisha, 50000); // "Tk. 500" = ৳500, never 50 poisha
+      api.cashboxDown = false;
+      await tester.tap(find.byKey(const ValueKey('cb-sync-now')));
+      await tester.pumpAndSettle();
+      final sent = api.posts.entries
+          .where((e) => e.key.endsWith('/entries'))
+          .expand((e) => e.value)
+          .toList();
+      expect(sent, hasLength(1));
+      expect(sent.single['amount'], 50000);
+      expect(sent.single['client_id'], ops.single.cid);
+      expect(await CashboxOffline.all(), isEmpty);
+      expect(find.byKey(const ValueKey('cb-pending-banner')), findsNothing);
+    });
+
+    testWidgets('offline open: the day still opens with cash in / out (no dead end)',
+        (tester) async {
+      final api = _BzApi()..cashboxDayDown = true;
+      final t = await _pump(tester, const CashboxScreen(business: _biz), api);
+      expect(find.byKey(const ValueKey('cb-offline-banner')), findsOneWidget);
+      expect(find.text(t.ldgStillOffline), findsOneWidget);
+      expect(find.text(t.cashboxCashIn), findsOneWidget);
+      expect(find.byKey(const ValueKey('bb-cb-share')), findsNothing);
     });
 
     testWidgets('en + dark + large text: no overflow', (tester) async {

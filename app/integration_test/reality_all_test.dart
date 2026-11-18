@@ -39,6 +39,7 @@ import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
+import 'flows/ledger_proof_flow.dart'; // proof-ledger
 import 'support/harness.dart';
 
 void main() {
@@ -84,6 +85,10 @@ void main() {
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
+  // proof-ledger: offline khata / cashbox / mess across a REAL app kill +
+  // mess month close + invoice papers — opt-in group 'ledger' only (two
+  // drives, tools/reality/run_flows.sh)
+  if (only.split(',').contains('ledger')) registerLedgerProofFlows();
   if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {
     registerOfflineFirstFlows();
   }

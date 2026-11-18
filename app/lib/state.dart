@@ -26,6 +26,9 @@ import 'perf/perf_marks.dart'; // faststart: startup step marks (CI-only define)
 import 'offline/net_status.dart'; // offline1st
 import 'offline/offline_store.dart'; // offline1st
 import 'dart:io' show Platform; // offline1st
+import 'services/khata_offline.dart' show KhataOffline; // proof-ledger
+import 'services/cashbox_offline.dart' show CashboxOffline; // proof-ledger
+import 'screens/mess/mess_store.dart' show MessOutbox; // proof-ledger
 
 class AppState extends ChangeNotifier {
   ApiClient api = ApiClient(); // non-final so tests/previews can inject a fake
@@ -342,6 +345,12 @@ class AppState extends ChangeNotifier {
     loading = false;
     notifyListeners();
     unawaited(FeatureFlags.instance.refreshWith(api)); // feature-flags
+    // proof-ledger: money typed offline (khata, cashbox, mess) goes up by
+    // itself a few seconds after the app opens signed in — before, it waited
+    // until the owner happened to open that one screen again.
+    if (api.token != null && !Platform.environment.containsKey('FLUTTER_TEST')) {
+      Timer(const Duration(seconds: 4), () => unawaited(_syncMoneyOutboxes()));
+    }
     // Tell us (once per launch) when local storage misbehaves on a device, so
     // a real root cause shows up in the server log instead of being swallowed.
     final pe = prefsError;
@@ -436,7 +445,39 @@ class AppState extends ChangeNotifier {
       // back online: confirm the session (a revoked one signs out NOW) and
       // sync what waited.
       if (api.token != null) unawaited(_refreshSession());
+      unawaited(_syncMoneyOutboxes()); // proof-ledger
     });
+  }
+
+  /// proof-ledger: send what waited on the phone. Each outbox is
+  /// single-flight and idempotent on its client_id (the server books an id
+  /// at most once), so a call racing a screen's own sync is harmless. Reads
+  /// local prefs only when nothing is pending — no network at all.
+  bool _moneySyncing = false;
+  Future<void> _syncMoneyOutboxes() async {
+    if (_moneySyncing || api.token == null) return;
+    _moneySyncing = true;
+    try {
+      try {
+        if ((await KhataOffline.all()).any((o) => o.isPending)) await KhataOffline.sync(api);
+      } catch (e) {
+        reportNonFatal('money.sync.khata', e);
+      }
+      try {
+        if ((await CashboxOffline.all()).any((o) => o.isPending)) {
+          await CashboxOffline.sync(api);
+        }
+      } catch (e) {
+        reportNonFatal('money.sync.cashbox', e);
+      }
+      try {
+        if (await MessOutbox.pending() > 0) await MessOutbox.flush(api);
+      } catch (e) {
+        reportNonFatal('money.sync.mess', e);
+      }
+    } finally {
+      _moneySyncing = false;
+    }
   }
 
   /// bubbles (owner 2 Nov): the floating chat window's OWN engine needs only
