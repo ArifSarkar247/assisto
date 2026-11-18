@@ -27,6 +27,26 @@ String uwWhen(BuildContext context, String iso, {bool time = true}) {
       time ? 'd MMM, HH:mm' : 'd MMM yyyy', d.toLocal(), uwLang(context));
 }
 
+/// homefeed: "how long ago" for an ISO time ("20 min ago"; Bangla in bn),
+/// Bangla digits in bn. '' when the time is missing or unparseable.
+String uwAgo(BuildContext context, String iso, {DateTime? now}) {
+  final d = DateTime.tryParse(iso.trim());
+  if (d == null) return '';
+  final t = AppLocalizations.of(context);
+  final m = (now ?? DateTime.now()).difference(d).inMinutes;
+  String n(int v) => uwDigits(context, v);
+  if (m < 1) return t.uwAgoJustNow;
+  if (m < 60) return t.uwAgoMin(n(m));
+  if (m < 48 * 60) return t.uwAgoHours(n(m ~/ 60));
+  return t.uwAgoDays(n(m ~/ (24 * 60)));
+}
+
+/// Minutes since an ISO time (null when unknown).
+int? uwAgeMin(String iso, {DateTime? now}) {
+  final d = DateTime.tryParse(iso.trim());
+  return d == null ? null : (now ?? DateTime.now()).difference(d).inMinutes;
+}
+
 Future<void> uwOpen(BuildContext context, String url) async {
   final t = AppLocalizations.of(context);
   final uri = Uri.tryParse(url);

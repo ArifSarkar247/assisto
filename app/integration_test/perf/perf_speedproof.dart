@@ -282,6 +282,13 @@ void registerSpeedproofFlows() {
   });
 
   // ------------------------------------------------------------- Quran
+  // ------------------------------------------------------------- Today facts
+  // homefeed (row 38): cold = no saved copy yet (server answer), warm = the
+  // saved copy paints first (cache-first)
+  perfFlow('s16_today', '১৪. আজকের তথ্য', 'Today facts (prayer, weather, rates)', (p) async {
+    await _route(p, 'today', 'daily_today', ready: find.byKey(const ValueKey('uw_card_prayer')));
+  });
+
   perfFlow('s15_quran', '১৩. কুরআন', 'Quran: list + ayah page (Al-Baqarah, 286 ayas)', (p) async {
     final f = p.f;
     // pushed directly: ChatNav 'quran' left the top route unchanged in run

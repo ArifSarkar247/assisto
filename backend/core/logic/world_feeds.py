@@ -309,12 +309,16 @@ def parse_met(doc):
             "updated": (doc.get("properties", {}).get("meta") or {}).get("updated_at", "")}
 
 
-def weather_public(payload, lang):
+def weather_public(payload, lang, now=None):
     if not payload or payload.get("temp") is None:
         return None
     label, icon = symbol_label(payload.get("symbol"), lang)
     nxt = []
     for s in payload.get("next") or []:
+        # homefeed: a forecast step already in the past is not a forecast
+        t = parse_date(s.get("time")) if now else None
+        if t is not None and t < now:
+            continue
         lb, ic = symbol_label(s.get("symbol"), lang)
         nxt.append({"time": s.get("time"), "temp": s.get("temp"), "label": lb,
                     "icon": ic, "rain_mm": s.get("rain_mm")})
@@ -323,6 +327,41 @@ def weather_public(payload, lang):
             "label": label, "icon": icon, "next": nxt,
             "updated": payload.get("updated") or payload.get("time"),
             "source": "MET Norway (CC BY 4.0)", "source_url": "https://api.met.no/"}
+
+
+# ------------------------------------------------------------------ freshness
+# homefeed (row 38): every live card says WHEN our server last got real data
+# from its source. Past FRESH_MIN the app shows "the source is not responding
+# — last updated X ago"; past DROP_AFTER_MIN the numbers are no longer shown
+# as today's (the card moves to "not connected" with the honest reason).
+FRESH_MIN = {"weather": 3 * 60, "fx": 36 * 60, "news": 6 * 60, "sports": 30}
+DROP_AFTER_MIN = {"weather": 24 * 60, "sports": 6 * 60}
+# owner-entered official prices: BAJUS changes gold often; BPC fuel is monthly
+ADMIN_STALE_DAYS = {"gold": 7, "fuel": 35}
+
+
+def freshness(last_ok, now, kind):
+    """-> {fetched_at, age_min, stale} or {} when never fetched."""
+    if not last_ok:
+        return {}
+    age = max(0, int((now - last_ok).total_seconds() // 60))
+    return {"fetched_at": last_ok.isoformat(), "age_min": age,
+            "stale": age > FRESH_MIN.get(kind, 60)}
+
+
+def too_old(last_ok, now, kind):
+    lim = DROP_AFTER_MIN.get(kind)
+    return bool(lim and last_ok and (now - last_ok).total_seconds() > lim * 60)
+
+
+def admin_stale(card, group, today):
+    """True when an owner-entered price is older than ADMIN_STALE_DAYS."""
+    from datetime import date as _date
+    try:
+        d = _date.fromisoformat(str(card.get("updated") or "")[:10])
+    except ValueError:
+        return True
+    return (today - d).days > ADMIN_STALE_DAYS.get(group, 7)
 
 
 # ------------------------------------------------------------------ currency

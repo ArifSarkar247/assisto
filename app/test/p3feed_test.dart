@@ -99,7 +99,8 @@ void main() {
 
   testWidgets('offline: cached week gives today\'s prayer times',
       (tester) async {
-    final today = _d(DateTime.now());
+    // homefeed: "today" for a Bangladesh city is the Bangladesh date (UTC+6)
+    final today = _d(DateTime.now().toUtc().add(const Duration(hours: 6)));
     final cached = {
       'city': {'id': 'dhaka', 'name': 'Dhaka'},
       'cards': {

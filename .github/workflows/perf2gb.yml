@@ -251,7 +251,7 @@ jobs:
         env:
           PERF_TOTAL_SECONDS: "3000"
           # speedproof: process-cold opens of each top feature's screen
-          PERF_COLD_ROUTES: ${{ (contains(github.ref, 'ci/speedproof') || github.event_name == 'schedule') && 'circle journey emergency family notifications plans khata watchman shop_box quran city ai_chat' || '' }}
+          PERF_COLD_ROUTES: ${{ (contains(github.ref, 'ci/speedproof') || github.event_name == 'schedule') && 'circle journey emergency family notifications plans khata watchman shop_box quran city ai_chat daily_today' || '' }}
         with:
           api-level: 33
           arch: x86_64

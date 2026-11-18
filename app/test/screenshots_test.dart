@@ -412,6 +412,7 @@ import 'mktengine_shots.dart'; // mktengine Marketing Engine
 import 'bizai_shots.dart'; // bizai
 import 'bizai2_shots.dart'; // bizai2
 import 'p4_world_shots.dart'; // p4-world
+import 'homefeed_shots.dart'; // homefeed
 import 'p3farm_shots.dart'; // p3farm
 import 'c2_calls_shots.dart'; // c2-calls
 import 'b1_calls_shots.dart'; // b1-calls
@@ -1372,6 +1373,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent
     for (final e in p4WorldShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // p4-world
+    for (final e in homefeedShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // homefeed
     for (final e in p3farmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // p3farm
     // ---- a1 Premium QA: screens that had no gallery shot ----
     'ai_chat': (build: (_) => const AiChatScreen(), mode: FakeMode.data, full: true),
