@@ -327,6 +327,9 @@ extension BusinessKhataApi on ApiClient {
     String note = '',
     String ref = '',
     String? atIso,
+    // proof-ledger: minted once on the phone; a replay of an offline row is
+    // booked at most once (the server answers duplicate:true)
+    String? clientId,
   }) =>
       postJson('/business/cashbox/$day/entries', {
         'business_id': businessId,
@@ -335,6 +338,7 @@ extension BusinessKhataApi on ApiClient {
         'note': note,
         'ref': ref,
         if (atIso != null) 'at': atIso,
+        if (clientId != null) 'client_id': clientId,
       });
 
   /// POST /business/cashbox/<day>/reconcile {business_id, counted} -> updated

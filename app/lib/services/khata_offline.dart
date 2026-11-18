@@ -196,6 +196,19 @@ class KhataOffline {
     return 'kx-${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}-$r';
   }
 
+  /// proof-ledger: "keep it and try later". Before, a 401 (session expired
+  /// while the phone was offline), 408 or 429 (rate limit — easy to hit when
+  /// 30 queued entries go up at once) PARKED the entry as "failed" for good:
+  /// the owner could only discard it and type it again. Now only a real
+  /// refusal (validation, access, conflict) is final; these stay pending.
+  static bool isRetryable(Object e) {
+    if (e is ApiException) {
+      final s = e.status ?? 0;
+      if (s == 401 || s == 408 || s == 429) return true;
+    }
+    return failKindOf(e) != FailKind.refused;
+  }
+
   /// bizbar: a party added with no internet gets a NEGATIVE id on this phone
   /// until the server gives it a real one (entries queued for it follow).
   static int newTempPartyId() => -(1 + _rng.nextInt(1 << 30));
@@ -297,11 +310,10 @@ class KhataOffline {
         await _save(now);
         synced++;
       } catch (e) {
-        final kind = failKindOf(e);
         final now = await all();
         final idx = now.indexWhere((o) => o.cid == op.cid);
         if (idx < 0) continue;
-        if (kind == FailKind.refused) {
+        if (!isRetryable(e)) {
           final conflict = e is ApiException && e.status == 409;
           now[idx] = now[idx].copyWith(
               state: conflict ? 'conflict' : 'failed',

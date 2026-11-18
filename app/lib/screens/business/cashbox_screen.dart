@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
@@ -9,10 +11,12 @@ import '../../theme.dart';
 import '../../business_khata_api.dart';
 import '../../widgets/skeleton.dart';
 import 'business_common.dart';
-import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../services/error_kind.dart' show FailKind, failKindOf, honestFailText; // qa2
+import '../../services/cashbox_offline.dart'; // proof-ledger
+import '../../services/khata_offline.dart' show KhataOffline; // proof-ledger: saved copy
 import '../../widgets/app_sheet.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../messaging/date_separators.dart' show localDigits;
+import '../../messaging/date_separators.dart' show fmtDate, localDigits;
 import '../../services/action_feedback.dart' show showActionFailed, showNeedInput;
 
 /// Cashbox (plan §2): one business day's drawer — opening cash, cash in/out
@@ -33,13 +37,24 @@ class CashboxScreen extends StatefulWidget {
   State<CashboxScreen> createState() => _CashboxScreenState();
 }
 
-class _CashboxScreenState extends State<CashboxScreen> {
+class _CashboxScreenState extends State<CashboxScreen> with WidgetsBindingObserver {
   int get _bizId => (widget.business['id'] as num?)?.toInt() ?? 0;
   DateTime _day = DateTime.now();
   Map<String, dynamic>? _summary;
   bool _loading = true;
   bool _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)
+  // proof-ledger: offline. Rows typed with no internet wait here (on the
+  // phone, they survive the app being killed) and the day opens from the
+  // last saved copy — before, the screen was a dead "check your internet"
+  // and a cash sale typed offline was not written anywhere.
+  List<CashboxOp> _ops = const [];
+  DateTime? _savedAt; // showing the saved copy from this time
+  bool _offline = false; // no answer from our server this load
+  bool _syncing = false;
+  StreamSubscription<void>? _opsSub;
+
+  String get _cacheKey => 'cashbox:$_bizId:$_dayKey';
 
   String get _dayKey =>
       '${_day.year}-${_day.month.toString().padLeft(2, '0')}-${_day.day.toString().padLeft(2, '0')}';
@@ -47,28 +62,85 @@ class _CashboxScreenState extends State<CashboxScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _opsSub = CashboxOffline.changes.listen((_) => _refreshOps());
     _load();
   }
 
-  Future<void> _load() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _opsSub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // back from another app / back online after a while: sync + refresh
+    if (state == AppLifecycleState.resumed && mounted && !_loading) _load();
+  }
+
+  Future<void> _refreshOps() async {
+    final ops = await CashboxOffline.forDay(_bizId, _dayKey);
+    if (mounted) setState(() => _ops = ops);
+  }
+
+  Future<void> _load({bool afterSync = false}) async {
     setState(() {
-      _loading = true;
+      _loading = _summary == null;
       _error = false;
     });
+    final api = context.read<AppState>().api;
+    final key = _cacheKey;
     try {
-      _summary =
-          await context.read<AppState>().api.cashboxDay(_bizId, _dayKey);
+      _summary = await api.cashboxDay(_bizId, _dayKey).timeout(CashboxOffline.requestTimeout);
+      _savedAt = null;
+      _offline = false;
+      unawaited(KhataOffline.cachePut(key, _summary!));
     } catch (e) {
-      _error = true;
       _failCause = e;
+      if (failKindOf(e) == FailKind.refused) {
+        _error = true;
+      } else {
+        // no internet / our server down: the saved copy, or an empty day —
+        // cash in / out still work and wait on the phone
+        final saved = await KhataOffline.cacheGet(key);
+        _summary = saved?.value ?? const <String, dynamic>{};
+        _savedAt = saved?.saved;
+        _offline = true;
+      }
     }
+    await _refreshOps();
     if (mounted) setState(() => _loading = false);
+    if (!_offline && !_error && !afterSync && _ops.any((o) => o.isPending)) {
+      final r = await CashboxOffline.sync(api);
+      if (r.synced > 0 && mounted) await _load(afterSync: true);
+    }
+  }
+
+  Future<void> _syncNow() async {
+    final t = AppLocalizations.of(context);
+    setState(() => _syncing = true);
+    final r = await CashboxOffline.sync(context.read<AppState>().api);
+    if (!mounted) return;
+    setState(() => _syncing = false);
+    final msg = r.offline
+        ? t.ldgStillOffline
+        : (r.failed > 0
+            ? t.ldgSyncFailed(localDigits('${r.failed}', Localizations.localeOf(context).languageCode))
+            : t.ldgSynced(localDigits('${r.synced}', Localizations.localeOf(context).languageCode)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    await _load(afterSync: true);
   }
 
   void _stepDay(int days) {
     final next = _day.add(Duration(days: days));
     if (next.isAfter(DateTime.now())) return;
-    setState(() => _day = next);
+    setState(() {
+      _day = next;
+      _summary = null; // proof-ledger: never show the other day's numbers
+      _ops = const [];
+    });
     _load();
   }
 
@@ -96,18 +168,39 @@ class _CashboxScreenState extends State<CashboxScreen> {
       builder: (_) => _CashEntrySheet(
           title: kind == 'in' ? t.cashboxCashIn : t.cashboxCashOut),
     );
-    if (res == null) return;
+    if (res == null || !mounted) return;
+    final op = CashboxOp(
+      cid: CashboxOffline.newClientId(),
+      bizId: _bizId,
+      day: _dayKey,
+      kind: kind,
+      amountPoisha: res.$1,
+      note: res.$2,
+      createdAt: DateTime.now(),
+    );
+    final messenger = ScaffoldMessenger.of(context);
     try {
-      _summary = await context.read<AppState>().api.cashboxAddEntry(
-            businessId: _bizId,
-            day: _dayKey,
-            kind: kind,
-            amountPoisha: res.$1,
-            note: res.$2,
-          );
+      _summary = await CashboxOffline.sendNow(context.read<AppState>().api, op);
+      _savedAt = null;
+      _offline = false;
+      unawaited(KhataOffline.cachePut(_cacheKey, _summary!));
       if (mounted) setState(() {});
     } catch (e) {
-      if (mounted) showActionFailed(context, 'cashbox.entry', e);
+      if (!mounted) return;
+      if (!CashboxOffline.isRetryable(e)) {
+        showActionFailed(context, 'cashbox.entry', e); // a real refusal: nothing booked
+        return;
+      }
+      // proof-ledger: no internet / our server busy — keep it on the phone
+      try {
+        await CashboxOffline.enqueue(op);
+      } catch (e2) {
+        if (mounted) showActionFailed(context, 'cashbox.enqueue', e2);
+        return;
+      }
+      await _refreshOps();
+      messenger.showSnackBar(
+          SnackBar(content: Text(t.ldgSavedOffline)));
     }
   }
 
@@ -155,7 +248,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
       appBar: AppBar(
         title: Text(t.cashboxTitle),
         actions: [
-          if (!_loading && !_error)
+          if (!_loading && !_error && !_offline)
             IconButton(
               key: const ValueKey('bb-cb-share'),
               tooltip: t.share,
@@ -179,6 +272,49 @@ class _CashboxScreenState extends State<CashboxScreen> {
                   child: ListView(
                     padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
                     children: [
+                      // proof-ledger: offline state + rows waiting on the phone
+                      if (_offline) ...[
+                        _OfflineBanner(
+                          key: const ValueKey('cb-offline-banner'),
+                          icon: Icons.cloud_off_rounded,
+                          text: _savedAt == null
+                              ? t.ldgStillOffline
+                              : t.ldgSavedCopy(fmtDate('d MMM, h:mm a', _savedAt!, lang)),
+                          action: TextButton(onPressed: _load, child: Text(t.retry)),
+                        ),
+                        const SizedBox(height: Gap.sm),
+                      ],
+                      if (_ops.any((o) => o.isPending)) ...[
+                        _OfflineBanner(
+                          key: const ValueKey('cb-pending-banner'),
+                          icon: Icons.cloud_upload_outlined,
+                          text: t.ldgPendingSync(localDigits(
+                              '${_ops.where((o) => o.isPending).length}', lang)),
+                          action: _syncing
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2))
+                              : TextButton(
+                                  key: const ValueKey('cb-sync-now'),
+                                  onPressed: _syncNow,
+                                  child: Text(t.ldgSyncNow)),
+                        ),
+                        const SizedBox(height: Gap.sm),
+                      ],
+                      for (final o in _ops.where((o) => !o.isPending)) ...[
+                        _OfflineBanner(
+                          icon: Icons.error_outline_rounded,
+                          error: true,
+                          text: '${t.ldgSyncFailed(localDigits('1', lang))} · '
+                              '${poishaToTaka(o.amountPoisha)}'
+                              '${o.error.isEmpty ? '' : ' · ${o.error}'}',
+                          action: TextButton(
+                              onPressed: () => CashboxOffline.discard(o.cid),
+                              child: Text(t.ldgDiscard)),
+                        ),
+                        const SizedBox(height: Gap.sm),
+                      ],
                       // Expected-cash hero first (page rule), with the day
                       // stepper on its top row — the number is what the
                       // shopkeeper opens this screen for.
@@ -218,6 +354,16 @@ class _CashboxScreenState extends State<CashboxScreen> {
                                           pair(context, s['expected_display'],
                                               fallback: zero),
                                           key: const ValueKey('bb-cb-expected')),
+                                      if (_ops.any((o) => o.isPending))
+                                        Text(
+                                            t.ldgPendingEstimate(pair(
+                                                context,
+                                                poishaToTaka(((s['expected_poisha'] as num?)?.toInt() ?? 0) +
+                                                    _ops
+                                                        .where((o) => o.isPending)
+                                                        .fold<int>(0, (a, o) => a + o.signed)))),
+                                            key: const ValueKey('cb-pending-estimate'),
+                                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                                       const SizedBox(height: Gap.xs),
                                       Text(t.bbCbHowTo,
                                           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -233,6 +379,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                       Row(children: [
                         Expanded(
                           child: FilledButton.icon(
+                            key: const ValueKey('cb-cash-in'),
                             style: Brand.successButton(),
                             icon: const Icon(Icons.add_rounded),
                             label: Text(t.cashboxCashIn,
@@ -243,6 +390,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         const SizedBox(width: Gap.md),
                         Expanded(
                           child: FilledButton.icon(
+                            key: const ValueKey('cb-cash-out'),
                             style: Brand.dangerButton(),
                             icon: const Icon(Icons.remove_rounded),
                             label: Text(t.cashboxCashOut,
@@ -324,8 +472,17 @@ class _CashboxScreenState extends State<CashboxScreen> {
                       // Entries list: one grouped DS card.
                       DsSectionHeader(t.stmtParticulars),
                       ...(() {
-                        final entries = ((s['entries'] ?? []) as List)
-                            .cast<Map<String, dynamic>>();
+                        final entries = [
+                          // proof-ledger: rows still on the phone, marked
+                          for (final o in _ops.where((o) => o.isPending))
+                            <String, dynamic>{
+                              'kind': o.kind,
+                              'note': o.note,
+                              'ref': t.ldgPendingChip,
+                              'amount_display': poishaToTaka(o.amountPoisha),
+                            },
+                          ...((s['entries'] ?? []) as List).cast<Map<String, dynamic>>(),
+                        ];
                         if (entries.isEmpty) {
                           return [
                             DsCard(
@@ -465,6 +622,30 @@ class _MiniRow extends StatelessWidget {
   }
 }
 
+/// proof-ledger: one honest line about the offline state (same look as the
+/// khata's banners).
+class _OfflineBanner extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Widget? action;
+  final bool error;
+  const _OfflineBanner(
+      {super.key, required this.icon, required this.text, this.action, this.error = false});
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final ink = error ? scheme.error : scheme.ds.text;
+    return DsCard(
+      child: Row(children: [
+        Icon(icon, color: error ? scheme.error : scheme.ds.muted),
+        const SizedBox(width: Gap.md),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: ink))),
+        if (action != null) action!,
+      ]),
+    );
+  }
+}
+
 class _CashEntryTile extends StatelessWidget {
   final Map<String, dynamic> entry;
   const _CashEntryTile({required this.entry});
@@ -525,6 +706,7 @@ class _CashEntrySheetState extends State<_CashEntrySheet> {
         Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: Gap.lg),
         TextField(
+          key: const ValueKey('cb-entry-amount'),
           controller: _amount,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -532,6 +714,7 @@ class _CashEntrySheetState extends State<_CashEntrySheet> {
         ),
         const SizedBox(height: Gap.md),
         TextField(
+          key: const ValueKey('cb-entry-note'),
           controller: _note,
           decoration: InputDecoration(
               labelText: t.entryNote,
@@ -541,6 +724,7 @@ class _CashEntrySheetState extends State<_CashEntrySheet> {
         SizedBox(
           width: double.infinity,
           child: FilledButton(
+            key: const ValueKey('cb-entry-save'),
             onPressed: () {
               final poisha = takaToPoisha(_amount.text);
               if (poisha == null || poisha <= 0) {
