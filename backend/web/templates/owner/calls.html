@@ -89,7 +89,7 @@
   {% for s in servers %}<tr><td>{{ s.host }}</td><td>{{ s.port }}{% if s.tls_port %} · TLS {{ s.tls_port }}{% endif %}</td><td class="num">{{ s.weight }}</td><td>{{ s.secret_env|default:"TURN_STATIC_SECRET" }}</td><td>{% if s.h %}{% if s.h.ok %}<span class="pill ok">{{ T.t9_up }}</span>{% else %}<span class="pill bad">{{ T.t9_down }}</span>{% endif %}{% else %}<span class="mut">—</span>{% endif %}</td></tr>
   {% empty %}<tr><td colspan="5" class="mut">{{ T.t9_single_host }}</td></tr>{% endfor %}
   </tbody></table></div>
-  {% if health %}<p class="small">{{ T.t9_health }}: {% for k, h in health.items %}<span class="pill {% if h.ok %}ok{% else %}bad{% endif %}">{{ k }} {% if h.ok %}{{ T.t9_up }}{% else %}{{ T.t9_down }}{% endif %}</span> {% endfor %}</p>{% endif %}
+  {% if health %}<p class="small">{{ T.t9_health }}: {% for k, h in health.items %}<span class="pill {% if h.ok %}ok{% else %}bad{% endif %}"><code>{{ k }}</code> {% if h.ok %}{{ T.t9_up }}{% else %}{{ T.t9_down }}{% endif %}</span> {% endfor %}</p>{% endif %}
   <p class="mut small">{{ T.t9_source }}: {% if source == 'owner' %}{{ T.t9_src_owner }}{% elif source == 'env' %}{{ T.t9_src_env }}{% else %}{{ T.t9_src_single }}{% endif %}</p>
   <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="servers">
     <label>{{ T.t9_list_label }}<textarea name="servers_text" rows="4" placeholder="turn.lifeassisto.com, turn2.lifeassisto.com|w=2|secret_env=TURN2_SECRET">{{ servers_text }}</textarea></label>
@@ -101,7 +101,7 @@
 <section class="card"><h2>{{ T.t9_thresholds }}</h2>
   <p class="small">{{ T.t9_thresholds_note }}</p>
   <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="thresholds">
-    <div class="cols">{% for k, v, custom in thresholds %}<label>{{ k }}{% if custom %} <span class="pos small">✓</span>{% endif %}<input name="{{ k }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
+    <div class="cols">{% for k, v, custom in thresholds %}<label><code>{{ k }}</code>{% if custom %} <span class="pos small">✓</span>{% endif %}<input name="{{ k }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
     <p class="mut small">{{ T.t9_limits }}: total-quota {{ lim.total_quota }} · bps-capacity {{ lim.bps_capacity }} B/s · max-bps {{ lim.max_bps }} B/s → {{ T.t9_eff_limit }} {{ lim.alloc_limit }}</p>
     <button class="btn primary">{{ T.save }}</button>
   </form>

@@ -124,7 +124,7 @@ def ad_control(request):
             st = eff["placements"][p["key"]]
             r = rep[p["key"]]
             rows.append({"key": p["key"], "label": p["bn"] if lang == "bn" else p["en"],
-                         "rule": p["rule"], "safety": p["safety"], "on": st["on"],
+                         "rule": _rule(p, lang), "safety": p["safety"], "on": st["on"],
                          "type": st["type"], "allowed": p["allowed"],
                          "default": "%s / %s" % ("ON" if p["on"] else "OFF", p["type"]),
                          "rep": r})
@@ -136,6 +136,26 @@ def ad_control(request):
         "day_options": (1, 7, 14, 30), "n_on": n_on, "n": len(AC.PLACEMENTS),
         "blocked": AC.BLOCKED_CATEGORIES, "rating": AC.MAX_AD_CONTENT_RATING,
     }, nav="ad_control")
+
+
+# owneradmin: the placement rules in Bangla (core/logic/ad_control keeps English)
+RULE_BN = {
+    "discover_native": "মালিকের ডিসকভার / ব্র্যান্ড কার্ড সবার জন্য থাকে",
+    "app_open": "শুধু আগে থেকে লোড থাকলে; অ্যাপ খুলতে কখনো দেরি করায় না; প্রথমবার খোলা, লগইনের পরে বা নোটিফিকেশন থেকে খুললে কখনো না",
+    "after_call_review": "SOS, জরুরি বা Care Call কলের পরে, ১০ সেকেন্ডের কম কল বা মিসড কলের পরে কখনো না",
+    "ai_chat_unlock": "প্রতি উত্তরে বিজ্ঞাপন = ডাইনামিক (AI টাকার হিসাব); খোলা চ্যাটের ভেতরে কখনো বিজ্ঞাপন নেই",
+    "exam_after_submit": "পরীক্ষা জমা দেওয়ার পরে ফল খোলার সময় একবার; সময়ের পরীক্ষা, শোনা অডিও বা বলা রেকর্ডিংয়ের সময় কখনো না, সার্টিফিকেটে কখনো না",
+    "reminders_list": "অ্যালার্ম বাজার মুহূর্তে কখনো না",
+    "city_search": "নেভিগেশন বা গন্তব্য অ্যালার্মের সময় কখনো না",
+    "city_more_routes": "Google-এর খরচ মেটায়; বিজ্ঞাপন না চললেও ইউজার রুট পায়",
+    "train_live_unlock": "পরিবারের কেউ আত্মীয়ের চলমান ট্রেন যাত্রা দেখলে কোনো বিজ্ঞাপন নেই",
+    "security_unlock": "চুরি-রোধ, ফোনের নিরাপত্তা, প্রতারণা-রোধ, ফোন বিক্রি; বিজ্ঞাপন না চললেও কখনো আটকায় না",
+    "security_scan": "কখনো আটকায় না: বিজ্ঞাপন না থাকলেও যাচাই চলে",
+}
+
+
+def _rule(p, lang):
+    return (RULE_BN.get(p["key"]) or p["rule"]) if lang == "bn" else p["rule"]
 
 
 @require_http_methods(["GET"])
@@ -151,4 +171,5 @@ def ad_control_detail(request, key):
     rep, _ = _stats(_stored(), 30)
     return page(request, "owner/ad_control_detail.html", {
         "p": p, "label": p["bn"] if lang == "bn" else p["en"], "rep": rep[key],
+        "rule": _rule(p, lang),
     }, nav="ad_control")

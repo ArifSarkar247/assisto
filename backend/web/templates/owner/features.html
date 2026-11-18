@@ -44,9 +44,9 @@
 </tr></thead><tbody>
 {% for it in s.items %}
 <tr id="ff-{{ it.key }}">
-  <td><b>{{ it.label }}</b><br><small class="mut"><code>{{ it.key }}</code>{% if it.routes %} · {{ it.routes }}{% endif %}</small>
+  <td><b>{{ it.label }}</b><br><small class="mut"><code>{{ it.key }}</code>{% if it.routes %} · <code>{{ it.routes }}</code>{% endif %}</small>
     {% if it.where %}<br><small>{{ T.ff_where }}: {{ it.where }}</small>{% endif %}
-    <details><summary class="small">{{ T.ff_edit }}</summary>
+    {% if inline_edit or edit == it.key %}<details{% if edit == it.key %} open{% endif %}><summary class="small">{{ T.ff_edit }}</summary>
     <form method="post" action="/owner/features/{{ it.key }}">{% include "owner/_csrf.html" %}
       {% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
       <input type="hidden" name="section" value="{{ section }}">
@@ -65,7 +65,7 @@
       <p><label>{{ T.ff_note_en }}<br><textarea name="note" rows="2">{{ it.f.note }}</textarea></label></p>
       <p><label>{{ T.ff_note_bn }}<br><textarea name="note_bn" rows="2">{{ it.f.note_bn }}</textarea></label></p>
       <button class="btn">{{ T.save }}</button>
-    </form></details>
+    </form></details>{% else %}<br><a class="small" href="?section={{ section|urlencode }}&amp;q={{ q|urlencode }}&amp;edit={{ it.key }}#ff-{{ it.key }}">{{ T.ff_edit }}</a>{% endif %}
   </td>
   <td>{% if it.f.dod_status == 'done' %}<span class="pill ok">{{ T.ff_st_done }}</span>{% elif it.f.dod_status == 'hidden' %}<span class="pill off">{{ T.ff_st_hidden }}</span>{% else %}<span class="pill spons">{{ T.ff_st_in_progress }} {{ it.pct|bnd:lang }}%</span>{% endif %}</td>
   <td class="num">{{ it.passed|bnd:lang }}/{{ n_checks|bnd:lang }}</td>
@@ -86,8 +86,8 @@
 <section class="card"><h2>{{ T.ff_log }}</h2>
 {% if log %}<div class="tbl"><table><thead><tr><th>{{ T.ff_when }}</th><th>{{ T.ff_who }}</th><th>{{ T.ff_feature }}</th><th>{{ T.ff_before }}</th><th>{{ T.ff_after }}</th></tr></thead><tbody>
 {% for e in log %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td>{{ e.actor.name|default:"—" }}</td><td><code>{{ e.target }}</code>{% if not e.ok %} <span class="pill bad">{{ T.ff_rejected }}</span>{% endif %}</td>
-<td><small>{% for k, v in e.before.items %}{{ k }} = {{ v }}<br>{% endfor %}</small></td>
-<td><small>{% for k, v in e.after.items %}{{ k }} = {{ v }}<br>{% endfor %}</small></td></tr>{% endfor %}
+<td><small><code>{% for k, v in e.before.items %}{{ k }} = {{ v }}<br>{% endfor %}</code></small></td>
+<td><small><code>{% for k, v in e.after.items %}{{ k }} = {{ v }}<br>{% endfor %}</code></small></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.ff_no_log }}</p>{% endif %}
 </section>
 {% endblock %}

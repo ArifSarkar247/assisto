@@ -4,7 +4,7 @@
 <div class="auth-wrap">
   <div class="auth-card">
     <div class="brand"><span class="logo">A</span><div><b>Assisto</b><small>{{ T.panel }}</small></div></div>
-    <a class="lang" href="?lang={{ other_lang }}">{{ T.lang_switch }}</a>
+    <a class="lang" href="?lang={{ other_lang }}" lang="{{ other_lang }}">{{ T.lang_switch }}</a>
     {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
     {% block auth %}{% endblock %}
   </div>

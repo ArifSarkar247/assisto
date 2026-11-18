@@ -1,7 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_ad_control }} — {{ label }}{% endblock %}
 {% block content %}
-<div class="card"><p><b>{{ p.key }}</b>{% if p.safety %} · <b style="color:#b00020">⚠ {{ T.adc_safety }}</b>{% endif %}</p><p class="mut small">{{ p.rule }}</p>
+<div class="card"><p><b><code>{{ p.key }}</code></b>{% if p.safety %} · <b class="neg">⚠ {{ T.adc_safety }}</b>{% endif %}</p><p class="mut small">{{ rule }}</p>
 <p class="mut small">{{ T.adc_estimate_note }}</p><p><a href="/owner/ad-control">← {{ T.nav_ad_control }}</a></p></div>
 <div class="card tbl"><table><thead><tr><th>{{ T.adc_date }}</th><th>{{ T.adc_impr }}</th><th>eCPM</th><th>{{ T.adc_income }}</th></tr></thead><tbody>
 {% for d in rep.days %}<tr><td>{{ d.date }}</td><td>{{ d.impressions }}</td><td>{{ d.currency }} {{ d.ecpm }}{% if d.estimate %} <span class="mut small">({{ T.adc_est }})</span>{% endif %}</td><td>{{ d.currency }} {{ d.income }}{% if d.estimate %} <span class="mut small">({{ T.adc_est }})</span>{% endif %}</td></tr>{% endfor %}

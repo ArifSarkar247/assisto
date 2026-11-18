@@ -17,11 +17,11 @@
 </form>
 {% if rows %}
 {% if view == 'below9' %}
-<div class="card"><h3>{{ T.bd_below9_title }}</h3><ol class="boards-list">
+<div class="card"><h3>{{ T.bd_below9_title }}</h3><ol class="boards-list" translate="no">
 {% for r in rows %}<li><b>#{{ r.n }} {{ r.feature }}</b> — <span class="pill {% if r.total is not None and r.total <= 2 %}bad{% else %}spons{% endif %}">{{ r.total|default_if_none:"?" }}/10</span><div class="small">{{ T.bd_missing }}: {{ r.missing }}</div></li>{% endfor %}
 </ol></div>
 {% else %}
-<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.bd_feature }}</th><th>{{ T.bd_s1 }}</th><th>{{ T.bd_s2 }}</th><th>{{ T.bd_s3 }}</th><th>{{ T.bd_s4 }}</th><th>{{ T.bd_s5 }}</th><th>{{ T.bd_s6 }}</th><th>{{ T.bd_total_score }}</th><th>{{ T.bd_missing }}</th></tr></thead><tbody>
+<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.bd_feature }}</th><th>{{ T.bd_s1 }}</th><th>{{ T.bd_s2 }}</th><th>{{ T.bd_s3 }}</th><th>{{ T.bd_s4 }}</th><th>{{ T.bd_s5 }}</th><th>{{ T.bd_s6 }}</th><th>{{ T.bd_total_score }}</th><th>{{ T.bd_missing }}</th></tr></thead>{# owneradmin: rows are the owner's own board file, shown as written #}<tbody translate="no">
 {% for r in rows %}<tr class="{% if not r.ready %}bad{% endif %}"><td>{{ r.n }}</td><td><b>{{ r.feature }}</b><div class="small mut">{{ r.best_app }}</div></td>
 {% for s in r.scores %}<td>{{ s|default_if_none:"?" }}</td>{% endfor %}
 <td><b>{{ r.total|default_if_none:"?" }}</b>/10<br><meter min="0" max="10" low="5" high="8.9" optimum="10" value="{{ r.total|default_if_none:0 }}">{{ r.total }}</meter></td>

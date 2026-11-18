@@ -13,7 +13,7 @@
   <label>{{ T.description }} (বাংলা)<textarea name="desc_bn" maxlength="200">{% if card %}{{ card.desc_bn }}{% else %}{{ data.desc_bn }}{% endif %}</textarea></label>
   <label>{{ T.description }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<textarea name="desc_en" maxlength="200">{% if card %}{{ card.desc_en }}{% else %}{{ data.desc_en }}{% endif %}</textarea></label>
   <label>{{ T.icon }}<select name="icon"><option value="">—</option>{% for i in icons %}<option value="{{ i }}" {% if card and card.icon == i or not card and data.icon == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select></label>
-  <label>{{ T.route }}<select name="route"><option value="">—</option>{% for r in routes %}<option value="{{ r }}" {% if card and card.route == r or not card and data.route == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></label>
+  <label>{{ T.route }}<select name="route" translate="no"><option value="">—</option>{% for r in routes %}<option value="{{ r }}" {% if card and card.route == r or not card and data.route == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></label>
   <label class="span2">URL (https)<input name="url" type="url" maxlength="300" value="{% if card %}{{ card.url }}{% else %}{{ data.url }}{% endif %}" placeholder="https://"></label>
   <label>{{ T.start }}<input name="start_at" type="datetime-local" value="{% if card %}{{ start_local }}{% else %}{{ data.start_at }}{% endif %}"></label>
   <label>{{ T.end }}<input name="end_at" type="datetime-local" value="{% if card %}{{ end_local }}{% else %}{{ data.end_at }}{% endif %}"></label>

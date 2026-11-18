@@ -40,7 +40,7 @@
       {% if p.image_url %}<img src="{{ p.image_url }}" alt="">{% endif %}
       <b>{% if lang == 'en' %}{{ p.title.en }}{% else %}{{ p.title.bn|default:p.title.en }}{% endif %}</b>
       <small>{% if lang == 'en' %}{{ p.description.en }}{% else %}{{ p.description.bn|default:p.description.en }}{% endif %}</small>
-      <small class="mut">{{ p.route|default:p.url }}</small>{% endif %}
+      <small class="mut"><code>{{ p.route|default:p.url }}</code></small>{% endif %}
     </div>{% endfor %}</div>
   {% else %}<p class="empty">{{ T.preview_empty }}</p>{% endif %}
 </section>

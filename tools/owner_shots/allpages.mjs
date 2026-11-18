@@ -37,7 +37,7 @@ async function login(ctx) {
 const KEY = ['/owner/', '/owner/users', '/owner/integrations', '/owner/ai', '/owner/calls',
   '/owner/payments', '/owner/features', '/owner/system', '/owner/reports/errors', '/owner/quality',
   '/owner/pricing', '/owner/plans', '/owner/money', '/owner/cctv-traffic', '/owner/security'];
-const urls = [...new Set(crawl.pages.filter(p => p.lang === 'bn' && p.status === 200)
+const urls = [...new Set(crawl.pages.filter(p => p.lang === 'bn' && p.status === 200 && p.html)
   .map(p => p.url))];
 const browser = await chromium.launch();
 const report = { overflow: [], checked: 0 };
@@ -47,7 +47,8 @@ const mob = await browser.newContext({ viewport: { width: 360, height: 780 },
 const mp = await login(mob);
 for (const u of urls) {
   const sep = u.includes('?') ? '&' : '?';
-  const r = await mp.goto(`${base}${u}${sep}lang=bn`, { waitUntil: 'load' });
+  let r = null;
+  try { r = await mp.goto(`${base}${u}${sep}lang=bn`, { waitUntil: 'load' }); } catch (e) { console.log('SKIP', u, String(e).slice(0, 80)); continue; }
   if (!r || r.status() !== 200 || !(r.headers()['content-type'] || '').includes('text/html')) continue;
   report.checked++;
   const o = await mp.evaluate(() => {

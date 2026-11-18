@@ -690,7 +690,7 @@ class OwnerAdminPhotoFinalTests(TestCase):
         r = case.c.get("/owner/ads?lang=bn")
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "photo_studio.fal_face_model")
-        self.assertContains(r, "Real-ESRGAN weights চালু")
+        self.assertContains(r, "Real-ESRGAN মডেল চালু")
         cfg = billing.cfg()
         data = {"action": "settings", "reason": "owner choice"}
         for blk in ("ad_rewards", "photo_studio"):

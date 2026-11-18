@@ -81,6 +81,11 @@ def features(request):
            "section_choices": [(sid, en if lang == "en" else bn)
                                for sid, en, bn in FF.SECTIONS],
            "section": sec_filter, "q": q, "log": log, "dod_labels": labels,
+           # owneradmin: the edit form is rendered inline only for a short
+           # (filtered) list or the one feature opened with ?edit=<key> — the
+           # full list with every form was ~770 KB on the owner's phone.
+           "inline_edit": sum(len(s["items"]) for s in sections) <= 25,
+           "edit": (request.GET.get("edit") or "")[:60],
            # preview-testers: masked list + the limit
            "testers": FF.tester_rows(), "max_testers": FF.MAX_PREVIEW_TESTERS}
     return page(request, "owner/features.html", ctx, nav="features")

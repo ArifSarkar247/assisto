@@ -152,7 +152,69 @@ def _bn_words(t):
                       else m.group(0).translate(_BN_DIGITS), t)
 
 
+# owneradmin: status / kind values the views print as stored codes ("active",
+# "pending", "rewarded" …). In Bangla mode a text node that is exactly one of
+# these (or a comma list of them) is shown in Bangla; anything else is left.
+ENUM_BN = {
+    "active": "সক্রিয়", "inactive": "বন্ধ", "suspended": "সাসপেন্ড", "suspend": "সাসপেন্ড",
+    "banned": "নিষিদ্ধ", "ban": "নিষিদ্ধ", "warn": "সতর্ক", "warned": "সতর্ক করা",
+    "pending": "অপেক্ষায়", "approved": "অনুমোদিত", "rejected": "বাতিল", "review": "যাচাইয়ে",
+    "open": "খোলা", "resolved": "সমাধান", "closed": "বন্ধ", "new": "নতুন", "triaged": "দেখা হয়েছে",
+    "fixed": "ঠিক হয়েছে", "done": "শেষ", "failed": "ব্যর্থ", "queued": "লাইনে", "running": "চলছে",
+    "cancelled": "বাতিল", "expired": "মেয়াদ শেষ", "error": "ভুল", "success": "সফল", "ok": "ঠিক আছে",
+    "refunded": "ফেরত", "fallback": "বিকল্প", "normal": "সাধারণ", "better": "আরও ভালো", "best": "সেরা",
+    "free": "ফ্রি", "paid": "পেইড", "trial": "ট্রায়াল", "annual": "বার্ষিক", "monthly": "মাসিক",
+    "weekly": "সাপ্তাহিক", "business": "বিজনেস", "plan": "প্ল্যান", "pack": "প্যাক", "legacy": "পুরোনো",
+    "referral": "রেফারেল", "rewarded": "বিজ্ঞাপন দেখে", "debt": "বাকি", "owner": "মালিক",
+    "support": "সাপোর্ট", "moderator": "মডারেটর", "finance": "হিসাব", "readonly": "শুধু দেখা",
+    "draft": "খসড়া", "consumable": "একবারের", "subscription": "সাবস্ক্রিপশন", "default": "ডিফল্ট",
+    "fatal": "অ্যাপ বন্ধ", "startup": "চালু হওয়ার সময়", "app": "অ্যাপ", "installed": "ইনস্টল আছে",
+    "dead": "বন্ধ হয়ে গেছে", "enabled": "চালু", "disabled": "বন্ধ", "on": "চালু", "off": "বন্ধ",
+    "low": "কম", "medium": "মাঝারি", "high": "বেশি", "xhigh": "অনেক বেশি", "max": "সর্বোচ্চ",
+    "cheap": "সস্তা", "strong": "শক্তিশালী", "interstitial": "পূর্ণ পাতা", "banner": "ব্যানার",
+    "native": "নেটিভ", "hero": "বড় কার্ড", "home": "হোম", "discover": "ডিসকভার", "all": "সব",
+    "unverified": "যাচাই হয়নি", "verified": "যাচাই করা", "live": "চালু", "partial": "আংশিক",
+    "missing": "নেই", "yes": "হ্যাঁ", "no": "না", "true": "হ্যাঁ", "false": "না", "none": "নেই",
+    "unknown": "অজানা", "test": "পরীক্ষা", "user": "ইউজার", "system": "সিস্টেম", "auto": "স্বয়ংক্রিয়",
+    "dhaka": "ঢাকা", "chattogram": "চট্টগ্রাম", "khulna": "খুলনা", "rajshahi": "রাজশাহী",
+    "barishal": "বরিশাল", "sylhet": "সিলেট", "rangpur": "রংপুর", "mymensingh": "ময়মনসিংহ",
+    "banking": "ব্যাংকিং", "beauty": "রূপচর্চা", "education": "শিক্ষা", "electronics": "ইলেকট্রনিক্স",
+    "fashion": "ফ্যাশন", "food": "খাবার", "grocery": "মুদি", "health": "স্বাস্থ্য", "kids": "শিশু",
+    "mobile": "মোবাইল", "telecom": "টেলিকম", "travel": "ভ্রমণ", "ambulance": "অ্যাম্বুলেন্স",
+    "atm": "এটিএম", "clinic": "ক্লিনিক", "fire": "ফায়ার সার্ভিস", "fuel": "জ্বালানি",
+    "hospital": "হাসপাতাল", "pharmacy": "ফার্মেসি", "police": "পুলিশ", "shop": "দোকান",
+    "abuse": "নির্যাতন", "child": "শিশু", "emergency": "জরুরি", "medical": "চিকিৎসা",
+    "national": "জাতীয়", "women": "নারী", "mental": "মানসিক স্বাস্থ্য",
+    "vocab": "শব্দভান্ডার", "question": "প্রশ্ন", "scenario": "পরিস্থিতি", "section": "অংশ",
+    "mock": "মক টেস্ট", "izhar": "ইযহার", "waqf": "ওয়াকফ", "voice": "ভয়েস", "vision": "ছবি দেখা",
+    "text": "লেখা", "ads": "বিজ্ঞাপন", "credits": "ক্রেডিট", "feature": "ফিচার",
+    "sponsored": "স্পনসর", "promo": "প্রচার", "warning": "সতর্কতা", "info": "তথ্য",
+    "in_progress": "চলছে", "hidden": "লুকানো", "growth": "বৃদ্ধি", "storage": "স্টোরেজ",
+    "video": "ভিডিও", "subs": "সাবস্ক্রিপশন", "packs": "প্যাক", "commissions": "কমিশন",
+    "agent": "এজেন্ট", "budget": "বাজেট", "photo": "ছবি", "worker": "ওয়ার্কার",
+    "backup": "ব্যাকআপ", "tracker": "ট্র্যাকার", "eval": "পরীক্ষা", "total": "মোট",
+    "family": "পরিবার", "email": "ইমেইল", "security": "নিরাপত্তা", "safety": "নিরাপত্তা",
+    "login": "লগইন", "logout": "লগআউট", "result": "ফল", "model": "মডেল", "provider": "প্রোভাইডার",
+}
+_ENUM_SPLIT = re.compile(r"\s*,\s*")
+
+
+def _enum_bn(t):
+    core = t.strip()
+    if not core or len(core) > 120 or not re.fullmatch(r"[A-Za-z_ ,]+", core):
+        return None
+    parts = _ENUM_SPLIT.split(core)
+    if all(p.lower() in ENUM_BN for p in parts):
+        lead = t[:len(t) - len(t.lstrip())]
+        trail = t[len(t.rstrip()):]
+        return lead + ", ".join(ENUM_BN[p.lower()] for p in parts) + trail
+    return None
+
+
 def _bn_text(t):
+    e = _enum_bn(t)
+    if e is not None:
+        return e
     return "".join(x if x.startswith("&") else _bn_words(x) for x in _ENT.split(t))
 
 

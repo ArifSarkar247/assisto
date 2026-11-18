@@ -19,7 +19,7 @@
   <span class="mut small">{{ shown }} / {{ data.total }}</span>
 </form>
 {% if items %}
-<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.bd_feature }}</th><th>{{ T.status }}</th><th>{{ T.bd_importance }}</th><th>{{ T.bd_missing }}</th><th>{{ T.bd_plan }}</th><th>{{ T.bd_world }}</th><th>{{ T.bd_owner_items }}</th></tr></thead><tbody>
+<div class="card tbl"><table><thead><tr><th>#</th><th>{{ T.bd_feature }}</th><th>{{ T.status }}</th><th>{{ T.bd_importance }}</th><th>{{ T.bd_missing }}</th><th>{{ T.bd_plan }}</th><th>{{ T.bd_world }}</th><th>{{ T.bd_owner_items }}</th></tr></thead>{# owneradmin: rows are the owner's own checklist file, shown as written #}<tbody translate="no">
 {% for it in items %}<tr class="{% if it.status == 'missing' %}bad{% endif %}"><td>{{ it.n }}</td>
 <td><details><summary><b>{{ it.title|truncatechars:90 }}</b></summary><p class="pre small">{{ it.feature }}</p></details></td>
 <td><span class="pill {% if it.status == 'done' %}ok{% elif it.status == 'missing' %}bad{% elif it.status == 'partial' %}spons{% endif %}">{% if it.status == 'done' %}{{ T.bd_st_done }}{% elif it.status == 'partial' %}{{ T.bd_st_partial }}{% elif it.status == 'missing' %}{{ T.bd_st_missing }}{% else %}{{ T.bd_st_unknown }}{% endif %}</span><div class="small mut">{{ it.status_text }}</div></td>

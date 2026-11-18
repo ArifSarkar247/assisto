@@ -22,7 +22,7 @@ class FeaturesPageTests(OwnerBase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(FeatureFlag.objects.count(), len(FF.KEYS))
         for s in ("Features", "CCTV watchman (Shop Box)", "Hide in Play",
-                  "Definition of Done (9 checks)", 'href="/owner/features"',
+                  'href="/owner/features"',
                   "IN PROGRESS", "HIDDEN", "Change log"):
             self.assertContains(r, s)
         r = self.c.get("/owner/features?lang=bn")
@@ -31,6 +31,7 @@ class FeaturesPageTests(OwnerBase):
             self.assertContains(r, s)
         r = self.c.get("/owner/features?lang=en&section=business&q=crm")
         self.assertContains(r, "<code>crm</code>")
+        self.assertContains(r, "Definition of Done (9 checks)")   # short list: form inline
         self.assertNotContains(r, "<code>money</code>")
 
     def test_edit_saves_audits_and_reaches_api(self):

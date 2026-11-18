@@ -13,7 +13,7 @@
 {% for k, v in caps.items %}<p><label>{% if k == "interstitial_min_gap_sec" %}{{ T.adc_cap_gap }}{% elif k == "interstitial_daily_cap" %}{{ T.adc_cap_daily }}{% elif k == "list_native_every" %}{{ T.adc_cap_every }}{% else %}{{ T.adc_cap_train }}{% endif %}
 <input type="number" name="{{ k }}" value="{{ v }}"></label></p>{% endfor %}
 <h3>{{ T.adc_ecpm }}</h3>
-{% for t, v in ecpm.items %}<label>{{ t }} <input type="number" step="0.5" name="ecpm_{{ t }}" value="{{ v }}" style="width:7em"></label> {% endfor %}
+{% for t, v in ecpm.items %}<label>{{ t }} <input type="number" step="0.5" name="ecpm_{{ t }}" value="{{ v }}" class="short"></label> {% endfor %}
 <p class="mut small">{{ T.adc_blocked }}: {{ blocked|join:", " }} · {{ T.adc_rating }}: {{ rating }}</p>
 <p><button class="btn">{{ T.save }}</button></p></div></form>
 
@@ -21,7 +21,7 @@
 {% for g in groups %}<div class="card tbl"><h3>{{ g.title }}</h3>
 <table><thead><tr><th>{{ T.adc_on }}</th><th>{{ T.adc_place }}</th><th>{{ T.adc_type }}</th><th>{{ T.adc_default }}</th><th>{{ T.adc_impr }} ({{ days }} {{ T.adc_days }})</th><th><span translate="no">eCPM</span></th><th>{{ T.adc_income }}</th></tr></thead><tbody>
 {% for r in g.rows %}<tr><td><input type="hidden" name="seen_{{ r.key }}" value="1"><label><input type="checkbox" name="on_{{ r.key }}" value="1" {% if r.on %}checked{% endif %}> {% if r.on %}ON{% else %}OFF{% endif %}</label></td>
-<td>{% if r.safety %}<b style="color:#b00020">⚠ {{ T.adc_safety }}</b><br>{% endif %}<a href="/owner/ad-control/{{ r.key }}">{{ r.label }}</a><br><span class="mut small">{{ r.key }}{% if r.rule %} — {{ r.rule }}{% endif %}</span></td>
+<td>{% if r.safety %}<b class="neg">⚠ {{ T.adc_safety }}</b><br>{% endif %}<a href="/owner/ad-control/{{ r.key }}">{{ r.label }}</a><br><span class="mut small"><code>{{ r.key }}</code>{% if r.rule %} — {{ r.rule }}{% endif %}</span></td>
 <td>{% if r.allowed|length > 1 %}<select name="t_{{ r.key }}">{% for t in r.allowed %}<option value="{{ t }}" {% if t == r.type %}selected{% endif %}>{{ t }}</option>{% endfor %}</select>{% else %}{{ r.type }}<input type="hidden" name="t_{{ r.key }}" value="{{ r.type }}">{% endif %}</td>
 <td class="mut small">{{ r.default }}</td>
 <td>{{ r.rep.impressions }}</td>

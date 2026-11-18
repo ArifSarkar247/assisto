@@ -88,7 +88,7 @@
   <header class="top">
     <h1>{% block heading %}{{ T.panel }}{% endblock %}</h1>
     <div class="top-actions">
-      <a class="btn ghost" href="?lang={{ other_lang }}">{{ T.lang_switch }}</a>
+      <a class="btn ghost" href="?lang={{ other_lang }}" lang="{{ other_lang }}">{{ T.lang_switch }}</a>
       <span class="who">{{ owner.name|default:owner.username }}{% if role != "owner" %} <span class="pill">{{ role }}</span>{% endif %}</span>
       <form method="post" action="/owner/logout">{% include "owner/_csrf.html" %}<button class="btn ghost">{{ T.logout }}</button></form>
     </div>

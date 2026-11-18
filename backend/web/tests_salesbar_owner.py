@@ -13,7 +13,7 @@ class MetaAccessPanelTests(OwnerBase):
         self.assertContains(r, "Meta App Review and permissions")
         self.assertContains(r, "Not submitted")
         r = self.c.get("/owner/sellers?lang=bn")
-        self.assertContains(r, "Meta App Review ও অনুমতি")
+        self.assertContains(r, "Meta অ্যাপ রিভিউ ও অনুমতি")
         ma = billing.cfg()["seller_agent"]["meta_access"]
         self.assertEqual(ma, {"review": "not_submitted", "comments_fb": False,
                               "comments_ig": False, "human_agent": False})

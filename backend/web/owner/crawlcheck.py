@@ -44,6 +44,13 @@ GP BL Wear OS SDK Assisto's Gemma Llama Qwen Kimi Whisper ElevenLabs Azure AWS
 Cloudflare Caddy Django Postgres Redis Linux Ubuntu GitHub CI Flutter Dart Kotlin
 SHA HMAC JWT RFC Authenticator Authy Quran Hadith Bangla Dhaka Bangladesh
 Sentry Crashlytics Vitals ARB TTS STT ASR LLM VPN NID BRTA BTRC DMP RAB
+Meta Instagram Remini Tanzil Cambridge Microsoft RunPod Topaz Crystal Lanczos Doze
+coturn turnserver nginx postgresql cron crontab sudo apt journalctl eCPM vCPU Axon
+Ranger Amiri Pickthall SeTracker Asalify asalifymart Prothom Alo Jazeera ExchangeRate
+Twilio Infobip Tuya Tavily AppLovin BulkSMSBD BotFather RedX Steadfast ekPay DoLynk
+NAFNet GoPro AcuSense Hik Clarity Markdown Agentforce AnyDesk Calendly Coursera Canva
+Duolingo Bdjobs Badhan Dropbox Alexa AirTag Apple MapLibre Raspberry Zoom Breeze Muse
+Prochar ODbL Real-ESRGAN ESRGAN Real Market Cloud
 """.split()}
 
 DESTRUCTIVE = re.compile(
@@ -139,10 +146,13 @@ class _Page(HTMLParser):
             self.text.append(data)
 
 
+QUOTED = re.compile(r"“[^”]*”")    # “Create Key”: the exact label of an English-only outside screen
+
+
 def english_words(chunks):
     out = []
     for s in chunks:
-        s = MACHINE.sub(" ", s)
+        s = MACHINE.sub(" ", QUOTED.sub(" ", s))
         for w in WORD.findall(s):
             lw = w.lower().strip("'’")
             if lw in ALLOW or (w.isupper() and len(w) <= 6) or len(lw) < 3:
@@ -171,6 +181,13 @@ def analyse(html, lang):
         en = english_words(p.text) + english_words(p.attr_text)
         if en:
             f["english_in_bn"] = sorted(set(en))
+            ctx = []
+            for chunk in p.text + p.attr_text:
+                if english_words([chunk]):
+                    c = " ".join(chunk.split())[:70]
+                    if c not in ctx:
+                        ctx.append(c)
+            f["english_where"] = ctx[:15]
         dg = ascii_digits(p.text)
         if dg:
             f["ascii_digits_in_bn"] = dg[:8]
@@ -202,6 +219,7 @@ def _norm(href, base_path):
     """An internal URL to crawl (path?query without lang) or None."""
     if not href or href.startswith(("#", "mailto:", "tel:", "javascript:", "data:")):
         return None
+    base_path = base_path.split("?", 1)[0]
     u = urlsplit(href)
     if u.scheme or u.netloc:
         return None
@@ -268,6 +286,7 @@ def crawl(client, extra=(), max_pages=MAX_PAGES):
             ctype = r.get("Content-Type", "")
             body = b"".join(r.streaming_content) if getattr(r, "streaming", False) else r.content
             row = {"url": url, "lang": lang, "status": r.status_code, "ms": ms,
+                   "html": "text/html" in ctype,
                    "kb": round(len(body) / 1024, 1), "findings": {}}
             if r.status_code in (301, 302):
                 loc = r.get("Location", "")

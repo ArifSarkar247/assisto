@@ -1,5 +1,5 @@
 {% extends "owner/base.html" %}
-{% block heading %}{{ T.report }} — {{ card.title_en|default:card.key }}{% endblock %}
+{% block heading %}{{ T.report }} — {% if lang == 'en' %}{{ card.title_en|default:card.key }}{% else %}{{ card.title_bn|default:card.title_en|default:card.key }}{% endif %}{% endblock %}
 {% block content %}
 <p><a href="/owner/discover">← {{ T.nav_discover }}</a></p>
 <form method="get" class="inline card">
