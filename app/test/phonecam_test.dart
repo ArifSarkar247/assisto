@@ -331,6 +331,14 @@ void main() {
       expect(body('Future<void> _heartbeat()'), contains("'camSvcPing'"));
     });
 
+    test('closing the camera waits for the alert clip; every camera call is bounded '
+        '(bug: live view during a clip froze the phone "live" forever)', () {
+      final c = body('Future<void> _closeCamera()');
+      expect(c.indexOf('_clipRun'), lessThan(c.indexOf('stopVideoRecording')));
+      expect('.timeout(_camOpTimeout)'.allMatches(c).length, 3);
+      expect(body('Future<void> _recordClip('), contains('_clipRun = done.future'));
+    });
+
     test('live view releases the service camera first; no clip with the screen off', () {
       final live = body('Future<void> _answerLive(');
       expect(live.indexOf("'bgCamClose'"), greaterThan(live.indexOf('_closeCamera()')));

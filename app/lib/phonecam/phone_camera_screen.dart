@@ -174,6 +174,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   int _bgLastN = -1;
   int _bgRot = 0;
   bool _bgBusy = false;
+  Future<void>? _clipRun; // the alert clip being recorded right now
+  static const _camOpTimeout = Duration(seconds: 6);
 
   // clips on this phone
   int _clipCount = 0;
@@ -561,6 +563,21 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   /// ~10 s clip of what happened, kept on this phone as clip_<ref>.mp4 —
   /// cctvplay: a small sealed preview of it goes to the owner + family.
   Future<void> _recordClip(CameraController c, String ref) async {
+    // guardbox-play bug fix: a live view asked for while this clip records
+    // used to close the camera under it (two stops racing) and the phone
+    // got stuck "live" — never answering, never guarding again. Closing the
+    // camera now waits for this clip (at most its length).
+    final done = Completer<void>();
+    _clipRun = done.future;
+    try {
+      await _recordClipInner(c, ref);
+    } finally {
+      done.complete();
+      if (identical(_clipRun, done.future)) _clipRun = null;
+    }
+  }
+
+  Future<void> _recordClipInner(CameraController c, String ref) async {
     try {
       await c.startVideoRecording();
       await Future.delayed(_clipLength);
@@ -1008,17 +1025,24 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
 
   Future<void> _closeCamera() async {
     if (_segRec) await _stopSegment(restartStream: false); // item 4: keep it
+    final run = _clipRun;
+    if (run != null) {
+      // let the alert clip finish and be saved (never two stops at once)
+      await run.timeout(_clipLength + const Duration(seconds: 5), onTimeout: () {});
+    }
     final c = _cam;
     _cam = null;
     if (c == null) return;
+    // every camera call is bounded: a stuck vendor camera must never freeze
+    // the phone's guarding (live view / screen-off hand-over wait on this)
     try {
-      if (c.value.isRecordingVideo) await c.stopVideoRecording();
+      if (c.value.isRecordingVideo) await c.stopVideoRecording().timeout(_camOpTimeout);
     } catch (_) {}
     try {
-      if (c.value.isStreamingImages) await c.stopImageStream();
+      if (c.value.isStreamingImages) await c.stopImageStream().timeout(_camOpTimeout);
     } catch (_) {}
     try {
-      await c.dispose();
+      await c.dispose().timeout(_camOpTimeout);
     } catch (_) {}
   }
 
@@ -1336,7 +1360,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
           .map((e) => e.cast<String, dynamic>())
           .toList();
       peer = await rtc.LivePeer.create(ice,
-          sender: true, onCandidate: (c) => dev.signal(sid, 'candidate', c));
+              sender: true, onCandidate: (c) => dev.signal(sid, 'candidate', c))
+          .timeout(const Duration(seconds: 20));
       var deadline = expires;
       while (mounted && _running && DateTime.now().isBefore(hardEnd)) {
         final r = await dev.poll(sid, after);
