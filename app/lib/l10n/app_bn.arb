@@ -26521,5 +26521,19 @@
   "itgLeftBody": "আপনার ট্যাগ নাগালের বাইরে চলে গেছে। ফিরে গিয়ে দেখুন। ট্যাগ আবার কাছে এলে অ্যালার্ম নিজেই থামবে।",
   "itgFindTitle": "আপনার ফোন এখানে",
   "itgFindBody": "আপনি {name}-এর বোতাম চেপেছেন।",
-  "itgStopAlarm": "থামান"
+  "itgStopAlarm": "থামান",
+  "gcvShopBoxPlanNote": "শপ বক্স পাওয়া যায় সিসিটিভি প্ল্যানে (২টি ক্যামেরা থেকে, ফ্রি ট্রায়ালসহ — দাম সিসিটিভি প্ল্যানের পাতায়) বা বিজনেস প্ল্যানে। প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।",
+  "gcvPlSiteSubtitle": "{count, plural, other{{cameras}টি ক্যামেরা · স্ন্যাপশট {days} দিন রাখে}}",
+  "gcvPlEodTodayCount": "{n, plural, other{আজ {count}টি ক্যাশ বিক্রি}}",
+  "gcvPlCamerasA11y": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlCurrentLine": "{count, plural, other{{n}টি ক্যামেরা · {period}}}",
+  "gcvPlUsed": "{count, plural, other{{n}টির মধ্যে {used}টি ক্যামেরা চালু}}",
+  "gcvPlCamerasCount": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlWatchMembers": "{count, plural, other{{n} জন সদস্য}}",
+  "gcvPlLinkViews": "{count, plural, =0{এখনো খোলা হয়নি} other{{n} বার খোলা হয়েছে}}",
+  "gcvPlPartCams": "{count, plural, other{{total}টির মধ্যে {online}টি ক্যামেরা অনলাইন}}",
+  "gcvPlPosLinked": "{count, plural, other{যুক্ত: {pos} · {n}টি ঘটনা এসেছে}}",
+  "gcvPlAutoLinked": "{count, plural, other{Smart Life যুক্ত · {n}টি ডিভাইস}}",
+  "gcvPlPeople": "{count, plural, other{{n} জন}}",
+  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}"
 }
