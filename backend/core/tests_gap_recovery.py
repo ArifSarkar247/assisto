@@ -194,7 +194,9 @@ class LostPhoneRecoveryTests(APITestCase):
         from django.utils import timezone
         tb, te, bb, be = signin_alert.texts("Realme 9i", "code", timezone.now())
         self.assertIn("Realme 9i", tb)
-        self.assertNotRegex(bb, r"[0-9]")         # Bangla time uses Bangla digits
+        when = bb.split(" (", 1)[0]               # the Bangla time: Bangla digits + month
+        self.assertNotRegex(when, r"[0-9A-Za-z]")
+        self.assertRegex(when, "[০-৯]")
         for t in (tb, te, bb, be):
             self.assertNotIn(ADDR, t)
             self.assertNotIn("01711000101", t)

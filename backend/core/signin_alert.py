@@ -47,19 +47,25 @@ def is_new_device(user, session):
                               device_name=session.device_name).exists()
 
 
-def _bd_time(now):
+BN_MONTHS = ("জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই",
+             "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর")
+
+
+def _bd_time(now, lang="en"):
     from datetime import timedelta, timezone as dtz
+    from .email_templates import bn_digits
     t = now.astimezone(dtz(timedelta(hours=6)))
+    if lang == "bn":
+        return bn_digits("%d %s %d, %02d:%02d" % (t.day, BN_MONTHS[t.month - 1], t.year,
+                                                  t.hour, t.minute))
     return t.strftime("%d %b %Y, %H:%M")
 
 
 def texts(device_name, method, now, lang="bn"):
     """(title_bn, title_en, body_bn, body_en) — plain words, no PII except
     the phone model name the person's own phone reported."""
-    from .email_templates import bn_digits
     name = (device_name or "").strip()[:60] or "Android"
     m_bn, m_en = METHOD_TEXT.get(method, METHOD_TEXT["password"])
-    when = _bd_time(now)
     title_bn = "নতুন ফোনে আপনার Assisto-তে সাইন-ইন: %s" % name
     title_en = "New sign-in to your Assisto on %s" % name
     body_bn = ("%s (বাংলাদেশ সময়) আপনার অ্যাকাউন্টে নতুন একটি ফোন (%s) থেকে %s সাইন-ইন হয়েছে।\n\n"
@@ -67,13 +73,13 @@ def texts(device_name, method, now, lang="bn"):
                "আপনি না হলে এখনই: Assisto খুলুন → সেটিংস → অ্যাকাউন্ট ও নিরাপত্তা → ঐ ফোনের পাশে "
                "\"সাইন-আউট\" চাপুন, তারপর পাসওয়ার্ড বদলান। ফোন হারালে একই পাতায় "
                "\"অন্য সব ফোন থেকে সাইন-আউট\" চাপুন।"
-               % (bn_digits(when), name, m_bn))
+               % (_bd_time(now, "bn"), name, m_bn))
     body_en = ("At %s (Bangladesh time) your account was signed in %s on a new phone (%s).\n\n"
                "If this was you, there is nothing to do.\n\n"
                "If it was NOT you: open Assisto → Settings → Account & security → tap "
                "\"Sign out\" next to that phone, then change your password. Lost a phone? "
                "Tap \"Sign out all other phones\" on the same page."
-               % (when, m_en, name))
+               % (_bd_time(now), m_en, name))
     return title_bn, title_en, body_bn, body_en
 
 

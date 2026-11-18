@@ -67,7 +67,7 @@ class _LostPhoneCheckScreenState extends State<LostPhoneCheckScreen> {
     if (tok is String && tok.isNotEmpty) {
       try {
         context.read<AppState>().replaceToken(tok);
-      } catch (_) {}
+      } catch (_) {} // best-effort: the server already signed the others out
     }
     final n = (r.data['signed_out'] as num?)?.toInt() ?? widget.others.length;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
