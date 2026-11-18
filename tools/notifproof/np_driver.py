@@ -992,6 +992,65 @@ def case_alarm_reboot(A, Ah):
     return c.done()
 
 
+def case_alarm_made_while_open(A, Ah, Bu, B, tokens):
+    """proof-notif (app fix, reminder_freshness.dart): a reminder made
+    ELSEWHERE while A's app is OPEN in front gets its phone alarm without a
+    restart — (1) a family member's task (push -> foreground handler ->
+    list sync), (2) a reminder made on the server + A comes back to the app
+    (resume sync) — and then rings with the app killed."""
+    c = Case("np9_alarm_made_while_open", [13, 6],
+             "reminders made elsewhere while A's app is in front get a phone alarm without a restart")
+    from core.models import FamilyMember
+    from core import famcare as FC
+    open_app(30, cold=True)
+    p0 = pid()
+    c.check("app open in front (one process)", bool(p0) and PKG in resumed_activity(), resumed_activity())
+    fm = None
+    for f in FamilyMember.objects.filter(user=Bu):
+        u = FC.linked_user(f)
+        if u is not None and u.pk == A.pk:
+            fm = f
+            break
+    tag = int(time.time()) % 100000
+    t1, t2 = "notifproof family task %d" % tag, "notifproof web reminder %d" % tag
+    due1 = _next_minute(170)
+    due2 = due1 + 60
+    t_open = time.time()
+    if c.check("B and A are family (B can give A a task)", fm is not None, ""):
+        n0 = len(fcm_calls())
+        st, j = B.req("POST", "/family/reminders", {"member_id": fm.id, "title": t1, "due_at": _iso(due1)})
+        c.check("B gave A a task with a time (server)", st == 201, (st, j))
+        m = wait_fcm(tokens, "family_task", n0, timeout=20) or wait_fcm(tokens, "reminder", n0, timeout=10)
+        if c.check("backend pushed it to A's phone", m is not None, ""):
+            ex, out = deliver(m)
+            c.r["broadcast"] = out
+        a1, _ = wait_alarm_at(due1, timeout=60)
+        c.r["alarm1"] = a1
+        c.check("A's phone alarm for the task was set WHILE the app stayed open (no restart)",
+                a1 is not None and pid() == p0, (a1, pid(), p0))
+    # the resume sync is throttled to one per 60 s (the push above synced)
+    time.sleep(max(0, t_open + 70 - time.time()))
+    st, j = Ah.req("POST", "/reminders/", {"title": t2, "due_at": _iso(due2)})
+    c.check("a reminder made on the server (e.g. AI chat on another device / website)", st in (200, 201), (st, j))
+    sh("input keyevent KEYCODE_HOME")
+    time.sleep(4)
+    sh("am start -n %s/.MainActivity" % PKG)   # back to the app: resume, same process
+    a2, (_, dump) = wait_alarm_at(due2, timeout=60)
+    save("np9_alarm_dump.txt", dump)
+    c.check("coming back to the app set its phone alarm (resume sync, no restart)",
+            a2 is not None and pid() == p0, (a2, pid(), p0))
+    closed_precheck(c)
+    if fm is not None:
+        seen, rec, _ = wait_ring(t1, due1)
+        shot("np9_ring_task")
+        c.check("the family task RANG at its minute with the app killed",
+                rec is not None and -2 <= seen - due1 <= 60, None if seen is None else round(seen - due1, 1))
+    seen, rec, _ = wait_ring(t2, due2)
+    c.check("the server-made reminder RANG at its minute with the app killed",
+            rec is not None and -2 <= seen - due2 <= 60, None if seen is None else round(seen - due2, 1))
+    return c.done()
+
+
 def report():
     cases = RESULT["cases"]
     ok = bool(cases) and all(c["status"] == "pass" for c in cases)
@@ -1025,8 +1084,9 @@ def _alarm_pair(A, Ah):
     case_alarm_doze(snoozed)
 
 
-def _run_alarm_cases(A, Ah, only):
+def _run_alarm_cases(A, Ah, only, Bu=None, B=None, tokens=()):
     for name, fn in (("alarm", lambda: _alarm_pair(A, Ah)),
+                     ("front", lambda: case_alarm_made_while_open(A, Ah, Bu, B, tokens)),
                      ("reboot", lambda: case_alarm_reboot(A, Ah))):
         if only and name not in only:
             continue
@@ -1062,7 +1122,7 @@ def main():
                 log("case", name, "crashed:", repr(e))
         # proof-notif: the phone's OWN reminder alarms (rows 13 + 6), after
         # the push cases; reboot last (it restarts the emulator)
-        _run_alarm_cases(A, Ah, only)
+        _run_alarm_cases(A, Ah, only, Bu, B, tokens)
     except Exception as e:
         RESULT["setup"]["error"] = repr(e)[:400]
         log("setup failed:", repr(e))

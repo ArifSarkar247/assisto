@@ -543,6 +543,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       } catch (_) {}
     }
     if (state == AppLifecycleState.paused) {
+      try {
+        context.read<AppState>().reminderFresh.foreground = false; // proof-notif
+      } catch (_) {}
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
       JourneyHabits.onBackground(); // sjstart2: suggestions only while open
     }
@@ -556,7 +559,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // remmeter: exact-alarm access may have changed in Settings; measure
       // how late the delivered reminders really were (local only).
       try {
-        context.read<AppState>().syncReminderAlarms();
+        final app = context.read<AppState>();
+        app.syncReminderAlarms();
+        // proof-notif: back in front -> fetch reminders made elsewhere
+        // meanwhile (throttled), so their phone alarms are set
+        app.reminderFresh.foreground = true;
+        app.refreshReminders();
         unawaited(ReminderAlarms.measure());
       } catch (_) {}
       _maybeNotifOpen(); // play-fgs
