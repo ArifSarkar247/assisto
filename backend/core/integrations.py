@@ -1726,8 +1726,8 @@ def test_quran_foundation(cfg, http=None):
 # ---- cctvconnect ----
 # owner 9 Nov 17:15: the Imou OAuth project "Assisto Camera Link" waits for
 # Imou's permission (work ticket 483) — said on the card until keys exist
-IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের নিজের Imou অ্যাকাউন্ট): Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩) — "
-                      "অনুমোদন এলে তিনটি OAuth ঘর পূরণ করে Test চাপুন",
+IMOU_OAUTH_PENDING = ("“OAuth” (এক ট্যাপে গ্রাহকের নিজের Imou অ্যাকাউন্ট): Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩) — "
+                      "অনুমোদন এলে তিনটি “OAuth” ঘর পূরণ করে “পরীক্ষা” চাপুন",
                       "OAuth (customer's own Imou account in one tap): waiting for Imou approval "
                       "(ticket 483) — when approved, fill the three OAuth fields and press Test")
 

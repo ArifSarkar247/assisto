@@ -42,13 +42,13 @@ WHERE = {
         "No screen of its own: when on, train times stop showing \"schedule not verified yet\" "
         "(you verify times in Owner Admin → Train schedule).",
         "নিজের পাতা নেই: চালু হলে ট্রেনের সময়ে \"সময়সূচি যাচাই বাকি\" লেখা আর থাকে না "
-        "(সময় যাচাই করবেন Owner Admin → ট্রেনের সময়সূচি-তে)।"),
+        "(সময় যাচাই করবেন মালিকের প্যানেল → ট্রেনের সময়সূচি-তে)।"),
     "child_emergency_audio": (
         "Menu ☰ → Kids → Child emergency audio (on the child's phone it also enables listening for the parent's request)",
         "মেনু ☰ → শিশু → শিশুর জরুরি অডিও (শিশুর ফোনে বাবা-মায়ের অনুরোধ শোনার ব্যবস্থাও চালু হয়)"),
     "nearby_sponsored": (
         "Menu ☰ → Travel & city → Nearby → pick a category → \"Sponsored\" rows above the results (only when an approved sponsor exists)",
-        "মেনু ☰ → যাতায়াত ও শহর → কাছেপিঠে → একটি ধরন বাছুন → ফলের ওপরে \"Sponsored\" সারি (অনুমোদিত স্পনসর থাকলে)"),
+        "মেনু ☰ → যাতায়াত ও শহর → কাছেপিঠে → একটি ধরন বাছুন → ফলের ওপরে “স্পনসর” সারি (অনুমোদিত স্পনসর থাকলে)"),
     "quran": (
         "Menu ☰ → Faith → Quran",
         "মেনু ☰ → ইবাদত → কুরআন"),
