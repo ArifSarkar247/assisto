@@ -162,6 +162,10 @@ class VaNative {
 
   /// {state: listening|paused|stopped|error|engine_missing, reason,
   ///  pausedUntil (ms), wanted, level} or null when native is missing.
+  /// voice-proof: true / false = this phone has / lacks a real speech
+  /// recognizer (Assisto's own proxy does not count); null = unknown.
+  static Future<bool?> realRecognizer() => _call<bool>('realRecognizer');
+
   static Future<Map<Object?, Object?>?> wakeStatus() =>
       _call<Map<Object?, Object?>>('wakeStatus');
 

@@ -17,6 +17,7 @@ import '../plans_v2/buy_inside.dart';
 import '../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
 import '../state.dart';
 import '../theme.dart';
+import '../voice/va_native.dart'; // voice-proof
 import 'permission_reason.dart';
 import 'voice_help_sheet.dart'; // aivoice
 import '../services/action_feedback.dart'; // db1
@@ -283,6 +284,20 @@ class VoiceDictation extends ChangeNotifier {
         await _startServerFor(context, input);
         return;
       }
+      // voice-proof: a phone whose ONLY recognizer is Assisto's own proxy
+      // (no Google speech: HMS, stripped Go builds, AOSP) — the engine would
+      // "initialize" and then fail every listen; go to the server at once.
+      if (!_noEngine && noEngineServer && learnLocale == null && !serverOff &&
+          await _hasRealRecognizer() == false) {
+        _noEngine = true;
+        if (!context.mounted) return;
+        if (await _micGranted() || await _askReason(context)) {
+          if (!context.mounted) return;
+          _reasonShown = true;
+          await _startServerFor(context, input);
+        }
+        return;
+      }
       if (!_speech.isAvailable) {
         // voice-proof: no "why we need the mic" dialog when the mic is
         // ALREADY allowed — it blocked hands-free use right after
@@ -405,6 +420,19 @@ class VoiceDictation extends ChangeNotifier {
     // app's permission page (which cannot fix a missing engine).
     _showMessage(context, denied ? t.voiceNoPermission : t.micEnableSpeech,
         settings: denied, help: !denied);
+  }
+
+  /// Tests: the "real recognizer?" answer; null = ask Android.
+  @visibleForTesting
+  static bool? realRecognizerOverride;
+
+  Future<bool?> _hasRealRecognizer() async {
+    if (realRecognizerOverride != null) return realRecognizerOverride;
+    try {
+      return await VaNative.realRecognizer().timeout(const Duration(seconds: 2));
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<bool> _micGranted() async {

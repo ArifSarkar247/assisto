@@ -119,6 +119,16 @@ object AssistoVoiceChannel {
                     "callNow" -> result.success(callNow(activity, call.argument<String>("number") ?: ""))
                     "youtubeSearch" -> result.success(youtubeSearch(activity, call.argument<String>("query") ?: ""))
                     "wakeStatus" -> result.success(WakeWordService.status(activity))
+                    // voice-proof: is there a REAL speech recognizer besides
+                    // Assisto's own proxy (AssistoRecognitionService)? false =
+                    // the app records + transcribes on the server instead.
+                    "realRecognizer" -> result.success(
+                        try {
+                            activity.packageManager.queryIntentServices(
+                                Intent(android.speech.RecognitionService.SERVICE_INTERFACE), 0
+                            ).any { it.serviceInfo.packageName != activity.packageName }
+                        } catch (ignored: Throwable) { true }
+                    )
                     "wakeStart" -> result.success(
                         WakeWordService.start(activity, call.argument<String>("config") ?: "{}")
                     )
