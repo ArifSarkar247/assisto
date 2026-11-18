@@ -3,6 +3,7 @@ ciphertext. Sealed uploads, key wraps (recovery code / trusted person),
 trusted-person recovery with the 24-hour wait, time-limited encrypted share
 links (/d/<token>), and famcare refusing sealed documents.
 """
+import atexit
 import base64
 import json
 import os
@@ -20,6 +21,11 @@ from core.models import (AuditLog, CircleMember, Document, FeatureFlag,
                          User, VaultHelpRequest, VaultKeyWrap, VaultShareLink)
 
 _MEDIA = tempfile.mkdtemp(prefix="p3docs-")
+# Removed once at process exit, never in a tearDownClass: --parallel forks
+# the workers AFTER this import, so every worker shares this one dir and
+# one class's rmtree deleted another worker's live files (p3docs share
+# link -> 410 flake, same class of bug as tests_blood).
+atexit.register(shutil.rmtree, _MEDIA, True)
 V = "/api/v1"
 SECRET_TITLE = "PASSPORT A01234567 RAHIM"   # lives only inside the sealed box
 PIN = "482173"
@@ -89,11 +95,6 @@ def post_sealed(c, file_bytes=None, **over):
 
 @override_settings(MEDIA_ROOT=_MEDIA)
 class SealedDocumentTests(TestCase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_MEDIA, ignore_errors=True)
-
     def setUp(self):
         flag(True)
         self.u = mk()

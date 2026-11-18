@@ -5,6 +5,7 @@ scoring with a MOCKED Claude (charge only on success, refund on fail / cut /
 unreadable), the >= 40 % worst-case profit proof, prompts < 90K tokens, the
 Cambridge companion (user's own answers + key only), the practice
 certificate, and the owner-account guard. Sample data only."""
+import atexit
 import json
 import os
 import re
@@ -26,6 +27,11 @@ from core.models import LpAttempt, LpItem, LpReviewLog, User
 
 V = "/api/v1"
 _MEDIA = tempfile.mkdtemp(prefix="lpcore-media-")
+# Removed once at process exit, never in a tearDownClass: --parallel forks
+# the workers AFTER this import, so every worker shares this one dir and
+# one class's rmtree deleted another worker's live files (p3docs share
+# link -> 410 flake, same class of bug as tests_blood).
+atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 # ------------------------------------------------------------ sample content
@@ -176,11 +182,6 @@ class ContentCheckTests(SimpleTestCase):
 # --------------------------------------------------------- import + review
 @override_settings(MEDIA_ROOT=_MEDIA)
 class ImportReviewTests(TestCase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_MEDIA, ignore_errors=True)
-
     def test_import_splits_sections_checks_and_versions(self):
         d = _bundle([sample_mock()])
         out = LS.import_bundle(d)

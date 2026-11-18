@@ -10,6 +10,7 @@
     lp_nonce) is accepted, size-capped, text-only, never plaintext.
 
 Test rows below are TEST fixtures only (the product ships no entries)."""
+import atexit
 import io
 import os
 import shutil
@@ -29,6 +30,11 @@ from core.logic import circle_groups as G
 from core.models import BloodDonor, BloodEvent, User
 
 _TMP = tempfile.mkdtemp(prefix="finish1-banks-")
+# Removed once at process exit, never in a tearDownClass: --parallel forks
+# the workers AFTER this import, so every worker shares this one dir and
+# one class's rmtree deleted another worker's live files (p3docs share
+# link -> 410 flake, same class of bug as tests_blood).
+atexit.register(shutil.rmtree, _TMP, True)
 STORE = os.path.join(_TMP, "blood_banks.json")
 
 CSV_OK = (
@@ -59,11 +65,6 @@ def _write(text):
 
 @override_settings(BLOOD_BANKS_FILE=STORE)
 class BankImport(TestCase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_TMP, ignore_errors=True)
-
     def setUp(self):
         BB.clear()
         p = mock.patch.object(BP, "flag_on", lambda u: True)
