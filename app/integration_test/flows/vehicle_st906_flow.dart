@@ -33,6 +33,7 @@ import 'package:assisto/screens/vehicle_tracker_screen.dart';
 import 'package:assisto/vehicle/route_canvas.dart';
 import 'package:assisto/vehicle/veh_format.dart';
 import 'package:assisto/vehicle/veh_map.dart';
+import 'package:assisto/vehicle/vehicle_api.dart' show vehNum;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -479,7 +480,7 @@ void registerVehicleSt906Flows() {
       await f.waitFor(dlg, what: 'confirm dialog');
       await f.tap(find.descendant(
           of: dlg, matching: find.text(kind == 'engine_cut' ? f.t.vehCutCta : f.t.vehRestoreCta)));
-      final pin = find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField));
+      final pin = find.descendant(of: find.byType(AlertDialog), matching: find.byType(EditableText));
       await f.waitFor(pin, what: 'Security PIN');
       await f.tester.enterText(pin.first, _pin);
       await f.pumpFor(const Duration(milliseconds: 300));

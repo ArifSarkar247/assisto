@@ -6,6 +6,7 @@
 //  * the route trail / trips refresh while the screen stays open (they were
 //    loaded once, so a driving car's trail froze).
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -119,13 +120,28 @@ void main() {
     en = await AppLocalizations.delegate.load(const Locale('en'));
   });
 
+  Future<void> waitFor(WidgetTester tester, Finder f, String what) async {
+    for (var i = 0; i < 100 && f.evaluate().isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(f, findsWidgets, reason: what);
+  }
+
   Future<void> askCut(WidgetTester tester) async {
-    await tester.tap(find.byKey(const ValueKey('veh-cut')));
-    await _settle(tester);
-    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(en.vehCutCta)));
-    await _settle(tester, 20);
-    final pin = find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField));
+    // no biometrics on the test "device": the Security PIN is the gate
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/local_auth'), (call) async => false);
+    final cutBtn = find.byKey(const ValueKey('veh-cut'));
+    await tester.ensureVisible(cutBtn);
+    await tester.pump();
+    await tester.tap(cutBtn);
+    final dlgCut = find.descendant(of: find.byType(AlertDialog), matching: find.text(en.vehCutCta));
+    await waitFor(tester, dlgCut, 'confirm dialog');
+    await tester.tap(dlgCut);
+    final pin = find.descendant(of: find.byType(AlertDialog), matching: find.byType(EditableText));
+    await waitFor(tester, pin, 'Security PIN dialog');
     await tester.enterText(pin.first, '2468');
+    await tester.pump();
     await tester.tap(find.text(en.securityContinue));
     await _settle(tester, 20);
   }
@@ -136,7 +152,7 @@ void main() {
     await tester.pumpWidget(_app(const VehicleTrackerScreen(trackerId: 7), api));
     await _settle(tester, 12);
     await askCut(tester);
-    expect(find.byKey(const ValueKey('veh-refused-moving')), findsOneWidget);
+    await waitFor(tester, find.byKey(const ValueKey('veh-refused-moving')), 'refusal dialog');
     expect(find.text(en.vehErrMoving), findsOneWidget);
     expect(find.text(en.vehHoldTitle), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('veh-hold-no')));
@@ -155,10 +171,11 @@ void main() {
     await tester.pumpWidget(_app(const VehicleTrackerScreen(trackerId: 7), api));
     await _settle(tester, 12);
     await askCut(tester);
+    await waitFor(tester, find.byKey(const ValueKey('veh-hold-yes')), 'hold offer');
     await tester.tap(find.byKey(const ValueKey('veh-hold-yes')));
     await _settle(tester, 12);
     final fin = find.byKey(const ValueKey('veh-cut-final'));
-    expect(fin, findsOneWidget);
+    await waitFor(tester, fin, 'final confirmation');
     await tester.tap(fin);
     await _settle(tester, 20);
     final sends = api.posted.where((p) => p['path'] == '/vehicle/trackers/7/commands').toList();
@@ -190,7 +207,9 @@ void main() {
     await tester.pumpWidget(_app(const VehicleTrackerScreen(trackerId: 7), api));
     await _settle(tester, 12);
     expect(api.routeGets, 1);
-    for (var i = 0; i < 3; i++) {
+    // first poll at 20 s (the screen opened with no data yet), then every
+    // 8 s while moving; the 3rd poll refreshes the trail
+    for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(seconds: 9));
       await _settle(tester);
     }
