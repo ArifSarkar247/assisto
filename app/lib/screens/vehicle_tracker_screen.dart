@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../api.dart' show ApiException; // vehicle-e2e
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../services/security_guard.dart';
@@ -27,6 +28,18 @@ import '../services/action_feedback.dart'; // db1
 /// ONE tracker: live position, animated 24 h route playback, trips / stops /
 /// mileage (computed server-side), remote engine cut-off with an honest
 /// command lifecycle, AI "unusual trips" summary, OBD + settings entries.
+/// vehicle-e2e: the route line, today's trips and the distance were loaded
+/// ONCE when the screen opened, so a car driving across Dhaka moved its
+/// marker but its trail and "Trips" stayed frozen until the screen was
+/// reopened. Refresh them every 3rd poll while moving (~24 s) and at once
+/// when the vehicle starts / stops / the ignition flips.
+bool vehRouteDue(Map<String, dynamic>? before, Map<String, dynamic> now, int poll) {
+  bool mv(Map<String, dynamic>? t) => vehMap(t?['live'])['moving'] == true;
+  if (before == null) return true;
+  if (mv(before) != mv(now) || before['ignition'] != now['ignition']) return true;
+  return mv(now) && poll % 3 == 0;
+}
+
 class VehicleTrackerScreen extends StatefulWidget {
   final int trackerId;
   const VehicleTrackerScreen({super.key, required this.trackerId});
@@ -100,16 +113,26 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  int _polls = 0; // vehicle-e2e
+
   Future<void> _refreshLive() async {
     if (!mounted || _sending) return;
     final api = context.read<AppState>().api;
     try {
       final t = await api.vehTracker(widget.trackerId);
       final c = await api.vehCommands(widget.trackerId);
+      _polls++;
+      Map<String, dynamic>? route;
+      if (_play == null && vehRouteDue(_t, t, _polls)) { // never under a playback
+        try {
+          route = await api.vehRoute(widget.trackerId);
+        } catch (_) {} // keep the last trail; the live marker still updates
+      }
       if (mounted) {
         setState(() {
           _t = t;
           _commands = vehList(c['commands']);
+          if (route != null) _route = route;
         });
       }
     } catch (_) {}
@@ -255,7 +278,24 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     setState(() => _sending = true);
     final api = context.read<AppState>().api;
     try {
-      var r = await api.vehSendCommand(widget.trackerId, kind, pin);
+      Map<String, dynamic> r;
+      try {
+        r = await api.vehSendCommand(widget.trackerId, kind, pin);
+      } on ApiException catch (e) {
+        // vehicle-e2e: refused because the vehicle is MOVING (or has not been
+        // still long enough). Say so plainly, and offer the server's safe
+        // option: hold the cut and send it only once the vehicle has stopped.
+        if (!cut || !const {'moving', 'few_fixes'}.contains(e.reason ?? e.message) || !mounted) rethrow;
+        setState(() => _sending = false);
+        final hold = await _offerHold(tr, e);
+        if (hold != true || !mounted) {
+          _snack(tr.v100CutNotSent);
+          _refreshLive();
+          return;
+        }
+        setState(() => _sending = true);
+        r = await api.vehSendCommand(widget.trackerId, kind, pin, whenStopped: true);
+      }
       final token = r['confirm_token'];
       if (token is String && token.isNotEmpty) {
         // veh100: the SECOND confirmation (the server re-checks that the
@@ -276,12 +316,50 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         r = await api.vehConfirmCommand(cid, token);
       }
       final state = '${vehMap(r['command'])['state']}';
-      _snack(state == 'awaiting_approval' ? tr.vehCmdAwaitingApproval : tr.vehCmdQueued);
+      _snack(state == 'awaiting_approval'
+          ? tr.vehCmdAwaitingApproval
+          : (vehMap(r['command'])['wait_stop'] == true
+              ? tr.vehHoldQueued(vehNumStr(context, vehInt(vehMap(r['command'])['hold_max_min']) ?? 30))
+              : tr.vehCmdQueued));
     } catch (e) {
       _snack(vehReasonText(tr, e));
     }
     if (mounted) setState(() => _sending = false);
     _refreshLive();
+  }
+
+  /// vehicle-e2e: the cut was refused because the vehicle is moving. The
+  /// refusal is shown in full; the default answer is "Not now".
+  Future<bool?> _offerHold(AppLocalizations tr, ApiException e) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        icon: Icon(Icons.directions_car_filled_rounded, color: Theme.of(ctx).colorScheme.error),
+        title: Text(tr.vehHoldTitle),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(vehReasonText(tr, e), key: const ValueKey('veh-refused-moving'),
+              style: AType.bodyMedium.copyWith(height: 1.4, fontWeight: FontWeight.w600)),
+          const SizedBox(height: Gap.sm),
+          Text(tr.vehHoldBody(vehNumStr(context, 30)), style: AType.bodyMedium.copyWith(height: 1.4)),
+        ]),
+        actions: [
+          FilledButton.tonal(
+            key: const ValueKey('veh-hold-no'),
+            autofocus: true,
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(tr.vehHoldNo),
+          ),
+          FilledButton(
+            key: const ValueKey('veh-hold-yes'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(tr.vehHoldCta),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Final check, shown AFTER the PIN: what the tracker reports right now and
@@ -688,7 +766,10 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       case 'awaiting_approval':
         return tr.vehCmdStAwaiting;
       case 'queued':
-        return tr.vehCmdStQueued;
+        // vehicle-e2e: a held cut is not "about to be sent" — it waits for a stop
+        return c['wait_stop'] == true
+            ? tr.vehCmdStHeld(vehNumStr(context, vehInt(c['hold_max_min']) ?? 30))
+            : tr.vehCmdStQueued;
       case 'sent':
         return tr.vehCmdStSent;
       case 'acked':
@@ -701,6 +782,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       case 'rejected':
         return tr.vehCmdStCancelled;
       default:
+        if ('${c['fail_reason']}' == 'never_stopped') return tr.vehCmdStNeverStopped;
         return tr.vehCmdStExpired;
     }
   }

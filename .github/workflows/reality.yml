@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess); empty = all"
+        description: "Comma list of flow groups (start,home,personal,family,circle,business,docs,sweep,save,lp,flagproof; opt-in: mess,vehicle); empty = all"
         required: false
         default: ""
       impeller:
@@ -57,7 +57,7 @@ jobs:
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp", "flagproof"]  # gap-lp + flagproof
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           # gap-money: opt-in single-feature groups (never part of "all")
-          optin = ["mess"]
+          optin = ["mess", "vehicle"]  # vehicle-e2e: simulated ST-906 over TCP (flow 12v)
           sel = ([g for g in allg if not want or g in want]
                  + [g for g in optin if g in want]) or allg
           print("groups=" + json.dumps(sel))
@@ -136,6 +136,22 @@ jobs:
             sleep 2
           done
           echo "::error::Django did not come up"; tail -50 "$REALITY_OUT/django.log"; exit 1
+      # vehicle-e2e: the REAL tracker server (GT06 / H02 / ... TCP) on :5023 =
+      # 10.0.2.2:5023 from the emulator; flow 12v drives a simulated ST-906
+      # (H02 text + binary) into it. Same DB as Django (settings_ci). Skipped
+      # when another step already started it.
+      - name: Start the tracker server on :5023 (vehicle flow)
+        if: matrix.group == 'vehicle'
+        working-directory: backend
+        run: |
+          if (exec 3<>/dev/tcp/127.0.0.1/5023) 2>/dev/null; then echo "tracker already up"; exit 0; fi
+          nohup python -m tracker --host 0.0.0.0 --port 5023 --settings=assisto_backend.settings_ci \
+            > "$REALITY_OUT/tracker_vehicle.log" 2>&1 &
+          for i in $(seq 1 30); do
+            (exec 3<>/dev/tcp/127.0.0.1/5023) 2>/dev/null && { echo "tracker up"; exit 0; }
+            sleep 1
+          done
+          echo "::error::tracker did not come up"; tail -30 "$REALITY_OUT/tracker_vehicle.log"; exit 1
 
       # ------------------------------------------------ app (same build prep as android.yml)
       - uses: actions/setup-java@v4

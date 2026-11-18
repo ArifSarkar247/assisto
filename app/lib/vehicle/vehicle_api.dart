@@ -33,8 +33,12 @@ extension VehicleApi on ApiClient {
   Future<Map<String, dynamic>> vehCommands(int id) =>
       getJson('/vehicle/trackers/$id/commands');
 
-  Future<Map<String, dynamic>> vehSendCommand(int id, String kind, String pin) =>
-      postJson('/vehicle/trackers/$id/commands', {'kind': kind, 'pin': pin});
+  /// vehicle-e2e: [whenStopped] = "send it once the vehicle has stopped" (the
+  /// server HOLDS the cut until its stopped-only gate passes, max 30 min).
+  Future<Map<String, dynamic>> vehSendCommand(int id, String kind, String pin,
+          {bool whenStopped = false}) =>
+      postJson('/vehicle/trackers/$id/commands',
+          {'kind': kind, 'pin': pin, if (whenStopped) 'when_stopped': true});
 
   Future<Map<String, dynamic>> vehApprove(int commandId, String pin) =>
       postJson('/vehicle/commands/$commandId/approve', {'pin': pin});

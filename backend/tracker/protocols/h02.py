@@ -384,7 +384,7 @@ def binary_packet(device_id: str, at: datetime, lat: float, lng: float,
             + a.strftime("%H%M%S%d%m%y")
             + "%02d%06d" % (lat_d, lat_m)
             + "%02x" % (battery & 0xFF)
-            + "%03d%05d%x" % (lng_d, lng_m, flags)
+            + "%03d%06d%x" % (lng_d, lng_m, flags)   # vehicle-e2e: 6 minute digits (was %05d: odd hex under 10 min)
             + "%03d%03d" % (knots, int(course) % 360)
             + "%08x" % (status & 0xFFFFFFFF))
     body = bytes.fromhex(hexs)

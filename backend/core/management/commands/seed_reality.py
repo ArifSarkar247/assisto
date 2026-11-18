@@ -78,6 +78,45 @@ class Command(BaseCommand):
                            "status": code, "ok": 200 <= code < 300})
         return code, data
 
+    # ------------------------------------------------------------ vehicle-e2e
+    VEHICLE_PIN = "2468"          # CI demo user A's Security PIN (throw-away DB)
+
+    def _vehicle(self, users):
+        """Only when the drive includes the 'vehicle' group: allow-list A for
+        the remote engine cut (OFF by registry default), give A a Security PIN
+        (the cut asks for it) and shorten the 'online' window to its lower
+        bound (60 s; production 600 s) so the offline 'last seen' view is
+        reached inside one CI flow. Never runs for any other group."""
+        if "vehicle" not in os.environ.get("REALITY_DRIVE", ""):
+            return
+        from django.contrib.auth.hashers import make_password
+        from core import billing, feature_flags as FF
+        from core.models import FeatureFlag, ProtectedPhone
+        FF.ensure_seeded()
+        row = FeatureFlag.objects.filter(key="vehicle_engine_cut").first()
+        if row is not None and users["a"].id not in (row.allow_user_ids or []):
+            row.allow_user_ids = list(row.allow_user_ids or []) + [users["a"].id]
+            row.save(update_fields=["allow_user_ids", "updated_at"])
+        FF.invalidate()
+        self.steps.append({"step": "allow-list A for vehicle_engine_cut", "method": "DB",
+                           "path": "feature_flags", "status": 200, "ok": row is not None})
+        ph = ProtectedPhone.objects.filter(owner=users["a"]).order_by("created_at").first() \
+            or ProtectedPhone.objects.create(owner=users["a"])
+        ph.security_pin_hash = make_password(self.VEHICLE_PIN)
+        ph.save(update_fields=["security_pin_hash"])
+        self.steps.append({"step": "Security PIN for A (vehicle)", "method": "DB",
+                           "path": "protected_phone", "status": 200, "ok": True})
+        cfg = billing.get_config()
+        data = dict(cfg.data or {})
+        veh = dict(data.get("vehicle") or {})
+        veh["online_window_s"] = 60
+        data["vehicle"] = veh
+        cfg.data = data
+        cfg.save(update_fields=["data", "updated_at"])
+        ok = billing.cfg()["vehicle"]["online_window_s"] == 60
+        self.steps.append({"step": "vehicle online window 60 s (CI)", "method": "DB",
+                           "path": "pricing_config", "status": 200 if ok else 500, "ok": ok})
+
     # ------------------------------------------------------------ flagproof
     def _flagproof(self, users, tokens, now):
         """Allow-list the demo users (CI DB only) for the hidden features whose
@@ -332,6 +371,8 @@ class Command(BaseCommand):
                                "path": "city_dataset", "status": 500, "ok": False})
         # --- flagproof: hidden features proven by reality flows 21 + 31-36
         self._flagproof(users, tokens, now)
+        # --- vehicle-e2e: opt-in group 'vehicle' (flow 12v, simulated ST-906)
+        self._vehicle(users)
 
         # --- read-backs: the data must come back through the GET side too
         for label, path in (("notes list", "/notes/"), ("family list", "/family/"),

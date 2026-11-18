@@ -415,6 +415,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       const WhereToBuyLink(product: BuyProduct.vehicle, dense: true),
       const SizedBox(height: Gap.sm),
       TextField(
+        key: const ValueKey('veh-pair-imei'), // vehicle-e2e
         controller: _imei,
         keyboardType: TextInputType.number,
         maxLength: 15,
@@ -427,6 +428,7 @@ class _PairTrackerSheetState extends State<PairTrackerSheet> {
       ),
       const SizedBox(height: Gap.sm),
       TextField(
+        key: const ValueKey('veh-pair-name'), // vehicle-e2e
         controller: _name,
         maxLength: 40,
         buildCounter: localCounter,
