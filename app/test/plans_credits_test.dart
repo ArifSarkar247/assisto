@@ -97,11 +97,14 @@ void main() {
     });
   }
 
-  testWidgets('Credits page: Buy credits in the balance card only with a live channel',
+  testWidgets('Credits page: no Buy button in the balance card without a live channel',
       (tester) async {
     FakeApi.payLive = false;
     await _pump(tester, const CreditsScreen());
     expect(find.byKey(const Key('credits-buy-top')), findsNothing); // no showpiece
+  });
+
+  testWidgets('Credits page: Buy credits in the balance card -> the packs', (tester) async {
     FakeApi.payLive = true;
     await _pump(tester, const CreditsScreen());
     final top = find.byKey(const Key('credits-buy-top'));
@@ -141,7 +144,10 @@ void main() {
       await tester.pumpWidget(_wrap(
           Scaffold(
               body: PlansBuySection(
-                  flavour: 'apk', preview: const {'recommend': null}, cctvPreview: c)),
+                  key: UniqueKey(), // a fresh state per case
+                  flavour: 'apk',
+                  preview: const {'recommend': null},
+                  cctvPreview: c)),
           lang));
       await tester.pumpAndSettle();
       return tester.widget<Text>(find.byKey(const Key('bi-plans-cctv-line'))).data!;

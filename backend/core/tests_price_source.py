@@ -103,7 +103,7 @@ class OneSourceTests(TestCase):
     def test_plans_fallback_numbers_equal_pricing_defaults(self):
         d = pricing.DEFAULTS()
         for pid, row in d["plans"].items():
-            if pid in plans.PLANS:
+            if pid in plans.PLANS and (pid == "free" or row["price"] > 0):
                 self.assertEqual(plans.PLANS[pid]["price"], row["price"], pid)
                 self.assertEqual(plans.PLANS[pid]["credits"], row["credits"], pid)
         for pid in ("annual", "founder", "probashi"):

@@ -88,8 +88,10 @@ class _CreditsScreenState extends State<CreditsScreen> {
   // it below the fold under the trial / balance cards.
   final GlobalKey _packsKey = GlobalKey();
   bool _jumped = false;
+  bool _packsFocus = false; // the packs title is highlighted after a "Buy" tap
 
   void _scrollToPacks() {
+    if (!_packsFocus) setState(() => _packsFocus = true);
     final ctx = _packsKey.currentContext;
     if (ctx == null) return;
     Scrollable.ensureVisible(ctx,
@@ -353,8 +355,15 @@ class _CreditsScreenState extends State<CreditsScreen> {
       const SizedBox(height: Gap.xl),
 
       // ---- top-up packs ----
-      KeyedSubtree(
+      // the "Buy credits" buttons land here and highlight it (also when the
+      // packs were already on screen, so the tap always visibly answers)
+      AnimatedContainer(
           key: _packsKey,
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
+          decoration: BoxDecoration(
+              color: _packsFocus ? scheme.primaryContainer : Colors.transparent,
+              borderRadius: BorderRadius.circular(Radii.md)),
           child: _sectionTitle(t.creditsPacksTitle, Icons.shopping_cart_rounded, scheme)),
       const SizedBox(height: Gap.sm),
       if (_packs.isEmpty)
@@ -486,7 +495,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
       clipBehavior: Clip.antiAlias,
       // a dark scrim over the brand gradient keeps white text >= 4.5:1
       child: Container(
-      color: Colors.black.withValues(alpha: 0.32),
+      color: Colors.black.withValues(alpha: 0.38), // plans-credits: >= 4.5:1 at every hero height
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.billNowUsable, style: AType.bodySmall.copyWith(color: Colors.white)),

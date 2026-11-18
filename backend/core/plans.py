@@ -83,7 +83,9 @@ def _sync_with_pricing_defaults():
         return
     rows = d.get("plans") or {}
     for pid, row in rows.items():
-        if pid in PLANS:
+        # a plan shipped NOT for sale (price 0: Plus / Premium Pro until the
+        # owner's preset) is never shown, so its shape numbers stay
+        if pid in PLANS and (pid == "free" or row.get("price", 0) > 0):
             PLANS[pid]["price"] = row.get("price", PLANS[pid]["price"])
             PLANS[pid]["credits"] = row.get("credits", PLANS[pid]["credits"])
     prem = rows.get("premium") or {}
