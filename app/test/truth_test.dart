@@ -213,7 +213,9 @@ void main() {
           expect(find.text('Dhaka Medical College Hospital'), findsOneWidget);
           expect(find.byKey(const ValueKey('truth_nearby_attribution')),
               findsOneWidget);
-          expect(find.textContaining('OpenStreetMap'), findsOneWidget);
+          // gap-nearby: the per-number source line also names OpenStreetMap
+          expect(find.descendant(of: find.byKey(const ValueKey('truth_nearby_attribution')),
+              matching: find.textContaining('OpenStreetMap')), findsOneWidget);
           expect(find.text(t.nearbyMockBanner), findsNothing);
           if (lang == 'bn') {
             // distance in Bangla digits, no ASCII digits in the chip

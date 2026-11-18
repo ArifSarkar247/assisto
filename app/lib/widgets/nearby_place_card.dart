@@ -161,14 +161,14 @@ class NearbyPlaceCard extends StatelessWidget {
               child: Text(
                   place.phoneSrc == 'admin' ? t.nearbyPhoneSrcAdmin : t.nearbyPhoneSrcOsm,
                   key: ValueKey('nearby_phone_src_${place.serverId}'),
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           if ((phone == null || phone.isEmpty) && place.serverId != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.nearbyNoPhoneListed,
                   key: ValueKey('nearby_no_phone_${place.serverId}'),
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3)),
+                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ),
           if (onReport != null)
             Align(
