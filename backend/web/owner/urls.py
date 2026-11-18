@@ -12,6 +12,7 @@ from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_imoudev as IMOUDEV   # cctvconnect
 from . import views_cctvpartners as CCTVP  # cctvroles
 from . import views_mapsusage as MAPSU   # mapscost
+from . import views_trackerpkt as TRKPKT   # flag-vehicle
 from . import views_emailhealth as EMAILH   # emailrel
 from . import views_safeplans as SAFEP   # safeplans
 from . import views_plans as PLANSV      # plansprep: Plans & prices
@@ -155,6 +156,7 @@ urlpatterns = [
     path("ai-usage", AIU.ai_usage),                              # aifinal: AI usage log
     path("ai-levels", AILV.ai_levels),                           # aifinal: answer levels
     path("features/preview-testers", FF1.preview_testers_save),   # preview-testers
+    path("tracker-packets", TRKPKT.tracker_packets),   # flag-vehicle: raw tracker packets
     path("features/<str:key>", FF1.feature_save),                # feature-flags
     path("ai-reports", AIR.ai_reports),                          # ai-report
     path("ai-reports/<int:pk>/resolve", AIR.ai_report_resolve),  # ai-report

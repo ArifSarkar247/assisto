@@ -41,10 +41,13 @@ USERS = {
     # flagproof: A's brother who runs a small salon (booking_bot flow 33) and
     # posts a missing alert about A (missing_alert flow 36: A says "I am safe").
     # Not in A's circle unless the drive includes the flagproof group.
-    # group-calls: D is also the THIRD person of the 3-way group call proof
-    # (flow 18g): in A's and B's circle (accepted both ways) in every drive.
     "d": {"name": "Reality Selim", "phone": "01700000004",
           "email": "selim@reality.test"},
+    # group-calls: E is the THIRD person of the 3-way group call proof (flow
+    # 18g): in A's and B's circle (accepted both ways). Its own user, so D
+    # (flagproof) stays out of A's circle in every other drive.
+    "e": {"name": "Reality Dipu", "phone": "01700000006",
+          "email": "dipu@reality.test"},
 }
 
 FLAGPROOF_KEYS = ("vault_e2e", "ps_secretary", "ai_daily_planner", "booking_bot",
@@ -204,14 +207,14 @@ class Command(BaseCommand):
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
 
-        # --- group-calls: D is in A's and B's circle (both ways, accepted)
-        for x, y in (("a", "d"), ("d", "a"), ("b", "d"), ("d", "b")):
+        # --- group-calls: E is in A's and B's circle (both ways, accepted)
+        for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
             CircleMember.objects.update_or_create(
                 user=users[x], peer_user=users[y],
                 defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
                           "state": "accepted", "relation": "friend",
                           "direction": "outgoing" if x in ("a", "b") else "incoming"})
-        self.steps.append({"step": "circle A<->D, B<->D (group call proof)",
+        self.steps.append({"step": "circle A<->E, B<->E (group call proof)",
                            "method": "DB", "path": "circle", "status": 200,
                            "ok": True})
 
