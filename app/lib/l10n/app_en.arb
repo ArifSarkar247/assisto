@@ -53258,5 +53258,65 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "recovOtpInvalid": "That code didn't match. {left} tries left.",
+  "@recovOtpInvalid": {
+    "description": "Wrong OTP code; left is already in UI digits (Bangla digits in bn).",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "recovOtpLocked": "Too many wrong codes. Please try again in {minutes} min.",
+  "@recovOtpLocked": {
+    "description": "OTP lockout; minutes already in UI digits.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "recovResendInMin": "You can ask for a new code in {minutes} min",
+  "@recovResendInMin": {
+    "description": "Resend button while locked for longer than 90 s; minutes in UI digits.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "recovLostTitle": "Is your old phone lost?",
+  "@recovLostTitle": {
+    "description": "Title of the screen shown after signing in with a one-time code while other phones are still signed in."
+  },
+  "recovLostBody": "You signed in with a one-time code. Your account is still signed in on the phones below. If a phone is lost, stolen or not yours, sign it out now — whoever holds it can no longer open your chats, money or family.",
+  "@recovLostBody": {
+    "description": "Body of the lost-phone check screen."
+  },
+  "recovLostSignOutAll": "Sign out all other phones",
+  "@recovLostSignOutAll": {
+    "description": "Primary button: revoke every other session."
+  },
+  "recovLostKeep": "No, my other phones are fine",
+  "@recovLostKeep": {
+    "description": "Secondary button: keep the other phones signed in."
+  },
+  "recovLostDone": "Done. Phones signed out: {count}.",
+  "@recovLostDone": {
+    "description": "Snackbar after signing out the other phones; count in UI digits.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "recovLostFailed": "Could not sign them out right now. Try again from Settings → Account & security.",
+  "@recovLostFailed": {
+    "description": "Error when sign-out of the other phones failed."
+  },
+  "recovLostNext": "Next: change your password in Settings → Account & security, so a lost phone can't sign in again.",
+  "@recovLostNext": {
+    "description": "Next-step hint under the buttons."
   }
 }
