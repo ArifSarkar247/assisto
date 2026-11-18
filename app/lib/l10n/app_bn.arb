@@ -26174,5 +26174,19 @@
   "fatSensHighBody": "হালকা টানেও সাড়া দেয়। হাতে ফোন নিয়ে জগিং করলে ভুল সতর্কতা যেতে পারে।",
   "fatSensSaved": "সংরক্ষিত হয়েছে। ছিনতাই-সতর্কতা এখন এই স্তরে কাজ করবে।",
   "d3GwShopboxTitle": "Shop Box (ছোট কম্পিউটার)",
-  "d3CctvSetupGroup": "ক্যামেরা ও সেটআপ"
+  "d3CctvSetupGroup": "ক্যামেরা ও সেটআপ",
+  "nearbyRefreshedNow": "তালিকা এইমাত্র হালনাগাদ হলো।",
+  "nearbyRefreshFailedSaved": "হালনাগাদ করা গেল না — ফোনে সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyOfflineSavedOn": "অফলাইন — {when}-এ সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyUnnamedPlace": "{kind} (ম্যাপে নাম নেই)",
+  "nearbyPhoneSrcOsm": "নম্বরের সূত্র: OpenStreetMap",
+  "nearbyPhoneSrcAdmin": "নম্বরটি Assisto যাচাই করেছে",
+  "nearbyNoPhoneListed": "এই জায়গার ফোন নম্বর তালিকায় নেই। জরুরি হলে ওপরের সরকারি নম্বরে কল করুন।",
+  "cityMetroPairTitle": "দুই স্টেশনের ভাড়া",
+  "cityMetroPairFrom": "যে স্টেশন থেকে",
+  "cityMetroPairTo": "যে স্টেশনে",
+  "cityMetroPairSame": "দুটি আলাদা স্টেশন বেছে নিন।",
+  "cityMetroPairUnknown": "এই দুই স্টেশনের ভাড়া এখনো আমাদের তথ্যে নেই।",
+  "cityMetroPairFromChart": "সরকারি স্টেশন-ভাড়ার চার্ট থেকে।",
+  "cityMetroPairFromRate": "লাইন ধরে {km} কিমির সরকারি হারে।"
 }
