@@ -67,11 +67,36 @@ PLANS = {
                  "benefits_en": ["Lifetime Premium — monthly AI credits", "Everything in Premium"]},
 }
 
-# credit top-up packs (৳20–30 range, like mobile recharge)
-TOPUP_PACKS = [
-    {"id": "p20", "price": 20, "cur": "BDT", "credits": 20},
-    {"id": "p30", "price": 30, "cur": "BDT", "credits": 35},
-]
+
+
+def _sync_with_pricing_defaults():
+    """plans-credits (one price source): the price/credit numbers above are
+    only a shape. Every number is overwritten here from the pricing engine's
+    shipped DEFAULTS (core.logic.pricing — the same table Owner Admin ->
+    Plans & prices edits), so a fallback can never show a second, different
+    price (the old "Premium 90 vs 160 / Business 499 vs 999" conflict).
+    annual / founder / probashi are Premium-equivalent -> Premium's pool."""
+    try:
+        from .logic import pricing
+        d = pricing.DEFAULTS()
+    except Exception:  # noqa: BLE001 - import-time safety
+        return
+    rows = d.get("plans") or {}
+    for pid, row in rows.items():
+        # a plan shipped NOT for sale (price 0: Plus / Premium Pro until the
+        # owner's preset) is never shown, so its shape numbers stay
+        if pid in PLANS and (pid == "free" or row.get("price", 0) > 0):
+            PLANS[pid]["price"] = row.get("price", PLANS[pid]["price"])
+            PLANS[pid]["credits"] = row.get("credits", PLANS[pid]["credits"])
+    prem = rows.get("premium") or {}
+    for pid in ("annual", "founder", "probashi"):
+        if pid in PLANS and "credits" in prem:
+            PLANS[pid]["credits"] = prem["credits"]
+    if "probashi_price_usd" in d:
+        PLANS["probashi"]["price"] = d["probashi_price_usd"]
+
+
+_sync_with_pricing_defaults()
 
 # DEFAULTS only — live values come from PricingConfig (admin-editable in
 # /admin/pricing): limits.trial_days / limits.trial_credits and
@@ -120,7 +145,10 @@ def trial_plan(user=None):
 
 def trial_credits():
     c = _cfg()
-    return int(c["limits"]["trial_credits"]) if c else PLANS["free"]["credits"]
+    if c:
+        return int(c["limits"]["trial_credits"])
+    from .logic import pricing
+    return int(pricing.DEFAULT_TRIAL_CREDITS)
 
 
 def rewarded_daily_cap():

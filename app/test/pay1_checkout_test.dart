@@ -159,6 +159,24 @@ void main() {
     expect(find.text(t.paySuccessPlan('Premium')), findsOneWidget);
   });
 
+  // plans-credits: the bank said FAILED -> say so (nothing taken, try again),
+  // never "not confirmed yet" forever.
+  testWidgets('gateway: failed charge -> "Payment not completed" + retry', (tester) async {
+    final b = FakePaymentsBackend(cfg: pay1Config(play: false));
+    await _pump(tester, b, flavour: 'apk');
+    final t = _t(tester);
+    await tester.tap(find.byKey(const ValueKey('pay-option-gateway')));
+    await tester.pumpAndSettle();
+    b.orderResults.add(const PayResult(
+        ok: true, data: {'ok': true, 'order': {'id': 41, 'status': 'failed'}}));
+    await tester.tap(find.text(t.payCheckNow));
+    await tester.pumpAndSettle();
+    expect(find.text(t.payFailedTitle), findsOneWidget);
+    expect(find.text(t.payFailedBody), findsOneWidget);
+    expect(find.text(t.payStillPending), findsNothing);
+    expect(find.text(t.retry), findsOneWidget);
+  });
+
   testWidgets('gateway: server refusal shows the server message', (tester) async {
     final b = FakePaymentsBackend(cfg: pay1Config(play: false))
       ..checkoutResult = const PayResult(

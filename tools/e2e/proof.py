@@ -46,6 +46,9 @@ BOARD = {
     "cc1_once_rings_on_time": [21],   # gap-carecall (e2e.yml group=start+carecall)
     # gap-recovery: lost phone -> email code -> keys + My Circle (group=start+recovery)
     "rec1_lost_phone_email_code": [52, 58, 2],
+    # plans-credits: plans & credits proof (e2e.yml group=start+payproof)
+    "pay01_buy_plan": [7], "pay02_buy_credits": [7], "pay03_failed_charge": [7],
+    "pay04_zero_credits_sheet_buy": [7], "pay05_safety_at_zero": [7, 3],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -72,6 +75,10 @@ def expected():
         # gap-recovery: the account-recovery proof run (e2e.yml group=start+recovery)
         files = ["app/integration_test/flows/recovery_flow.dart"]
         pat = r"realityFlow\(\s*'(rec\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "payproof" in os.environ.get("REALITY_ONLY", ""):
+        # plans-credits: the plans & credits proof (e2e.yml group=start+payproof)
+        files = ["app/integration_test/flows/pay_proof_flow.dart"]
+        pat = r"realityFlow\(\s*'(pay\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f

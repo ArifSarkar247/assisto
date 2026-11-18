@@ -46,6 +46,7 @@ import 'flows/kidswatch_flow.dart'; // gap-kidswatch
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/antitheft_e2e_flow.dart'; // antitheft-e2e
 import 'flows/train_proof_flow.dart'; // train-e2e
+import 'flows/pay_proof_flow.dart'; // plans-credits
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
@@ -122,6 +123,8 @@ void main() {
   // gap-recovery: lost phone -> email code -> keys back; needs settings_e2eproof
   // + E2E_FAKE_EMAIL=1 (captured mail) -> opt-in only (e2e.yml group=start+recovery)
   if (only.split(',').contains('recovery')) registerRecoveryFlows();
+  // plans-credits: plans & credits proof needs settings_e2eproof's fake gateway -> opt-in (e2e.yml start+payproof)
+  if (only.split(',').contains('payproof')) registerPayProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   // proof-ledger: offline khata / cashbox / mess across a REAL app kill +

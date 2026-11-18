@@ -6,6 +6,7 @@ import '../feature_flags.dart' show FeatureFlags; // launch
 import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset; // plans-credits
 import '../widgets/skeleton.dart';
 import '../widgets/storage_meter.dart';
 import '../widgets/rewarded_ad_sheet.dart';
@@ -49,9 +50,13 @@ class CreditsOpenReason {
 /// rewarded-ad entry is opt-in; the ad plays in its own sheet, never as a
 /// banner here.
 class CreditsScreen extends StatefulWidget {
-  const CreditsScreen({super.key, this.reason});
+  const CreditsScreen({super.key, this.reason, this.jumpToPacks = false});
 
   final CreditsOpenReason? reason;
+
+  /// plans-credits: opened from a "Buy credits" button — scroll straight to
+  /// the packs once they are on screen (they sit below the balance cards).
+  final bool jumpToPacks;
 
   @override
   State<CreditsScreen> createState() => _CreditsScreenState();
@@ -77,6 +82,21 @@ class _CreditsScreenState extends State<CreditsScreen> {
   PayConfig? _payCfg;
 
   static const _pageSize = 30;
+
+  // plans-credits: the "Buy credits" section, so every buy button (hero,
+  // storage meter, opened-from-plans) brings it into view instead of leaving
+  // it below the fold under the trial / balance cards.
+  final GlobalKey _packsKey = GlobalKey();
+  bool _jumped = false;
+  bool _packsFocus = false; // the packs title is highlighted after a "Buy" tap
+
+  void _scrollToPacks() {
+    if (!_packsFocus) setState(() => _packsFocus = true);
+    final ctx = _packsKey.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(ctx,
+        duration: const Duration(milliseconds: 350), alignment: 0.05);
+  }
 
   @override
   void initState() {
@@ -154,6 +174,12 @@ class _CreditsScreenState extends State<CreditsScreen> {
       _adsReady = await AdsService.instance.rewardedAvailable(app);
     }
     if (mounted) setState(() => _loading = false);
+    if (mounted && widget.jumpToPacks && !_jumped && !_error) {
+      _jumped = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _scrollToPacks();
+      });
+    }
     if (mounted && !_error && _cachedAt == null) await _loadHistory(reset: true);
   }
 
@@ -239,7 +265,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
                   onRefresh: _load,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl),
+                    // plans-credits: the last row clears the phone's nav bar
+                    padding: withNavBarInset(
+                        context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: _body(t, scheme),
@@ -327,7 +355,16 @@ class _CreditsScreenState extends State<CreditsScreen> {
       const SizedBox(height: Gap.xl),
 
       // ---- top-up packs ----
-      _sectionTitle(t.creditsPacksTitle, Icons.shopping_cart_rounded, scheme),
+      // the "Buy credits" buttons land here and highlight it (also when the
+      // packs were already on screen, so the tap always visibly answers)
+      AnimatedContainer(
+          key: _packsKey,
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
+          decoration: BoxDecoration(
+              color: _packsFocus ? scheme.primaryContainer : Colors.transparent,
+              borderRadius: BorderRadius.circular(Radii.md)),
+          child: _sectionTitle(t.creditsPacksTitle, Icons.shopping_cart_rounded, scheme)),
       const SizedBox(height: Gap.sm),
       if (_packs.isEmpty)
         _strip(scheme, Icons.info_outline_rounded,
@@ -393,9 +430,16 @@ class _CreditsScreenState extends State<CreditsScreen> {
       const SizedBox(height: Gap.xl),
       StorageMeter(
         initial: (_usage['storage'] as Map?)?.cast<String, dynamic>(),
+        // plans-credits: storage add-ons use credits — go to the packs
+        // (they are ABOVE this card; the old "buy a pack below" hint was a
+        // dead end) or, with no live pack, say so honestly.
         onBuyStorage: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(t.storageBuyHint)));
+          if (_packs.isNotEmpty) {
+            _scrollToPacks();
+          } else {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(t.creditsPacksEmpty)));
+          }
         },
       ),
 
@@ -451,7 +495,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
       clipBehavior: Clip.antiAlias,
       // a dark scrim over the brand gradient keeps white text >= 4.5:1
       child: Container(
-      color: Colors.black.withValues(alpha: 0.32),
+      color: Colors.black.withValues(alpha: 0.38), // plans-credits: >= 4.5:1 at every hero height
       padding: const EdgeInsets.all(Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.billNowUsable, style: AType.bodySmall.copyWith(color: Colors.white)),
@@ -494,6 +538,21 @@ class _CreditsScreenState extends State<CreditsScreen> {
           _heroPill(Icons.trending_up_rounded,
               t.creditsUsedThisMonth(fmtInt(context, monthTotal))),
         ]),
+        // plans-credits: the buy path is one tap from the top, never hidden
+        // below the trial / balance cards (owner: "buy button is covered").
+        if (_packs.isNotEmpty) ...[
+          const SizedBox(height: Gap.md),
+          FilledButton.icon(
+            key: const Key('credits-buy-top'),
+            onPressed: _buying ? null : _scrollToPacks,
+            icon: const Icon(Icons.add_shopping_cart_rounded),
+            label: Text(t.creditsPacksTitle),
+            style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Brand.blueDeep,
+                minimumSize: const Size.fromHeight(48)),
+          ),
+        ],
       ]),
       ),
     );

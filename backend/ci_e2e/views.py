@@ -11,6 +11,8 @@ POST /api/v1/ci-e2e/vendor-sim {op: add_device|push_alarm|repush|state, vendor, 
 GET  /api/v1/ci-e2e/hls/<vendor>/<serial>/<file>   the fake vendor HLS (phone plays it)
 GET  /api/v1/ci-e2e/imou/h5?state=                 the fake Imou consent page
 GET  /api/v1/ci-e2e/imou/h5/allow?state=           "Allow" -> our real redirect URI
+plans-credits (fake_gateway.py — no money, no network):
+POST /api/v1/ci-e2e/pay {op: on|off|drain}  or  {tx, result: paid|failed|cancelled|paid_wrong_amount}
 """
 import io
 import threading
@@ -371,3 +373,36 @@ class TrainSimView(APIView):
         fakes.record("train_sim", op=op, out={k: v for k, v in out.items()
                                               if k not in ("riders", "outlier", "stations")})
         return Response(dict(out, ok=True))
+# ---------------------------------------------------------------- plans-credits
+class FakePayView(APIView):
+    """The e2e flow's handle on the CI fake gateway: switch it on/off, and
+    say what the 'bank' answers for one order (by its merchant tx id, which
+    only the order's owner can see in its redirect URL)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from core.models import PaymentOrder
+
+        from . import fake_gateway as FG
+        d = request.data or {}
+        op = str(d.get("op") or "")
+        if op in ("on", "off"):
+            FG.set_on(op == "on")
+            return Response({"ok": True, "on": op == "on"})
+        if op == "drain":
+            # "use the app until the credits run out", in one call: the REAL
+            # spend path (core.credits.spend, owner's bucket order + ledger)
+            # takes every usable credit of THIS user — nothing is faked.
+            from core import credits as CR
+            n = int(CR.state(request.user)["now_usable"])
+            r = CR.spend(request.user, n, note="ci_drain") if n > 0 else {"ok": True, "charged": 0}
+            left = int(CR.state(request.user)["now_usable"])
+            fakes.record("pay_drain", user_id=request.user.pk, spent=n, left=left)
+            return Response({"ok": bool(r.get("ok")), "spent": n, "now_usable": left})
+        tx = str(d.get("tx") or "")
+        res = str(d.get("result") or "")
+        if res not in FG.RESULTS or not PaymentOrder.objects.filter(
+                merchant_tx_id=tx, user=request.user).exists():
+            return Response({"ok": False, "reason": "tx_or_result"}, status=400)
+        FG.set_result(tx, res)
+        return Response({"ok": True, "tx": tx, "result": res})

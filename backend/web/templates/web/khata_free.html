@@ -1,4 +1,5 @@
 {% extends "web/base.html" %}
+{% load site %}
 {% block title %}{% if lang == 'en' %}Digital khata — free forever{% else %}ডিজিটাল খাতা — চিরকাল ফ্রি{% endif %} — Assisto{% endblock %}
 {% block content %}
 {% comment %}ledger100: the "free forever" promise. Only what is TRUE: the
@@ -20,7 +21,7 @@ FreeForeverTests proves it). Assisto-sent SMS stays paid — said plainly.{% end
 <div class="card">
   <h3>What costs money (we say it before you send)</h3>
   <ul>
-    <li>An SMS that <b>Assisto</b> sends for you uses credits (1 credit per SMS part). The app shows the cost before you tap send and never sends at 0 credits.</li>
+    <li>An SMS that <b>Assisto</b> sends for you uses credits{% if sms_credits %} ({{ sms_credits }} credit{{ sms_credits|pluralize }} per SMS part){% endif %}. The app shows the cost before you tap send and never sends at 0 credits.</li>
     <li>AI extras (voice entry, paper-khata scan) need a paid plan.</li>
   </ul>
 </div>
@@ -41,7 +42,7 @@ FreeForeverTests proves it). Assisto-sent SMS stays paid — said plainly.{% end
 <div class="card">
   <h3>যেটার খরচ আছে (পাঠানোর আগেই বলি)</h3>
   <ul>
-    <li><b>Assisto</b> আপনার হয়ে যে SMS পাঠায় তাতে ক্রেডিট লাগে (প্রতি SMS অংশে ১ ক্রেডিট)। পাঠানোর আগে অ্যাপ খরচ দেখায়, ০ ক্রেডিটে কখনো পাঠায় না।</li>
+    <li><b>Assisto</b> আপনার হয়ে যে SMS পাঠায় তাতে ক্রেডিট লাগে{% if sms_credits %} (প্রতি SMS অংশে {{ sms_credits|bn_num:lang }} ক্রেডিট){% endif %}। পাঠানোর আগে অ্যাপ খরচ দেখায়, ০ ক্রেডিটে কখনো পাঠায় না।</li>
     <li>AI সুবিধা (ভয়েস এন্ট্রি, কাগজের খাতা স্ক্যান) পেইড প্ল্যানে।</li>
   </ul>
 </div>

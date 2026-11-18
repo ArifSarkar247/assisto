@@ -122,11 +122,14 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
     return s == null ? null : localizeStoreDigits(context, s);
   }
 
-  int get _baseTaka {
+  /// plans-credits: the server's base-tier price, or null (never a typed
+  /// fallback price — a number the server did not send is never shown).
+  int? get _baseTaka {
+    final base = (_d?['base_cameras'] as num?)?.toInt() ?? 2;
     for (final m in (_d?['tiers'] as List? ?? const []).whereType<Map>()) {
-      if (m['cameras'] == 2) return (m['monthly'] as num?)?.toInt() ?? 500;
+      if (m['cameras'] == base) return (m['monthly'] as num?)?.toInt();
     }
-    return 500;
+    return (_d?['base_price'] as num?)?.toInt();
   }
 
   Future<void> _buy({required bool trial}) async {
@@ -168,7 +171,8 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final price = _playPrice;
-    final taka = '৳${fmtInt(context, _baseTaka)}';
+    final baseTaka = _baseTaka;
+    final taka = baseTaka == null ? null : '৳${fmtInt(context, baseTaka)}';
     final canBuy = _store && price != null && !_active;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
@@ -292,7 +296,8 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
               // line + the plan screen (never a fake buy button).
               // gap-cctv: Play works but the plan is not on sale yet → say
               // "opens soon", not "bought through Google Play"
-              Text(_store && _d != null && _d!['on_sale'] != true ? t.cplSaleSoon : t.biCctvNoStore(taka),
+              Text(_store && _d != null && _d!['on_sale'] != true ? t.cplSaleSoon
+                  : taka == null ? t.pcCctvNoStorePlain : t.biCctvNoStore(taka),
                   key: const Key('bi-cctv-nostore'),
                   style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (_busy)

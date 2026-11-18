@@ -221,6 +221,13 @@ class _CheckoutSheetState extends State<CheckoutSheet>
     final st = '${r.order['status'] ?? ''}';
     if (r.ok && st == 'paid') {
       _success(t, null);
+    } else if (r.ok && (st == 'failed' || st == 'cancelled')) {
+      // plans-credits: the gateway said the charge failed / was cancelled —
+      // say so (nothing taken, try again), never "still pending" forever.
+      setState(() {
+        _msg = '';
+        _step = _Step.failed;
+      });
     } else if (!quiet) {
       setState(() => _msg = r.ok ? t.payStillPending : _err(t, r));
     }

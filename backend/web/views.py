@@ -249,8 +249,21 @@ def landing(request):
 
 
 def khata_free(request):
-    """ledger100: the written 'digital khata free forever' promise."""
-    return render(request, "web/khata_free.html", _ctx(request))
+    """ledger100: the written 'digital khata free forever' promise.
+    plans-credits: the SMS credit cost comes from the live PricingConfig
+    (action_costs.sms) — never a number typed into the page."""
+    return render(request, "web/khata_free.html",
+                  _ctx(request, sms_credits=_sms_credits()))
+
+
+def _sms_credits():
+    """Credits one Assisto-sent SMS part costs (PricingConfig), or None."""
+    try:
+        from core import billing
+        n = int(billing.cfg()["action_costs"]["sms"]["credits"])
+        return n if n > 0 else None
+    except Exception:  # noqa: BLE001 - the page never fails on pricing
+        return None
 
 
 def get_app(request):
