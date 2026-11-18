@@ -253,6 +253,26 @@ PERMISSIONS = [
                    "Turn always-on protection off in the app (Security PIN), or remove the location permission."),
     },
     {
+        # guardbox-play: the phone camera's screen-off watch (PhoneCamService).
+        # In the Play build only once play-decl key guardbox_camera is declared.
+        "id": "fgs_camera",
+        "perm": "FOREGROUND_SERVICE_CAMERA",
+        "name": ("ফোন-ক্যামেরা স্ক্রিন বন্ধ রেখে পাহারা", "Phone camera keeps watching with the screen off"),
+        "why": ("আপনি নিজের পুরনো ফোনকে দোকান বা বাসার ক্যামেরা বানালে, স্ক্রিন বন্ধ থাকলেও সেই ফোনের ক্যামেরা "
+                "নড়াচড়া দেখে আপনাকে একটি ছবিসহ সতর্কতা পাঠায় এবং আপনি লাইভ দেখতে পারেন। স্ক্রিন বন্ধ অবস্থায় "
+                "ভিডিও রেকর্ড হয় না, শব্দ নেওয়া হয় না। চলার সময় সবসময় একটি নোটিফিকেশন থাকে।",
+                "When you turn your own old phone into a camera for your shop or home, its camera keeps "
+                "watching for movement with the screen off, sends you an alert with one photo, and lets you "
+                "open live view. No video is recorded and no sound is captured with the screen off. A "
+                "notification is always visible while it runs."),
+        "when": ("শুধু আপনি \"এই ফোনকে ক্যামেরা বানান\" পাতায় \"চালু করুন\" চাপলে। ফোন চালু হলে বা নিজে থেকে "
+                 "কখনো চালু হয় না; অ্যাপ বন্ধ (সরিয়ে দিলে) করলে থেমে যায়।",
+                 "Only when you tap Start on the \"Use this phone as a camera\" screen. It never starts at "
+                 "boot or by itself, and it stops when you close (swipe away) the app."),
+        "revoke": ("নোটিফিকেশনের \"বন্ধ করুন\" বোতাম বা পাতার \"ক্যামেরা বন্ধ করুন\", অথবা ক্যামেরার অনুমতি তুলে নিন।",
+                   "The notification's Stop button or \"Stop camera\" on the screen, or remove the camera permission."),
+    },
+    {
         "id": "call_phone",
         "perm": "CALL_PHONE",
         "name": ("ফোন কল করা", "Make phone calls"),
