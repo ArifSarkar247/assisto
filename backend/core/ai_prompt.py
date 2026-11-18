@@ -153,18 +153,68 @@ dhonnobad obostha ekhane okhane kothai kno keno sathe shathe mone kotha
 """.split())
 
 
+# aichat-nine: more everyday romanized words (verbs, money, family, health,
+# study) — "nagad cashout charge koto" was answered in English (1 hit, the
+# old rule needed 2 for a 4-word message).
+_ROMAN_BN = _ROMAN_BN | frozenset("""
+pathabo pathate pathai pathiye pathano pathaben pathan khulte khulbo khulun
+dekhao dekhan dekhte dekhbo janao janan janben janina janto bolben bolchi
+paowa pawa paoa gele hole holo hoyeche hoise hoiche nibe niben dibe diben thakbe
+rakhte rakhbo asche jacche jachhe kortesi kortechi korchi parchi parina parbona
+hocche hochhe hoche kisu kichu kicu shudhu sudhu abar arekta ekhono akhon ekhn
+ajk kalk bazar daam beshi besi bujhlam bujhina shikhte sikhte porbo porte
+porikkha porikha chakri chakrir beton bochor bachor sokal bikel shondha
+ghum khabar daktar oshudh osudh betha bethha kashi kasi shishu bou jamai
+amma abbu ammu abba nana nani dada dadi chachi khala fufu bhaiya vaiya
+amk amke tmk tumake tomake kno kivhabe kibhave
+koiro koren korben korbe korlo korsi korsilam dorkari jinish jinis kinbo kinte
+bechbo bechte becha kena bikash nagod takar
+""".split())
+# English function words: a romanized word inside an English sentence
+# ("Is Ta Prohm worth a visit?") must not turn the reply Bangla.
+_EN_FUNC = frozenset("""
+the a an is are was were be been am i you he she it we they my your his her our
+their this that these those what which who whom whose when where why how can
+could would should will shall do does did have has had to of in on at for with
+from by about as into than then there here not no yes and or but if so please
+me us them its any some all best good get make need want know tell give
+""".split())
+_ROMAN_SUFFIX = re.compile(r"(?:chi|chen|cho|echi|eche|tesi|tese|teci|tachi|"
+                           r"lam|ben|bona|bo|sen|silo|chilo|iye|ate|uni)$")
+
+
+def _roman_score(words):
+    vocab = sum(1 for w in words if w in _ROMAN_BN)
+    suffix = sum(1 for w in words if len(w) >= 5 and w not in _ROMAN_BN
+                 and w not in _EN_FUNC and _ROMAN_SUFFIX.search(w))
+    return vocab, suffix, sum(1 for w in words if w in _EN_FUNC)
+
+
 def reply_lang(text, app_lang="bn"):
     """'bn' or 'en' for the reply, from the user's latest message."""
     t = str(text or "")
     if _BN_SCRIPT.search(t):
         return "bn"
-    words = [w.lower() for w in _LATIN_WORD.findall(t)]
+    words = [w.lower().strip("'") for w in _LATIN_WORD.findall(t)]
+    words = [w for w in words if w]
     if not words:
         return "bn" if app_lang == "bn" else "en"
-    hits = sum(1 for w in words if w in _ROMAN_BN)
-    if hits >= 2 or (hits >= 1 and len(words) <= 3):
+    vocab, suffix, en = _roman_score(words)
+    score = vocab + 0.5 * suffix
+    if vocab >= 2 and score > en:
+        return "bn"
+    if vocab >= 1 and en == 0 and (len(words) <= 6 or score >= 1.5):
+        return "bn"                      # "nagad cashout charge koto"
+    if vocab >= 1 and len(words) <= 3:
         return "bn"
     return "en"
+
+
+def is_romanized_bn(text):
+    """aichat-nine: Bangla written in Latin letters (the reply must still be
+    Bangla in Bengali script)."""
+    t = str(text or "")
+    return bool(_LATIN_WORD.search(t)) and not _BN_SCRIPT.search(t) and reply_lang(t, "en") == "bn"
 
 
 def system_prompt(extra=""):

@@ -406,13 +406,16 @@ def answer(user, job, data, lang="bn"):
     from . import ai_usage_log as UL
     t0 = _time.monotonic()
     hops = 0
+    vu = {}
     try:
         reply, err = None, None
         first = slug
         for i, (prov, pconf) in enumerate(_candidates(slug, conf, c)):   # same-or-cheaper only
             try:
+                vu.clear()
                 reply = VP.ask(prov, pconf, image_bytes=raw, mime=mime,
-                               system=CV.system_prompt(lang, purpose), question=q_text)
+                               system=CV.system_prompt(lang, purpose), question=q_text,
+                               usage=vu)
                 if i:
                     log.warning("chat_vision: %s failed (%s), answered by %s", first, err, prov)
                     slug, conf, prov_cost = prov, pconf, S._provider_cost(pconf)
@@ -425,6 +428,11 @@ def answer(user, job, data, lang="bn"):
         if reply is None:
             raise VP.VisionError(err or "failed")
         reply = vault.unmask(reply)
+        parsed = vault.unmask_obj(CV.parse_reply(reply))
+        if not str(parsed.get("answer") or "").strip():
+            # aichat-nine: an empty answer (e.g. JSON with no answer text) is
+            # a failed read — refunded below, never saved as a blank bubble
+            raise VP.VisionError("empty")
     except VP.VisionError as e:
         # ailang (PART 1c): never keep credits for an answer we could not give —
         # refund at once on every failure (before: only after the 3rd try).
@@ -445,9 +453,22 @@ def answer(user, job, data, lang="bn"):
                      "job": job_state(job, lang)}
     finally:
         del raw
-    parsed = vault.unmask_obj(CV.parse_reply(reply))
+    if parsed.pop("cut", False) or vu.get("truncated"):
+        # aichat-nine: a photo answer cut at the output limit ends at its
+        # last full sentence (never mid-word, never raw JSON)
+        from .views_chat import end_at_sentence
+        parsed["answer"] = end_at_sentence(parsed["answer"])
     out = CV.postprocess(parsed, question=question,
                          device_text=device_text, lang=lang)
+    if lang == "bn":
+        from .views_chat import bangla_digits
+        out["answer"] = bangla_digits(out["answer"])      # aichat-nine: ৳৮০, not 80
+    not_done = False
+    try:
+        from .views_chat import _failed_task
+        not_done = bool(_failed_task(out["answer"], "photo"))
+    except Exception:  # noqa: BLE001
+        not_done = False
     table = c["action_costs"].get(CV.ACTION) or {}
     cost_usd = max(prov_cost, float(table.get("provider_cost") or 0))
     # only the TEXT answer is kept (no image, no device text, no question)
@@ -464,6 +485,13 @@ def answer(user, job, data, lang="bn"):
     job.error = ""
     job.save()
     billing.record_cost("ai", job.cost_bdt)
+    if not_done and job.funding in ("credits", "pool") and job.credits_charged:
+        # aichat-nine: the answer itself says the photo was not read ("I can't
+        # see the image") -> no charge, like the text chat; the answer stays
+        S._refund(user, job.credits_charged, "vision:refund:%d" % job.pk)
+        job.options = dict(job.options, refunded=int(job.credits_charged))
+        job.credits_charged = 0
+        job.save(update_fields=["options", "credits_charged"])
     UL.log_vision(user, slug, conf, cost_usd, (_time.monotonic() - t0) * 1000, True,
                   hops=hops, charged=job.credits_charged)
     sid = _save_to_chat(user, data.get("session_id"), job, question,

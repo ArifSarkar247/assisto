@@ -107,8 +107,15 @@ def length_note(out_cap):
                               en=max(80, tok * 7 // 10 // 10 * 10))
 
 
+# aichat-nine: a romanized-Bangla question ("bkash e taka pathabo kivabe")
+# still gets a Bangla answer in Bengali script, never a romanized one.
+ROMAN_NOTE = (
+    "ব্যবহারকারী বাংলা লিখেছেন ইংরেজি অক্ষরে (রোমান হরফে)। উত্তর দাও প্রমিত বাংলায়, "
+    "বাংলা হরফে — রোমান হরফে নয়; bKash, Nagad, app-এর মতো চেনা শব্দ যেমন আছে তেমন রাখো।")
+
+
 def chat_task_text(lang, user=None, *, minor=None, tools=None, follow="", photo=False,
-                   out_cap=0, web=False):
+                   out_cap=0, web=False, romanized=False):
     """aiqual: the chat instruction block (system side) for one turn — shared
     by the live chat (_produce_reply) and the AI exam so the exam always
     tests the product prompt. `minor`/`tools` default from the user."""
@@ -132,6 +139,8 @@ def chat_task_text(lang, user=None, *, minor=None, tools=None, follow="", photo=
         t += "\n" + pick(lang, *MORE_NOTE)
     if photo:
         t += "\n" + pick(lang, *PHOTO_NOTE)
+    if romanized and lang == "bn":
+        t += "\n" + ROMAN_NOTE
     return t
 
 
@@ -220,6 +229,13 @@ def _history_for(session, upto_id=None):
         qs = qs.filter(id__lt=upto_id)
     turns = []
     for m in qs:
+        if m.role == "assistant" and _fallback_turn(m):
+            # aichat-nine: an honest "AI is busy" line is not a model answer —
+            # drop it and the ask it answered, so a Continue retried after it
+            # still continues the real cut answer
+            if turns and turns[-1]["role"] == "user":
+                turns.pop()
+            continue
         c = m.text
         pt = (m.meta or {}).get("photo_text") if m.role == "assistant" else ""
         if pt:
@@ -479,10 +495,28 @@ def follow_kind(request, text, session):
         # gap-aichat: free only for a short "Continue" ask (a new question
         # sent with follow=continue is a normal, paid turn) and for at most
         # MAX_FREE_CONTINUES continuations of one paid answer in a row.
-        last = session.messages.filter(role="assistant").order_by("-created_at", "-id").first()
+        last = last_answer(session)
         if last is not None and (last.meta or {}).get("cut"):
             free = free_chain(session) < MAX_FREE_CONTINUES
     return f, free
+
+
+def _fallback_turn(m):
+    """aichat-nine: an honest no-AI answer (AI could not answer that turn,
+    nothing charged) — not an answer the user paid for."""
+    mm = m.meta or {}
+    return mm.get("source") == "brain" and bool(mm.get("ai_unavailable"))
+
+
+def last_answer(session):
+    """The newest assistant answer that decides a Continue. aichat-nine:
+    when a Continue tap hit a moment with no AI (brain fallback, free), the
+    cut answer is still the one to continue — before, the retry was CHARGED
+    as a new answer although the paid answer was never completed."""
+    for m in session.messages.filter(role="assistant").order_by("-created_at", "-id")[:4]:
+        if not _fallback_turn(m):
+            return m
+    return None
 
 
 def follow_lang_source(text, history, follow):
@@ -509,6 +543,8 @@ def free_chain(session):
         "-created_at", "-id")[:MAX_FREE_CONTINUES + 1]
     chain = 0
     for m in rows:
+        if _fallback_turn(m):
+            continue                       # aichat-nine: a no-AI retry is not a link
         mm = m.meta or {}
         if mm.get("follow") != "continue" or int(mm.get("credits") or 0) > 0:
             break
@@ -606,7 +642,9 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
     # tell family. Nothing else is answered in this turn.
     from .agentcore import crisis_guard as CG
     from . import ai_prompt as AP
-    lang = AP.reply_lang(follow_lang_source(text, history, follow), lang)   # ailang
+    lang_src = follow_lang_source(text, history, follow)
+    lang = AP.reply_lang(lang_src, lang)   # ailang
+    romanized = AP.is_romanized_bn(lang_src)     # aichat-nine
     crisis = CG.detect(text)
     if crisis["crisis"]:
         reply, card = CG.respond(user, crisis, lang, surface="chat")
@@ -650,8 +688,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 # aimoney: the free Continue of an AD-FUNDED answer stays at
                 # Normal (an ad never pays for a longer level's Continue)
                 try:
-                    _last = session.messages.filter(role="assistant").order_by(
-                        "-created_at", "-id").first()
+                    _last = last_answer(session)
                     if _last and (_last.meta or {}).get("ad"):
                         level = "normal"
                 except Exception:  # noqa: BLE001
@@ -670,7 +707,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                     except Exception:  # noqa: BLE001
                         pass
             task_text = chat_task_text(lang, user, follow=follow, photo=bool(photo),
-                                       out_cap=out_cap, web=use_web)
+                                       out_cap=out_cap, web=use_web, romanized=romanized)
             if user is not None:
                 prof = AT.profile_line(user)
                 if prof:

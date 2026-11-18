@@ -121,6 +121,9 @@ def _claude(cfg, *, image_bytes, mime, system, question, opts=None):
         resp = client.messages.create(**kwargs)
     if getattr(resp, "stop_reason", "") == "refusal":
         raise VisionError("refused")
+    # aichat-nine: a photo answer cut at max_tokens is ended at a full
+    # sentence by the caller (it was shown as raw, broken JSON)
+    opts["usage"]["truncated"] = getattr(resp, "stop_reason", "") == "max_tokens"
     u = getattr(resp, "usage", None)
     if u is not None:
         opts["usage"].update(input_tokens=int(getattr(u, "input_tokens", 0) or 0),

@@ -201,7 +201,13 @@ SYSTEM_PROMPT = (
     "3. Documents, bills, IDs: read and explain them; do not repeat full ID, "
     "account or card numbers (mask all but the last 4 digits).\n"
     "4. Do not invent facts. If something is unreadable, say so.\n"
-    "5. Answer in the user's language ({lang_name}), short and practical.\n"
+    "5. Answer in the user's language ({lang_name}; Bangla always in Bengali "
+    "script with Bangla digits, even when the question was typed in English "
+    "letters). Start with a 1-2 sentence direct answer, then the useful details "
+    "as short numbered points (what it is, what it means, what to do today, "
+    "Bangladesh context such as taka prices, offices, bKash / Nagad when "
+    "relevant), and end with one clear next step. Always finish your last "
+    "sentence; keep the whole answer under about 250 words.\n"
     "6. The photo IS attached: never open with 'I cannot see anything' or "
     "'I cannot see the image'. Describe what you do see; if part is unclear, "
     "say which part and what photo would help.\n"
@@ -333,9 +339,26 @@ def _dose_key(s):
     return re.sub(r"\s+", "", (s or "").lower().translate(_BN_DIGITS))
 
 
+_PART = {k: re.compile(r'"%s"\s*:\s*"((?:[^"\\]|\\.)*)' % k, re.S)
+         for k in ("kind", "label_text", "answer")}
+
+
+def _json_str(body):
+    """The text of a (maybe unterminated) JSON string body."""
+    body = re.sub(r"\\u?[0-9a-fA-F]{0,3}$|\\$", "", body)   # a cut escape at the end
+    try:
+        return json.loads('"' + body + '"')
+    except ValueError:
+        return body.replace('\\n', "\n").replace('\\"', '"')
+
+
 def parse_reply(raw):
     """Provider text -> {kind, label_text, answer}. Tolerates code fences and
-    a non-JSON reply (then the whole text is the answer, label unknown)."""
+    a non-JSON reply (then the whole text is the answer, label unknown).
+    aichat-nine: a JSON reply CUT at the output limit (no closing brace) is
+    no longer shown as raw JSON — its answer text is taken out and marked
+    cut (the caller ends it at a full sentence); a JSON reply with no answer
+    gives an empty answer (the caller refunds)."""
     t = (raw or "").strip()
     t = re.sub(r"^```(?:json)?\s*|\s*```$", "", t)
     m = re.search(r"\{.*\}", t, re.S)
@@ -348,6 +371,15 @@ def parse_reply(raw):
                         "answer": str(j.get("answer") or "").strip()}
         except (ValueError, TypeError):
             pass
+    if t.startswith("{") and re.search(r'"(?:kind|label_text|answer)"\s*:', t):
+        part = {k: rx.search(t) for k, rx in _PART.items()}
+        ans = part["answer"]
+        closed = bool(ans) and t[ans.end():ans.end() + 1] == '"'
+        return {"kind": (_json_str(part["kind"].group(1)) if part["kind"] else "other")[:20] or "other",
+                "label_text": (_json_str(part["label_text"].group(1))
+                               if part["label_text"] else "")[:4000],
+                "answer": _json_str(ans.group(1)).strip() if ans else "",
+                "cut": bool(ans) and not closed}
     return {"kind": "other", "label_text": "", "answer": t}
 
 

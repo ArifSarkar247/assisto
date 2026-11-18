@@ -245,7 +245,7 @@ def product_answer(case, payer=None, now=None):
         return r, c, m
 
     task = VC.chat_task_text(lang, None, minor=minor, tools=True, photo=bool(photo),
-                             out_cap=out_cap, web=web)
+                             out_cap=out_cap, web=web, romanized=AP.is_romanized_bn(text))
     raw, cost, m1 = call(task, VC.chat_data(text, summary, now), hist, payer, web)
     reply, proposal, cut, _n = VC.finish_reply(raw, text, lang, truncated=bool(m1.get("truncated")),
                                                data_reply="-", history=hist, strict=False)
@@ -262,7 +262,8 @@ def product_answer(case, payer=None, now=None):
         word = pick(lang, "চালিয়ে যাও", "Continue")
         hist2 = hist + [{"role": "user", "content": text}, {"role": "assistant", "content": reply}]
         task2 = VC.chat_task_text(lang, None, minor=minor, tools=True, photo=bool(photo),
-                                  out_cap=out_cap, follow="continue")
+                                  out_cap=out_cap, follow="continue",
+                                  romanized=AP.is_romanized_bn(text))
         raw2, c2, m2 = call(task2, VC.chat_data(word, summary, now), hist2, None, False)
         cont, _p2, cut2, _n2 = VC.finish_reply(raw2, word, lang,
                                                truncated=bool(m2.get("truncated")),
