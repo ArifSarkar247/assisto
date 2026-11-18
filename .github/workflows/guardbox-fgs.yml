@@ -14,7 +14,7 @@ name: Phone camera + camera FGS E2E (old phone = CCTV, emulated camera)
 
 on:
   push:
-    branches: ["ci/cctv-guardbox-arb", "ci/cctv-guardbox2-arb", "ci/guardbox-fgs"]
+    branches: ["ci/cctv-guardbox-arb", "ci/cctv-guardbox**", "ci/guardbox-fgs"]
   workflow_dispatch:
 
 concurrency:
