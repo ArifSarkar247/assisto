@@ -366,7 +366,6 @@ class RelayCapTests(G._Base):
 # ================================================================ alerts + evidence
 
 
-@override_settings(MEDIA_ROOT=CGT._MEDIA)
 class SafetyNeverStopsTests(CGT._Base):
     """Both caps full: the alert (push + photo), the clip and the evidence pack
     all still work."""
