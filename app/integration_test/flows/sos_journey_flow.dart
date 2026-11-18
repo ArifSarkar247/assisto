@@ -86,6 +86,19 @@ void registerSosJourneyFlows() {
       }
       await f.pumpFor(const Duration(milliseconds: 1500));
       final m2 = f.httpMark;
+      // which pointer blocker sits above the button, and is it on?
+      for (final e in find.ancestor(of: safe.first, matching: find.byType(AbsorbPointer)).evaluate()) {
+        final w = e.widget as AbsorbPointer;
+        String owner = '?';
+        e.visitAncestorElements((a) {
+          if (a.widget is Navigator || a.widget is Overlay || a.widget is Scaffold) {
+            owner = a.widget.runtimeType.toString();
+            return false;
+          }
+          return true;
+        });
+        f.note('AbsorbPointer absorbing=${w.absorbing} under $owner');
+      }
       final btn = f.tester.widget<ButtonStyleButton>(safe.first);
       f.note('safe buttons: ${safe.evaluate().length}, on screen: '
           '${safe.hitTestable().evaluate().length}, enabled: ${btn.onPressed != null}, '
