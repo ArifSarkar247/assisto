@@ -4,7 +4,6 @@
 //     "no_admin"): now an honest line + a "Turn on device admin" button that
 //     first explains why (Play disclosure);
 //   * bn + en, 200% text: the line and the button wrap (no overflow).
-import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -78,9 +77,8 @@ Future<void> _scrollTo(WidgetTester tester, Finder f) => tester.dragUntilVisible
     f, find.byType(Scrollable).first, const Offset(0, -250));
 
 void main() {
-  setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.android);
+  // flutter_test's default target platform is Android (the admin check runs)
   tearDown(() {
-    debugDefaultTargetPlatformOverride = null;
     final m = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     m.setMockMethodCallHandler(_at, null);
     m.setMockMethodCallHandler(_admin, null);

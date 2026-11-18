@@ -133,7 +133,9 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       // line only while the (consented) intruder photo is really on.
       unawaited(IntruderSnap.remember(
           st['enabled'] == true && st['intruder_photo'] == true));
-      await _refreshAdmin(); // antitheft-nine
+      // antitheft-nine: off the critical path (a missing native channel
+      // must never hold the screen in its loading state)
+      unawaited(_refreshAdmin());
       if (!mounted) return;
       setState(() {
         _state = st;
