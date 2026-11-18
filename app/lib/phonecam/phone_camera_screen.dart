@@ -33,6 +33,7 @@ import 'phonecam_api.dart';
 import 'phonecam_clips.dart';
 import 'phonecam_rec_logic.dart';
 import 'phonecam_logic.dart';
+import '../config.dart'; // guardbox-play
 import '../feature_flags.dart'; // cctvbox
 import '../ipcam/ipcam_guard_screen.dart'; // cctvbox
 import '../ipcam/box_siren.dart'; // cctvbox
@@ -56,6 +57,14 @@ import '../ipcam/box_siren.dart'; // cctvbox
 ///   * clips stay on this phone (rolling, size-capped); an alert photo, a
 ///     small SEALED preview of the clip (cctvplay), the full clip only when a
 ///     viewer asks for it, and a live view the owner opens leave the phone.
+/// guardbox-play: the camera foreground service (screen-off watch) is in
+/// this build — the website APK always; the Play build only once the owner
+/// filed the camera-FGS form (play-decl key `guardbox_camera` in
+/// PLAY_DECLARED -> --dart-define=PLAY_CAMERA_FGS=true). Without it the run
+/// keeps the screen on, and the screen says so honestly.
+const bool kCameraFgsInBuild =
+    !AppConfig.playStore || bool.fromEnvironment('PLAY_CAMERA_FGS');
+
 class PhoneCameraScreen extends StatefulWidget {
   /// From the QR App Link (https://lifeassisto.com/pc/<code>): pre-filled.
   final String? initialCode;
@@ -244,7 +253,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   /// foreground service with its notification + Stop button. false = older
   /// build / Android refused: the run still works with the screen on.
   Future<bool> _startCamService() async {
-    if (widget.preview != null || !mounted) return false;
+    if (widget.preview != null || !mounted || !kCameraFgsInBuild) return false;
     final t = AppLocalizations.of(context);
     try {
       final ok = await _native('camSvcStart',
@@ -1546,7 +1555,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         label: Text(t.pcStart),
       ),
       const SizedBox(height: 8),
-      Text(t.pcStartHelp2, style: Theme.of(context).textTheme.bodySmall),
+      Text(kCameraFgsInBuild ? t.pcStartHelp2 : t.pcStartHelp,
+          style: Theme.of(context).textTheme.bodySmall),
       const SizedBox(height: 12),
       SwitchListTile(
         key: const Key('pcAudio'),

@@ -358,14 +358,16 @@ void main() {
         'READ_PHONE_STATE',
         'SYSTEM_ALERT_WINDOW',
         'BIND_ACCESSIBILITY_SERVICE',
+        'FOREGROUND_SERVICE_CAMERA',
         'USE_EXACT_ALARM',
         'MANAGE_EXTERNAL_STORAGE',
       ]) {
         expect(play, contains(p), reason: p);
       }
-      // guardbox-play: the camera FGS permission is no longer forbidden, but
-      // only together with the ONE declared service
-      expect(play, contains('FOREGROUND_SERVICE_CAMERA without the declared PhoneCamService'));
+      // guardbox-play: the camera FGS stays out of Play until its form is
+      // filed (play-decl key guardbox_camera -> PLAY_CAMERA_FGS=true)
+      expect(play, contains('if os.environ.get("PLAY_CAMERA_FGS") != "true":'));
+      expect(play, contains('FOREGROUND_SERVICE_CAMERA" tools:node="remove"'));
     });
 
     test('guardbox-play: exactly one camera foreground service, user-started, '
@@ -410,6 +412,9 @@ void main() {
       expect(body.indexOf('_openCamera()'), greaterThan(0));
       expect(body.indexOf('_startCamService()'), greaterThan(body.indexOf('_openCamera()')));
       // the Play declaration (form text + video script) exists
+      // the Play app knows whether the service is in its bundle
+      expect(scr, contains("bool.fromEnvironment('PLAY_CAMERA_FGS')"));
+      expect(scr, contains('!kCameraFgsInBuild) return false;'));
       final decl = File('../owner_actions/PLAY_DECL_GUARDBOX_BN.md').readAsStringSync();
       expect(decl, contains('FOREGROUND_SERVICE_CAMERA'));
       expect(decl, contains('PhoneCamService'));

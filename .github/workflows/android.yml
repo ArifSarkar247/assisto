@@ -1714,6 +1714,26 @@ jobs:
           assert 'com.assisto.assisto.voice.WakeWordService' in s, "WakeWordService declaration missing"
           print("Play manifest: WakeWordService kept (wake word shipped, declared)")
           # ---- /wakeword ----
+          # ---- guardbox-play ---- the phone camera's screen-off watch
+          # (PhoneCamService, camera FGS) ships in Play ONLY once the owner
+          # filed its form = play-decl key `guardbox_camera` in PLAY_DECLARED
+          # (exports PLAY_CAMERA_FGS=true; owner_actions/PLAY_DECL_GUARDBOX_BN.md).
+          # Until then: permission + service out of the Play manifest (the
+          # play-decl patch does the same; this keeps it safe on its own), and
+          # the app (PLAY_CAMERA_FGS=false) keeps the screen-on watch with an
+          # honest "keep the screen on" line. The website APK always has it.
+          import os, re
+          s = open(p).read()
+          if os.environ.get("PLAY_CAMERA_FGS") != "true":
+              s = s.replace('<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>',
+                            '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" tools:node="remove"/>')
+              s = re.sub(r'\s*<service android:name="com\.assisto\.assisto\.shopbox\.PhoneCamService"[^>]*/>', '', s)
+              assert 'shopbox.PhoneCamService' not in s
+              print("Play manifest: PhoneCamService + FOREGROUND_SERVICE_CAMERA left out (guardbox_camera not declared)")
+          else:
+              print("Play manifest: PhoneCamService kept (guardbox_camera declared)")
+          open(p, "w").write(s)
+          # ---- /guardbox-play ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
           #    versionCode = 10000 + run number: always above every website APK
@@ -1758,21 +1778,12 @@ jobs:
           # owner_actions/PLAY_PRODUCTION_CHECKLIST_8NOV_BN.md (step 4).
           for P in ACCESS_BACKGROUND_LOCATION QUERY_ALL_PACKAGES SEND_SMS READ_SMS RECEIVE_SMS \
                    READ_CALL_LOG WRITE_CALL_LOG PROCESS_OUTGOING_CALLS READ_PHONE_STATE READ_PHONE_NUMBERS \
-                   SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE \
+                   SYSTEM_ALERT_WINDOW BIND_ACCESSIBILITY_SERVICE FOREGROUND_SERVICE_CAMERA \
                    USE_EXACT_ALARM MANAGE_EXTERNAL_STORAGE ACTIVITY_RECOGNITION REQUEST_DELETE_PACKAGES; do
             if grep -a -q "android.permission.$P" /tmp/play-manifest.pb; then
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
-          # guardbox-play: the camera FGS permission is allowed for exactly ONE
-          # declared service (PhoneCamService, the phone camera's screen-off
-          # watch — PLAY_DECL_GUARDBOX_BN.md); nothing else may bring it in.
-          if grep -a -q "android.permission.FOREGROUND_SERVICE_CAMERA" /tmp/play-manifest.pb; then
-            grep -a -q "shopbox.PhoneCamService" /tmp/play-manifest.pb || {
-              echo "::error::FOREGROUND_SERVICE_CAMERA without the declared PhoneCamService"; exit 1; }
-            N=$(grep -a -o 'foregroundServiceType' /tmp/play-manifest.pb | wc -l)
-            echo "Play manifest: FOREGROUND_SERVICE_CAMERA kept for PhoneCamService (declared); foregroundServiceType attrs: $N"
-          fi
           for C in GeolocatorLocationService OfflineDownloadService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
