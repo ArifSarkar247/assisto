@@ -618,6 +618,9 @@ def cashbox_close_view(opening, entries, auto=None, counted=None,
         amt = to_poisha(e.get("amount"))
         rows.append({"id": e.get("id"), "kind": e.get("kind"),
                      "note": e.get("note") or "", "ref": e.get("ref") or "",
+                     # proof-ledger: the offline row's id, so a phone can
+                     # match what it already sent
+                     "client_id": e.get("client_id") or "",
                      "at": e.get("at"), "amount": amt,
                      "amount_display": fmt_amount(amt)})
     out = {

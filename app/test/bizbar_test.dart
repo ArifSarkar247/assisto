@@ -234,7 +234,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(t.ldgSavedOffline), findsOneWidget);
       expect(find.byKey(const ValueKey('cb-pending-banner')), findsOneWidget);
-      expect(find.text(t.ldgPendingChip), findsOneWidget);
+      expect(find.byKey(const ValueKey('cb-pending-estimate')), findsOneWidget);
       final ops = await CashboxOffline.all();
       expect(ops.single.amountPoisha, 50000); // "Tk. 500" = ৳500, never 50 poisha
       api.cashboxDown = false;
