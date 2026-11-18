@@ -187,6 +187,7 @@ class _PostsTabState extends State<_PostsTab> {
       // empty: the state's own big button is the one action (no second FAB)
       floatingActionButton: widget.canPublish && widget.posts.isNotEmpty
           ? FloatingActionButton.extended(
+              key: const Key('chx-post-fab'), // circle-extras
               onPressed: _compose,
               icon: const Icon(Icons.edit_rounded),
               label: Text(t.channelPost))
@@ -197,7 +198,9 @@ class _PostsTabState extends State<_PostsTab> {
               title: t.channelNoPostsTitle,
               body: t.channelComposeFirstBody,
               action: widget.canPublish
-                  ? DsButton(onPressed: _compose, icon: Icons.edit_rounded, label: t.channelPost)
+                  ? DsButton(
+                      buttonKey: const Key('chx-post-first'), // circle-extras
+                      onPressed: _compose, icon: Icons.edit_rounded, label: t.channelPost)
                   : null,
             )
           : ListView(
@@ -310,6 +313,7 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
             const SizedBox(height: Gap.md),
             if (_kind != 'poll')
               TextField(
+                key: const Key('chx-compose-text'), // circle-extras
                 controller: _text,
                 decoration: InputDecoration(
                   labelText: _kind == 'link'
@@ -330,6 +334,7 @@ class _PostComposerSheetState extends State<_PostComposerSheet> {
             if (_kind == 'poll') _pollEditor(t),
             const SizedBox(height: Gap.xl),
             FilledButton(
+              key: const Key('chx-compose-send'), // circle-extras
               onPressed: _saving ? null : _submit,
               child: _saving
                   ? const SizedBox(

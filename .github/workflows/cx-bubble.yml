@@ -1,0 +1,171 @@
+name: Floating chat bubble proof (cxbubble)
+
+# circle-extras — board row 47 (floating chat bubble). Same rig as
+# notif-closed.yml (throw-away Django + Postgres, REAL push code -> mock FCM
+# -> the Play-services broadcast, the real app with a one-time CI sign-in):
+# tools/cxproof/bubble_driver.py proves on the API-33 emulator that after
+# the user allows bubbles a My Circle message floats over another app, a tap
+# opens the chat, it can be dragged away, and a phone that blocks bubbles
+# (ColorOS-like) gets a normal notification without a crash.
+# Never the live server, never the owner account.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['ci/cxbubble**']
+
+concurrency:
+  group: cxbubble-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  bubble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+      NP_OUT: ${{ github.workspace }}/reality_out/bubbleproof
+      E2E_REAL_FCM: "1"
+      E2E_FCM_SA: ${{ github.workspace }}/reality_out/fcm_sa.json
+      E2E_FCM_TOKEN_URI: http://127.0.0.1:18890/token
+      E2E_FCM_SEND_URL: http://127.0.0.1:18890/v1/projects/{project_id}/messages:send
+      NP_FCM: http://127.0.0.1:18890
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free runner disk (the emulator image needs ~8 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift "$AGENT_TOOLSDIRECTORY/PyPy" || true
+          df -h / | tail -1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Mock FCM (JWT-verified) + throw-away backend with the REAL push code
+        run: |
+          mkdir -p "$REALITY_OUT"
+          python tools/e2e/mock_fcm.py --make-sa "$E2E_FCM_SA" --port 18890
+          nohup python tools/e2e/mock_fcm.py --sa "$E2E_FCM_SA" --port 18890 \
+            --log "$REALITY_OUT/fcm_calls.jsonl" > "$REALITY_OUT/mock_fcm.log" 2>&1 &
+          echo $! > "$REALITY_OUT/fcm.pid"
+          bash tools/e2e/backend_up.sh
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'  # tools/ci/flutter_version.txt
+          channel: stable
+          cache: true
+      - name: Firebase config (the app's real google-services.json from the secret; else a dummy)
+        working-directory: app
+        env:
+          GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          mkdir -p android/app
+          if [ -n "${GSJ_B64:-}" ]; then
+            printf '%s' "$GSJ_B64" | base64 -d > android/app/google-services.json
+            echo "real Firebase config"
+          else
+            echo "::warning::no GOOGLE_SERVICES_JSON_B64 - dummy Firebase config (the FCM token will be synthetic)"
+            python3 - <<'PY'
+          import json
+          json.dump({"project_info": {"project_number": "100000000001", "project_id": "notifproof-dummy",
+                                      "storage_bucket": "notifproof-dummy.appspot.com"},
+                     "client": [{"client_info": {"mobilesdk_app_id": "1:100000000001:android:0000000000000001",
+                                                 "android_client_info": {"package_name": "com.assisto.assisto"}},
+                                 "oauth_client": [], "api_key": [{"current_key": "AIzaSyD-notifproof-dummy-key-000000000"}],
+                                 "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+                     "configuration_version": "1"}, open("android/app/google-services.json", "w"))
+          PY
+          fi
+      - name: Real build number
+        working-directory: app
+        run: |
+          n=$((9000 + GITHUB_RUN_NUMBER))
+          sed -i -E "0,/^version: .*/s//version: 1.0.$n+$n/" pubspec.yaml
+          grep -m1 '^version:' pubspec.yaml
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          PY
+      - name: Build the x86_64 debug APK (the real app + one-time CI sign-in)
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/notifproof_app.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+          cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/np-app-debug.apk"
+          echo "NP_APK=$RUNNER_TEMP/np-app-debug.apk" >> "$GITHUB_ENV"
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
+          free -m; df -h / | tail -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Bubble cases on API 33 (Google APIs)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 600
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: python3 tools/cxproof/bubble_driver.py
+      - name: Stop servers
+        if: always()
+        run: |
+          kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+          kill "$(cat "$REALITY_OUT/fcm.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bubbleproof-evidence
+          path: |
+            reality_out/bubbleproof/
+            reality_out/fcm_calls.jsonl
+            reality_out/outbox.jsonl
+            reality_out/django.log
+          retention-days: 7
+          if-no-files-found: warn

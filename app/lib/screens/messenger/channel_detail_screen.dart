@@ -557,6 +557,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       );
     }
     return FilledButton.icon(
+      key: const Key('chx-follow'), // circle-extras
       onPressed: () async {
         try {
           final j = await _api.channelFollow(widget.channelId,

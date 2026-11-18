@@ -177,6 +177,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        key: const Key('chx-create-fab'), // circle-extras
         onPressed: _create,
         icon: const Icon(Icons.add_rounded),
         label: Text(t.channelCreate),
@@ -441,6 +442,7 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.lg),
             TextField(
+              key: const Key('chx-create-name'), // circle-extras
               controller: _name,
               decoration: InputDecoration(labelText: t.channelName),
               textCapitalization: TextCapitalization.words,
@@ -497,6 +499,7 @@ class _CreateChannelSheetState extends State<_CreateChannelSheet> {
             ),
             const SizedBox(height: Gap.xl),
             FilledButton(
+              key: const Key('chx-create-submit'), // circle-extras
               onPressed: _saving ? null : _submit,
               child: _saving
                   ? const SizedBox(
