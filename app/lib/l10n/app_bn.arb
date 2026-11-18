@@ -26586,5 +26586,16 @@
   "bspCodStageReminded": "মনে করানো হয়েছে। উত্তর না এলে অর্ডার বাতিল হবে",
   "bspCodStageConfirmed": "গ্রাহক নিশ্চিত করেছেন। এখন প্যাক করে পাঠাতে পারেন",
   "bspCodStageDeclined": "গ্রাহক বাতিল করেছেন। স্টক ফেরত যোগ হয়েছে",
-  "bspCodStageNoReply": "উত্তর আসেনি, তাই অর্ডার বাতিল হয়েছে। স্টক ফেরত যোগ হয়েছে"
+  "bspCodStageNoReply": "উত্তর আসেনি, তাই অর্ডার বাতিল হয়েছে। স্টক ফেরত যোগ হয়েছে",
+  "uwAgoJustNow": "এইমাত্র",
+  "uwAgoMin": "{n} মিনিট আগে",
+  "uwAgoHours": "{n} ঘণ্টা আগে",
+  "uwAgoDays": "{n} দিন আগে",
+  "uwOfflineCopyAgo": "আপনি অফলাইনে — {ago} সেভ করা কপি দেখানো হচ্ছে।",
+  "uwSavedCopyRefreshing": "{ago} সেভ করা কপি — সর্বশেষ তথ্য আনা হচ্ছে…",
+  "uwSourceStaleAgo": "উৎস সাড়া দিচ্ছে না — শেষ হালনাগাদ {ago}।",
+  "uwPriceMayHaveChanged": "{ago} দেওয়া — দাম বদলে থাকতে পারে। আজকেরটা দেখতে সোর্সে চাপুন।",
+  "uwPrayerForDate": "{date}-এর সময়",
+  "uwSourceDownSince": "উৎস সাড়া দিচ্ছে না — শেষ সঠিক তথ্য {ago}",
+  "uwSavedCopyTooOld": "সেভ করা কপি অনেক পুরনো — হালনাগাদ করতে ইন্টারনেট চালু করুন"
 }
