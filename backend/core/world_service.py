@@ -409,7 +409,7 @@ def today(user, lang, now=None):
     if on["weather"]:
         row = _feed("weather_" + c[0], "weather")
         if _cold(row, now):
-            refresh_weather(c[0], now=now, timeout=INLINE_TIMEOUT_S)
+            refresh_weather(c[0], force=True, now=now, timeout=INLINE_TIMEOUT_S)
             row.refresh_from_db()
         w = WF.weather_public(row.payload, lang, now) if row.enabled else None
         if w and WF.too_old(row.last_ok_at, now, "weather"):
@@ -424,7 +424,7 @@ def today(user, lang, now=None):
     if on["currency"]:
         row = _feed("fx_usd", "fx")
         if _cold(row, now):
-            refresh_fx(now=now, timeout=INLINE_TIMEOUT_S)
+            refresh_fx(force=True, now=now, timeout=INLINE_TIMEOUT_S)
             row.refresh_from_db()
         fx = WF.fx_public(row.payload, lang) if row.enabled else None
         if fx:
@@ -469,7 +469,7 @@ def today(user, lang, now=None):
             continue
         row = _feed(SPORTS[kind]["slug"], "sports")
         if _cold(row, now):
-            refresh_sports(kind, now=now, timeout=INLINE_TIMEOUT_S)
+            refresh_sports(kind, force=True, now=now, timeout=INLINE_TIMEOUT_S)
             row.refresh_from_db()
         m = (row.payload or {}).get("matches")
         if m is not None and row.enabled and WF.too_old(row.last_ok_at, now, "sports"):
