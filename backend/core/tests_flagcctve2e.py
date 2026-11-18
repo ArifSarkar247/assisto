@@ -80,6 +80,8 @@ class CctvAlertActionTests(E2E._Base):
         self.assertEqual((data["event_id"], data["site_id"], data["camera_id"]),
                          (ev.id, self.sid, cam["id"]))
         self.assertIn("snapshot_url", data)
+        # cctv-preview: the notification carries the small photo
+        self.assertEqual(data["snapshot_thumb_url"], data["snapshot_url"] + "&w=320")
         self.assertFalse(data["viewer"])
         fam = [k["data"] for a, k in self.pushes if a[0].pk == self.family.pk][0]
         self.assertTrue(fam["viewer"])                  # opens read-only on B's phone
