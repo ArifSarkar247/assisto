@@ -538,6 +538,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen>
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           if (sim.isNotEmpty)
             FilledButton.icon(
+                key: ValueKey('kwg-sos-call-${w['id']}'),
                 style: Brand.dangerButton(),
                 onPressed: () => _callWatch(w),
                 icon: const Icon(Icons.call_rounded),

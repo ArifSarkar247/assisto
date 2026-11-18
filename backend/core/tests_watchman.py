@@ -116,6 +116,12 @@ class _Base(APITestCase):
         super().tearDownClass()
 
     def setUp(self):
+        # gap-cctv: the CCTV plan camera count is cached 60 s per user id, and
+        # ids are reused across tests in one worker — start clean so another
+        # test's CCTV plan never leaks into this owner (flaky can_shop / extra
+        # camera credits)
+        from django.core.cache import cache
+        cache.clear()
         self.owner = User.objects.create_user(name="Rahim", phone="01710002001",
                                               password="pw")
         self.owner.ai_credits = 500

@@ -328,7 +328,7 @@ class _CctvShareLinksScreenState extends State<CctvShareLinksScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(_camNames(l['cameras'] is List ? l['cameras'] as List : const [])),
-                          Text(t.ctmLinkViews(wmDigits(lang, (l['views'] as num?)?.toInt() ?? 0)),
+                          Text(t.gcvPlLinkViews((l['views'] as num?)?.toInt() ?? 0, wmDigits(lang, (l['views'] as num?)?.toInt() ?? 0)),
                               style: Theme.of(context).textTheme.bodySmall),
                           if (l['state'] == 'active')
                             Align(

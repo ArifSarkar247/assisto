@@ -9,6 +9,16 @@ NO_ENTRY_EN = "No screen in app build 10374 (nothing appears when switched on)."
 NO_ENTRY_BN = "অ্যাপ বিল্ড ১০৩৭৪-এ কোনো পাতা নেই (চালু করলেও কিছু দেখা যাবে না)।"
 
 WHERE = {
+    # b330 integration: the three features that arrived after build 10374
+    "itag_tags": (
+        "Menu ☰ → Home & life → Bluetooth tag",
+        "মেনু ☰ → ঘর ও জীবন → ব্লুটুথ ট্যাগ"),
+    "ai_reply": (
+        "My Circle → open a chat (or a group) → ⋮ menu → \"AI reply\"",
+        "আমার সার্কেল → একটি চ্যাট (বা গ্রুপ) খুলুন → ⋮ মেনু → \"AI উত্তর\""),
+    "ai_reply_notif": (
+        "Menu ☰ → Settings → \"AI reply in notifications\"",
+        "মেনু ☰ → সেটিংস → \"নোটিফিকেশনে AI উত্তর\""),
     "budget_remittance": (
         "Menu ☰ → Account & Finance → Budget and Remittance (replaces plain Budget)",
         "মেনু ☰ → হিসাব ও অর্থ → বাজেট ও রেমিট্যান্স (সাধারণ \"বাজেট\"-এর জায়গায়)"),

@@ -5,7 +5,7 @@
 //   B = Reality Karim — an in-process second client (own ApiClient +
 //       PollRealtimeTransport + CallController, then GroupCallController +
 //       GroupMeshMedia: real flutter_webrtc peers through our server)
-//   D = Reality Dipu  — an in-process third client (GroupCallController)
+//   D = Reality Dipu (seed user "e", 01700000006) — an in-process third client (GroupCallController)
 //
 //   1  B voice-calls A; A accepts in the app -> 1:1 connected.
 //   2  A taps "Add person" (যোগ করুন), picks D in the My Circle picker,
@@ -44,7 +44,7 @@ import 'package:assisto/screens/group_call_screen.dart';
 
 import '../support/harness.dart';
 
-const _phoneD = '01700000004';
+const _phoneD = '01700000006'; // seed_reality user "e" (D is the flagproof user)
 
 class _Silent implements CallSounds {
   @override

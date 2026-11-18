@@ -22,7 +22,6 @@ from core.logic import blood_rules as BR
 from core.models import (BloodDonor, BloodEvent, BloodRecipient, BloodReport, BloodRequest,
                          BloodThread, BloodVerification, User)
 
-_TMP = tempfile.mkdtemp(prefix="blood-media-")
 # Mirpur 10, Dhaka; ~3 km away (Agargaon); ~20 km away (Savar)
 MIRPUR = (23.81, 90.37)
 NEAR = (23.78, 90.38)
@@ -51,14 +50,26 @@ class Spy:
                 and (event is None or c["data"].get("event") == event)]
 
 
-@override_settings(MEDIA_ROOT=_TMP, PUSH_SYNC=True)
+@override_settings(PUSH_SYNC=True)
 class Base(TestCase):
+    """Each test class gets its OWN media dir: --parallel forks workers after
+    this module is imported, so a module-level dir is shared between workers
+    and one class's tearDownClass rmtree deleted another worker's fresh slip
+    photo (test_slip_reviewed_then_photo_deleted flaked)."""
     n = 0
+
+    @classmethod
+    def setUpClass(cls):
+        cls._media = tempfile.mkdtemp(prefix="blood-media-")
+        cls._media_ov = override_settings(MEDIA_ROOT=cls._media)
+        cls._media_ov.enable()
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        shutil.rmtree(_TMP, ignore_errors=True)
+        cls._media_ov.disable()
+        shutil.rmtree(cls._media, ignore_errors=True)
 
     def mk(self, name, days_old=30):
         Base.n += 1

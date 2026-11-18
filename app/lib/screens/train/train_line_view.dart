@@ -161,9 +161,11 @@ class _TrainLineViewState extends State<TrainLineView> {
     final amber = trainAmber(context), amberInk = Brand.warnInk(context);
     final grey = ds.muted;
     final done = passed && !trainOn;
-    final dotColor = done ? green : (trainOn ? cs.primary : (isNext ? amber : ds.border));
+    // design3: upcoming dots in a visible muted tone (ds.border nearly vanished on the page)
+    final dotColor = done ? green : (trainOn ? cs.primary : (isNext ? amber : grey.withValues(alpha: 0.55)));
     final nameStyle = (stop || isNext ? AType.titleSmall : AType.bodyMedium).copyWith(
-        color: done ? greenInk : (isNext ? cs.onSurface : (trainOn ? cs.onSurface : grey)),
+        // design3: passed names in the text ink (the green rail + time say "passed")
+        color: done ? ds.text : (isNext ? cs.onSurface : (trainOn ? cs.onSurface : grey)),
         fontWeight: stop || isNext ? FontWeight.w700 : FontWeight.w400);
     final state = trainOn
         ? t.sjtHere
@@ -255,7 +257,14 @@ class _TrainLineViewState extends State<TrainLineView> {
         container: true,
         label: t.sjtBetweenA11y(name),
         excludeSemantics: true,
-        child: Row(children: [
+        // design3: where the train is now — a soft primary band so the eye
+        // finds it at once
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: cs.ds.primarySoft,
+            borderRadius: BorderRadius.circular(DsRadius.card),
+          ),
+          child: Row(children: [
           SizedBox(
             width: 48,
             height: 56,
@@ -267,11 +276,12 @@ class _TrainLineViewState extends State<TrainLineView> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.sjtBetween(name),
-                  style: AType.labelMedium.copyWith(color: cs.primary, fontWeight: FontWeight.w700)),
+                  style: AType.labelLarge.copyWith(color: cs.ds.primaryInk, fontWeight: FontWeight.w800)),
               _TrainFacts(speedKmh: widget.speedKmh, riders: widget.riders),
             ]),
           ),
         ]),
+        ),
       ),
     ]);
   }
