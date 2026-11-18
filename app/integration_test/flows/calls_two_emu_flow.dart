@@ -202,7 +202,15 @@ class _TwoEmu {
         '-> B in dec ${s3.bDec}->${s10.bDec}; '
         'B out enc ${s3.bEnc}->${s10.bEnc} -> A in dec ${s3.a.videoFramesDecoded}->${s10.a.videoFramesDecoded}; '
         'audio in A ${s3.a.audioPacketsIn}->${s10.a.audioPacketsIn}, B ${s3.bAudio}->${s10.bAudio}';
-    f.note(line);
+    // calls-2emu (gate 44256598783): a stalled direction is often the app's
+    // weak-network policy pausing the SENDER's video (estimate < 120 kbps on
+    // an overloaded CI host) — say so in the failure, it is not a lost m-line.
+    final aPaused = a.videoPausedForNet, bPaused = s10.b['pausedForNet'] == true;
+    final why = (aPaused || bPaused)
+        ? ' [weak-network pause: A ${aPaused ? 'PAUSED' : 'sending'} (${s10.a.availableKbps?.round()} kbps), '
+            'B ${bPaused ? 'PAUSED' : 'sending'} (${(s10.b['availableKbps'] as num?)?.round()} kbps)]'
+        : '';
+    f.note('$line$why');
     bool grew(int? x3, int? x10) => (x3 ?? 0) > 0 && (x10 ?? 0) > (x3 ?? 0);
     final abOk = grew(s3.bDec, s10.bDec), baOk = grew(s3.a.videoFramesDecoded, s10.a.videoFramesDecoded);
     final audioOk = grew(s3.a.audioPacketsIn, s10.a.audioPacketsIn) && grew(s3.bAudio, s10.bAudio);
@@ -212,8 +220,8 @@ class _TwoEmu {
             'need_a_to_b': aToB, 'need_b_to_a': bToA,
           }));
     } catch (_) {}
-    if (aToB && !abOk) throw TestFailure('A->B video NOT flowing (B decoded no growing frames). $line');
-    if (bToA && !baOk) throw TestFailure('B->A video NOT flowing (A decoded no growing frames). $line');
+    if (aToB && !abOk) throw TestFailure('A->B video NOT flowing (B decoded no growing frames). $line$why');
+    if (bToA && !baOk) throw TestFailure('B->A video NOT flowing (A decoded no growing frames). $line$why');
     if (!audioOk) throw TestFailure('audio NOT flowing both ways. $line');
   }
 
