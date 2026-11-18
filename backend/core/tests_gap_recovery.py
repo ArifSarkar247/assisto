@@ -182,15 +182,13 @@ class LostPhoneRecoveryTests(APITestCase):
 
     @mock.patch("core.push.push_to_user", side_effect=RuntimeError("fcm down"))
     def test_alert_failure_never_blocks_sign_in(self, _p):
-        FakeSMTP.fail_send = True
-        try:
-            c = _client("other-phone", "Nokia G21")
+        c = _client("other-phone", "Nokia G21")
+        with mock.patch("core.email_sender.send_email", side_effect=RuntimeError("smtp down")):
             with self.captureOnCommitCallbacks(execute=True):
                 r = c.post(V + "/auth/login", {"identifier": "01711000101", "password": PW},
                            format="json")
-            self.assertEqual(r.status_code, 200)
-        finally:
-            FakeSMTP.fail_send = False
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data["token"])
 
     def test_alert_texts_bangla_digits_and_no_pii(self):
         from django.utils import timezone
