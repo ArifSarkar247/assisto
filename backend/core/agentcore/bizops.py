@@ -287,6 +287,9 @@ def action_steps(kind, b):
 
 # --------------------------------------------------------------- pre-planned endings
 _FAIL = {
+    # agentcore: a proactive card whose bill was paid / changed before the tap
+    "stale_data": ("তথ্য বদলে গেছে (বিল পরিশোধ বা টাকা বদলানো) — কিছু করা হয়নি।",
+                   "The data changed (bill paid or amount edited) — nothing was done."),
     "supplier_not_found": ("এই নামে আপনার সাপ্লায়ার খাতায় কেউ নেই — আগে সাপ্লায়ার যোগ করুন।",
                            "No supplier with this name in your supplier book — add the supplier first."),
     "supplier_required": ("কোন সাপ্লায়ারকে পাঠাবেন, বেছে নিন।", "Choose the supplier first."),

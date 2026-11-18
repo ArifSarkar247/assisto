@@ -22,6 +22,7 @@ import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/offline_first_flow.dart'; // offline1st
 import 'flows/family_alerts_flow.dart';
 import 'flows/flagproof_flow.dart'; // flagproof
+import 'flows/agentcore_flow.dart'; // agentcore
 import 'flows/mess_v2_flow.dart'; // messv2
 import 'flows/family_circle_flow.dart';
 import 'flows/family_v3_flow.dart'; // fcscreen
@@ -75,6 +76,8 @@ void main() {
   if (on('save')) registerSaveSweepFlows();
   // flagproof: hidden features' two-account proofs (group 'flagproof')
   if (on('flagproof')) registerFlagproofFlows();
+  // agentcore: Agent Core proactive card -> approve/reject -> audit (opt-in group 'agentcore')
+  if (only.split(',').contains('agentcore')) registerAgentCoreFlows();
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();

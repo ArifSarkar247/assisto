@@ -54,7 +54,6 @@ brief/recap carry `voice` text for the device TTS the app already has
 (VaNative.speak); when the phone has no Bangla voice the app shows text only.
 """
 import hashlib
-import logging
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
@@ -65,7 +64,8 @@ from django.utils import timezone
 from ..ai_prompt import to_bn_digits
 from . import FLAG
 
-log = logging.getLogger("assisto.agentcore.proactive")
+from . import trust as _T
+log = _T.logger("assisto.agentcore.proactive")  # agentcore: PII-redacting
 
 PUSH_KIND = "agent_nudge"
 DEFAULT_CAP = 3
@@ -394,7 +394,11 @@ def eval_bill_due(user, now, lang):
         out.append(Candidate(
             "bill_due", "%s:%s:%s:%s" % (kind, _hash(rid), due.isoformat(), stage), prio,
             t_bn, t_en, "%s — %s" % (amt_bn, when_bn), "%s — %s" % (amt_en, when_en),
-            why_bn, why_en, route, {"kind": kind, "due": due.isoformat(), "days": days}))
+            why_bn, why_en, route, {"kind": kind, "due": due.isoformat(), "days": days,
+                                    # agentcore: what the card's number check and
+                                    # the reminder proposal stand on
+                                    "amount": round(float(amount), 2), "name": name,
+                                    "phone_reminder": bool(has_rem)}))
     return out
 
 
@@ -736,6 +740,10 @@ def deliver(user, prefs, c, now, stats, quiet=None):
     except IntegrityError:
         stats["dedupe"] += 1
         return None
+    if c.trigger == "bill_due":
+        # agentcore: the card proposes ONE reminder; it waits for the user's tap
+        from . import suggest as SG
+        SG.propose(user, n, c, now)
     if delivery == "push":
         sent = _push(user, n)
         if sent:
@@ -1156,6 +1164,11 @@ def nudge_out(n, lang):
          _pick(lang, "সংক্ষেপ", "Brief")}
     if n.trigger in BRIEFS:
         d["brief"] = (n.data or {}).get(lang)
+    # agentcore: True = the numbers were re-checked against the real rows just
+    # now (suggest.verify_nudges); None = not a number card; False = unchecked
+    d["verified"] = getattr(n, "_verified", None)
+    from . import suggest as SG
+    d["action"] = SG.card_action(n, lang)
     return d
 
 

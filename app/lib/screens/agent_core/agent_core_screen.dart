@@ -16,6 +16,7 @@ import 'agent_core_push.dart';
 import 'agent_core_source.dart';
 import 'agent_core_widgets.dart';
 import 'agent_history_screen.dart';
+import 'agent_nudges.dart'; // agentcore
 import 'agent_run_panel.dart';
 import 'biz_brief_screen.dart';
 import '../../feature_flags.dart';
@@ -35,6 +36,9 @@ enum AcPhase { compose, confirm, sending, offline, run }
 class AgentCoreScreen extends StatefulWidget {
   final AgentCoreSource? source;
 
+  /// agentcore: the proactive cards + activity (null in tests = from AppState).
+  final AgentNudgeSource? nudgeSource;
+
   /// Tests / gallery: start in a given state.
   final AcPhase? debugPhase;
   final String? debugGoal;
@@ -43,6 +47,7 @@ class AgentCoreScreen extends StatefulWidget {
   const AgentCoreScreen(
       {super.key,
       this.source,
+      this.nudgeSource,
       this.debugPhase,
       this.debugGoal,
       this.debugRun,
@@ -56,6 +61,10 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
   late final AgentCoreSource _src = widget.source ??
       ApiAgentCoreSource(Provider.of<AppState>(context, listen: false).api);
   late final AppState? _app = _maybeApp();
+  // agentcore: "For you" cards + "What the agent did" (null = not available)
+  late final AgentNudgeSource? _nudgeSrc =
+      widget.nudgeSource ?? (widget.source != null ? null : _apiNudges());
+  final _nudgesKey = GlobalKey<AgentNudgesSectionState>();
   final _input = TextEditingController();
   late final VoiceDictation _voice = VoiceDictation();
   AcTools? _tools;
@@ -122,7 +131,20 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     }
   }
 
+  AgentNudgeSource? _apiNudges() {
+    final app = _app;
+    return app == null ? null : ApiAgentNudgeSource(app.api);
+  }
+
+  void _openActivity() {
+    final src = _nudgeSrc;
+    if (src == null) return;
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => AgentActivityScreen(source: src)));
+  }
+
   Future<void> _loadApprovals() async {
+    _nudgesKey.currentState?.reload(); // agentcore: a decision elsewhere updates the cards
     try {
       final j = await _src.approvals();
       final n = (j['approvals'] as List? ?? const []).length;
@@ -221,6 +243,13 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
               child: const Icon(Icons.fact_check_outlined),
             ),
           ),
+          if (_nudgeSrc != null)
+            IconButton(
+              key: const ValueKey('ac_open_activity'),
+              tooltip: t.acnActivity,
+              onPressed: _openActivity,
+              icon: const Icon(Icons.receipt_long_rounded),
+            ),
           IconButton(
             key: const ValueKey('ac_open_history'),
             tooltip: t.acHistory,
@@ -280,9 +309,12 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
   List<Widget> _body(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
+    final nudges = _nudgeSrc;
     switch (_phase) {
       case AcPhase.compose:
         return [
+          if (nudges != null)
+            AgentNudgesSection(key: _nudgesKey, source: nudges, onOpenActivity: _openActivity),
           Text(t.acIntro, style: AType.bodyMedium.copyWith(color: s.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.lg),
           // bizops: the shop owner's morning card (flag business; hidden when off)

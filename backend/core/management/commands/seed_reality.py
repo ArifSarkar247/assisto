@@ -131,6 +131,42 @@ class Command(BaseCommand):
         self._call("missing nearby C", C, "post", "/missing-alerts/nearby",
                    {"enabled": True, "district": "dhaka"})
 
+    def _agentcore(self, users, now):
+        """agentcore (opt-in group 'agentcore' only): allow-list A for
+        agent_core and give A two made-up loans due TOMORROW, then run ONE
+        proactive pass — each loan becomes a card with a proposed reminder that
+        waits for A's tap (the flow approves one and rejects the other). No AI
+        call (template only); CI DB only (guard in handle)."""
+        if "agentcore" not in os.environ.get("REALITY_DRIVE", ""):
+            return
+        from core import feature_flags as FF
+        from core.agentcore import proactive as P
+        from core.models import AgentApproval, AgentNudgePrefs, FeatureFlag, Loan
+        a = users["a"]
+        FF.ensure_seeded()
+        row = FeatureFlag.objects.filter(key="agent_core").first()
+        if row is not None and a.id not in (row.allow_user_ids or []):
+            row.allow_user_ids = list(row.allow_user_ids or []) + [a.id]
+            row.save(update_fields=["allow_user_ids", "updated_at"])
+        FF.invalidate()
+        self.steps.append({"step": "allow-list A for agent_core", "method": "DB",
+                           "path": "feature_flags", "status": 200, "ok": row is not None})
+        tomorrow = timezone.localdate(now) + timedelta(days=1)
+        people = (("Karim Bhai (demo)", 1500), ("Sumon (demo)", 800))
+        Loan.objects.filter(user=a, person__in=[p for p, _ in people]).delete()
+        for person, amount in people:
+            Loan.objects.create(user=a, kind="taken", person=person, amount=amount,
+                                due_date=tomorrow, note="agentcore reality (demo)")
+        # no quiet hours on the throw-away DB: the pass may run at any CI hour
+        AgentNudgePrefs.objects.update_or_create(
+            user=a, defaults={"quiet_start": "00:00", "quiet_end": "00:00"})
+        st = P.tick(now=now, users=[a])
+        n = AgentApproval.objects.filter(user=a, status="pending",
+                                         step__tool="reminders.create").count()
+        self.steps.append({"step": "agentcore proactive pass (2 loan cards)", "method": "DB",
+                           "path": "agent_nudges", "status": 200 if n == 2 else 500,
+                           "ok": n == 2, "note": "pending=%d stats=%s" % (n, dict(st))})
+
     # ------------------------------------------------------------ main
     def handle(self, *args, **opts):
         engine = settings.DATABASES["default"]["ENGINE"]
@@ -332,6 +368,8 @@ class Command(BaseCommand):
                                "path": "city_dataset", "status": 500, "ok": False})
         # --- flagproof: hidden features proven by reality flows 21 + 31-36
         self._flagproof(users, tokens, now)
+        # --- agentcore: proactive card -> approve / reject (opt-in group)
+        self._agentcore(users, now)
 
         # --- read-backs: the data must come back through the GET side too
         for label, path in (("notes list", "/notes/"), ("family list", "/family/"),

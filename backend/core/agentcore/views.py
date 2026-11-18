@@ -9,6 +9,7 @@ their own goals, runs, steps and approvals.
   POST agent-core/runs/<id>/cancel
   POST agent-core/runs/<id>/feedback     {value: 1|-1, note?}
   GET  agent-core/approvals              my pending approvals (foreground poll)
+  GET  agent-core/activity               my audit trail as readable lines (agentcore)
   POST agent-core/approvals/<id>         {decision: approve|reject}
 """
 from rest_framework.permissions import IsAuthenticated
@@ -106,7 +107,85 @@ def _run_out(run, lang, detail=False):
         # WhatsApp tagada / supplier reorder) — the app opens WhatsApp with it.
         # Only the run owner ever sees this payload (_my_run / own approvals).
         d["shares"] = _shares(run)
+        # agentcore: the run's own audit trail, readable (what was done, when)
+        d["audit"] = audit_lines(run.audit.order_by("id")[:60], lang, {run.pk: vault})
     return d
+
+
+# ------------------------------------------------------------------ agentcore: audit
+_EVENT = {
+    "run.created": ("কাজ শুরু: “{goal}”", "Task started: “{goal}”"),
+    "plan.ok": ("পরিকল্পনা: {tools}", "Plan: {tools}"),
+    "plan.invalid": ("পরিকল্পনা ঠিক ছিল না — আবার চেষ্টা", "The plan was not valid — retried"),
+    "tool.done": ("করা হয়েছে: {summary}", "Done: {summary}"),
+    "tool.failed": ("করা যায়নি: {tool}", "Could not do: {tool}"),
+    "tool.rejected": ("বাদ দেওয়া হয়েছে: {tool} — কিছু করা হয়নি", "Skipped: {tool} — nothing was done"),
+    "approval.requested": ("আপনার অনুমোদনের অপেক্ষা: {tool}", "Waiting for your OK: {tool}"),
+    "approval.approved": ("আপনি অনুমোদন দিয়েছেন", "You approved"),
+    "approval.rejected": ("আপনি বাতিল করেছেন", "You rejected"),
+    "approval.expired": ("অনুমোদনের সময় শেষ", "The approval expired"),
+    "guard.stale": ("তথ্য বদলে গেছে — পুরনো সংখ্যায় কাজ করা হয়নি",
+                    "The data changed — nothing was done on an old number"),
+    "guard.grounding": ("উত্তরে যাচাই-না-হওয়া সংখ্যা ছিল — বাদ দেওয়া হয়েছে",
+                        "An unchecked number in the answer was removed"),
+    "guard.exfil": ("নিরাপত্তা: অচেনা নম্বর/অ্যাকাউন্টে পাঠানো আটকানো হয়েছে",
+                    "Safety: sending to an unknown number/account was blocked"),
+    "guard.toxicity": ("নিরাপত্তা: খারাপ ভাষার লেখা আটকানো হয়েছে", "Safety: abusive text was blocked"),
+    "guard.secret": ("নিরাপত্তা: পাসওয়ার্ড/PIN মনে রাখা হয় না", "Safety: passwords / PINs are never kept"),
+    "memory.used": ("আপনার রাখা তথ্য ব্যবহার হয়েছে", "Your saved facts were used"),
+    "run.done": ("কাজ শেষ", "Task finished"),
+    "run.failed": ("কাজটি শেষ করা যায়নি", "The task could not finish"),
+    "run.cancelled": ("আপনি কাজটি থামিয়েছেন", "You stopped the task"),
+    "run.expired": ("সময় শেষ — কাজটি বন্ধ", "Timed out — the task was closed"),
+    "run.budget": ("সীমা পূর্ণ — কাজটি বন্ধ", "Limit reached — the task was closed"),
+    "run.feedback": ("আপনার মতামত রাখা হয়েছে", "Your feedback was saved"),
+    "undo.done": ("আগের কাজ ফেরানো হয়েছে", "The earlier task was undone"),
+}
+
+
+def _tool_label(ref, lang):
+    t = TL.get(str(ref or "").split("@")[0])
+    return pick(lang, t.label_bn, t.label_en) if t else ""
+
+
+def audit_lines(events, lang, vaults=None):
+    """agentcore: the user's OWN audit trail as plain lines (time, what, credits).
+    The stored detail stays masked; the user sees their own values (the run's
+    vault), other people's numbers never appear (exfil guard text only)."""
+    from django.utils import timezone as _tz
+    from ..ai_prompt import to_bn_digits
+    vaults = {} if vaults is None else vaults
+    out = []
+    for e in events:
+        tpl = _EVENT.get(e.event)
+        if tpl is None:
+            if not e.event.startswith("guard."):
+                continue
+            tpl = ("নিরাপত্তা যাচাই হয়েছে", "A safety check ran")
+        if e.run_id not in vaults:
+            vaults[e.run_id] = T.vault_of(e.run)
+        v = vaults[e.run_id]
+        d = e.detail if isinstance(e.detail, dict) else {}
+        tools = ", ".join(x for x in (_tool_label(r, lang) for r in (d.get("tools") or [])) if x)
+        text = pick(lang, *tpl).format(
+            goal=v.unmask(str(d.get("goal") or ""))[:160], summary=v.unmask(str(d.get("summary") or ""))[:200],
+            tool=_tool_label(d.get("tool"), lang), tools=tools)
+        at = _tz.localtime(e.created_at).strftime("%d/%m %H:%M")
+        out.append({"id": e.id, "run": e.run_id, "event": e.event, "text": text,
+                    "at": e.created_at.isoformat(),
+                    "time": to_bn_digits(at) if lang == "bn" else at,
+                    "credits": int(e.credits or 0)})
+    return out
+
+
+class ActivityView(_Gated):
+    """agentcore: GET agent-core/activity -> my last 80 audit lines, newest first."""
+    def get(self, request):
+        from ..models import AgentAuditEvent
+        lang = req_lang(request)
+        rows = (AgentAuditEvent.objects.filter(user=request.user).select_related("run")
+                .order_by("-id")[:80])
+        return Response({"events": audit_lines(rows, lang)})
 
 
 def _shares(run):
@@ -255,8 +334,7 @@ class RunFeedbackView(_Gated):
             from . import feedback_cases as FB
             FB.on_feedback(run, v, run.feedback_note)
         except Exception:  # noqa: BLE001 — feedback is never refused for this
-            import logging
-            logging.getLogger(__name__).exception("agentcore: feedback case for run %s", run.pk)
+            T.logger(__name__).exception("agentcore: feedback case for run %s", run.pk)
         return Response({"ok": True, "feedback": v})
 
 
@@ -264,7 +342,10 @@ class ApprovalsView(_Gated):
     def get(self, request):
         from ..models import AgentApproval
         lang = req_lang(request)
-        rows = (AgentApproval.objects.filter(user=request.user, status="pending")
+        from django.utils import timezone as _tz
+        # agentcore: a past-expiry approval is never offered (the sweep audits it)
+        rows = (AgentApproval.objects.filter(user=request.user, status="pending",
+                                             expires_at__gt=_tz.now())
                 .select_related("run", "run__goal", "step")[:20])
         return Response({"approvals": [_ap_out(a, lang) for a in rows]})
 

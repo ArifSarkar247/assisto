@@ -13,7 +13,6 @@ A run is a resumable state machine stored in the DB (AgentRun + AgentStep):
     waiting_approval until the user decides (approve() / reject()).
 """
 import json
-import logging
 import time as _time
 from dataclasses import dataclass
 from datetime import timedelta
@@ -21,6 +20,7 @@ from datetime import timedelta
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from . import planner as PL
 from . import tools as TL
@@ -28,7 +28,7 @@ from . import topics as TP
 from . import trust as T
 from .contract import APPROVAL_RISKS, SchemaError, ToolError, validate
 
-log = logging.getLogger(__name__)
+log = T.logger(__name__)  # agentcore: PII-redacting
 
 LEASE_S = 60
 RUN_TTL = timedelta(hours=48)          # incl. waiting for an approval
@@ -103,6 +103,8 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
     if not text or len(text) > 1000:
         raise AgentError("bad_goal")
     client_id = (client_id or "")[:64]
+    if client_id.startswith("proactive:"):
+        client_id = ""                  # agentcore: reserved for proactive cards (suggest.py)
     if client_id:
         g = AgentGoal.objects.filter(user=user, client_id=client_id).first()
         if g is not None:
@@ -122,7 +124,8 @@ def start(user, text, topic="", channel="chat", client_id="", lang="bn", play=Fa
             return UN.undo_run(user, text, prev, channel, client_id, lang, lim, now)
     if channel != "eval":
         day0 = timezone.localtime(now).replace(hour=0, minute=0, second=0, microsecond=0)
-        if AgentRun.objects.filter(user=user, created_at__gte=day0).count() >= lim["runs_per_day"]:
+        if AgentRun.objects.filter(user=user, created_at__gte=day0).exclude(
+                goal__client_id__startswith="proactive:").count() >= lim["runs_per_day"]:
             raise AgentError("daily_cap", 429)
     if topic in TP.TOPICS:
         pair = [topic] + ([topic2] if topic2 in TP.TOPICS and topic2 != topic else [])
@@ -633,7 +636,11 @@ def _exec_step(run, step, ctx):
     from ..models import AgentApproval
     tool = TL.get(step.tool)
     vault = T.vault_of(run)
-    masked_args = T.unseal(step.args_sealed).get("a") or {}
+    sealed = T.unseal(step.args_sealed) or {}
+    masked_args = sealed.get("a") or {}
+    # agentcore: a PROACTIVE step (suggest.py — the agent proposed it, the user
+    # did not ask) always waits for the user's tap, whatever its risk
+    ask = bool(sealed.get("ask"))
     if tool is None or tool.version != step.tool_version:
         return _fail_step(run, step, "tool_gone")
     first_look = step.state == "pending" and not AgentApproval.objects.filter(step=step).exists()
@@ -672,8 +679,8 @@ def _exec_step(run, step, ctx):
                 return _fail_step(run, step, e.code)
     # AF-5: after an instruction was seen inside the data, every own-data write
     # (reminder, note, money log, stock) also waits for the user's one tap.
-    needs = tool.needs_approval or (tool.risk == "write_low" and tool.name not in SUGGEST_ONLY
-                                    and _tainted(run))
+    needs = ask or tool.needs_approval or (tool.risk == "write_low" and tool.name not in SUGGEST_ONLY
+                                           and _tainted(run))
     if needs:
         ap = AgentApproval.objects.filter(step=step).first()
         if ap is None or ap.status == "pending":
@@ -681,18 +688,23 @@ def _exec_step(run, step, ctx):
                 args = vault.unmask_obj(masked_args)
                 tctx = Ctx(user=run.user, now=ctx.now, lang=ctx.lang, play=ctx.play,
                            idem_key=step.idem_key)
-                if tool.approval_title:
+                if ask and isinstance(sealed.get("ask_title"), list) and len(sealed["ask_title"]) == 2:
+                    tbn, ten = (vault.unmask(sealed["ask_title"][0]),
+                                vault.unmask(sealed["ask_title"][1]))
+                elif tool.approval_title:
                     tbn, ten = (tool.approval_title(tctx, args, "bn"),
                                 tool.approval_title(tctx, args, "en"))
                 else:
                     tbn, ten = tool.label_bn + "?", tool.label_en + "?"
                 if _tainted(run):
                     tbn, ten = TAINT_PREFIX["bn"] + tbn, TAINT_PREFIX["en"] + ten
+                exp = parse_datetime(sealed["expires"]) if ask and sealed.get("expires") else None
                 new_ap = T.request_approval(run, step, tool, masked_args, vault.mask(tbn),
-                                            vault.mask(ten))
+                                            vault.mask(ten), expires_at=exp)
                 T.save_vault(run, vault)
-                from . import approval_push      # WP-APP: push kind agent_approval
-                approval_push.notify(new_ap, tool)
+                if not ask:                      # a proactive card came with its own nudge push
+                    from . import approval_push  # WP-APP: push kind agent_approval
+                    approval_push.notify(new_ap, tool)
             step.state = "waiting_approval"
             step.save(update_fields=["state"])
             run.state = "waiting_approval"
@@ -704,6 +716,13 @@ def _exec_step(run, step, ctx):
             step.save()
             T.audit(run, "tool.rejected", step=step, tool=tool.ref)
             return "failed"
+        if sealed.get("verify"):
+            # agentcore NUMBER CHECK: the bill / amount the card showed is
+            # re-read from the user's real rows at the moment of the tap
+            from . import suggest as SG
+            if not SG.still_true(run.user, sealed["verify"], ctx.now):
+                T.audit(run, "guard.stale", step=step, tool=tool.ref, why="changed")
+                return _fail_step(run, step, "stale_data")
     if _rate_limited(run, tool, ctx.now):
         return _fail_step(run, step, "rate_limited")
     args = vault.unmask_obj(masked_args)
@@ -796,6 +815,10 @@ def _template_answer(run, tool_steps, lang):
     lines = []
     for s in tool_steps:
         t = TL.get(s.tool)
+        if t and s.state == "rejected" and s.error_code == "expired":
+            lines.append("“%s” — সময় পেরিয়ে গেছে, কিছু করা হয়নি।" % t.label_bn if lang == "bn"
+                         else "“%s” — the time passed; nothing was done." % t.label_en)
+            continue
         if t and s.state == "rejected":
             lines.append("“%s” বাতিল করা হয়েছে — কিছু করা হয়নি।" % t.label_bn if lang == "bn"
                          else "“%s” was rejected — nothing was done." % t.label_en)
@@ -868,6 +891,7 @@ def tick(limit=20, time_budget_s=50.0, now=None):
     lease is free; expire runs past their deadline. Returns runs advanced."""
     from ..models import AgentRun
     now = now or timezone.now()
+    T.expire_due(now)              # agentcore: the approval queue's expiry (audited)
     for run in AgentRun.objects.filter(state__in=AgentRun.OPEN_STATES, deadline_at__lt=now)[:200]:
         run.approvals.filter(status="pending").update(status="expired", decided_at=now)
         _finish(run, "expired", "deadline")

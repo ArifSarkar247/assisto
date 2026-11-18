@@ -15,9 +15,9 @@ Notification actions (app/lib/screens/agent_core/agent_core_push.dart):
 Never raises: a push failure must not break a run (the foreground poll of
 GET agent-core/approvals still finds it).
 """
-import logging
 
-log = logging.getLogger(__name__)
+from . import trust as _T
+log = _T.logger(__name__)  # agentcore: PII-redacting
 
 ROUTE = "agent/approval"
 

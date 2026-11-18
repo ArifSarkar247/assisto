@@ -7,6 +7,7 @@ import 'package:assisto/screens/agent_core/agent_approvals_screen.dart';
 import 'package:assisto/screens/agent_core/agent_core_screen.dart';
 import 'package:assisto/screens/agent_core/agent_core_source.dart';
 import 'package:assisto/screens/agent_core/agent_history_screen.dart';
+import 'package:assisto/screens/agent_core/agent_nudges.dart'; // agentcore
 
 import 'agent_core_fakes.dart';
 
@@ -71,4 +72,15 @@ final Map<String, Widget Function(String)> agentCoreShots = {
       source: FakeAgentCore('approval', bn: l == 'bn'), focusId: 12, fromApproveAction: true),
   'ac_approvals_empty': (l) => AgentApprovalsScreen(source: FakeAgentCore('empty', bn: l == 'bn')),
   'ac_history': (l) => AgentHistoryScreen(source: FakeAgentCore('data', bn: l == 'bn')),
+  // agentcore: proactive card (loan due tomorrow -> proposed reminder) + audit trail
+  'ac_card_pending': (l) => AgentCoreScreen(
+      source: FakeAgentCore('data', bn: l == 'bn'), nudgeSource: FakeAgentNudges(bn: l == 'bn')),
+  'ac_card_done': (l) => AgentCoreScreen(
+      source: FakeAgentCore('data', bn: l == 'bn'),
+      nudgeSource: FakeAgentNudges(bn: l == 'bn', status: 'approved')),
+  'ac_card_rejected': (l) => AgentCoreScreen(
+      source: FakeAgentCore('data', bn: l == 'bn'),
+      nudgeSource: FakeAgentNudges(bn: l == 'bn', status: 'rejected')),
+  'ac_activity': (l) => AgentActivityScreen(source: FakeAgentNudges(bn: l == 'bn')),
+  'ac_activity_empty': (l) => AgentActivityScreen(source: FakeAgentNudges(bn: l == 'bn', mode: 'empty')),
 };

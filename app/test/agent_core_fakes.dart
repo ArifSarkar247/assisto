@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/screens/agent_core/agent_core_source.dart';
+import 'package:assisto/screens/agent_core/agent_nudges.dart'; // agentcore
 
 Map<String, dynamic> acToolsJson({int plan = 7, int max = 15, int left = 3}) => {
       'version': 1,
@@ -226,4 +227,87 @@ class HangingAgentCore extends FakeAgentCore {
   @override
   Future<Map<String, dynamic>> startGoal(String text, {required String clientId}) =>
       Completer<Map<String, dynamic>>().future;
+}
+
+// ---------------------------------------------------------------- agentcore
+// Proactive cards + activity (agent_nudges.dart). A loan due tomorrow with a
+// proposed reminder; approve / reject change the card like the server does.
+class FakeAgentNudges implements AgentNudgeSource {
+  final bool bn;
+  final String mode; // data | empty | error
+  String status;
+  final List<String> calls = [];
+  FakeAgentNudges({this.bn = false, this.mode = 'data', this.status = 'pending'});
+
+  String _p(String b, String e) => bn ? b : e;
+
+  @override
+  Future<Map<String, dynamic>> nudges() async {
+    calls.add('nudges');
+    if (mode == 'error') throw Exception('offline');
+    if (mode == 'empty') return {'results': []};
+    final exp = DateTime.now().add(const Duration(hours: 14, minutes: 30)).toUtc().toIso8601String();
+    return {
+      'results': [
+        {
+          'id': 5,
+          'trigger': 'bill_due',
+          'label': _p('বিল/দেনার তারিখ', 'Bills due'),
+          'title': _p('ধার শোধের তারিখ: করিম ভাই', 'Loan repayment due: Karim Bhai'),
+          'body': _p('৳১,৫০০ — আর ১ দিন বাকি', '৳1,500 — due in 1 day(s)'),
+          'why': _p('আপনি টাকা-পয়সায় লিখেছেন করিম ভাইয়ের কাছে ধার আছে।',
+              'You recorded a loan from Karim Bhai in Money.'),
+          'verified': true,
+          'action': {
+            'approval_id': 41,
+            'status': status,
+            'title': _p('রিমাইন্ডার সেট করব? “ধার শোধ: করিম ভাই — ৳১,৫০০” — ১৯/১১ ০৯:০০',
+                'Set a reminder? “Repay loan: Karim Bhai — ৳1,500” — 19/11 09:00'),
+            'reminder_title': _p('ধার শোধ: করিম ভাই — ৳১,৫০০', 'Repay loan: Karim Bhai — ৳1,500'),
+            'due_at': exp,
+            'expires_at': exp,
+            'done': status == 'approved',
+            'result': status == 'approved'
+                ? _p('রিমাইন্ডার সেট হয়েছে: “ধার শোধ: করিম ভাই — ৳১,৫০০” — ১৯/১১ ০৯:০০।',
+                    'Reminder set: “Repay loan: Karim Bhai — ৳1,500” — 19/11 09:00.')
+                : '',
+            'error': '',
+          },
+        },
+      ],
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> dismiss(int id) async {
+    calls.add('dismiss:$id');
+    return {'ok': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> decide(int approvalId, String decision) async {
+    calls.add('decide:$approvalId:$decision');
+    status = decision == 'approve' ? 'approved' : 'rejected';
+    return {'ok': true};
+  }
+
+  @override
+  Future<Map<String, dynamic>> activity() async {
+    calls.add('activity');
+    if (mode == 'error') throw Exception('offline');
+    if (mode == 'empty') return {'events': []};
+    return {
+      'events': [
+        {'id': 9, 'event': 'tool.done', 'time': _p('১৮/১১ ২০:১২', '18/11 20:12'), 'credits': 0,
+          'text': _p('করা হয়েছে: রিমাইন্ডার সেট হয়েছে: “ধার শোধ: করিম ভাই — ৳১,৫০০”',
+              'Done: Reminder set: “Repay loan: Karim Bhai — ৳1,500”')},
+        {'id': 8, 'event': 'approval.approved', 'time': _p('১৮/১১ ২০:১২', '18/11 20:12'),
+          'credits': 0, 'text': _p('আপনি অনুমোদন দিয়েছেন', 'You approved')},
+        {'id': 7, 'event': 'approval.requested', 'time': _p('১৮/১১ ১৯:০০', '18/11 19:00'),
+          'credits': 0, 'text': _p('আপনার অনুমোদনের অপেক্ষা: রিমাইন্ডার সেট', 'Waiting for your OK: Create a reminder')},
+        {'id': 6, 'event': 'run.created', 'time': _p('১৮/১১ ১৯:০০', '18/11 19:00'), 'credits': 0,
+          'text': _p('কাজ শুরু: “রিমাইন্ডার সেট করব?”', 'Task started: “Set a reminder?”')},
+      ],
+    };
+  }
 }

@@ -51,7 +51,8 @@ ENDPOINTS = {
     "agent_core": ["agent-core/tools", "agent-core/goals", "agent-core/runs",
                    "agent-core/approvals", "agent-core/biz-brief", "agent-core/nudges",
                    "agent-core/nudge-prefs", "agent-core/brief", "agent-core/memory",
-                   "agent-core/memory/prefs", "crisis/helplines"],
+                   "agent-core/memory/prefs", "crisis/helplines",
+                   "agent-core/activity"],   # agentcore
     "fall_detect": ["family/fall/pending"],
     "pa_secretary": ["pa/visitors/", "pa/followups/", "pa_schedule/"],
     "learning_certificate": ["learn/certs"],   # learncert

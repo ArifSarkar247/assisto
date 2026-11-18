@@ -113,6 +113,47 @@ def leftover_tokens(text):
     return [m.group(0) for m in TOKEN_RX.finditer(text or "")] if isinstance(text, str) else []
 
 
+def redact(text):
+    """agentcore: one-way PII cover for text that has no run vault (logs,
+    audit details): every raw phone / NID / account / e-mail becomes
+    ⟦PHONE⟧ / ⟦NID⟧ / ⟦ACCT⟧ / ⟦EMAIL⟧. Vault tokens (⟦PHONE_1⟧) stay."""
+    if not isinstance(text, str) or not text:
+        return text
+    for kind, rx in _PATTERNS:
+        text = rx.sub("⟦%s⟧" % kind, text)
+    return text
+
+
+def redact_obj(obj):
+    return _walk(obj, redact)
+
+
+class PiiLogFilter:
+    """agentcore: a logging filter that redacts PII from the message, its args
+    and a traceback (an exception text can carry the user's own words)."""
+    def filter(self, record):
+        try:
+            msg = record.getMessage()
+            record.msg, record.args = redact(msg), None
+            if record.exc_info and not record.exc_text:
+                import logging as _lg
+                record.exc_text = _lg.Formatter().formatException(record.exc_info)
+            if record.exc_text:
+                record.exc_text = redact(record.exc_text)
+        except Exception:  # noqa: BLE001 — a log line is never lost to the filter
+            pass
+        return True
+
+
+def logger(name):
+    """A module logger with the PII filter attached (idempotent)."""
+    import logging as _lg
+    lg = _lg.getLogger(name)
+    if not any(isinstance(f, PiiLogFilter) for f in lg.filters):
+        lg.addFilter(PiiLogFilter())
+    return lg
+
+
 def has_raw_pii(text, kinds=None):
     """True when `text` still contains an unmasked phone/NID/account/email
     (only the given `kinds` when set)."""
@@ -142,25 +183,60 @@ def save_vault(run, vault):
 
 # ------------------------------------------------------------------ audit
 def audit(run, event, step=None, credits=0, **detail):
-    """Append one MASKED event (callers pass masked detail only)."""
+    """Append one MASKED event. agentcore: the detail is redacted HERE too, so
+    a caller that forgot to mask can never put a raw phone / NID / account /
+    e-mail into the audit trail (Owner Admin and the user's activity page)."""
     from ..models import AgentAuditEvent
     return AgentAuditEvent.objects.create(
         user_id=run.user_id, run=run, step=step, event=event[:40],
-        detail=detail, credits=int(credits or 0))
+        detail=redact_obj(detail), credits=int(credits or 0))
 
 
 # ------------------------------------------------------------------ approvals
 APPROVAL_TTL = timedelta(hours=48)
 
 
-def request_approval(run, step, tool, masked_args, title_bn, title_en):
+def request_approval(run, step, tool, masked_args, title_bn, title_en, expires_at=None):
+    """`expires_at` (agentcore): a proactive card ends with its reason (a bill
+    due tomorrow -> its due day), never later than APPROVAL_TTL."""
     from ..models import AgentApproval
     summary = json.dumps(masked_args, ensure_ascii=False, default=str)[:400]
+    cap = timezone.now() + APPROVAL_TTL
+    exp = min(expires_at, cap) if expires_at else cap
     ap, _ = AgentApproval.objects.get_or_create(
         step=step, defaults=dict(
             run=run, user_id=run.user_id, risk=tool.risk, title_bn=title_bn[:200],
-            title_en=title_en[:200], summary=summary,
-            expires_at=timezone.now() + APPROVAL_TTL))
+            title_en=title_en[:200], summary=redact(summary),
+            expires_at=exp))
     audit(run, "approval.requested", step=step, tool=tool.ref, risk=tool.risk,
           approval=ap.pk)
     return ap
+
+
+def expire_due(now=None):
+    """agentcore: the approval queue's expiry sweep (runner.tick). A pending
+    approval past its expires_at becomes 'expired' (audited), its step and run
+    resume so the run finishes honestly ("nothing was done"). Returns the
+    number expired."""
+    from ..models import AgentApproval
+    from django.db import transaction
+    now = now or timezone.now()
+    n = 0
+    for pk in list(AgentApproval.objects.filter(status="pending", expires_at__lte=now)
+                   .values_list("pk", flat=True)[:200]):
+        with transaction.atomic():
+            ap = (AgentApproval.objects.select_for_update().select_related("run", "step")
+                  .filter(pk=pk, status="pending").first())
+            if ap is None:
+                continue
+            ap.status, ap.decided_at = "expired", now
+            ap.save(update_fields=["status", "decided_at"])
+            audit(ap.run, "approval.expired", step=ap.step)
+            if ap.step.state == "waiting_approval":
+                ap.step.state = "pending"
+                ap.step.save(update_fields=["state"])
+            if ap.run.state == "waiting_approval":
+                ap.run.state = "running"
+                ap.run.save(update_fields=["state", "updated_at"])
+            n += 1
+    return n

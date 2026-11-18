@@ -33,6 +33,10 @@ class NudgesView(_Gated):
         rows = (AgentNudge.objects.filter(user=request.user, for_date__gte=since,
                                           dismissed_at__isnull=True)
                 .order_by("-created_at", "-id")[:40])
+        # agentcore: every number on a card is re-checked against the user's
+        # real rows before it is shown; a stale card is hidden for good
+        from . import suggest as SG
+        rows = SG.verify_nudges(request.user, list(rows))
         return Response({"results": [P.nudge_out(n, lang) for n in rows],
                          "prefs": P.prefs_out(P.prefs_for(request.user), lang)})
 
@@ -44,6 +48,14 @@ class NudgeActionView(_Gated):
         if n is None:
             return _err(lang, "not_found", 404)
         now = timezone.now()
+        if action in ("dismiss", "mute"):
+            # agentcore: hiding a card with a proposal = "not now" (nothing done)
+            apid = (n.data or {}).get("approval")
+            if apid:
+                from ..models import AgentApproval
+                from . import runner as RN
+                if AgentApproval.objects.filter(pk=apid, user=request.user, status="pending").exists():
+                    RN.decide(request.user, apid, "reject", lang=lang)
         if action == "open":
             if not n.opened_at:
                 n.opened_at = now
