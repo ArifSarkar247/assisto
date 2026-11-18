@@ -194,7 +194,7 @@ extension VaAssistoActions on VaExecutor {
         icon: Icons.forum_rounded, title: name, subtitle: body.isEmpty ? null : body);
   }
 
-  /// voice-proof: "call ammu" / "আম্মুকে কল দাও" — a My Circle person is
+  /// voice-proof: "call ammu" (Bangla too) — a My Circle person is
   /// called FREE on Assisto (internet call, no SIM balance) after the confirm
   /// card. null = nobody in My Circle matches (or offline): the caller then
   /// uses the phonebook + SIM call as before.
