@@ -219,7 +219,9 @@ jobs:
           grep -qE "error •" ia.txt && { echo "::error::integration flows do not compile"; exit 1; }
           # rf1: no IconData finders — the f5 icon migration broke 5 flows that
           # found buttons by Icons.send / arrow_upward (run 40205920547).
-          if grep -rn "byIcon(" integration_test/flows; then
+          # ...and no look-alike: an Icon predicate (w is Icon && w.icon == ...)
+          # is the same icon finder under another name (18 Nov review).
+          if grep -rnE "byIcon\(|\bis Icon\b|\.icon ==|is IconButton && .*\.icon\b" integration_test/flows; then
             echo "::error::find controls by tooltip / Key / text, not by icon"; exit 1
           fi
           exit 0
