@@ -44,7 +44,7 @@ class MinuteJobsTests(_Base):
                            wraps=call_command) as cc:
             self.run_cmd()
         self.assertEqual([c.args[0] for c in cc.call_args_list],
-                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "live_monitor", "agent_core_run"])
+                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "live_monitor", "train_engine_tick", "agent_core_run"])
         self.assertTrue(cc.call_args_list[0].kwargs["quiet"])
         # every job's heartbeat recorded OK, as from its own cron line
         for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "agent_core_run"):
@@ -173,7 +173,7 @@ class OpsWatchCronTests(TestCase):
             "/home/ubuntu/assisto/backend/logs >> /home/ubuntu/assisto/backend/logs/"
             "minute_jobs.log 2>&1")
         self.assertEqual(H.lock_path("journey_sweep"), "/tmp/assisto-journey-sweep.lock")
-        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "live_monitor", "agent_core_run"])
+        self.assertEqual([n for n, _ in H.MINUTE_JOBS], ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "live_monitor", "train_engine_tick", "agent_core_run"])
 
     def test_snapshot_no_false_not_scheduled(self):
         snap = H.snapshot(cron_text=H.minute_jobs_cron_line(),

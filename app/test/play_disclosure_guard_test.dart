@@ -25,7 +25,7 @@ import 'package:assisto/widgets/permission_reason.dart';
 
 /// A runtime-permission request (Android shows its own prompt).
 final _ask = RegExp(r'Geolocator\.requestPermission\(|'
-    r'Permission\.(location|locationWhenInUse|locationAlways|microphone|camera|contacts|phone|bluetoothConnect|sms)\.request\(\)|'
+    r'Permission\.(location|locationWhenInUse|locationAlways|microphone|camera|contacts|phone|bluetoothConnect|bluetoothScan|sms)\.request\(\)|'
     r'\]\.request\(\)|requestAuthorization\(|_source\.request\(\)|src\.request\(\)|\bp\.request\(\)|'
     // playaudit2: implicit asks — WebRTC getUserMedia and the camera plugin
     // prompt Android for mic/camera on their own; camera_screen's gate.
@@ -42,6 +42,7 @@ const _markers = [
   'mc2PermLocBody', // share-location sheet's own disclosure dialog
   'md1PermContinue', // chat media/mic disclosure dialog
   'arBtPermAllow', // audio route: Bluetooth disclosure sheet
+  'ItagReasonScreen.show(', // flag-itag: Bluetooth tag full-screen reason
 ];
 const _lookBack = 45; // lines
 
@@ -84,6 +85,9 @@ const _allowed = <String, String>{
   'lib/calls/webrtc_media.dart':
       'calls: only after the user started/answered a call (Android prompt in context); '
           'child emergency audio opens it only after its visible notice (kid_audio_child.dart)',
+  // group-calls
+  'lib/calls/group_mesh_media.dart':
+      'group calls: only after the user started / answered / joined a group call (Android prompt in context)',
   'lib/screens/shop_live_rtc.dart':
       'Shop Box live view: the box phone sits on the open Shop Box screen the owner set up',
   'lib/screens/shop_box_mode_screen.dart':
@@ -348,6 +352,28 @@ void main() {
           lessThan(s.indexOf('Permission.microphone.request()')));
     });
 
+    // flag-itag (lead-approved 17 Nov): BLUETOOTH_SCAN is declared
+    // neverForLocation and asked ONLY on the Bluetooth tag screen.
+    test('BLUETOOTH_SCAN: neverForLocation + asked only from lib/screens/itag/', () {
+      final scan = RegExp(r'<uses-permission android:name="android\.permission\.BLUETOOTH_SCAN"[^>]*>')
+          .allMatches(ci)
+          .map((m) => m.group(0)!)
+          .toList();
+      expect(scan, hasLength(1));
+      expect(scan.single, contains('android:usesPermissionFlags="neverForLocation"'));
+      final askers = <String>[];
+      for (final f in _dartFiles('lib')) {
+        if (f.readAsStringSync().contains('Permission.bluetoothScan')) {
+          askers.add(f.path.replaceAll('\\', '/'));
+        }
+      }
+      expect(askers, ['lib/screens/itag/itag_permission.dart']);
+      final src = File('lib/screens/itag/itag_permission.dart').readAsStringSync();
+      expect(src.indexOf('ItagReasonScreen.show('), greaterThan(0));
+      expect(src.indexOf('ItagReasonScreen.show('),
+          lessThan(src.indexOf('Permission.bluetoothScan, Permission.bluetoothConnect].request()')));
+    });
+
     test('the Play gate forbids every undeclared sensitive permission', () {
       for (final p in [
         'ACCESS_BACKGROUND_LOCATION',
@@ -392,9 +418,23 @@ void main() {
           .allMatches(ci)
           .expand((m) => m.group(1)!.split('|'))
           .toSet();
-      expect(types, {'microphone', 'location'});
+      // circle-screenshare: mediaProjection is in the APK manifest only; the
+      // Play AAB step strips it until PLAY_SCREEN_SHARE is 'true' (owner
+      // files the media-projection FGS declaration first) and the bundle
+      // check fails the build if it slips in.
+      expect(types, {'microphone', 'location', 'mediaProjection'});
       final fgsPerms = requested.where((p) => p.startsWith('FOREGROUND_SERVICE_')).toSet();
-      expect(fgsPerms, {'FOREGROUND_SERVICE_MICROPHONE', 'FOREGROUND_SERVICE_LOCATION'});
+      expect(fgsPerms, {
+        'FOREGROUND_SERVICE_MICROPHONE',
+        'FOREGROUND_SERVICE_LOCATION',
+        'FOREGROUND_SERVICE_MEDIA_PROJECTION',
+      });
+      expect(ci, contains("PLAY_SCREEN_SHARE: 'false'"));
+      expect(ci, contains('media-projection FGS is in the Play bundle (declaration not filed)'));
+      // the AAB step itself strips both (and asserts it) while the switch is off
+      expect(play, contains('PLAY_SCREEN_SHARE: \'false\''));
+      expect(play, contains('assert \'ScreenShareService\' not in s'));
+      expect(play, contains('FOREGROUND_SERVICE_MEDIA_PROJECTION" tools:node="remove"'));
       // the foreground-service types we DO declare (Play FGS form): mic + location
       expect(requested, containsAll(<String>[
         'FOREGROUND_SERVICE_MICROPHONE',

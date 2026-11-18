@@ -5,10 +5,13 @@
 // Search, bookmarks, last read; no audio; NO ads (the 'quran' screen key is
 // on the never-ads list, ad_rules.dart).
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../quran/ayah_view_screen.dart'; // quranview
+import '../quran/quran_bilingual_api.dart'; // gap-quranblood Q1
+import '../state.dart';
 import '../quran/quran_store.dart';
 import '../ds/ds.dart';
 import '../widgets/skeleton.dart' show SkeletonList;
@@ -23,7 +26,10 @@ bool _isBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 Color _accent(BuildContext c) => Theme.of(c).colorScheme.primary;
 
 class QuranScreen extends StatefulWidget {
-  const QuranScreen({super.key});
+  const QuranScreen({super.key, this.initialTab = 0});
+
+  /// 0 suras · 1 paras (gap-quranblood Q4) · 2 bookmarks.
+  final int initialTab;
   @override
   State<QuranScreen> createState() => _QuranScreenState();
 }
@@ -96,7 +102,8 @@ class _QuranScreenState extends State<QuranScreen>
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
+      initialIndex: widget.initialTab.clamp(0, 2),
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.quranTitle),
@@ -113,6 +120,7 @@ class _QuranScreenState extends State<QuranScreen>
               ? null
               : TabBar(tabs: [
                   Tab(text: t.qrnTabSuras),
+                  Tab(key: const Key('quran-tab-juz'), text: t.qrnTabJuz),
                   Tab(text: t.qrnTabBookmarks),
                 ]),
         ),
@@ -139,7 +147,7 @@ class _QuranScreenState extends State<QuranScreen>
     }
     final d = _data;
     if (d == null) return const SkeletonList();
-    return TabBarView(children: [_surasTab(t, d), _bookmarksTab(t, d)]);
+    return TabBarView(children: [_surasTab(t, d), _juzTab(t, d), _bookmarksTab(t, d)]);
   }
 
   Widget _surasTab(AppLocalizations t, QuranData d) {
@@ -177,6 +185,19 @@ class _QuranScreenState extends State<QuranScreen>
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: Gap.sm),
         if (q.isEmpty && _last != null) _continueCard(t, d, _last!),
+        // gap-quranblood Q3: "2:255" / Bangla digits -> straight to the verse
+        if (d.parseJump(q) case final j?)
+          Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: FilledButton.tonalIcon(
+              key: const Key('quran-jump'),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              icon: const Icon(Icons.subdirectory_arrow_right_rounded),
+              label: Text(t.qrnGoTo(quranSuraTitle(_isBn(context), d.suras[j.sura - 1]),
+                  ld(context, '${j.sura}:${j.aya}'))),
+              onPressed: () => _open(j.sura, j.aya),
+            ),
+          ),
         if (q.length >= 2 && hits == null)
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -222,7 +243,7 @@ class _QuranScreenState extends State<QuranScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    '${d.suras[h.ref.sura - 1].tname} · '
+                    '${quranSuraTitle(_isBn(context), d.suras[h.ref.sura - 1])} · '
                     '${t.qrnVerseN(ld(context, '${h.ref.sura}:${h.ref.aya}'))}',
                     style: AType.labelLarge.copyWith(color: _accent(context)),
                   ),
@@ -233,7 +254,7 @@ class _QuranScreenState extends State<QuranScreen>
                       textDirection:
                           h.arabic ? TextDirection.rtl : TextDirection.ltr,
                       style: h.arabic
-                          ? const TextStyle(fontSize: 20, height: 1.8)
+                          ? const TextStyle(fontFamily: kQvArabicFont, fontSize: 20, height: 1.8)
                           : AType.bodyMedium),
                 ],
               ),
@@ -257,7 +278,7 @@ class _QuranScreenState extends State<QuranScreen>
         leading: Icon(Icons.auto_stories_rounded, color: _accent(context)),
         title: Text(t.qrnContinue,
             style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('${s.tname} · ${t.qrnVerseN(ld(context, r.aya))}'),
+        subtitle: Text('${quranSuraTitle(_isBn(context), s)} · ${t.qrnVerseN(ld(context, r.aya))}'),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => _open(r.sura, r.aya),
       ),
@@ -279,7 +300,7 @@ class _QuranScreenState extends State<QuranScreen>
                   color: _accent(context), fontWeight: FontWeight.w600)),
         ),
       ),
-      title: Text(bn ? s.tname : '${s.tname} — ${s.ename}'),
+      title: Text(bn ? quranSuraTitle(true, s) : '${s.tname} — ${s.ename}'),
       subtitle: Text(
           '${s.meccan ? t.qrnMeccan : t.qrnMedinan} · '
           '${t.qrnAyasCount(ld(context, s.ayas))}'),
@@ -293,6 +314,38 @@ class _QuranScreenState extends State<QuranScreen>
         ),
       ),
       onTap: () => _open(s.index),
+    );
+  }
+
+  /// gap-quranblood Q4: the 30 paras (juz) — most readers in Bangladesh
+  /// read by para. Start points are Tanzil metadata (bundled, verbatim).
+  Widget _juzTab(AppLocalizations t, QuranData d) {
+    final bn = _isBn(context);
+    return ListView(
+      key: const Key('quran-juz'),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
+      children: [
+        DsGroup(margin: EdgeInsets.zero, children: [
+          for (var i = 0; i < d.juzStarts.length; i++)
+            ListTile(
+              key: Key('quran-juz-${i + 1}'),
+              minTileHeight: 56,
+              leading: CircleAvatar(
+                backgroundColor: _accent(context).withOpacity(0.12),
+                child: FittedBox(
+                  child: Text(ld(context, i + 1),
+                      style: AType.labelLarge.copyWith(color: _accent(context), fontWeight: FontWeight.w600)),
+                ),
+              ),
+              title: Text(t.qrnJuzN(ld(context, i + 1))),
+              subtitle: Text(t.qrnJuzStarts(
+                  quranSuraTitle(bn, d.suras[d.juzStarts[i].sura - 1]),
+                  ld(context, d.juzStarts[i].aya))),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => _open(d.juzStarts[i].sura, d.juzStarts[i].aya),
+            ),
+        ]),
+      ],
     );
   }
 
@@ -342,7 +395,7 @@ class _QuranScreenState extends State<QuranScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                          '${d.suras[r.sura - 1].tname} · '
+                          '${quranSuraTitle(_isBn(context), d.suras[r.sura - 1])} · '
                           '${t.qrnVerseN(ld(context, r.aya))}',
                           style: AType.labelLarge
                               .copyWith(color: _accent(context))),
@@ -351,7 +404,7 @@ class _QuranScreenState extends State<QuranScreen>
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textDirection: TextDirection.rtl,
-                          style: const TextStyle(fontSize: 20, height: 1.8)),
+                          style: const TextStyle(fontFamily: kQvArabicFont, fontSize: 20, height: 1.8)),
                     ],
                   ),
                 ),
@@ -362,13 +415,22 @@ class _QuranScreenState extends State<QuranScreen>
   }
 }
 
-/// One sura: Arabic (verbatim, RTL) + the chosen translation.
+/// One sura: Arabic (verbatim, RTL, Amiri Quran) + — gap-quranblood Q1 —
+/// the Bangla pronunciation (rule engine, "under review"), the Bangla meaning
+/// and the English meaning INLINE under every verse (QuranEnc, verbatim,
+/// source + version above). Bangla AND English are shown in either app
+/// language (the owner's bilingual rule). Each line can be switched off; the
+/// choice is shared with the ayah view (QvPrefs). Offline / source down: the
+/// bundled English (Pickthall, public domain) + a retry — never invented text.
 class QuranReaderScreen extends StatefulWidget {
   final QuranData data;
   final int sura;
   final int aya;
+
+  /// Test / gallery seam (defaults to the signed-in app API).
+  final QuranBilingualApi? api;
   const QuranReaderScreen(
-      {super.key, required this.data, required this.sura, this.aya = 1});
+      {super.key, required this.data, required this.sura, this.aya = 1, this.api});
   @override
   State<QuranReaderScreen> createState() => _QuranReaderScreenState();
 }
@@ -376,11 +438,14 @@ class QuranReaderScreen extends StatefulWidget {
 class _QuranReaderScreenState extends State<QuranReaderScreen>
     with AdBlockedState<QuranReaderScreen> {
   late int _from; // first aya shown (jump target); "show earlier" resets to 1
-  QuranTrans? _trans;
   double _size = QuranPrefs.defaultSize;
   Set<int> _marked = {};
+  Set<QvLine> _off = {};
   final _keys = <int, GlobalKey>{};
   final _scroll = ScrollController();
+  late final QuranBilingualApi _qv;
+  Map<String, dynamic>? _meaning, _pron;
+  bool _meaningLoading = true;
 
   QuranSura get _s => widget.data.suras[widget.sura - 1];
 
@@ -388,7 +453,10 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
   void initState() {
     super.initState();
     _from = widget.aya.clamp(1, _s.ayas);
+    _qv = widget.api ??
+        QuranBilingualApi((p) => context.read<AppState>().api.getJson(p));
     _loadPrefs();
+    _loadMeaning();
     QuranPrefs.setLastRead(AyaRef(widget.sura, _from));
   }
 
@@ -399,13 +467,15 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
   }
 
   Future<void> _loadPrefs() async {
-    final tr = await QuranPrefs.translation();
     final size = await QuranPrefs.arabicSize();
     final bm = await QuranPrefs.bookmarks();
+    final off = await QvPrefs.hidden();
+    // a reader who chose "Arabic only" earlier keeps it
+    final old = await QuranPrefs.translation();
     if (!mounted) return;
     setState(() {
-      _trans = tr;
       _size = size;
+      _off = old == QuranTrans.none ? {...off, QvLine.bn, QvLine.en} : off;
       _marked = {
         for (final r in bm)
           if (r.sura == widget.sura) r.aya
@@ -413,8 +483,29 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
     });
   }
 
-  QuranTrans _effectiveTrans(BuildContext c) =>
-      _trans ?? (_isBn(c) ? QuranTrans.bn : QuranTrans.en);
+  Future<void> _loadMeaning() async {
+    setState(() => _meaningLoading = true);
+    final m = _qv.meaning(widget.sura);
+    final p = _qv.pron(widget.sura);
+    final mm = await m;
+    final pp = await p;
+    if (!mounted) return;
+    setState(() {
+      _meaning = mm;
+      _pron = pp;
+      _meaningLoading = false;
+    });
+  }
+
+  bool _on(QvLine l) => !_off.contains(l);
+
+  /// The QuranEnc book for [lang] when it carries this sura's verses.
+  Map<String, dynamic>? _book(String lang) {
+    final b = _meaning?[lang];
+    if (b is! Map<String, dynamic>) return null;
+    final items = b['items'];
+    return items is List && items.isNotEmpty ? b : null;
+  }
 
   Future<void> _toggle(int aya) async {
     final t = AppLocalizations.of(context);
@@ -447,16 +538,14 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
 
   Future<void> _settings() async {
     final t = AppLocalizations.of(context);
+    String name(QvLine l) => switch (l) {
+          QvLine.pron => t.qvLinePron,
+          QvLine.bn => t.qvLineBn,
+          _ => t.qvLineEn,
+        };
     await showAppSheet<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(builder: (ctx, setSheet) {
-        final cur = _effectiveTrans(ctx);
-        void pick(QuranTrans v) {
-          QuranPrefs.setTranslation(v);
-          setState(() => _trans = v);
-          setSheet(() {});
-        }
-
         return ListView(
           shrinkWrap: true,
           padding: withNavBarInset(ctx, const EdgeInsets.all(Gap.lg)),
@@ -464,29 +553,21 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
             Text(t.qrnReaderSettings,
                 style:
                     AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: Gap.md),
-            Text(t.qrnTranslation,
-                style: AType.labelLarge.copyWith(fontWeight: FontWeight.w600)),
-            RadioGroup<QuranTrans>(
-              groupValue: cur,
-              onChanged: (x) {
-                if (x != null) pick(x);
-              },
-              child: Column(children: [
-                for (final v in QuranTrans.values)
-                  RadioListTile<QuranTrans>(
-                    key: Key('quran-trans-${v.name}'),
-                    contentPadding: EdgeInsets.zero,
-                    value: v,
-                    title: Text(switch (v) {
-                      QuranTrans.en => t.qrnTransEn,
-                      QuranTrans.bn => t.qrnTransBn,
-                      QuranTrans.none => t.qrnTransNone,
-                    }),
-                    subtitle: v == QuranTrans.bn ? Text(t.qvBnHereTitle) : null,
-                  ),
-              ]),
-            ),
+            const SizedBox(height: Gap.xs),
+            Text(t.qvLinesHint, style: AType.bodySmall),
+            for (final l in const [QvLine.pron, QvLine.bn, QvLine.en])
+              SwitchListTile(
+                key: Key('quran-line-${l.name}'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(name(l)),
+                value: _on(l),
+                onChanged: (v) {
+                  setState(() => v ? _off.remove(l) : _off.add(l));
+                  setSheet(() {});
+                  QvPrefs.setHidden(_off);
+                  if (v) QuranPrefs.setTranslation(QuranTrans.bn);
+                },
+              ),
             const SizedBox(height: Gap.sm),
             Text(t.qrnArabicSize,
                 style: AType.labelLarge.copyWith(fontWeight: FontWeight.w600)),
@@ -506,7 +587,7 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
             Text(widget.data.ar(const AyaRef(1, 1)),
                 textAlign: TextAlign.center,
                 textDirection: TextDirection.rtl,
-                style: TextStyle(fontSize: _size, height: 1.9)),
+                style: TextStyle(fontFamily: kQvArabicFont, fontSize: _size, height: 1.9)),
           ],
         );
       }),
@@ -517,11 +598,11 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = _s;
-    final tr = _effectiveTrans(context);
+    final bnApp = _isBn(context);
     final count = s.ayas - _from + 1;
     final header = <Widget>[
       _SuraHeader(sura: s, juz: widget.data.juzOf(AyaRef(s.index, _from))),
-      if (tr == QuranTrans.bn) _bnPendingBanner(t),
+      _sourcesCard(t),
       if (_from > 1)
         Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -533,9 +614,12 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
           ),
         ),
     ];
+    final next = widget.sura < widget.data.suras.length
+        ? widget.data.suras[widget.sura]
+        : null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(s.tname),
+        title: Text(quranSuraTitle(bnApp, s)),
         actions: [
           IconButton(
             key: const Key('quran-settings'),
@@ -551,58 +635,113 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
           key: const Key('quran-reader'),
           controller: _scroll,
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
-          itemCount: header.length + count,
+          itemCount: header.length + count + 1,
           itemBuilder: (c, i) {
             if (i < header.length) return header[i];
+            if (i == header.length + count) {
+              // gap-quranblood Q5: the end of a sura leads to the next one
+              if (next == null) return const SizedBox(height: Gap.lg);
+              return Padding(
+                padding: const EdgeInsets.only(top: Gap.lg),
+                child: FilledButton.tonalIcon(
+                  key: const Key('quran-next-sura'),
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                  icon: const Icon(Icons.arrow_forward_rounded),
+                  label: Text(t.qrnNextSura(quranSuraTitle(bnApp, next))),
+                  onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (_) => QuranReaderScreen(
+                          data: widget.data, sura: next.index, api: widget.api))),
+                ),
+              );
+            }
             final aya = _from + i - header.length;
-            return _ayaTile(t, aya, tr);
+            return _ayaTile(t, aya);
           },
         ),
       ),
     );
   }
 
-  Widget _bnPendingBanner(AppLocalizations t) {
+  /// Source + version of every line shown (QuranEnc terms), the
+  /// pronunciation's "under review" label, or an honest offline line.
+  Widget _sourcesCard(AppLocalizations t) {
+    final scheme = Theme.of(context).colorScheme;
+    final muted = AType.labelSmall.copyWith(color: scheme.onSurfaceVariant);
+    final lines = <Widget>[];
+    if (_meaningLoading) {
+      lines.add(const LinearProgressIndicator());
+    } else {
+      final bn = _book('bn'), en = _book('en');
+      String src(Map<String, dynamic> b) =>
+          t.qvSourceQe('${b['publisher'] ?? ''}', ld(context, '${b['version'] ?? ''}'));
+      if (bn != null && _on(QvLine.bn)) {
+        lines.add(Text('${t.qvLineBn}: ${src(bn)}', key: const Key('quran-src-bn'), style: muted));
+      }
+      if (_on(QvLine.en)) {
+        lines.add(Text(en != null ? '${t.qvLineEn}: ${src(en)}' : t.qrnEnOffline,
+            key: const Key('quran-src-en'), style: muted));
+      }
+      if (_hasPron && _on(QvLine.pron)) {
+        lines.add(Wrap(
+            spacing: Gap.xs,
+            runSpacing: Gap.xxs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              QvReviewChip(label: t.qvUnderReview),
+              Text(t.qvSourcePron, style: muted),
+            ]));
+      }
+      if (bn == null && (_on(QvLine.bn) || _on(QvLine.en))) {
+        lines.add(Row(key: const Key('quran-meaning-retry'), children: [
+          Expanded(child: Text(t.qrnMeaningOffline, style: AType.bodySmall)),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _loadMeaning,
+            child: Text(t.qrnRetry),
+          ),
+        ]));
+      }
+    }
+    if (lines.isEmpty) return const SizedBox.shrink();
     return Container(
-      key: const Key('quran-bn-pending'),
+      key: const Key('quran-sources'),
       margin: const EdgeInsets.only(bottom: Gap.md),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: scheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // quranview: Bangla meaning (QuranEnc, Abu Bakr Zakaria) now lives
-          // in the ayah view; say so honestly here.
-          Text(t.qvBnHereTitle,
-              style: AType.titleSmall.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: Gap.xs),
-          Text(t.qvBnHereBody),
-          const SizedBox(height: Gap.sm),
-          TextButton(
-            key: const Key('quran-show-english'),
-            onPressed: () {
-              QuranPrefs.setTranslation(QuranTrans.en);
-              setState(() => _trans = QuranTrans.en);
-            },
-            child: Text(t.qrnShowEnglish),
-          ),
-        ],
-      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        for (final w in lines)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.xxs), child: w),
+      ]),
     );
+  }
+
+  bool get _hasPron {
+    final items = _pron?['items'];
+    return items is List && items.isNotEmpty;
   }
 
   // quranview
   void _openAyah(int aya) => Navigator.of(context).push(MaterialPageRoute(
       builder: (_) =>
-          AyahViewScreen(data: widget.data, sura: widget.sura, aya: aya)));
+          AyahViewScreen(data: widget.data, sura: widget.sura, aya: aya, api: widget.api)));
 
-  Widget _ayaTile(AppLocalizations t, int aya, QuranTrans tr) {
+  Widget _ayaTile(AppLocalizations t, int aya) {
     final ref = AyaRef(widget.sura, aya);
     final marked = _marked.contains(aya);
     final scheme = Theme.of(context).colorScheme;
+    final bnBook = _book('bn'), enBook = _book('en');
+    final pron = qvItem(_pron, aya);
+    final pronText = pron == null || pron['review'] == 'rejected'
+        ? ''
+        : '${pron['bn'] ?? ''}';
+    final bnText = '${qvItem(bnBook, aya)?['text'] ?? ''}';
+    // English: QuranEnc (Saheeh) when live, else the bundled Pickthall
+    final enText = enBook != null
+        ? '${qvItem(enBook, aya)?['text'] ?? ''}'
+        : widget.data.en(ref);
     return Container(
       key: _keys.putIfAbsent(aya, () => GlobalKey()),
       padding: const EdgeInsets.symmetric(vertical: Gap.md),
@@ -648,11 +787,23 @@ class _QuranReaderScreenState extends State<QuranReaderScreen>
             child: Text(widget.data.ar(ref),
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.right,
-                style: TextStyle(fontSize: _size, height: 1.9)),
+                style: TextStyle(fontFamily: kQvArabicFont, fontSize: _size, height: 1.9)),
           ),
-          if (tr == QuranTrans.en) ...[
+          if (_on(QvLine.pron) && pronText.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            // bn keeps its ZWNJ marks as sent — never stripped
+            Text(pronText,
+                key: Key('quran-pron-$aya'),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+          if (_on(QvLine.bn) && bnText.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            Text(widget.data.en(ref),
+            Text(bnText, key: Key('quran-bn-$aya'), style: AType.bodyLarge),
+          ],
+          if (_on(QvLine.en) && enText.isNotEmpty) ...[
+            const SizedBox(height: Gap.sm),
+            Text(enText,
+                key: Key('quran-en-$aya'),
                 textDirection: TextDirection.ltr,
                 style: AType.bodyLarge),
           ],
@@ -681,10 +832,10 @@ class _SuraHeader extends StatelessWidget {
       child: Column(children: [
         Text(sura.nameAr,
             textDirection: TextDirection.rtl,
-            style: const TextStyle(fontSize: 30, height: 1.6)),
+            style: const TextStyle(fontFamily: kQvArabicFont, fontSize: 30, height: 1.6)),
         const SizedBox(height: Gap.xs),
         Text(
-          '${sura.tname} · ${sura.meccan ? t.qrnMeccan : t.qrnMedinan} · '
+          '${quranSuraTitle(_isBn(context), sura)} · ${sura.meccan ? t.qrnMeccan : t.qrnMedinan} · '
           '${t.qrnAyasCount(ld(context, sura.ayas))} · '
           '${t.qrnJuzN(ld(context, juz))}',
           textAlign: TextAlign.center,

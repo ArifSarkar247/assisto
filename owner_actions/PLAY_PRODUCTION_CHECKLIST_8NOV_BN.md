@@ -178,6 +178,7 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 | `SCHEDULE_EXACT_ALARM` (`USE_EXACT_ALARM` সরানো) | রিমাইন্ডার | কিছু না | "Alarms & reminders" ব্যাখ্যা-পাতা |
 | `BIND_VOICE_INTERACTION` (ডিফল্ট সহকারী) | Assisto Voice: পাওয়ার-বোতাম চেপে ধরলে খোলে | কিছু না। লিস্টিংয়ে ভয়েস-সহকারীর কথা রাখুন। | ব্যবহারকারী নিজে Android সেটিংসে বাছেন |
 | `BLUETOOTH_CONNECT` (+ ১১ বা তার নিচে পুরনো BT) | ইয়ারফোনে কল/শব্দ, গাড়ির OBD | কিছু না | অডিও-শিটের BT ঘোষণা (`arBtPermAllow`); OBD-তে "ডঙ্গল পড়ুন" চাপার পরে |
+| `BLUETOOTH_SCAN` (`neverForLocation`, Android ১২+; b330 থেকে) | নিজের ব্লুটুথ ট্যাগ (iTag) খোঁজা | কিছু না — Data safety: "কাছের ডিভাইস শুধু নিজের ট্যাগ খুঁজতে, সংগ্রহ করা হয় না" | ট্যাগ স্ক্রিনের পূর্ণ-পর্দা কারণ (`ItagReasonScreen`) এর পরে |
 | `POST_NOTIFICATIONS`, `VIBRATE`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`, `CHANGE_NETWORK_STATE`, `MODIFY_AUDIO_SETTINGS`, `SET_ALARM`, `INTERNET` | সাধারণ অনুমতি | কিছু না | — |
 | `com.android.vending.BILLING` | Play Billing (প্ল্যান ও ক্রেডিট) | Monetization সেটআপ | — |
 | `com.google.android.gms.permission.AD_ID` | AdMob (Free প্ল্যান) | **Advertising ID: Yes, Advertising** + **Ads: Yes** | Google UMP সম্মতি-ফর্ম |

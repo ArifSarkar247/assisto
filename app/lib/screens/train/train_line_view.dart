@@ -5,12 +5,31 @@ import '../../theme.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 
 /// sjtrain (Safe Journey V2, TRAIN 6): the train's stations as a vertical 2D
-/// line, like a metro map. Passed stations are grey, the train icon sits at
+/// line, like a metro map. Passed stations are green (V2), the train icon sits at
 /// the current point ("Now: passing X"), the next stations show their ETA
 /// (timetable + live delay; always an estimate). Timetable stops are bold.
 /// Data: GET /train/<no>/live -> "line" (backend train_geo.line_view).
+///
+/// train-app (Train Tracker V2, owner order 17 Nov): Design System V2 metro
+/// timeline — PASSED stations green with the actual time (when riders /
+/// check-ins confirmed it, else the timetable time) and the delay; the TRAIN
+/// icon with its speed and how many riders share live; the NEXT station
+/// yellow with its ETA; later stations grey. Plain widgets + one tiny
+/// painter (GPU-light, no animation), so it stays smooth on old phones.
 class TrainLineView extends StatefulWidget {
-  const TrainLineView({super.key, required this.line, this.live = false, this.onStation});
+  const TrainLineView(
+      {super.key,
+      required this.line,
+      this.live = false,
+      this.onStation,
+      this.speedKmh,
+      this.riders = 0});
+
+  /// live speed (km/h) shown on the train icon (null = not known)
+  final int? speedKmh;
+
+  /// riders sharing live right now
+  final int riders;
 
   /// {"stations": [{id, bn, en, km, stop, eta, passed}], "now_index",
   ///  "passing", "next_index"}
@@ -19,7 +38,7 @@ class TrainLineView extends StatefulWidget {
   /// true = the position comes from passengers (else timetable estimate).
   final bool live;
 
-  /// Tap on an upcoming station (e.g. "Set the get-off alarm here").
+  /// Tap on a station: check-in (reached / left) or the get-off alarm.
   final void Function(Map<String, dynamic> station)? onStation;
 
   /// How many stations are shown before "Show all" (2 passed + here + next).
@@ -71,6 +90,7 @@ class _TrainLineViewState extends State<TrainLineView> {
     if (st.isEmpty) return const SizedBox.shrink();
     final nowI = (widget.line['now_index'] as num?)?.toInt();
     final passing = (widget.line['passing'] as num?)?.toInt();
+    final nextI = (widget.line['next_index'] as num?)?.toInt();
     // the window: two passed stations before the train, then what is ahead
     final from = _all ? 0 : ((nowI ?? 0) - 2).clamp(0, st.length - 1);
     final to = _all ? st.length : (from + TrainLineView.collapsedAfter + 2).clamp(0, st.length);
@@ -85,7 +105,8 @@ class _TrainLineViewState extends State<TrainLineView> {
           first: i == 0,
           last: i == st.length - 1,
           trainOn: trainHere,
-          trainAfter: nowI != null && i == nowI && passing != nowI && i < st.length - 1));
+          trainAfter: nowI != null && i == nowI && passing != nowI && i < st.length - 1,
+          isNext: nextI != null && i == nextI && !trainHere));
     }
     if (to < st.length) {
       rows.add(_ellipsis(cs, t.sjtMoreAhead(notifLocalizeDigits(context, '${st.length - to}'))));
@@ -122,23 +143,41 @@ class _TrainLineViewState extends State<TrainLineView> {
 
   Widget _row(BuildContext context, AppLocalizations t, bool bn, ColorScheme cs,
       Map<String, dynamic> s,
-      {required bool first, required bool last, required bool trainOn, required bool trainAfter}) {
+      {required bool first,
+      required bool last,
+      required bool trainOn,
+      required bool trainAfter,
+      required bool isNext}) {
+    final ds = cs.ds;
     final passed = s['passed'] == true;
     final stop = s['stop'] == true;
     final name = trainLineName(s, bn);
-    final time = notifLocalizeDigits(context, _hm('${s['eta']}'));
-    final grey = cs.onSurface.withValues(alpha: 0.45);
-    final lineDone = cs.outlineVariant;
-    final lineAhead = cs.primary;
-    final nameStyle = (stop ? AType.titleSmall : AType.bodyMedium).copyWith(
-        color: passed && !trainOn ? grey : cs.onSurface,
-        fontWeight: stop ? FontWeight.w700 : FontWeight.w400);
-    final state = trainOn ? t.sjtHere : (passed ? t.sjtPassed : t.sjtAhead);
-    final canTap = !passed && widget.onStation != null;
+    // passed: the actual time riders / check-ins confirmed, else the timetable
+    final actual = '${s['actual'] ?? ''}';
+    final time = notifLocalizeDigits(
+        context, _hm(passed && actual.isNotEmpty ? actual : '${s[passed ? 'sched' : 'eta'] ?? s['eta']}'));
+    final delay = (s['delay_min'] as num?)?.toInt();
+    final green = ds.success, greenInk = ds.successInk;
+    final amber = trainAmber(context), amberInk = Brand.warnInk(context);
+    final grey = ds.muted;
+    final done = passed && !trainOn;
+    // design3: upcoming dots in a visible muted tone (ds.border nearly vanished on the page)
+    final dotColor = done ? green : (trainOn ? cs.primary : (isNext ? amber : grey.withValues(alpha: 0.55)));
+    final nameStyle = (stop || isNext ? AType.titleSmall : AType.bodyMedium).copyWith(
+        // design3: passed names in the text ink (the green rail + time say "passed")
+        color: done ? ds.text : (isNext ? cs.onSurface : (trainOn ? cs.onSurface : grey)),
+        fontWeight: stop || isNext ? FontWeight.w700 : FontWeight.w400);
+    final state = trainOn
+        ? t.sjtHere
+        : (passed ? t.sjtPassed : (isNext ? t.tr2NextBadge : t.sjtAhead));
+    final delayText = delay == null
+        ? ''
+        : (delay <= 2 ? t.sjtOnTimeChip : notifLocalizeDigits(context, t.tr2DelayShort('$delay')));
+    final canTap = widget.onStation != null;
     final body = Semantics(
       container: true,
       button: canTap,
-      label: t.sjtStationA11y(name, state, passed ? '' : time),
+      label: t.sjtStationA11y(name, delayText.isEmpty ? state : '$state, $delayText', time),
       excludeSemantics: true,
       child: InkWell(
         onTap: canTap ? () => widget.onStation!(s) : null,
@@ -150,11 +189,12 @@ class _TrainLineViewState extends State<TrainLineView> {
                 width: 48,
                 child: CustomPaint(
                   painter: _RailPainter(
-                    top: first ? null : (passed ? lineDone : lineAhead),
-                    bottom: last ? null : (passed && !trainOn ? lineDone : lineAhead),
-                    dot: passed && !trainOn ? lineDone : lineAhead,
+                    top: first ? null : (passed ? green : grey.withValues(alpha: 0.45)),
+                    bottom: last ? null : (done ? green : grey.withValues(alpha: 0.45)),
+                    dot: dotColor,
+                    ring: isNext ? amberInk : null,
                     hole: cs.surface,
-                    big: stop,
+                    big: stop || isNext,
                   ),
                   child: trainOn
                       ? Center(child: _TrainBadge(color: cs.primary, on: cs.onPrimary))
@@ -169,23 +209,41 @@ class _TrainLineViewState extends State<TrainLineView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(name, style: nameStyle),
-                        if (trainOn)
+                        if (trainOn) ...[
                           Text(t.sjtNowPassing(name),
                               style: AType.labelMedium.copyWith(
                                   color: cs.primary, fontWeight: FontWeight.w700)),
+                          _TrainFacts(speedKmh: widget.speedKmh, riders: widget.riders),
+                        ],
+                        if (isNext)
+                          Text(t.tr2NextBadge,
+                              key: const ValueKey('tr2_next'),
+                              style: AType.labelMedium.copyWith(
+                                  color: amberInk, fontWeight: FontWeight.w700)),
                       ]),
                 ),
               ),
-              if (!passed || trainOn)
-                Padding(
-                  padding: const EdgeInsets.only(left: Gap.sm),
-                  child: Center(
-                    child: Text(time.isEmpty ? '' : '≈ $time',
-                        style: AType.bodyMedium.copyWith(
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                            color: cs.onSurfaceVariant)),
-                  ),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: Gap.sm),
+                child: Center(
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (time.isNotEmpty)
+                          Text(done ? time : '≈ $time',
+                              style: AType.bodyMedium.copyWith(
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                  fontWeight: isNext ? FontWeight.w700 : FontWeight.w400,
+                                  color: done ? greenInk : (isNext ? amberInk : grey))),
+                        if (done && delayText.isNotEmpty)
+                          Text(delayText,
+                              style: AType.labelSmall.copyWith(
+                                  color: delay! > 2 ? ds.dangerInk : greenInk,
+                                  fontWeight: FontWeight.w700)),
+                      ]),
                 ),
+              ),
             ]),
           ),
         ),
@@ -199,22 +257,57 @@ class _TrainLineViewState extends State<TrainLineView> {
         container: true,
         label: t.sjtBetweenA11y(name),
         excludeSemantics: true,
-        child: Row(children: [
+        // design3: where the train is now — a soft primary band so the eye
+        // finds it at once
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: cs.ds.primarySoft,
+            borderRadius: BorderRadius.circular(DsRadius.card),
+          ),
+          child: Row(children: [
           SizedBox(
             width: 48,
-            height: 44,
+            height: 56,
             child: CustomPaint(
-              painter: _RailPainter(top: lineDone, bottom: lineAhead, hole: cs.surface),
+              painter: _RailPainter(top: green, bottom: grey.withValues(alpha: 0.45), hole: cs.surface),
               child: Center(child: _TrainBadge(color: cs.primary, on: cs.onPrimary)),
             ),
           ),
           Expanded(
-            child: Text(t.sjtBetween(name),
-                style: AType.labelMedium.copyWith(color: cs.primary, fontWeight: FontWeight.w700)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.sjtBetween(name),
+                  style: AType.labelLarge.copyWith(color: cs.ds.primaryInk, fontWeight: FontWeight.w800)),
+              _TrainFacts(speedKmh: widget.speedKmh, riders: widget.riders),
+            ]),
           ),
         ]),
+        ),
       ),
     ]);
+  }
+}
+
+/// The "next station" yellow: a warm amber dot (the text next to it uses
+/// Brand.warnInk, AA on both themes).
+Color trainAmber(BuildContext context) => Brand.nextStop(context);
+
+/// Speed + live riders next to the train icon ("62 km/h · 3 riders live").
+class _TrainFacts extends StatelessWidget {
+  const _TrainFacts({this.speedKmh, this.riders = 0});
+  final int? speedKmh;
+  final int riders;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final parts = <String>[
+      if (speedKmh != null) t.tr2Speed('$speedKmh'),
+      if (riders > 0) t.tr2RidersLive('$riders'),
+    ];
+    if (parts.isEmpty) return const SizedBox.shrink();
+    return Text(notifLocalizeDigits(context, parts.join(' · ')),
+        key: const ValueKey('tr2_train_facts'),
+        style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted));
   }
 }
 
@@ -232,8 +325,8 @@ class _TrainBadge extends StatelessWidget {
 }
 
 class _RailPainter extends CustomPainter {
-  _RailPainter({this.top, this.bottom, this.dot, required this.hole, this.big = false});
-  final Color? top, bottom, dot;
+  _RailPainter({this.top, this.bottom, this.dot, this.ring, required this.hole, this.big = false});
+  final Color? top, bottom, dot, ring;
   final Color hole;
   final bool big;
 
@@ -251,7 +344,15 @@ class _RailPainter extends CustomPainter {
     if (dot != null) {
       final r = big ? 8.0 : 5.0;
       canvas.drawCircle(Offset(x, mid), r, Paint()..color = dot!);
-      if (big) {
+      if (ring != null) {
+        canvas.drawCircle(
+            Offset(x, mid),
+            r,
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2
+              ..color = ring!);
+      } else if (big) {
         canvas.drawCircle(Offset(x, mid), r - 3.5, Paint()..color = hole);
       }
     }
@@ -259,5 +360,10 @@ class _RailPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RailPainter o) =>
-      o.top != top || o.bottom != bottom || o.dot != dot || o.hole != hole || o.big != big;
+      o.top != top ||
+      o.bottom != bottom ||
+      o.dot != dot ||
+      o.ring != ring ||
+      o.hole != hole ||
+      o.big != big;
 }

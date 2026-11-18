@@ -344,6 +344,15 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // circle-screenshare: screen share in a My Circle video call
+        // ("com.assisto/screenshare"). Handler only — the mediaProjection
+        // foreground service starts ONLY after the user's consent.
+        try {
+            com.assisto.assisto.calls.ScreenShareChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // CCTV Part 4 Shop Box mode: keep-screen-on + charging state. Handler
         // registration only — nothing runs until Dart calls it (lazy).
         try {
@@ -360,6 +369,14 @@ class MainActivity : FlutterFragmentActivity() {
         // the adapter is only touched when Dart calls it from the OBD screen.
         try {
             com.assisto.assisto.vehicle.ObdBtChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
+        // flag-itag: Bluetooth iTag key finder ("com.assisto/itag"). Handler
+        // only — the adapter is touched when the tag screen calls (lazy).
+        try {
+            com.assisto.assisto.itag.ItagChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
         } catch (e: Throwable) {
         }
         // Part 3 (a3-voice): Assisto Voice channel "com.assisto/voice". Installs
@@ -458,6 +475,15 @@ class MainActivity : FlutterFragmentActivity() {
         // only — MediaPlayer / TextToSpeech are made when an alarm fires.
         try {
             com.assisto.assisto.train.TrainAlarmChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
+        // train-app: Train Tracker V2 ("com.assisto/train_v2") — serving cell
+        // (opt-in, while sharing), battery, the share-to-Assisto target.
+        // Handler only; nothing is read at launch.
+        try {
+            com.assisto.assisto.train.TrainV2Channel.register(
                 this, flutterEngine.dartExecutor.binaryMessenger
             )
         } catch (e: Throwable) {

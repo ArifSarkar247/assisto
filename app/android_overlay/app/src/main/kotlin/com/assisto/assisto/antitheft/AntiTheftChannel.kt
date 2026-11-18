@@ -150,6 +150,19 @@ object AntiTheftChannel {
                         val cfgMap = call.argument<Map<String, Any?>>("config") ?: emptyMap()
                         result.success(AntiTheftService.configure(app, JSONObject(cfgMap)))
                     }
+                    // antitheft-e2e: TEST-ONLY (debuggable builds; a release
+                    // build refuses inside AntiTheftService and changes nothing)
+                    "debugInject" -> {
+                        val mags = (call.argument<List<Any?>>("mags") ?: emptyList())
+                            .mapNotNull { (it as? Number)?.toDouble() }
+                        result.success(AntiTheftService.debugInject(app, mags,
+                            call.argument<Int>("dtMs") ?: 20,
+                            call.argument<Map<String, Any?>>("ctx") ?: emptyMap(),
+                            call.argument<Boolean>("endGrace") ?: false))
+                    }
+                    "debugSim" -> result.success(AntiTheftService.debugSim(app,
+                        call.argument<List<String?>>("slots")))
+                    "debugState" -> result.success(AntiTheftService.debugState(app))
                     else -> result.notImplemented()
                 }
             } catch (e: Throwable) {

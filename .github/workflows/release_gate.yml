@@ -179,7 +179,7 @@ jobs:
           - leg: circle
             kind: flows
             only: start+circle
-            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways
+            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways,18s_circle_screen_share,18g_group_call_3way
           - leg: journey-pay
             kind: flows
             only: start+sjproof+billing
@@ -395,9 +395,18 @@ jobs:
           retention-days: 5
           if-no-files-found: warn
 
+  # ------------------------------------------------ calls-2emu: two emulators, a real
+  # 1:1 voice + video call between two installed apps (required leg, ~45 min)
+  calls-2emu:
+    needs: resolve
+    if: needs.resolve.outputs.go == 'true'
+    uses: ./.github/workflows/calls2emu.yml
+    with:
+      ref: ${{ needs.resolve.outputs.sha }}
+
   # ------------------------------------------------ one verdict + commit status
   gate:
-    needs: [resolve, smoke, flows]
+    needs: [resolve, smoke, flows, calls-2emu]
     if: always() && needs.resolve.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -410,6 +419,7 @@ jobs:
           BUILD_RUN: ${{ needs.resolve.outputs.run_id }}
           SMOKE: ${{ needs.smoke.result }}
           FLOWS: ${{ needs.flows.result }}
+          CALLS2EMU: ${{ needs.calls-2emu.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -uo pipefail
@@ -419,7 +429,7 @@ jobs:
           mins=$(( ( $(date +%s) - $(date -d "$started" +%s) ) / 60 ))
           total=$(printf '%s\n' "$jobs" | grep -c . || true)
           passed=$(printf '%s\n' "$jobs" | awk -F'\t' '$2=="success"' | grep -c . || true)
-          if [ "$SMOKE" = success ] && [ "$FLOWS" = success ]; then V=PASS; S=success; else V=FAIL; S=failure; fi
+          if [ "$SMOKE" = success ] && [ "$FLOWS" = success ] && [ "$CALLS2EMU" = success ]; then V=PASS; S=success; else V=FAIL; S=failure; fi
           {
             echo "## RELEASE_GATE=$V $SHA"
             echo ""

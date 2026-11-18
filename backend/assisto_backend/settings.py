@@ -303,3 +303,7 @@ PHOTO_WORKER_INLINE = False   # tests only: run a queued item right away
 PLAY_SERVICE_ACCOUNT_JSON = os.getenv(
     "PLAY_SERVICE_ACCOUNT_JSON", "/home/ubuntu/owner_private/play_service_account.json")
 PLAY_PACKAGE_NAME = os.getenv("PLAY_PACKAGE_NAME", "com.assisto.assisto")
+
+# train-engine (Train Tracker V2): live state `train:live:<no>` in the box's
+# existing Redis (redis-py). Empty = use the Django cache (tests / no Redis).
+TRAIN_LIVE_REDIS_URL = os.getenv("TRAIN_LIVE_REDIS_URL", "redis://127.0.0.1:6379/0")

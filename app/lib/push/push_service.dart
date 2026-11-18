@@ -1,3 +1,4 @@
+import '../screens/group_call_screen.dart' show GroupCallScreen, groupRoomOf; // group-calls
 import '../services/journey_habits.dart'; // sjstart2
 import '../screens/journey_start_screen.dart' show JourneyStartScreen; // sjstart2
 import '../audio/msg_open_tick.dart'; // circlebub
@@ -58,6 +59,7 @@ import '../family_alerts_api.dart'; // family100
 import '../family_sos/sos_alarm_screen.dart'; // fcsos
 import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
+import '../messaging/ai_reply/ai_reply.dart' show AiReplyHttp; // ai-reply-core
 
 /// App-wide navigator, so a tapped push can open a screen from anywhere.
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -565,7 +567,8 @@ class PushService {
       final h = MsgPushHandler(
           backend: HttpMsgBackend(tok, lang: p.lang),
           identity: loadStoredIdentity,
-          sink: FlnMsgSink());
+          sink: FlnMsgSink(),
+          ai: AiReplyHttp(tok, lang: p.lang)); // ai-reply-core
       unawaited(h.onPush(p).then((ok) {
         if (ok) {
           unawaited(MsgPushDone.mark(data));
@@ -789,12 +792,19 @@ class PushService {
         };
         final kind = p.isVideo ? 'video' : 'voice';
         if (action == PushNotifier.actionAccept) {
+          final room = groupRoomOf(p.data); // group-calls
           nav.push(MaterialPageRoute(
-              builder: (_) => CircleCallScreen(
-                  member: member,
-                  kind: kind,
-                  outgoing: false,
-                  callId: int.tryParse(p.callId))));
+              builder: (_) => room != null
+                  ? GroupCallScreen(
+                      roomId: room,
+                      answerCallId: int.tryParse(p.callId),
+                      video: p.isVideo,
+                      title: p.callerName)
+                  : CircleCallScreen(
+                      member: member,
+                      kind: kind,
+                      outgoing: false,
+                      callId: int.tryParse(p.callId))));
         } else {
           // plain tap / full-screen launch: ring first, user decides.
           nav.push(MaterialPageRoute(

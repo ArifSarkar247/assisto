@@ -126,6 +126,14 @@ def answer_for(user, prompt, history, system):
 
 
 def fake_call_anthropic(key, model, system, prompt, max_tokens, history=None):
+    if "You draft chat replies FOR the user" in (prompt or ""):
+        # ai-reply-core: JSON replies marked (CI); the chat text is NOT recorded
+        bn = "Bengali script" in (prompt or "")
+        replies = (["ভালো আছি (CI)", "হ্যাঁ বলো (CI)", "পরে কথা বলি (CI)"] if bn
+                   else ["Valo achi (CI)", "Ha bolo (CI)", "Pore kotha boli (CI)"])
+        text = json.dumps({"hold": False, "category": "", "replies": replies}, ensure_ascii=False)
+        record("ai_reply", model=model, n=len(replies))
+        return text, 900, 60, {"model": model, "truncated": False}
     m = _USER.search(prompt or "")
     if m:
         user = m.group(1).strip()

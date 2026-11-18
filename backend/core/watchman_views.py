@@ -102,7 +102,9 @@ def _can_shop(user):
         return True
     try:
         from . import cctv_plan_service as CPS
-        return CPS.plan_cameras(user) > 0
+        # a fresh read (not the 60-s cache): a purchase or an expiry shows
+        # at once, and one user's cached count can never answer for another
+        return CPS.plan_cameras(user, now=timezone.now()) > 0
     except Exception:
         return False
 
@@ -1050,6 +1052,26 @@ CLIP_DEFAULT_HOURS = 24          # cash_guard.CLIP_TTL_S
 CLIP_PREMIUM_DAYS = 30           # owner 17 Nov: 30 days with Premium AI
 
 
+def _cloud_playback(cam, role, viewer):
+    """gap-cctv3: may this person play the camera's OWN recordings (SD card
+    / Imou cloud) through the brand cloud? Only an imported Imou camera with
+    an active link, and only someone the stream endpoint admits (the owner,
+    or a viewer the owner allowed live). Never raises."""
+    try:
+        if (cam.vendor or "").lower() != "imou" or not cam.vendor_ref:
+            return False
+        if role != "owner":
+            from . import cctv_team_views as CTV
+            if not CTV.viewer_live_ok(cam, viewer):
+                return False
+        from . import cctv_connect_views as CCV
+        from .logic import cctv_connect as CC
+        link, _serial, _ch = CCV.link_of_camera(cam)
+        return link is not None and CC.enabled(link.provider)
+    except Exception:
+        return False
+
+
 def _keep_days(cam):
     """Days this camera's clips stay on the server: the paid add-on's 7 / 30,
     else 1 (the 24-hour default). Never raises."""
@@ -1100,10 +1122,16 @@ class WatchmanClipsView(_OwnerBase):
                 pass
         rows = [SV._event_row(e, request) for e in qs[:300]]
         keep = {c.id: _keep_days(c) for c in cams}
+        viewer = None
+        if role != "owner":
+            from . import cctv_team_views as CTV
+            viewer = CTV.viewer_of(s, request.user)
         short = [c for c in cams if keep[c.id] < CLIP_PREMIUM_DAYS]
         return Response({
             "site": s.id, "role": role, "clips": rows,
-            "cameras": [{"id": c.id, "name": c.name or "", "keep_days": keep[c.id]}
+            "cameras": [{"id": c.id, "name": c.name or "", "keep_days": keep[c.id],
+                         # gap-cctv3: its own recordings can be played back
+                         "cloud_playback": _cloud_playback(c, role, viewer)}
                         for c in cams],
             "default_hours": CLIP_DEFAULT_HOURS, "premium_days": CLIP_PREMIUM_DAYS,
             # an upsell line only for the owner, only when some camera keeps

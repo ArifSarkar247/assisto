@@ -53049,6 +53049,355 @@
       }
     }
   },
+  "tr2AlarmAskBody": "While your get-off alarm runs, your phone can show everyone where this train is — without your name. Only if you say yes. It stops when the alarm ends, and you can stop it any time from the notification.",
+  "@tr2AlarmAskBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskNo": "No, only the alarm",
+  "@tr2AlarmAskNo": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskTitle": "Help other passengers?",
+  "@tr2AlarmAskTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskYes": "Yes, share the train's position",
+  "@tr2AlarmAskYes": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskBody": "Your phone is moving along this train's line at train speed. If you are on it, one tap lets other passengers see where the train is — without your name. A notification shows while it is on, and it stops by itself at the last station.",
+  "@tr2AskBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskNo": "No, I am not",
+  "@tr2AskNo": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskTitle": "Are you on {train}?",
+  "@tr2AskTitle": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "train": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2AskYes": "Yes, I am on this train",
+  "@tr2AskYes": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AutoStop": "Stops by itself at the last station.",
+  "@tr2AutoStop": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitAlarm": "Get-off alarm before your station",
+  "@tr2BenefitAlarm": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitFamily": "Your family can see where the train is",
+  "@tr2BenefitFamily": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitOffline": "See your own position even with no internet",
+  "@tr2BenefitOffline": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitPoints": "Reward points when your reports match (points only)",
+  "@tr2BenefitPoints": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CellOptIn": "Also send my phone's mobile tower",
+  "@tr2CellOptIn": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CellOptInSub": "Helps place the train for people with weak GPS or no internet. Only the tower number — never your calls, SMS or phone number.",
+  "@tr2CellOptInSub": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinLeft": "The train left here",
+  "@tr2CheckinLeft": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinPending": "Thank you — it counts when one more person agrees",
+  "@tr2CheckinPending": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinReached": "The train reached here",
+  "@tr2CheckinReached": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinRejected": "Not counted — your phone must be near this station",
+  "@tr2CheckinRejected": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinThanks": "Thank you — counted",
+  "@tr2CheckinThanks": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinWhy": "Counted when your phone is near this station or 2 or more people agree. Reports that match earn points.",
+  "@tr2CheckinWhy": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2DelayShort": "+{min} min",
+  "@tr2DelayShort": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Disclaimer": "Shown from riders, check-ins and the timetable — it can be a few minutes off.",
+  "@tr2Disclaimer": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshAgo": "{min} min ago",
+  "@tr2FreshAgo": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2FreshLive": "Live",
+  "@tr2FreshLive": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshOfflineTt": "Offline: timetable estimate",
+  "@tr2FreshOfflineTt": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshPredicted": "Predicted — not live",
+  "@tr2FreshPredicted": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshTimetable": "Timetable",
+  "@tr2FreshTimetable": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshTower": "Offline: mobile tower + timetable",
+  "@tr2FreshTower": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2KindAt": "at {station}",
+  "@tr2KindAt": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2KindLeft": "left {station}",
+  "@tr2KindLeft": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2KindReached": "reached {station}",
+  "@tr2KindReached": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2LineTapHint": "Tap a station: the train reached / left it, or a get-off alarm there.",
+  "@tr2LineTapHint": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2NextBadge": "Next station",
+  "@tr2NextBadge": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffBody": "Keeps every train timetable and the mobile-tower map on this phone. With no internet and no GPS you still see where your train is (estimated). Updated weekly.",
+  "@tr2OffBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffDownload": "Download ({size})",
+  "@tr2OffDownload": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffDownloadNoSize": "Download",
+  "@tr2OffDownloadNoSize": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffDownloading": "Downloading…",
+  "@tr2OffDownloading": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffFailed": "Download failed. Check the internet and try again.",
+  "@tr2OffFailed": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffReady": "On this phone: {count} trains · updated {date}",
+  "@tr2OffReady": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffTitle": "Use without internet",
+  "@tr2OffTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffUpdate": "Update ({size})",
+  "@tr2OffUpdate": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffUpdateNoSize": "Update",
+  "@tr2OffUpdateNoSize": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffWeekly": "Up to date. We check for changes every week.",
+  "@tr2OffWeekly": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OfflineStrip": "No internet — showing the train from this phone",
+  "@tr2OfflineStrip": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2Outbox": "{n} reports wait for internet",
+  "@tr2Outbox": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2PasteBody": "Paste the 16318 SMS reply, or a post from a Facebook, Telegram or WhatsApp group. We find the train, station and time, and check it with other reports before it updates everyone.",
+  "@tr2PasteBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteButton": "Share a 16318 reply or group post",
+  "@tr2PasteButton": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHint": "Paste the text here",
+  "@tr2PasteHint": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHow": "From your SMS app send TR and the train number to 16318 (costs ৳4). Open the reply, tap Share, then Assisto — or copy it and paste here.",
+  "@tr2PasteHow": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHowTitle": "How to get the 16318 reply",
+  "@tr2PasteHowTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteNever": "Assisto never reads your SMS or any other app by itself — only the text you give here.",
+  "@tr2PasteNever": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PastePaste": "Paste",
+  "@tr2PastePaste": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteSend": "Send update",
+  "@tr2PasteSend": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteTitle": "Share a train update",
+  "@tr2PasteTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewChecked": "Checked with riders and other reports before it shows.",
+  "@tr2PreviewChecked": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewNone": "No train number found yet. The server will still try when you send it.",
+  "@tr2PreviewNone": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewTime": "Time: {time}",
+  "@tr2PreviewTime": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2PreviewTitle": "We understood",
+  "@tr2PreviewTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewTrain": "Train {no}",
+  "@tr2PreviewTrain": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Queued": "No internet — saved on this phone, sent when you are online",
+  "@tr2Queued": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2RiderWhy": "On this train? Share for the trip: others see where it is, you get your position offline, the get-off alarm and points.",
+  "@tr2RiderWhy": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2RidersLive": "{n} riders live",
+  "@tr2RidersLive": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Saver": "Battery saver: one position every 60 seconds",
+  "@tr2Saver": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2Speed": "{speed} km/h",
+  "@tr2Speed": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Suspended": "Suspended — not running now",
+  "@tr2Suspended": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextApplied": "Thank you — the train is updated for everyone",
+  "@tr2TextApplied": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextChecking": "Thank you — it shows once it matches other reports",
+  "@tr2TextChecking": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextUnparsed": "We could not find a train and station in this text",
+  "@tr2TextUnparsed": {
+    "description": "train-app (Train Tracker V2)"
+  },
   "crfTitleImou": "First remove the camera from Imou Life",
   "@crfTitleImou": {
     "description": "imou-real: remove-from-vendor-app guide"
@@ -53183,6 +53532,565 @@
   "@crfSkCodeDmss": {
     "description": "imou-real: remove-from-vendor-app guide"
   },
+  "bpShareReqMine": "Share this request",
+  "@bpShareReqMine": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: share the open request (requester)"
+  },
+  "bpShareReqOther": "Share — someone you know may help",
+  "@bpShareReqOther": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: share the open request (other donor)"
+  },
+  "bpShareReqSub": "WhatsApp, Facebook or Messenger. No phone number is included — add one yourself only if you want.",
+  "@bpShareReqSub": {
+    "description": "gap-quranblood (17 Nov): Blood request detail: under the share button"
+  },
+  "bpShareReqText": "Urgent blood needed: {group}, {units} bag(s)\nHospital: {hospital}\nArea: {place}\nNeeded by: {when}\nIf you can donate, open Assisto → Blood donor and tap \"I can donate\": {link}",
+  "@bpShareReqText": {
+    "description": "gap-quranblood (17 Nov): Blood request share text (no phone number, no note)",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "units": {
+        "type": "String"
+      },
+      "hospital": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "bpCompatChip": "All groups that can give to {group}",
+  "@bpCompatChip": {
+    "description": "gap-quranblood (17 Nov): Blood find: include compatible donor groups",
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "bpMePhoneShown": "Your number: shown",
+  "@bpMePhoneShown": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row (public)"
+  },
+  "bpMePhoneShownSub": "Anyone in Assisto who searches your blood group near you can see and call it. Tap to hide it.",
+  "@bpMePhoneShownSub": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row sub (public)"
+  },
+  "bpMePhoneHidden": "Your number: private",
+  "@bpMePhoneHidden": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row (private)"
+  },
+  "bpMePhoneHiddenSub": "People message you inside the app. Tap if you also want to show your number.",
+  "@bpMePhoneHiddenSub": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: phone visibility row sub (private)"
+  },
+  "bpPhonePublicConfirmTitle": "Show your phone number?",
+  "@bpPhonePublicConfirmTitle": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm making the number public"
+  },
+  "bpPhonePublicConfirmBody": "Anyone in Assisto who searches your blood group near you will see your number and can call or SMS you — including people you do not know. You can hide it again any time from the \"Me as donor\" tab.",
+  "@bpPhonePublicConfirmBody": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm making the number public (who sees it)"
+  },
+  "bpPhonePublicConfirmOk": "Yes, show my number",
+  "@bpPhonePublicConfirmOk": {
+    "description": "gap-quranblood (17 Nov): Blood: confirm button"
+  },
+  "bpPhoneKeepPrivate": "Keep it private",
+  "@bpPhoneKeepPrivate": {
+    "description": "gap-quranblood (17 Nov): Blood: keep the number private"
+  },
+  "bpPhonePublicWhoSub": "Off (recommended): people message you in the app. On: anyone searching your group nearby sees your number.",
+  "@bpPhonePublicWhoSub": {
+    "description": "gap-quranblood (17 Nov): Blood setup: phone switch sub-line (who sees it)"
+  },
+  "bpDonatedOtherDay": "I donated on another day",
+  "@bpDonatedOtherDay": {
+    "description": "gap-quranblood (17 Nov): Blood Me tab: pick the real donation day"
+  },
+  "qrnTabJuz": "Para (Juz)",
+  "@qrnTabJuz": {
+    "description": "gap-quranblood (17 Nov): Quran: para tab"
+  },
+  "qrnJuzStarts": "Starts at {sura}, verse {aya}",
+  "@qrnJuzStarts": {
+    "description": "gap-quranblood (17 Nov): Quran para list: where the para starts",
+    "placeholders": {
+      "sura": {
+        "type": "String"
+      },
+      "aya": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnGoTo": "Go to {sura} {ref}",
+  "@qrnGoTo": {
+    "description": "gap-quranblood (17 Nov): Quran search: jump to sura:verse",
+    "placeholders": {
+      "sura": {
+        "type": "String"
+      },
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "qrnNextSura": "Next sura: {name}",
+  "@qrnNextSura": {
+    "description": "gap-quranblood (17 Nov): Quran reader: end of sura",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "qvNextSura": "Next sura",
+  "@qvNextSura": {
+    "description": "gap-quranblood (17 Nov): Ayah view: last verse -> next sura"
+  },
+  "qrnEnOffline": "English: Pickthall (public domain, offline copy). The Saheeh International meaning loads when you are online.",
+  "@qrnEnOffline": {
+    "description": "gap-quranblood (17 Nov): Quran reader: English source line when offline"
+  },
+  "qrnMeaningOffline": "Bangla meaning could not load (no internet or the source is down). The Arabic is always here.",
+  "@qrnMeaningOffline": {
+    "description": "gap-quranblood (17 Nov): Quran reader: meaning failed to load"
+  },
+  "gcvPbTitle": "Camera recordings",
+  "gcvPbEntry": "{camera}: its own recordings",
+  "gcvPbEntrySub": "Play back the camera's SD card or Imou cloud recording",
+  "gcvPbIntro": "Pick a day and an hour. Assisto plays the camera's own recording through Imou: from its SD card, else from Imou cloud storage.",
+  "gcvPbLowData": "Low data: recordings play in the smaller stream (about 19 MB per 5 minutes).",
+  "gcvPbPickHour": "Hour",
+  "gcvPbHasRec": "has a recording",
+  "gcvPbNoRec": "no recording",
+  "gcvPbHint": "Tap an hour to see what the camera recorded then.",
+  "gcvPbRecordsTitle": "Recorded in this hour",
+  "gcvPbFromSd": "Playing from the camera's SD card.",
+  "gcvPbFromCloud": "Playing from Imou cloud storage.",
+  "gcvPbNoRecording": "No recording for this hour. Recordings need an SD card in the camera or an Imou cloud plan — check in Imou Life that recording is on.",
+  "gcvPbSdkOnly": "The camera has recordings for this hour, but its firmware cannot send them to other apps. Watch them in the Imou Life app.",
+  "gcvPbNotConfigured": "Imou recordings are not switched on in Assisto yet.",
+  "gcvPbRevoked": "Assisto can no longer reach this camera — connect it again from \"Connect your DVR / camera brand\".",
+  "gcvPbNetwork": "Could not reach Imou right now. Check the internet and try again.",
+  "gcvPbPlayFailed": "The recording could not be played (the link lasts 10 minutes). Try again.",
+  "@gcvPbEntry": {
+    "description": "gap-cctv3: entry to a camera's own recordings",
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      }
+    }
+  },
+  "@gcvPbTitle": {
+    "description": "gap-cctv3: Imou recording playback screen"
+  },
+  "aiReplyMenu": "AI reply",
+  "@aiReplyMenu": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTitle": "AI reply for {name}",
+  "@aiReplyTitle": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyGroupTitle": "AI reply in this group",
+  "@aiReplyGroupTitle": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyIntro": "Assisto writes short replies in your style. It never answers about money, addresses, meeting in person, health emergencies, promises or big decisions — those wait for you.",
+  "@aiReplyIntro": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeOff": "Off",
+  "@aiReplyModeOff": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeOffSub": "No AI in this chat",
+  "@aiReplyModeOffSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeSuggest": "Suggest, I send",
+  "@aiReplyModeSuggest": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeSuggestSub": "Short replies above the keyboard; one tap sends",
+  "@aiReplyModeSuggestSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeBusy": "Busy mode",
+  "@aiReplyModeBusy": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeBusySub": "Short replies on its own while you are busy",
+  "@aiReplyModeBusySub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeAuto": "Full auto",
+  "@aiReplyModeAuto": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeAutoSub": "Keeps the conversation going in your style",
+  "@aiReplyModeAutoSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyGroupOnly": "In groups AI only suggests — you always send.",
+  "@aiReplyGroupOnly": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyBusyFor": "Busy for how long?",
+  "@aiReplyBusyFor": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply30m": "30 minutes",
+  "@aiReply30m": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply1h": "1 hour",
+  "@aiReply1h": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply2h": "2 hours",
+  "@aiReply2h": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyUntilOff": "Until I turn it off",
+  "@aiReplyUntilOff": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyBusyUntil": "AI replies for you until {time}",
+  "@aiReplyBusyUntil": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyBusyOn": "AI replies for you until you turn it off",
+  "@aiReplyBusyOn": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyOnAuto": "AI is replying for you in your style",
+  "@aiReplyOnAuto": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyLabel": "Show the “Assisto AI reply” tag",
+  "@aiReplyLabel": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyLabelSub": "They see a small tag under messages AI sends for you",
+  "@aiReplyLabelSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyStyle": "Learn my writing style",
+  "@aiReplyStyle": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyStyleSub": "Only from messages you send in My Circle. Assisto keeps a small style summary, never your messages. Turn off to delete it.",
+  "@aiReplyStyleSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyCost": "Each AI reply uses {n} credit.",
+  "@aiReplyCost": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyFreeLeft": "You have enough for {n} replies now.",
+  "@aiReplyFreeLeft": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyWatchAd": "Watch an ad for replies",
+  "@aiReplyWatchAd": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyNoCredits": "No credits left for AI replies.",
+  "@aiReplyNoCredits": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyChild": "AI reply is not available for child accounts.",
+  "@aiReplyChild": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyError": "Couldn't change it. Check the internet and try again.",
+  "@aiReplyError": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyRetry": "Try again",
+  "@aiReplyRetry": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyDone": "Done",
+  "@aiReplyDone": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTag": "Assisto AI reply",
+  "@aiReplyTag": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyNeedsYou": "This one needs you — AI doesn't answer money, address, meeting, health or promises.",
+  "@aiReplyNeedsYou": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHeldHere": "AI held a message here — it needs your own answer.",
+  "@aiReplyHeldHere": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHeldOk": "OK",
+  "@aiReplyHeldOk": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyChange": "Change",
+  "@aiReplyChange": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplySuggesting": "AI is writing replies…",
+  "@aiReplySuggesting": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTapToSend": "Tap to send this reply",
+  "@aiReplyTapToSend": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHide": "Hide suggestions",
+  "@aiReplyHide": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "arnTitle": "AI reply in notifications",
+  "@arnTitle": {
+    "description": "ai-reply-notif: screen + settings tile title"
+  },
+  "arnTileSub": "Quick replies under WhatsApp, Messenger and other chat messages",
+  "@arnTileSub": {
+    "description": "ai-reply-notif: settings tile subtitle"
+  },
+  "arnBenefit": "When a chat message arrives, Assisto shows 2 short replies under it. Tap one to send it, or write your own. You never need to open the app.",
+  "@arnBenefit": {
+    "description": "ai-reply-notif: settings intro"
+  },
+  "arnOnlyYouSend": "Only your tap sends a reply. Assisto never sends anything on its own in other apps.",
+  "@arnOnlyYouSend": {
+    "description": "ai-reply-notif: safety strip"
+  },
+  "arnNotAvailable": "This phone does not support replies from notifications.",
+  "@arnNotAvailable": {
+    "description": "ai-reply-notif: native part missing"
+  },
+  "arnAccessOn": "Notification access is on",
+  "@arnAccessOn": {
+    "description": "ai-reply-notif: access card title"
+  },
+  "arnAccessOff": "Notification access is off",
+  "@arnAccessOff": {
+    "description": "ai-reply-notif: access card title"
+  },
+  "arnAccessStopped": "Stopped: notification access was turned off",
+  "@arnAccessStopped": {
+    "description": "ai-reply-notif: switched on but access revoked"
+  },
+  "arnAccessOnHelp": "Assisto reads only messages from the chat apps you turned on below. Everything else is ignored.",
+  "@arnAccessOnHelp": {
+    "description": "ai-reply-notif: access card help"
+  },
+  "arnAccessOffHelp": "Turn on the switch below, then allow Assisto on Android's Notification access page.",
+  "@arnAccessOffHelp": {
+    "description": "ai-reply-notif: access card help"
+  },
+  "arnAccessManage": "Manage access",
+  "@arnAccessManage": {
+    "description": "ai-reply-notif: button"
+  },
+  "arnAccessOpen": "Open Notification access",
+  "@arnAccessOpen": {
+    "description": "ai-reply-notif: button"
+  },
+  "arnMasterTitle": "Suggest replies",
+  "@arnMasterTitle": {
+    "description": "ai-reply-notif: master switch"
+  },
+  "arnMasterOnSub": "On for the apps you pick below",
+  "@arnMasterOnSub": {
+    "description": "ai-reply-notif: master switch subtitle"
+  },
+  "arnMasterOffSub": "Off. Nothing is read.",
+  "@arnMasterOffSub": {
+    "description": "ai-reply-notif: master switch subtitle"
+  },
+  "arnNoCredits": "Some messages got no suggestions because your free AI replies are used up. Watch a short ad to unlock more.",
+  "@arnNoCredits": {
+    "description": "ai-reply-notif: free user without credits"
+  },
+  "arnUnlockAd": "Watch an ad to unlock replies",
+  "@arnUnlockAd": {
+    "description": "ai-reply-notif: rewarded ad button"
+  },
+  "arnAppsTitle": "Which apps",
+  "@arnAppsTitle": {
+    "description": "ai-reply-notif: per-app list header"
+  },
+  "arnAppsHelp": "All apps are off until you turn them on. Banks, bKash, Nagad, SMS and OTP messages are never read.",
+  "@arnAppsHelp": {
+    "description": "ai-reply-notif: per-app list help"
+  },
+  "arnAppsPickOne": "Turn on at least one app below to get reply suggestions.",
+  "@arnAppsPickOne": {
+    "description": "ai-reply-notif: master on, no app"
+  },
+  "arnAppMyCircle": "My Circle (Assisto chat)",
+  "@arnAppMyCircle": {
+    "description": "ai-reply-notif: per-app row"
+  },
+  "arnNotInstalled": "Not installed on this phone",
+  "@arnNotInstalled": {
+    "description": "ai-reply-notif: per-app row subtitle"
+  },
+  "arnPreviewTitle": "How the reply card looks",
+  "@arnPreviewTitle": {
+    "description": "ai-reply-notif: preview section"
+  },
+  "arnPreviewNote": "Example only. Real suggestions follow the message and your language.",
+  "@arnPreviewNote": {
+    "description": "ai-reply-notif: preview footnote"
+  },
+  "arnNeverFor": "Never for SOS or emergency messages, banks, bKash, Nagad, Rocket, Upay, OTP or verification codes, payments, money talk, SMS or system notifications.",
+  "@arnNeverFor": {
+    "description": "ai-reply-notif: never list"
+  },
+  "arnTurnOff": "Turn off AI reply",
+  "@arnTurnOff": {
+    "description": "ai-reply-notif: off button"
+  },
+  "arnPrivacyFoot": "The sender's name and the last few lines go to Assisto's server and AI only to make the replies. They are not saved and never used to train AI.",
+  "@arnPrivacyFoot": {
+    "description": "ai-reply-notif: privacy footer"
+  },
+  "arnDiscTitle": "Before you turn this on",
+  "@arnDiscTitle": {
+    "description": "ai-reply-notif: consent screen title"
+  },
+  "arnDiscLead": "To suggest replies, Assisto needs Android's Notification access. Here is exactly what happens.",
+  "@arnDiscLead": {
+    "description": "ai-reply-notif: consent lead"
+  },
+  "arnDiscReadTitle": "What is read",
+  "@arnDiscReadTitle": {
+    "description": "ai-reply-notif: consent point title"
+  },
+  "arnDiscRead": "Only the sender's name and the message text from the chat apps you choose. Other apps' notifications are ignored without being read.",
+  "@arnDiscRead": {
+    "description": "ai-reply-notif: consent point"
+  },
+  "arnDiscWhereTitle": "Where it goes",
+  "@arnDiscWhereTitle": {
+    "description": "ai-reply-notif: consent point title"
+  },
+  "arnDiscWhere": "To Assisto's server and then to the AI, only to make 2 or 3 short replies.",
+  "@arnDiscWhere": {
+    "description": "ai-reply-notif: consent point"
+  },
+  "arnDiscNoStoreTitle": "Not stored",
+  "@arnDiscNoStoreTitle": {
+    "description": "ai-reply-notif: consent point title"
+  },
+  "arnDiscNoStore": "Messages are not saved, not shown to anyone, and never used to train AI.",
+  "@arnDiscNoStore": {
+    "description": "ai-reply-notif: consent point"
+  },
+  "arnDiscCostTitle": "Uses credits",
+  "@arnDiscCostTitle": {
+    "description": "ai-reply-notif: consent point title"
+  },
+  "arnDiscCost": "Each set of suggestions uses AI credits. Free users can unlock more by watching an ad in the app.",
+  "@arnDiscCost": {
+    "description": "ai-reply-notif: consent point"
+  },
+  "arnDiscOffTitle": "Easy to turn off",
+  "@arnDiscOffTitle": {
+    "description": "ai-reply-notif: consent point title"
+  },
+  "arnDiscOff": "Turn it off any time in Settings > AI reply in notifications, or remove Assisto's Notification access in Android Settings.",
+  "@arnDiscOff": {
+    "description": "ai-reply-notif: consent point"
+  },
+  "arnDiscAccessNote": "Next, Android opens its Notification access page. Find Assisto and switch it on. If you already allowed it for call notes or money, nothing new is read until you pick apps here.",
+  "@arnDiscAccessNote": {
+    "description": "ai-reply-notif: consent footnote"
+  },
+  "arnDiscAgree": "Agree and continue",
+  "@arnDiscAgree": {
+    "description": "ai-reply-notif: consent agree"
+  },
+  "arnDiscNotNow": "Not now",
+  "@arnDiscNotNow": {
+    "description": "ai-reply-notif: consent decline"
+  },
+  "arnChannel": "AI reply suggestions",
+  "@arnChannel": {
+    "description": "ai-reply-notif: Android notification channel name"
+  },
+  "arnNotifTitle": "Reply to %NAME%",
+  "@arnNotifTitle": {
+    "description": "ai-reply-notif: companion notification title; keep %NAME%"
+  },
+  "arnNotifSub": "Assisto AI · only you send",
+  "@arnNotifSub": {
+    "description": "ai-reply-notif: companion notification subtext"
+  },
+  "arnWriteMyself": "Write myself",
+  "@arnWriteMyself": {
+    "description": "ai-reply-notif: companion notification action"
+  },
+  "arnNotifSent": "Sent to %NAME%",
+  "@arnNotifSent": {
+    "description": "ai-reply-notif: after tap; keep %NAME%"
+  },
+  "arnNotifFail": "Could not send. Open the chat to reply.",
+  "@arnNotifFail": {
+    "description": "ai-reply-notif: send failed"
+  },
+  "arnSampleName": "Rahim",
+  "@arnSampleName": {
+    "description": "ai-reply-notif: made-up sample sender in the preview"
+  },
+  "arnSampleMessage": "Are you coming to the meeting today?",
+  "@arnSampleMessage": {
+    "description": "ai-reply-notif: made-up sample message"
+  },
+  "arnSampleReply1": "Yes, I'll be there",
+  "@arnSampleReply1": {
+    "description": "ai-reply-notif: sample suggestion"
+  },
+  "arnSampleReply2": "Running 10 minutes late",
+  "@arnSampleReply2": {
+    "description": "ai-reply-notif: sample suggestion"
+  },
+  "clnAccessOnHelpAi": "Android lets Assisto see notifications. Assisto ignores everything except call-ended signals, allowed money senders and the chat apps you turned on for AI reply.",
+  "@clnAccessOnHelpAi": {
+    "description": "callmoney access card help when AI reply is also on"
+  },
   "signupOtpSpamHint": "Didn't get the code? Check your Spam or Promotions folder — it can take up to 2 minutes.",
   "@signupOtpSpamHint": {
     "description": "signup-otp: shown under an emailed code"
@@ -53251,6 +54159,85 @@
   "@fatSensSaved": {
     "description": "flag-antitheft: snackbar after the sensitivity was saved."
   },
+  "csshShare": "Share screen",
+  "@csshShare": {
+    "description": "Video call: button that starts sharing this phone's screen."
+  },
+  "csshStarting": "Starting…",
+  "@csshStarting": {
+    "description": "Video call: share button while Android asks for permission."
+  },
+  "csshStop": "Stop",
+  "@csshStop": {
+    "description": "Video call: red sharing bar, stops screen sharing."
+  },
+  "csshSharingBar": "You're sharing your screen",
+  "@csshSharingBar": {
+    "description": "Video call: red bar while this phone shares its screen."
+  },
+  "csshConsentTitle": "Show your screen to {name}?",
+  "@csshConsentTitle": {
+    "description": "Sheet title before screen sharing.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "csshConsentBody": "{name} will see everything on your screen, including messages and notifications that pop up. Your voice keeps going. Android will ask you once more — tap Start.",
+  "@csshConsentBody": {
+    "description": "Sheet body before screen sharing.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "csshConsentTip": "Tip: stop any time with the red Stop bar or the Stop sharing button in your notifications. Don't open bank apps or passwords while sharing.",
+  "@csshConsentTip": {
+    "description": "Sheet tip before screen sharing."
+  },
+  "csshConsentGo": "Continue",
+  "@csshConsentGo": {
+    "description": "Sheet button: go on to Android's screen-share dialog."
+  },
+  "csshConsentNo": "Not now",
+  "@csshConsentNo": {
+    "description": "Sheet button: do not share the screen."
+  },
+  "csshDenied": "Screen sharing was not allowed. You can try again any time.",
+  "@csshDenied": {
+    "description": "Call notice: Android dialog was refused."
+  },
+  "csshFailed": "Couldn't start screen sharing. Your call goes on — please try again.",
+  "@csshFailed": {
+    "description": "Call notice: screen sharing failed to start."
+  },
+  "csshStoppedBySystem": "Screen sharing stopped. Your camera is back.",
+  "@csshStoppedBySystem": {
+    "description": "Call notice: Android ended the screen share (status bar chip, screen lock)."
+  },
+  "csshRemoteSharing": "{name} is sharing their screen",
+  "@csshRemoteSharing": {
+    "description": "Video call: chip over the other person's shared screen.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "csshNotifTitle": "Sharing your screen in an Assisto call",
+  "@csshNotifTitle": {
+    "description": "Notification title while sharing the screen."
+  },
+  "csshNotifBody": "The other person can see your screen.",
+  "@csshNotifBody": {
+    "description": "Notification body while sharing the screen."
+  },
+  "csshNotifStop": "Stop sharing",
+  "@csshNotifStop": {
+    "description": "Notification button that stops screen sharing."
+  },
   "d3GwShopboxTitle": "Shop Box (small computer)",
   "@d3GwShopboxTitle": {
     "description": "design3: CCTV gateway choice — the Shop Box is now any small computer (Raspberry Pi, Linux mini PC or Windows PC), not only a Windows PC"
@@ -53258,5 +54245,781 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "gcallAddPerson": "Add person",
+  "@gcallAddPerson": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickTitle": "Add people to this call",
+  "@gcallPickTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickSearch": "Search My Circle",
+  "@gcallPickSearch": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickRing": "Ring {count}",
+  "@gcallPickRing": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallPickInCall": "In the call",
+  "@gcallPickInCall": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickSeatsLeft": "{count} more can join (8 at most)",
+  "@gcallPickSeatsLeft": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallPickEmptyTitle": "No one to add yet",
+  "@gcallPickEmptyTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyBenefit": "Talk with family and friends together in one call.",
+  "@gcallPickEmptyBenefit": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyHow1": "Open My Circle and add the person.",
+  "@gcallPickEmptyHow1": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyHow2": "When they accept, they show here.",
+  "@gcallPickEmptyHow2": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNoMatch": "No one found",
+  "@gcallNoMatch": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallTitle": "Group call",
+  "@gcallTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPeople": "{count} people",
+  "@gcallPeople": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallRinging": "Ringing…",
+  "@gcallRinging": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallConnecting": "Connecting…",
+  "@gcallConnecting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallYou": "You",
+  "@gcallYou": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMicOff": "Mic off",
+  "@gcallMicOff": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallSpeaking": "Speaking",
+  "@gcallSpeaking": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallLeave": "Leave call",
+  "@gcallLeave": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallWaiting": "Waiting for others to join…",
+  "@gcallWaiting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallEnded": "Call ended",
+  "@gcallEnded": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallEndedAll": "Everyone else left the call.",
+  "@gcallEndedAll": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallFull": "A call can have at most 8 people. This call is full.",
+  "@gcallFull": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallUnavailable": "You can't join this call.",
+  "@gcallUnavailable": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMicDenied": "Allow the microphone to join the call.",
+  "@gcallMicDenied": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMediaError": "Couldn't start the microphone. Please try again.",
+  "@gcallMediaError": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNetwork": "Couldn't reach Assisto. Check the internet and try again.",
+  "@gcallNetwork": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallVideoPremium": "Group video calls need Premium. Group audio calls are free for everyone.",
+  "@gcallVideoPremium": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallRingingNames": "Ringing {names}",
+  "@gcallRingingNames": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallCouldNotAdd": "Couldn't add {names}",
+  "@gcallCouldNotAdd": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallLowData": "Low data",
+  "@gcallLowData": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallDataPerMin": "About {mb} MB a minute",
+  "@gcallDataPerMin": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoinBar": "Call going on · {count} in it",
+  "@gcallJoinBar": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoinBarVideo": "Video call going on · {count} in it",
+  "@gcallJoinBarVideo": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoin": "Join",
+  "@gcallJoin": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallCameraOffData": "Camera is off to save mobile data. Tap the camera to turn it on.",
+  "@gcallCameraOffData": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallStarting": "Starting the group call…",
+  "@gcallStarting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNobodyReached": "Nobody could be reached right now. Try again later.",
+  "@gcallNobodyReached": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallDeclined": "Declined",
+  "@gcallDeclined": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNoAnswer": "No answer",
+  "@gcallNoAnswer": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMoving": "Moving to a group call…",
+  "@gcallMoving": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallSpeaker": "Speaker",
+  "@gcallSpeaker": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMute": "Mute",
+  "@gcallMute": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallCamera": "Camera",
+  "@gcallCamera": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallFlip": "Flip",
+  "@gcallFlip": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "kwgSosNowTitle": "{name} pressed SOS at {time}",
+  "@kwgSosNowTitle": {
+    "description": "gap-kidswatch: kids watch card / settings",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kwgSosNowBody": "The watch also calls its SOS numbers: answer it. Or call the watch now: it rings and shows your call.",
+  "@kwgSosNowBody": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNowNoSim": "The watch calls its SOS numbers: answer it. Add the watch's SIM number in Watch settings to call it back in one tap.",
+  "@kwgSosNowNoSim": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgCallWatch": "Call the watch",
+  "@kwgCallWatch": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSeeWhere": "See where",
+  "@kwgSeeWhere": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosCalls": "SOS button calls: {numbers}",
+  "@kwgSosCalls": {
+    "description": "gap-kidswatch: kids watch card / settings",
+    "placeholders": {
+      "numbers": {
+        "type": "String"
+      }
+    }
+  },
+  "kwgSosNone": "The SOS button calls nobody yet. Add a number in Watch settings.",
+  "@kwgSosNone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSettings": "Watch settings",
+  "@kwgSettings": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimLabel": "Watch's SIM number (optional)",
+  "@kwgSimLabel": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimHelp": "So you and the family can call the watch in one tap. A normal call: the watch rings and shows it.",
+  "@kwgSimHelp": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosHelpDefault": "Your number is filled in, so the SOS button always calls someone. Add up to 3, separated by commas.",
+  "@kwgSosHelpDefault": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccount": "Child's own Assisto account (optional)",
+  "@kwgChildAccount": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccountHelp": "Link it so the watch SOS also reaches the child's whole family.",
+  "@kwgChildAccountHelp": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildNone": "Not linked",
+  "@kwgChildNone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSaved": "Saved. The watch gets the new SOS numbers when it next connects.",
+  "@kwgSaved": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNeedOne": "Add at least one SOS number.",
+  "@kwgSosNeedOne": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgBadPhone": "This doesn't look like a phone number.",
+  "@kwgBadPhone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgNoListen": "Assisto can never switch on the watch's microphone in secret. A call always rings and shows on the watch.",
+  "@kwgNoListen": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "itgTitle": "Bluetooth tag",
+  "@itgTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonTitle": "Find your own tag",
+  "@itgReasonTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonNearby": "Assisto needs the \"Nearby devices\" permission to find and connect to YOUR Bluetooth tag (iTag). It is not used to find your location.",
+  "@itgReasonNearby": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonLegacy": "On this Android version, a Bluetooth search needs the location permission. Assisto uses it only to find YOUR Bluetooth tag (iTag) while this screen is open — never in the background.",
+  "@itgReasonLegacy": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonRing": "Ring the tag on your keys or bag to find it.",
+  "@itgReasonRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonLeft": "With \"Watch my bag\" on, the phone rings if the tag goes out of reach (while Assisto is open).",
+  "@itgReasonLeft": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonButton": "Press the tag's button to ring this phone.",
+  "@itgReasonButton": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonPrivacy": "Your tag and the place where you last had it stay only on this phone. Nothing is sent to Assisto's server.",
+  "@itgReasonPrivacy": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPermBlocked": "Bluetooth permission is off for Assisto. Turn on \"Nearby devices\" in Settings.",
+  "@itgPermBlocked": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOpenSettings": "Settings",
+  "@itgOpenSettings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgBtOff": "Bluetooth is off. Turn it on to reach your tag.",
+  "@itgBtOff": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgTurnOn": "Turn on",
+  "@itgTurnOn": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLocationOff": "On this phone a Bluetooth search works only with Location (GPS) turned on. Turn it on in quick settings and try again.",
+  "@itgLocationOff": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnsupported": "This phone has no Bluetooth Low Energy, so it cannot use a tag.",
+  "@itgUnsupported": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNeedPermission": "Allow \"Nearby devices\" so Assisto can reach your tag.",
+  "@itgNeedPermission": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgAllow": "Allow",
+  "@itgAllow": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgDefaultName": "My bag",
+  "@itgDefaultName": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNameTitle": "Name this tag",
+  "@itgNameTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNameHint": "e.g. Keys, Bag, Bike",
+  "@itgNameHint": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPaired": "{name} is paired",
+  "@itgPaired": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgPairFailed": "Could not connect. Keep the tag next to the phone, press its button once and try again.",
+  "@itgPairFailed": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOutOfReachToast": "The tag is out of reach. Move closer and try again.",
+  "@itgOutOfReachToast": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnpairTitle": "Remove {name}?",
+  "@itgUnpairTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgUnpairBody": "Assisto will forget this tag and its last-seen place on this phone. You can pair it again any time.",
+  "@itgUnpairBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnpair": "Remove tag",
+  "@itgUnpair": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgRename": "Rename",
+  "@itgRename": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgMore": "More",
+  "@itgMore": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatchBanner": "Watching your bag. Keep Assisto open — if the tag goes out of reach, this phone rings.",
+  "@itgWatchBanner": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgEmptyTitle": "Never lose your keys or bag",
+  "@itgEmptyTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgEmptyBenefit": "Add a Bluetooth tag (iTag): ring it to find it, and get an alert if you leave it behind.",
+  "@itgEmptyBenefit": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgAddTag": "Add a tag",
+  "@itgAddTag": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow1": "Put a battery in the tag and keep it next to the phone.",
+  "@itgHow1": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow2": "Press the tag's button once so it wakes up.",
+  "@itgHow2": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow3": "Tap \"Add a tag\" and choose it from the list.",
+  "@itgHow3": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSettings": "Tag settings",
+  "@itgSettings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatch": "Watch my bag",
+  "@itgWatch": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatchSub": "If a tag goes out of reach, this phone and the tag both ring. Works while Assisto is open.",
+  "@itgWatchSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgButtonRings": "Tag button rings this phone",
+  "@itgButtonRings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgButtonRingsSub": "Can't find your phone? Press the tag's button. Press again to stop.",
+  "@itgButtonRingsSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSavePlace": "Remember where I left it",
+  "@itgSavePlace": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSavePlaceSub": "Allow location so Assisto saves the phone's place when a tag goes out of reach (kept only on this phone).",
+  "@itgSavePlaceSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHonest": "Works while Assisto is open. Bluetooth reach is about 10–30 m. Assisto does not track the tag through other people's phones.",
+  "@itgHonest": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNear": "Nearby — connected",
+  "@itgNear": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgConnecting": "Connecting…",
+  "@itgConnecting": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOutOfReach": "Out of reach",
+  "@itgOutOfReach": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgBattery": "Battery {pct}%",
+  "@itgBattery": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "itgBatteryUnknown": "Battery: not known yet",
+  "@itgBatteryUnknown": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLastSeen": "Last with you: {when}",
+  "@itgLastSeen": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "itgRing": "Ring tag",
+  "@itgRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgStopRing": "Stop ringing",
+  "@itgStopRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgCheckBattery": "Check battery",
+  "@itgCheckBattery": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOpenMap": "Open map",
+  "@itgOpenMap": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPairTitle": "Choose your tag",
+  "@itgPairTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPairTip": "Keep the tag next to the phone and press its button once.",
+  "@itgPairTip": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgScanning": "Searching for tags nearby…",
+  "@itgScanning": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNoneFound": "No tag found. Press the tag's button once, keep it next to the phone, then search again.",
+  "@itgNoneFound": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnnamed": "Unnamed device",
+  "@itgUnnamed": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLikelyTag": "Looks like an iTag",
+  "@itgLikelyTag": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOtherDevice": "Other Bluetooth device",
+  "@itgOtherDevice": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgScanAgain": "Search again",
+  "@itgScanAgain": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLeftTitle": "{name} left behind?",
+  "@itgLeftTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgLeftBody": "Your tag went out of reach. Go back and check. The alarm stops by itself when the tag is near again.",
+  "@itgLeftBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgFindTitle": "Here is your phone",
+  "@itgFindTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgFindBody": "You pressed the button on {name}.",
+  "@itgFindBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgStopAlarm": "Stop",
+  "@itgStopAlarm": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "gcvShopBoxPlanNote": "Shop Box comes with the CCTV plan (2 cameras and up, with a free trial — prices on the CCTV plan page) or the Business plan. A camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvShopBoxPlanNote": {
+    "description": "gap-cctv: Shop Box lock — which plans unlock it (same rule as the server)"
+  },
+  "gcvPlSiteSubtitle": "{count, plural, =1{{cameras} camera · keeps snapshots {days} days} other{{cameras} cameras · keeps snapshots {days} days}}",
+  "@gcvPlSiteSubtitle": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "cameras": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlEodTodayCount": "{n, plural, =1{{count} cash sale today} other{{count} cash sales today}}",
+  "@gcvPlEodTodayCount": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlCamerasA11y": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasA11y": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlCurrentLine": "{count, plural, =1{{n} camera · {period}} other{{n} cameras · {period}}}",
+  "@gcvPlCurrentLine": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlUsed": "{count, plural, =1{{used} of {n} camera in use} other{{used} of {n} cameras in use}}",
+  "@gcvPlUsed": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "used": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlCamerasCount": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasCount": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlWatchMembers": "{count, plural, =1{{n} member} other{{n} members}}",
+  "@gcvPlWatchMembers": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlLinkViews": "{count, plural, =0{Not opened yet} =1{Opened once} other{Opened {n} times}}",
+  "@gcvPlLinkViews": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlPartCams": "{count, plural, =1{{online} of {total} camera online} other{{online} of {total} cameras online}}",
+  "@gcvPlPartCams": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "online": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlPosLinked": "{count, plural, =1{Linked: {pos} · {n} event received} other{Linked: {pos} · {n} events received}}",
+  "@gcvPlPosLinked": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pos": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlAutoLinked": "{count, plural, =1{Smart Life linked · {n} device} other{Smart Life linked · {n} devices}}",
+  "@gcvPlAutoLinked": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlPeople": "{count, plural, =1{{n} person} other{{n} people}}",
+  "@gcvPlPeople": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPlClipsLine": "{count, plural, =1{{n} clip · {mb} MB of {cap} MB} other{{n} clips · {mb} MB of {cap} MB}}",
+  "@gcvPlClipsLine": {
+    "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "n": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
   }
 }

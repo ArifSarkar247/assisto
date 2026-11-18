@@ -165,7 +165,9 @@ void main() {
       // the map (and its zoom / attribution controls) lives INSIDE the
       // scrolling body, whose viewport ends above the banner — clipped there
       // (checked before scrolling: a lazy list drops rows scrolled away)
-      await t.scrollUntilVisible(find.byType(VehMap), 100, scrollable: find.byType(Scrollable).first);
+      // train-app: the V2 page is longer (freshness, rider line, share-update
+      // button, timeline facts) -> bigger steps
+      await t.scrollUntilVisible(find.byType(VehMap), 300, scrollable: find.byType(Scrollable).first);
       await _settle(t);
       expect(find.ancestor(of: find.byType(VehMap), matching: find.byType(Scrollable)), findsWidgets);
       expect(t.getRect(find.byType(VehMap)).top, lessThan(bannerTop));
@@ -174,7 +176,7 @@ void main() {
       // scroll so the hotlines sit at the very bottom of the body
       // (sjtrain: the hotlines are ABOVE the map now -> scroll back up; the
       // train icon also marks the train on the station line, so find 999)
-      await t.scrollUntilVisible(find.byIcon(Icons.call_rounded), -100,
+      await t.scrollUntilVisible(find.byIcon(Icons.call_rounded), -300,
           scrollable: find.byType(Scrollable).first);
       await _settle(t);
       for (final icon in [Icons.call_rounded, Icons.train_rounded]) {

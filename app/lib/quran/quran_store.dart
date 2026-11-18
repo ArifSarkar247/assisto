@@ -19,6 +19,8 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/quran_sura_names_bn.dart';
+
 class QuranSura {
   final int index; // 1..114
   final int ayas;
@@ -32,6 +34,13 @@ class QuranSura {
 }
 
 /// A (sura, aya) reference.
+/// gap-quranblood Q3: the sura's name for the app language (Bangla names
+/// from l10n/quran_sura_names_bn.dart; English = Tanzil transliteration).
+String quranSuraTitle(bool bangla, QuranSura s) {
+  final bn = bangla ? suraNameBn(s.index) : '';
+  return bn.isEmpty ? s.tname : bn;
+}
+
 class AyaRef {
   final int sura;
   final int aya;
@@ -94,7 +103,8 @@ class QuranData {
   /// Sura matches for a query: number ("18"), transliteration ("kahf"),
   /// English meaning ("cave") or Arabic name (diacritics ignored).
   List<QuranSura> findSuras(String q) {
-    final s = q.trim().toLowerCase();
+    // gap-quranblood Q3: Bangla digits and Bangla sura names also match
+    final s = asciiDigits(q.trim().toLowerCase());
     if (s.isEmpty) return suras;
     final n = int.tryParse(s);
     if (n != null) {
@@ -102,12 +112,25 @@ class QuranData {
     }
     final latin = s.replaceAll(RegExp(r"[^a-z]"), '');
     final arQ = normalizeArabic(s);
+    final bnQ = bnNameKey(s).replaceAll(RegExp('[^\u0980-\u09FF]'), '');
     return suras.where((x) {
       final t = x.tname.toLowerCase().replaceAll(RegExp(r"[^a-z]"), '');
       return (latin.isNotEmpty &&
               (t.contains(latin) || x.ename.toLowerCase().contains(s))) ||
-          (arQ.isNotEmpty && normalizeArabic(x.nameAr).contains(arQ));
+          (arQ.isNotEmpty && normalizeArabic(x.nameAr).contains(arQ)) ||
+          (bnQ.isNotEmpty && bnNameKey(suraNameBn(x.index)).contains(bnQ));
     }).toList();
+  }
+
+  /// gap-quranblood Q3: "2:255" (Bangla digits too), "2 255", "2.255" -> that verse
+  /// (null when not a real sura:verse).
+  AyaRef? parseJump(String q) {
+    final m = RegExp('^\\s*(\\d{1,3})\\s*[:.\u0964/ ]\\s*(\\d{1,3})\\s*\$')
+        .firstMatch(asciiDigits(q));
+    if (m == null) return null;
+    final a = int.parse(m.group(1)!), b = int.parse(m.group(2)!);
+    if (a < 1 || a > suras.length || b < 1 || b > suras[a - 1].ayas) return null;
+    return AyaRef(a, b);
   }
 
   /// Full-text search in the English meaning and the Arabic text (Arabic is

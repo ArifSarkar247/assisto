@@ -7322,6 +7322,9 @@ class KidsWatch(models.Model):
     billed_until = models.DateTimeField(null=True, blank=True)
     guardian_ids = models.JSONField(default=list, blank=True)
     sos_numbers = models.JSONField(default=list, blank=True)
+    # gap-kidswatch: the watch's own SIM number, so a guardian can CALL it in
+    # one tap (a normal, visible call: the watch rings and shows it)
+    sim_phone = models.CharField(max_length=20, blank=True, default="")
     tz_min = models.IntegerField(default=360)
     last_seen_at = models.DateTimeField(null=True, blank=True)
     last_fix_at = models.DateTimeField(null=True, blank=True)
@@ -9298,3 +9301,360 @@ class BlogPost(models.Model):
     class Meta:
         ordering = ["order", "-published_at", "id"]
 # ---- /seoblog ----
+
+
+# ---- train-data ---- (Train Tracker V2, owner order 17 Nov): the official
+# Bangladesh Railway timetable (every train) + OSM rail geometry, loaded by
+# `manage.py load_bd_trains` from backend/core/data/train/br_*.json. Static
+# data only; live positions are in Redis (engine lane), never here.
+class RailStation(models.Model):
+    """A Bangladesh Railway station in the official timetable."""
+    code = models.SlugField(max_length=60, unique=True)          # e.g. "rangpur"
+    name_bn = models.CharField(max_length=80)
+    name_en = models.CharField(max_length=80)
+    district = models.CharField(max_length=40, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    coord_source = models.CharField(max_length=200, blank=True, default="")  # "osm:node/…" or "estimated: …"
+    osm_id = models.CharField(max_length=40, blank=True, default="")
+
+    class Meta:
+        db_table = "br_stations"
+        ordering = ["code"]
+
+
+class RailTrain(models.Model):
+    """One train (one direction) from the official BR timetable."""
+    number = models.CharField(max_length=8, unique=True)          # "771", "NG-1" (unnumbered commuters)
+    name_bn = models.CharField(max_length=80)
+    name_en = models.CharField(max_length=80)
+    kind = models.CharField(max_length=16)        # intercity|mail|commuter|local|international
+    zone = models.CharField(max_length=8)         # east|west|intl
+    status = models.CharField(max_length=12, default="running")  # running|suspended|proposed
+    status_note = models.CharField(max_length=200, blank=True, default="")
+    origin = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="trains_from")
+    destination = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="trains_to")
+    off_days = models.JSONField(default=list, blank=True)   # weekly off days, 0=Monday … 6=Sunday
+    bd_section_only = models.BooleanField(default=False)    # cross-border: Bangladesh part only
+    source_url = models.URLField(max_length=300)
+    source_file = models.URLField(max_length=300, blank=True, default="")
+    source_edition = models.CharField(max_length=40, blank=True, default="")
+    source_fetched = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "br_trains"
+        ordering = ["number"]
+
+
+class RailTrainStop(models.Model):
+    """train_schedules: one stop of one train, in order. Times are local
+    (Asia/Dhaka) wall-clock; day_offset counts midnights since departure."""
+    train = models.ForeignKey(RailTrain, on_delete=models.CASCADE, related_name="stops")
+    seq = models.PositiveSmallIntegerField()
+    station = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="stops")
+    arr_time = models.TimeField(null=True, blank=True)
+    dep_time = models.TimeField(null=True, blank=True)
+    arr_day = models.PositiveSmallIntegerField(default=0)
+    dep_day = models.PositiveSmallIntegerField(default=0)
+    km_from_origin = models.FloatField(null=True, blank=True)
+    time_source = models.CharField(max_length=12, default="official")  # official|corrected
+    note = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        db_table = "br_train_schedules"
+        ordering = ["train_id", "seq"]
+        constraints = [models.UniqueConstraint(fields=("train", "seq"), name="br_sched_train_seq_uniq")]
+        indexes = [models.Index(fields=["station", "train"], name="br_sched_station_idx")]
+
+
+class RailSegment(models.Model):
+    """Rail line between two consecutive stops (OSM railway=rail, ODbL).
+    geometry = GeoJSON LineString coordinates [[lng, lat], …]."""
+    code = models.CharField(max_length=130, unique=True)        # "<from code>|<to code>"
+    from_station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="segments_out")
+    to_station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="segments_in")
+    km = models.FloatField()
+    geometry = models.JSONField(default=list)
+    source = models.CharField(max_length=120, default="© OpenStreetMap contributors (ODbL)")
+
+    class Meta:
+        db_table = "br_rail_segments"
+
+
+class TrainPassing(models.Model):
+    """Every CONFIRMED passing of a train at a station (arrived / left), the
+    history the learned delay model (owner order G) trains on. Anonymous:
+    no user, only how it was confirmed and by how many reports. Kept
+    (aggregate, not personal location) — raw rider points live elsewhere
+    and are deleted after 24 h."""
+    SOURCES = ("rider_gps", "tower", "checkin", "shared_text", "official")
+    train = models.ForeignKey(RailTrain, on_delete=models.CASCADE, related_name="passings")
+    service_date = models.DateField()           # the date the train left its origin
+    station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="passings")
+    seq = models.PositiveSmallIntegerField()    # stop/pass order on the route
+    arrived_at = models.DateTimeField(null=True, blank=True)
+    departed_at = models.DateTimeField(null=True, blank=True)
+    delay_min = models.IntegerField(null=True, blank=True)   # actual − scheduled (minutes), arrival if known
+    weekday = models.PositiveSmallIntegerField()   # of service_date, 0=Monday
+    source = models.CharField(max_length=12)       # one of SOURCES (the strongest that confirmed it)
+    confirmations = models.PositiveSmallIntegerField(default=1)
+    confidence = models.FloatField(default=0.5)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "br_train_passings"
+        constraints = [models.UniqueConstraint(fields=("train", "service_date", "station"),
+                                               name="br_passing_once")]
+        indexes = [models.Index(fields=["train", "station", "weekday"], name="br_passing_learn_idx"),
+                   models.Index(fields=["service_date"], name="br_passing_date_idx")]
+# ---- /train-data ----
+
+
+# ---- train-engine ---- (owner order 17 Nov, Train Tracker V2: the live engine).
+# Rules: core/logic/train_live.py; DB + Redis: core/train_engine.py.
+# PRIVACY: TrainTrip / TrainPing carry NO user id (an anonymous per-trip key);
+# TrainPing, TrainTrip, TrainObservation and TrainCheckin rows are deleted 24 h
+# after they were made (minute_jobs: train_engine_tick). Nothing is sold/exported.
+class TrainTrip(models.Model):
+    """One anonymous rider on one train for one service date. `key` is the
+    sha256 of a random token only the phone holds (or a keyed hash of a v1
+    share id) — never a user id."""
+    key = models.CharField(max_length=64, unique=True)
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    status = models.CharField(max_length=10, default="active")    # active|arrived|ended
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_at = models.DateTimeField(null=True, blank=True)         # newest accepted/placed point
+    trust = models.FloatField(default=0.6)
+    kf = models.JSONField(null=True, blank=True)                  # Kalman state
+    last = models.JSONField(null=True, blank=True)                # last accepted {ch, at, acc}
+    mode = models.CharField(max_length=6, default="gps")          # gps|cell
+    cells_ok = models.BooleanField(default=False)                 # rider opted in to tower learning
+    last_cell_bin = models.CharField(max_length=60, blank=True, default="")
+    accepted = models.IntegerField(default=0)
+    rejected = models.IntegerField(default=0)
+    reasons = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "last_at"],
+                                name="core_traintrip_live_idx"),
+                   models.Index(fields=["created_at"], name="core_traintrip_age_idx")]
+
+
+class TrainPing(models.Model):
+    """One ACCEPTED raw rider point (rejected ones are only counted). Deleted
+    after 24 h."""
+    trip = models.ForeignKey(TrainTrip, on_delete=models.CASCADE, related_name="pings")
+    at = models.DateTimeField()
+    lat = models.FloatField()
+    lng = models.FloatField()
+    acc = models.FloatField(default=0)
+    speed = models.FloatField(null=True, blank=True)              # m/s
+    heading = models.FloatField(null=True, blank=True)
+    chainage = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["created_at"], name="core_trainping_age_idx")]
+
+
+class TrainCellBin(models.Model):
+    """Learned tower -> track histogram: how often tower `cell`
+    (mcc-mnc-tac-cid) served a rider whose GPS matched the line in ~550 m bin
+    (bi, bj). Aggregate counts only — no rider, no time track."""
+    cell = models.CharField(max_length=48)
+    bi = models.IntegerField()
+    bj = models.IntegerField()
+    n = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["cell", "bi", "bj"],
+                                               name="core_traincell_bin_once")]
+        indexes = [models.Index(fields=["cell"], name="core_traincell_cell_idx")]
+
+
+class TrainObservation(models.Model):
+    """A non-GPS position report (accepted station check-in, pasted 16318
+    reply). No user id. Deleted after 24 h."""
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    source = models.CharField(max_length=8)                       # checkin|text
+    station = models.CharField(max_length=40, blank=True, default="")
+    kind = models.CharField(max_length=8, default="reached")      # reached|left
+    chainage = models.FloatField()
+    at = models.DateTimeField()
+    late_min = models.IntegerField(null=True, blank=True)
+    weight = models.FloatField(default=0.3)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "at"],
+                                name="core_trainobs_live_idx"),
+                   models.Index(fields=["created_at"], name="core_trainobs_age_idx")]
+
+
+class TrainCheckin(models.Model):
+    """'Train reached / left station X' — one tap. The phone's position is
+    used once to decide `near` and is NOT stored. Deleted after 24 h; the
+    points survive only in TrainPointLedger (no train, no station)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_checkins")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    station = models.CharField(max_length=40)
+    kind = models.CharField(max_length=8)                         # reached|left
+    at = models.DateTimeField()
+    near = models.BooleanField(default=False)
+    status = models.CharField(max_length=10, default="pending")   # pending|accepted
+    points = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["user", "train_no", "service_date", "station", "kind"],
+            name="core_traincheckin_once")]
+        indexes = [models.Index(fields=["train_no", "service_date", "station", "kind"],
+                                name="core_traincheckin_st_idx"),
+                   models.Index(fields=["created_at"], name="core_traincheckin_age_idx")]
+
+
+class TrainPointLedger(models.Model):
+    """Append-only helper points (NOT money: no cash, no recharge — what
+    points buy is the owner's decision). No train, station or time trail."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_points")
+    points = models.IntegerField()
+    reason = models.CharField(max_length=24, default="checkin_match")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "created_at"], name="core_trainpts_user_idx")]
+# ---- /train-engine ----
+
+
+# ---- ai-reply-core (owner order 17 Nov: AI reply) ----
+# PRIVACY: none of these rows ever holds message TEXT (ours or the peer's).
+# Other people's text is processed in memory only to build a reply.
+class AiReplySetting(models.Model):
+    """Per-person (1:1 edge) or per-group AI reply mode of `user`.
+    Server-enforced: a group is suggest/off only; a child pair is off."""
+    MODES = [("off", "off"), ("suggest", "suggest"), ("busy", "busy"), ("auto", "auto")]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ai_reply_settings")
+    member = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="+")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.CASCADE, related_name="+")
+    mode = models.CharField(max_length=8, choices=MODES, default="off")
+    busy_until = models.DateTimeField(null=True, blank=True)  # null + busy = until off
+    label_on = models.BooleanField(default=True)   # "Assisto AI reply" tag (default ON)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "member"], name="aireply_user_member",
+                                    condition=models.Q(member__isnull=False)),
+            models.UniqueConstraint(fields=["user", "group"], name="aireply_user_group",
+                                    condition=models.Q(group__isnull=False)),
+        ]
+
+
+class AiReplyProfile(models.Model):
+    """The user's style consent + the COMPACT style profile (numbers and a few
+    short greeting phrases — never raw text) + the notification-token version
+    (bumped = every notif token issued before is revoked)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ai_reply_profile")
+    style_consent = models.BooleanField(default=False)
+    style = models.JSONField(default=dict, blank=True)
+    samples_seen = models.IntegerField(default=0)
+    notif_on = models.BooleanField(default=False)
+    notif_token_ver = models.IntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AiReplyMark(models.Model):
+    """A 1:1 message that Assisto AI sent for its sender (busy/auto). The
+    loop guard reads it; `label` = show the "Assisto AI reply" tag."""
+    message = models.OneToOneField(CircleMessage, on_delete=models.CASCADE,
+                                   related_name="ai_mark")
+    kind = models.CharField(max_length=8, default="auto")   # busy | auto
+    label = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AiReplyEvent(models.Model):
+    """One AI reply decision (suggest / auto / hold / refuse) — counters for
+    rate limits, held notices and money. NO text, ever."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ai_reply_events")
+    member = models.ForeignKey(CircleMember, null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="+")
+    group_id_ref = models.IntegerField(null=True, blank=True)
+    source = models.CharField(max_length=8, default="circle")   # circle | notif
+    kind = models.CharField(max_length=10)        # suggest | auto | busy | held | refused
+    category = models.CharField(max_length=20, blank=True, default="")
+    in_message_id = models.IntegerField(null=True, blank=True)
+    credits = models.IntegerField(default=0)
+    token_used = models.BooleanField(default=False)
+    seen = models.BooleanField(default=False)     # held notice dismissed
+    # "<user>:<message>" for auto decisions: one decision per incoming message
+    lock_key = models.CharField(max_length=40, null=True, blank=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["user", "kind", "created_at"], name="aireply_evt_user_kind")]
+# ---- /ai-reply-core ----
+
+
+# ---- group-calls ---- (owner 17 Nov: My Circle group calls, up to 8 people)
+# MESH: every PAIR of people in a group call is a normal 1:1 CallRecord (so
+# the ring, FCM full-screen ring, TURN, timeouts and missed calls are reused).
+# GroupCall is the ROOM that ties those pair records ("legs") into one call;
+# GroupCallMember is one person's seat (ringing | joined | left | declined |
+# missed). Logic: core/logic/group_call.py, views: core/views_group_calls.py.
+class GroupCall(models.Model):
+    KINDS = [("voice", "voice"), ("video", "video")]
+    host = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="group_calls_hosted")
+    kind = models.CharField(max_length=8, choices=KINDS, default="voice")
+    group = models.ForeignKey(CircleGroup, null=True, blank=True,
+                              on_delete=models.SET_NULL,
+                              related_name="group_calls")
+    state = models.CharField(max_length=8, default="live")  # live | ended
+    created_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["group", "state"],
+                                name="gc_group_state")]
+
+
+class GroupCallMember(models.Model):
+    STATES = [("ringing", "ringing"), ("joined", "joined"), ("left", "left"),
+              ("declined", "declined"), ("missed", "missed")]
+    room = models.ForeignKey(GroupCall, on_delete=models.CASCADE,
+                             related_name="members")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="group_call_seats")
+    state = models.CharField(max_length=8, choices=STATES, default="ringing")
+    invited_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL,
+                                   related_name="+")
+    ring_call = models.ForeignKey(CallRecord, null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name="+")
+    muted = models.BooleanField(default=False)
+    camera = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("room", "user")]
+        ordering = ["created_at", "id"]
+
+
+CallRecord.add_to_class(
+    "room", models.ForeignKey(GroupCall, null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="legs"))
+# ---- /group-calls ----

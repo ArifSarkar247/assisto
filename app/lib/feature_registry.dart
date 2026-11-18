@@ -62,6 +62,8 @@ const Map<String, bool> kFeatureDefaults = {
   'dest_alarm': false,
   'trip_recorder': false,
   'train_schedule_verified': false,
+  // flag-itag: Bluetooth iTag tag (pair, ring, left behind, find phone) — OFF until the real-tag test.
+  'itag_tags': false,
   // kidaudio: child emergency audio — OFF until the owner's two-phone test.
   'child_emergency_audio': false,
   'contacts': true,
@@ -170,6 +172,9 @@ const Map<String, bool> kFeatureDefaults = {
   'home_v2': true,
   // smsswitch: SMS-app money notifications (server kill switch, no route)
   'money_notif_sms': true,
+  // ai-reply-core: AI reply (My Circle modes / notification suggestions)
+  'ai_reply': false,
+  'ai_reply_notif': false,
 };
 
 /// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
@@ -273,6 +278,7 @@ const Map<String, String> kRouteFeature = {
   'blood_donor': 'blood_donors',
   'train_tracker': 'train_tracker',
   'dest_alarm': 'dest_alarm',
+  'itag_tags': 'itag_tags',
   'kid_audio': 'child_emergency_audio',
   'agent_studio': 'agent_studio',
   'agent_core': 'agent_core',

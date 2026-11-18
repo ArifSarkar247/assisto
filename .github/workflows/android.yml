@@ -322,7 +322,12 @@ jobs:
               # 12+, requested lazily from the OBD screen; legacy pair <= 11.
               '\n    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>'
               '\n    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>'
-              '\n    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>\n'
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>'
+              # flag-itag (lead-approved 17 Nov): Bluetooth iTag tag screen scans
+              # for the user's OWN tag. neverForLocation = no location derived
+              # (Android 12+); 8-11 use the already-declared location permission
+              # for the scan, asked on the tag screen after its reason screen.
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:targetApi="s"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)
@@ -345,6 +350,26 @@ jobs:
                   '    <service android:name="com.baseflow.geolocator.GeolocatorLocationService"'
                   ' tools:node="remove"/>\n    </application>', 1)
           # ---- /play-fgs ----
+          # ---- circle-screenshare ---- screen sharing in a My Circle video
+          # call (flutter_webrtc getDisplayMedia = MediaProjection). Android
+          # 10+ needs a foreground service of type mediaProjection running
+          # BEFORE the projection is used; Android 14+ only AFTER the user's
+          # consent: ScreenShareService (overlay) starts ONLY when the user
+          # tapped Share screen, read our sheet and allowed the system dialog,
+          # and stops on Stop / call end. FOREGROUND_SERVICE_MEDIA_PROJECTION is
+          # a normal (install-time) permission. The Play AAB step strips both
+          # while PLAY_SCREEN_SHARE != 'true' (Play FGS declaration pending:
+          # owner_actions/FEATURE_CARD_SCREEN_SHARE_BN.md).
+          if 'FOREGROUND_SERVICE_MEDIA_PROJECTION' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>\n',
+                  s, count=1)
+          if 'calls.ScreenShareService' not in s:
+              s = s.replace('</application>',
+                  '    <service android:name="com.assisto.assisto.calls.ScreenShareService"'
+                  ' android:foregroundServiceType="mediaProjection"'
+                  ' android:exported="false"/>\n    </application>', 1)
+          # ---- /circle-screenshare ----
           queries = (
               '\n    <queries>'
               '\n      <intent><action android:name="android.intent.action.DIAL"/>'
@@ -543,6 +568,18 @@ jobs:
           if 'notiflisten.AssistoNotifListener' not in s:
               s = s.replace('</application>', notif_listen + '    </application>', 1)
           # ---- /callmoney ----
+          # ---- ai-reply-notif ---- suggested replies in chat-app notifications:
+          # NO new service (the callmoney listener above is reused, behind its
+          # own AI-reply consent + per-app gate) and NO new permission. ONE
+          # non-exported receiver for the user's tap on our companion card
+          # (only our own PendingIntents reach it). Never auto-sends.
+          ai_reply_rx = (
+              '\n        <receiver android:name="com.assisto.assisto.notiflisten.AiReplyTapReceiver"'
+              ' android:exported="false"/>\n'
+          )
+          if 'notiflisten.AiReplyTapReceiver' not in s:
+              s = s.replace('</application>', ai_reply_rx + '    </application>', 1)
+          # ---- /ai-reply-notif ----
           # ---- fcelder ---- Silent Watch: ONE explicit, non-exported receiver
           # for its own AlarmManager alarms + the "I am OK" button + re-arming
           # after a reboot / app update. No service, no provider, no new
@@ -807,6 +844,25 @@ jobs:
           )
           if 'messaging.BubbleActivity' not in s:
               s = s.replace('</application>', bubble_activity + '    </application>', 1)
+          # ---- train-app ---- "Share to Assisto" for plain text (the user shares
+          # the 16318 SMS reply from their own SMS app; NO READ_SMS). A translucent
+          # trampoline, DISABLED here and enabled at runtime only while the Train
+          # Tracker flag is on (PackageManager.setComponentEnabledSetting).
+          train_share = (
+              '\n        <activity android:name="com.assisto.assisto.train.TrainShareActivity"'
+              ' android:exported="true" android:enabled="false"'
+              ' android:excludeFromRecents="true" android:noHistory="true"'
+              ' android:theme="@android:style/Theme.Translucent.NoTitleBar">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.SEND"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <data android:mimeType="text/plain"/>'
+              '\n            </intent-filter>'
+              '\n        </activity>\n'
+          )
+          if 'train.TrainShareActivity' not in s:
+              s = s.replace('</application>', train_share + '    </application>', 1)
+          # ---- /train-app ----
           # ---- c2-calls ---- video calls can shrink to picture-in-picture
           # (Flutter's default MainActivity configChanges already include
           # orientation|screenSize|smallestScreenSize|screenLayout).
@@ -1674,6 +1730,9 @@ jobs:
           REL_KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           REL_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           REL_KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          # circle-screenshare: 'true' only after the owner filed the Play
+          # foreground-service declaration for media projection (+ video)
+          PLAY_SCREEN_SHARE: 'false'
         run: |
           set -euo pipefail
           # 1) Play manifest: drop the self-update permission even if a plugin
@@ -1699,6 +1758,21 @@ jobs:
           assert 'com.assisto.assisto.voice.WakeWordService' in s, "WakeWordService declaration missing"
           print("Play manifest: WakeWordService kept (wake word shipped, declared)")
           # ---- /wakeword ----
+          # ---- circle-screenshare ---- media-projection FGS only once declared
+          import os
+          if os.environ.get("PLAY_SCREEN_SHARE", "false") != "true":
+              s = open(p).read()
+              s = s.replace('<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>',
+                            '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" tools:node="remove"/>')
+              s = s.replace('<service android:name="com.assisto.assisto.calls.ScreenShareService"'
+                            ' android:foregroundServiceType="mediaProjection"'
+                            ' android:exported="false"/>', '')
+              assert 'ScreenShareService' not in s, "ScreenShareService still in the Play manifest"
+              open(p, "w").write(s)
+              print("Play manifest: ScreenShareService + FOREGROUND_SERVICE_MEDIA_PROJECTION removed (declaration pending)")
+          else:
+              print("Play manifest: ScreenShareService kept (media-projection FGS declared)")
+          # ---- /circle-screenshare ----
           PY
           # 2) Build the bundle (all ABIs; Play serves each phone its own split).
           #    versionCode = 10000 + run number: always above every website APK
@@ -1755,6 +1829,13 @@ jobs:
             fi
           done
           # ---- /playall ----
+          # ---- circle-screenshare ---- the media-projection FGS reaches Play
+          # only together with the switch in the AAB step (declaration filed)
+          if [ "${PLAY_SCREEN_SHARE:-false}" != "true" ] && \
+             grep -a -q "FOREGROUND_SERVICE_MEDIA_PROJECTION\|ScreenShareService" /tmp/play-manifest.pb; then
+            echo "::error::media-projection FGS is in the Play bundle (declaration not filed)"; exit 1
+          fi
+          # ---- /circle-screenshare ----
           # ---- pay1 ---- Play Billing needs the BILLING permission in the bundle
           if ! grep -a -q com.android.vending.BILLING /tmp/play-manifest.pb; then
             echo "::error::com.android.vending.BILLING missing from the Play bundle manifest"; exit 1

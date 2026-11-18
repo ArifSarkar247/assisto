@@ -17,6 +17,8 @@ import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
+import 'flows/circle_screenshare_flow.dart'; // circle-screenshare
+import 'flows/group_call_flow.dart'; // group-calls
 import 'flows/calls_two_emu_flow.dart'; // calls-2emu
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
@@ -32,14 +34,18 @@ import 'flows/invite_join_flow.dart'; // invite-join
 import 'flows/my_circle_ticks_flow.dart';
 import 'flows/onboarding_flow.dart';
 import 'flows/personal_flow.dart';
+import 'flows/quranblood_flow.dart'; // gap-quranblood
 import 'flows/remmeter_flow.dart';
 import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
+import 'flows/kidswatch_flow.dart'; // gap-kidswatch
 import 'flows/sj_proof_flow.dart'; // sjproof
+import 'flows/antitheft_e2e_flow.dart'; // antitheft-e2e
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
+import 'flows/ai_reply_flow.dart'; // ai-reply-core
 import 'support/harness.dart';
 
 void main() {
@@ -67,6 +73,8 @@ void main() {
   if (on('circle')) registerInviteJoinFlows(); // invite-join
   if (on('circle')) registerMyCircleTicksFlows(); // c3-msg
   if (on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
+  if (on('circle') || on('calls') || on('screenshare')) registerCircleScreenShareFlows(); // circle-screenshare
+  if (on('circle') || on('calls')) registerGroupCallFlows(); // group-calls: 3-way proof
   if (on('business')) registerBusinessFlows();
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('business')) registerBizQualityFlows(); // qbiz
@@ -76,6 +84,7 @@ void main() {
   if (on('save')) registerSaveSweepFlows();
   // flagproof: hidden features' two-account proofs (group 'flagproof')
   if (on('flagproof')) registerFlagproofFlows();
+  if (on('quranblood')) registerQuranBloodFlows(); // gap-quranblood
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
@@ -83,6 +92,13 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // ai-reply-core: My Circle AI reply needs the e2e fake AI + flag -> opt-in (REALITY_ONLY=aireply)
+  if (only.split(',').contains('aireply')) registerAiReplyFlows();
+  // antitheft-e2e: native engine + sensor traces + secure lock + SIM hook
+  // (debug build only) -> opt-in (e2e.yml start+atproof)
+  if (only.split(',').contains('atproof')) registerAntiTheftE2eFlows();
+  // gap-kidswatch: kids watch + a simulated watch over TCP (tracker :5023) -> opt-in (reality.yml only=kidswatch)
+  if (only.split(',').contains('kidswatch')) registerKidsWatchFlows();
   // calls-2emu: needs the SECOND emulator running the call peer + the control
   // channel (calls2emu.yml / tools/calls2emu/run.sh) -> opt-in only
   if (only.split(',').contains('calls2emu')) registerCallsTwoEmuFlows();

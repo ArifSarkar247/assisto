@@ -26,6 +26,9 @@ import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
 import '../../maps/place_search.dart'; // jsearch
 import 'trip_recorder_screen.dart';
+import '../../train/train_share_service.dart'; // train-app
+import 'train_v2_widgets.dart' show showTrainAlarmShareAsk, trainAlarmShareAsked,
+    trainAlarmShareMarkAsked, TrainAlarmShareLink; // train-app
 import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
@@ -46,6 +49,13 @@ class DestAlarmScreen extends StatefulWidget {
   /// [suggested] is already picked when the screen opens.
   final String? initialStationId;
 
+  /// train-app (Train Tracker V2, I): the train this alarm is for. After a
+  /// TRAIN alarm starts, the rider is asked ONCE whether to share the
+  /// train's position while the alarm runs; [onShareYes] starts it only on
+  /// "Yes" (and it stops with the alarm).
+  final String? trainNo, trainDate;
+  final Future<void> Function()? onShareYes;
+
   /// Test seams: places without the asset bundle.
   static List<DestStation>? debugStations, debugBusStops;
   static List<MetroStation>? debugMetro;
@@ -55,7 +65,10 @@ class DestAlarmScreen extends StatefulWidget {
       this.suggestedIds = const [],
       this.suggested = const [],
       this.path = const [],
-      this.initialStationId});
+      this.initialStationId,
+      this.trainNo,
+      this.trainDate,
+      this.onShareYes});
 
   @override
   State<DestAlarmScreen> createState() => _DestAlarmScreenState();
@@ -486,6 +499,21 @@ class _DestAlarmScreenState extends State<DestAlarmScreen>
             notifyCircleIds: ids,
             etaMin: _byMin ? _min : null),
         _texts(t, tg.name));
+    if (_mode == TransportMode.train) await _askShareOnce();
+  }
+
+  /// train-app (I): once per train and day, clearly: share the train's
+  /// position while the alarm runs? Only "Yes" shares.
+  Future<void> _askShareOnce() async {
+    final no = widget.trainNo, date = widget.trainDate, yes = widget.onShareYes;
+    if (no == null || date == null || yes == null || !mounted) return;
+    if (TrainShareController.I.sharing || await trainAlarmShareAsked(no, date)) return;
+    await trainAlarmShareMarkAsked(no, date);
+    if (!mounted) return;
+    if (await showTrainAlarmShareAsk(context)) {
+      await yes();
+      TrainAlarmShareLink.I.watch();
+    }
   }
 
   Future<void> _record() async {

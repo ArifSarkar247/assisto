@@ -224,7 +224,11 @@ class Peer extends ChangeNotifier {
         }
         _set('camera ON (first encoded frame after ${sw.elapsedMilliseconds} ms)');
         return {'cameraOn': c.cameraOn, 'cameraUnavailable': media?.cameraUnavailable,
-            'framesEncoded': enc, 'firstFrameMs': enc > 0 ? sw.elapsedMilliseconds : null};
+            'framesEncoded': enc, 'firstFrameMs': enc > 0 ? sw.elapsedMilliseconds : null,
+            // calls-camfast: the camera went out on the pre-negotiated slot
+            // (no reneg_request / reneg_offer round trips)
+            'replaceTrack': c.log.contains('camera-on:replace-track'),
+            'renegotiated': c.log.any((e) => e.startsWith('reneg'))};
       }
       case 'cameraOff': {
         final c = _need();

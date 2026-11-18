@@ -139,6 +139,95 @@ net_mode() {  # $1 = off|on
         echo "$(date +%T) geo $lat $lng $f" >> "$OUT/geo.log"
       done ) &
 
+# circle-screenshare: Android's screen-capture consent for the screen-share
+# proof. The app prints `REALITY_PROJECTION <file>` just before it asks; the
+# host pre-allows PROJECT_MEDIA (API <= 33 then skips the dialog) and taps
+# the SystemUI "Start now" if the dialog still shows (tools/reality/
+# projection_tap.py), then acks. The flow itself waits for frames, not acks.
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_PROJECTION [A-Za-z0-9_.-]+' \
+    | while read -r _ f; do
+        timeout 10 adb shell appops set $PKG PROJECT_MEDIA allow >/dev/null 2>&1 || true
+        tapped=none
+        for _i in $(seq 1 15); do
+          timeout 15 adb shell uiautomator dump /sdcard/ss_ui.xml >/dev/null 2>&1 || true
+          timeout 10 adb pull /sdcard/ss_ui.xml "$OUT/ss_ui.xml" >/dev/null 2>&1 || true
+          t=$(python3 tools/reality/projection_tap.py "$OUT/ss_ui.xml" 2>/dev/null || true)
+          if [ -n "$t" ]; then
+            set -- $t
+            timeout 10 adb shell input tap "$1" "$2" >/dev/null 2>&1 || true
+            tapped="$t"
+            break
+          fi
+          sleep 1
+        done
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) projection $f tapped=$tapped" >> "$OUT/projection.log"
+      done ) &
+
+# antitheft-e2e: generic host actions for the anti-theft E2E. The app prints
+# `REALITY_HOST <verb> <file>`; the host does it with adb and pushes the
+# command output as the ack file (the app reads it). Verbs:
+#   traces      push the labelled sensor traces (test/fixtures) to <out>/traces
+#   pin_on      set the emulator's SECURE screen lock (PIN 1379)
+#   lock_unlock screen off -> on -> unlock WITH the PIN (real USER_PRESENT)
+#   lockshot    a PIN lock for the moment (else an emulator with no lock goes
+#               straight back to the app), screen off -> on, screenshot the
+#               LOCK SCREEN to shots/<file>.png, unlock with the PIN, PIN off
+#   unplug      the emulator stops "charging" (a grab on the charger is ignored
+#               by design, and the emulator always reports AC power)
+#   battery_reset  the real (emulated) battery state again
+#   pin_off     remove the PIN again (always run by the flow's cleanup)
+AT_PIN=1379
+at_unlock() {
+  timeout 10 adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true; sleep 1
+  timeout 10 adb shell wm dismiss-keyguard >/dev/null 2>&1 || true; sleep 1
+  timeout 10 adb shell input keyevent 82 >/dev/null 2>&1 || true; sleep 1
+  if timeout 10 adb shell locksettings verify --old "$AT_PIN" 2>/dev/null | grep -qi 'verified\|success'; then
+    timeout 10 adb shell input text "$AT_PIN" >/dev/null 2>&1 || true
+    timeout 10 adb shell input keyevent KEYCODE_ENTER >/dev/null 2>&1 || true
+  fi
+  sleep 2
+}
+host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
+  case "$1" in
+    traces)
+      timeout 30 adb shell "mkdir -p $DEV/traces" 2>&1
+      for t in test/fixtures/sensor_traces/fa_*.csv; do
+        timeout 30 adb push "$t" "$DEV/traces/" >/dev/null 2>&1 && echo "pushed $(basename "$t")"
+      done ;;
+    pin_on) timeout 20 adb shell locksettings set-pin "$AT_PIN" 2>&1 ;;
+    pin_off) timeout 20 adb shell locksettings clear --old "$AT_PIN" 2>&1 ;;
+    lock_unlock)
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
+      at_unlock
+      timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mDreamingLockscreen|isKeyguardShowing|mShowingLockscreen' | head -3 ;;
+    unplug)
+      timeout 10 adb shell dumpsys battery unplug 2>&1
+      timeout 10 adb shell dumpsys battery set status 3 2>&1   # DISCHARGING
+      echo unplugged ;;
+    battery_reset) timeout 10 adb shell dumpsys battery reset 2>&1; echo reset ;;
+    lockshot)
+      timeout 20 adb shell locksettings set-pin "$AT_PIN" >/dev/null 2>&1 || true
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
+      timeout 10 adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true; sleep 2
+      timeout 20 adb exec-out screencap -p > "$OUT/shots/$2.png" 2>/dev/null || true
+      [ -s "$OUT/shots/$2.png" ] && echo "shot $2.png" || echo "shot MISSING"
+      timeout 10 adb shell dumpsys notification --noredact 2>/dev/null | grep -c 'assisto_lost_message' | sed 's/^/lost_notif_records=/'
+      at_unlock
+      timeout 20 adb shell locksettings clear --old "$AT_PIN" >/dev/null 2>&1 || true ;;
+    *) echo "unknown verb $1" ;;
+  esac
+}
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_HOST [a-z_]+ [A-Za-z0-9_.-]+' \
+    | while read -r _ verb f; do
+        host_verb "$verb" "$f" > "$OUT/.host_$f.txt" 2>&1
+        timeout 10 adb shell "mkdir -p $DEV/acks" >/dev/null 2>&1 || true
+        timeout 20 adb push "$OUT/.host_$f.txt" "$DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) host $verb $f: $(tr '\n' ' ' < "$OUT/.host_$f.txt" | head -c 300)" >> "$OUT/host.log"
+      done ) &
+
 echo "== settle 60 s after boot"; sleep 60
 # rt2: a "+" joins groups into ONE drive / app process (the matrix job runs
 # "start+personal": log in, then the group, on a fresh emulator).

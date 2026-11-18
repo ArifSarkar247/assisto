@@ -156,6 +156,216 @@
   "gcvMoreActions": "More actions",
   "@gcvMoreActions": {
    "description": "gap-cctv R1: alert card — siren, warning, thana, evidence, wrong"
+  },
+  "gcvPbTitle": "Camera recordings",
+  "gcvPbEntry": "{camera}: its own recordings",
+  "gcvPbEntrySub": "Play back the camera's SD card or Imou cloud recording",
+  "gcvPbIntro": "Pick a day and an hour. Assisto plays the camera's own recording through Imou: from its SD card, else from Imou cloud storage.",
+  "gcvPbLowData": "Low data: recordings play in the smaller stream (about 19 MB per 5 minutes).",
+  "gcvPbPickHour": "Hour",
+  "gcvPbHasRec": "has a recording",
+  "gcvPbNoRec": "no recording",
+  "gcvPbHint": "Tap an hour to see what the camera recorded then.",
+  "gcvPbRecordsTitle": "Recorded in this hour",
+  "gcvPbFromSd": "Playing from the camera's SD card.",
+  "gcvPbFromCloud": "Playing from Imou cloud storage.",
+  "gcvPbNoRecording": "No recording for this hour. Recordings need an SD card in the camera or an Imou cloud plan — check in Imou Life that recording is on.",
+  "gcvPbSdkOnly": "The camera has recordings for this hour, but its firmware cannot send them to other apps. Watch them in the Imou Life app.",
+  "gcvPbNotConfigured": "Imou recordings are not switched on in Assisto yet.",
+  "gcvPbRevoked": "Assisto can no longer reach this camera — connect it again from \"Connect your DVR / camera brand\".",
+  "gcvPbNetwork": "Could not reach Imou right now. Check the internet and try again.",
+  "gcvPbPlayFailed": "The recording could not be played (the link lasts 10 minutes). Try again.",
+  "@gcvPbEntry": {
+   "description": "gap-cctv3: entry to a camera's own recordings",
+   "placeholders": {
+    "camera": {
+     "type": "String"
+    }
+   }
+  },
+  "@gcvPbTitle": {
+   "description": "gap-cctv3: Imou recording playback screen"
+  },
+  "gcvShopBoxPlanNote": "Shop Box comes with the CCTV plan (2 cameras and up, with a free trial — prices on the CCTV plan page) or the Business plan. A camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvShopBoxPlanNote": {
+   "description": "gap-cctv: Shop Box lock — which plans unlock it (same rule as the server)"
+  },
+  "gcvPlSiteSubtitle": "{count, plural, =1{{cameras} camera · keeps snapshots {days} days} other{{cameras} cameras · keeps snapshots {days} days}}",
+  "@gcvPlSiteSubtitle": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "cameras": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlEodTodayCount": "{n, plural, =1{{count} cash sale today} other{{count} cash sales today}}",
+  "@gcvPlEodTodayCount": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "n": {
+     "type": "int"
+    },
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCamerasA11y": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasA11y": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCurrentLine": "{count, plural, =1{{n} camera · {period}} other{{n} cameras · {period}}}",
+  "@gcvPlCurrentLine": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    },
+    "period": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlUsed": "{count, plural, =1{{used} of {n} camera in use} other{{used} of {n} cameras in use}}",
+  "@gcvPlUsed": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "used": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlCamerasCount": "{count, plural, =1{{n} camera} other{{n} cameras}}",
+  "@gcvPlCamerasCount": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlWatchMembers": "{count, plural, =1{{n} member} other{{n} members}}",
+  "@gcvPlWatchMembers": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlLinkViews": "{count, plural, =0{Not opened yet} =1{Opened once} other{Opened {n} times}}",
+  "@gcvPlLinkViews": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPartCams": "{count, plural, =1{{online} of {total} camera online} other{{online} of {total} cameras online}}",
+  "@gcvPlPartCams": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "online": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPosLinked": "{count, plural, =1{Linked: {pos} · {n} event received} other{Linked: {pos} · {n} events received}}",
+  "@gcvPlPosLinked": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "pos": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlAutoLinked": "{count, plural, =1{Smart Life linked · {n} device} other{Smart Life linked · {n} devices}}",
+  "@gcvPlAutoLinked": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlPeople": "{count, plural, =1{{n} person} other{{n} people}}",
+  "@gcvPlPeople": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvPlClipsLine": "{count, plural, =1{{n} clip · {mb} MB of {cap} MB} other{{n} clips · {mb} MB of {cap} MB}}",
+  "@gcvPlClipsLine": {
+   "description": "gap-cctv: plural-correct count text (count = the number, the other placeholder = it in the UI's digits)",
+   "placeholders": {
+    "count": {
+     "type": "int"
+    },
+    "n": {
+     "type": "String"
+    },
+    "mb": {
+     "type": "String"
+    },
+    "cap": {
+     "type": "String"
+    }
+   }
   }
  },
  "bn": {
@@ -210,6 +420,38 @@
   "gcvClipsEmptyStep1": "ক্যামেরায় একটি জোন আঁকুন, তাহলে সতর্কতার সাথে ক্লিপ আসবে।",
   "gcvClipsEmptyStep2": "দেখা ক্লিপ সার্ভার থেকে মুছে যায়; ছবিটি সতর্কতায় থাকে।",
   "gcvClipsCameraUnknown": "ক্যামেরা",
-  "gcvMoreActions": "আরও কাজ"
+  "gcvMoreActions": "আরও কাজ",
+  "gcvPbTitle": "ক্যামেরার রেকর্ডিং",
+  "gcvPbEntry": "{camera}: নিজের রেকর্ডিং",
+  "gcvPbEntrySub": "ক্যামেরার SD কার্ড বা Imou ক্লাউডের রেকর্ডিং আবার দেখুন",
+  "gcvPbIntro": "একটি দিন আর ঘণ্টা বাছুন। Assisto ক্যামেরার নিজের রেকর্ডিং Imou দিয়ে চালায়: আগে SD কার্ড থেকে, না থাকলে Imou ক্লাউড থেকে।",
+  "gcvPbLowData": "কম ডেটা: রেকর্ডিং ছোট স্ট্রিমে চলে (প্রতি ৫ মিনিটে প্রায় ১৯ MB)।",
+  "gcvPbPickHour": "ঘণ্টা",
+  "gcvPbHasRec": "রেকর্ডিং আছে",
+  "gcvPbNoRec": "রেকর্ডিং নেই",
+  "gcvPbHint": "কোনো ঘণ্টায় চাপুন, তখন ক্যামেরা কী রেকর্ড করেছিল দেখুন।",
+  "gcvPbRecordsTitle": "এই ঘণ্টার রেকর্ডিং",
+  "gcvPbFromSd": "ক্যামেরার SD কার্ড থেকে চলছে।",
+  "gcvPbFromCloud": "Imou ক্লাউড থেকে চলছে।",
+  "gcvPbNoRecording": "এই ঘণ্টার কোনো রেকর্ডিং নেই। রেকর্ডিংয়ের জন্য ক্যামেরায় SD কার্ড বা Imou ক্লাউড প্ল্যান লাগে — Imou Life-এ রেকর্ডিং চালু আছে কিনা দেখুন।",
+  "gcvPbSdkOnly": "এই ঘণ্টায় রেকর্ডিং আছে, কিন্তু ক্যামেরার ফার্মওয়্যার অন্য অ্যাপে পাঠাতে পারে না। Imou Life অ্যাপে দেখুন।",
+  "gcvPbNotConfigured": "Assisto-তে Imou রেকর্ডিং এখনো চালু হয়নি।",
+  "gcvPbRevoked": "Assisto এই ক্যামেরায় আর পৌঁছাতে পারছে না — \"DVR / ক্যামেরা ব্র্যান্ড যুক্ত করুন\" থেকে আবার যুক্ত করুন।",
+  "gcvPbNetwork": "এখন Imou-তে পৌঁছানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "gcvPbPlayFailed": "রেকর্ডিং চালানো গেল না (লিংক ১০ মিনিট থাকে)। আবার চেষ্টা করুন।",
+  "gcvShopBoxPlanNote": "শপ বক্স পাওয়া যায় সিসিটিভি প্ল্যানে (২টি ক্যামেরা থেকে, ফ্রি ট্রায়ালসহ — দাম সিসিটিভি প্ল্যানের পাতায়) বা বিজনেস প্ল্যানে। প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।",
+  "gcvPlSiteSubtitle": "{count, plural, other{{cameras}টি ক্যামেরা · স্ন্যাপশট {days} দিন রাখে}}",
+  "gcvPlEodTodayCount": "{n, plural, other{আজ {count}টি ক্যাশ বিক্রি}}",
+  "gcvPlCamerasA11y": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlCurrentLine": "{count, plural, other{{n}টি ক্যামেরা · {period}}}",
+  "gcvPlUsed": "{count, plural, other{{n}টির মধ্যে {used}টি ক্যামেরা চালু}}",
+  "gcvPlCamerasCount": "{count, plural, other{{n}টি ক্যামেরা}}",
+  "gcvPlWatchMembers": "{count, plural, other{{n} জন সদস্য}}",
+  "gcvPlLinkViews": "{count, plural, =0{এখনো খোলা হয়নি} other{{n} বার খোলা হয়েছে}}",
+  "gcvPlPartCams": "{count, plural, other{{total}টির মধ্যে {online}টি ক্যামেরা অনলাইন}}",
+  "gcvPlPosLinked": "{count, plural, other{যুক্ত: {pos} · {n}টি ঘটনা এসেছে}}",
+  "gcvPlAutoLinked": "{count, plural, other{Smart Life যুক্ত · {n}টি ডিভাইস}}",
+  "gcvPlPeople": "{count, plural, other{{n} জন}}",
+  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}"
  }
 }

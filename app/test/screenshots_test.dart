@@ -38,7 +38,7 @@ import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
-import 'fake_train.dart' show trainLive701; // sjalarm
+import 'fake_train.dart' show trainLive701, trainLine701, trainOfflinePackJson; // sjalarm, train-app
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
@@ -55,6 +55,7 @@ import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'gap_aichat_shots.dart'; // gap-aichat
 import 'callsbar_shots.dart'; // callsbar
+import 'group_call_shots.dart'; // group-calls
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -71,6 +72,7 @@ import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import 'package:assisto/screens/kids_watch/kw_settings_sheet.dart'; // gap-kidswatch
 import 'package:assisto/screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_share_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_child_school_screen.dart'; // sjlive
@@ -81,6 +83,14 @@ import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
 import 'package:assisto/screens/train/train_chat_screen.dart'; // train
 import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
+import 'package:assisto/screens/train/train_line_view.dart'; // train-app
+import 'package:assisto/screens/train/train_paste_screen.dart'; // train-app
+import 'package:assisto/screens/train/train_v2_widgets.dart'; // train-app
+import 'package:assisto/train/train_offline.dart'; // train-app
+import 'package:assisto/train/train_fgs.dart'; // train-app
+import 'package:assisto/train/train_share_service.dart'; // train-app
+import 'package:assisto/train/train_sms_parse.dart'; // train-app
+import 'package:assisto/train/train_v2_native.dart'; // train-app
 import 'package:assisto/screens/train/trip_recorder_screen.dart'; // sjalarm
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/chip_widgets.dart'; // chipbuy
@@ -325,6 +335,8 @@ import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/messaging/msg_widgets.dart';
+import 'package:assisto/messaging/ai_reply/ai_reply.dart'; // ai-reply-core
+import 'package:assisto/messaging/ai_reply/ai_reply_widgets.dart'; // ai-reply-core
 import 'package:assisto/messaging/media/video_limits_flow.dart' show VideoTrimScreen; // viewonce
 import 'package:assisto/messaging/view_once.dart' show ViewOnceViewer; // viewonce
 import 'package:assisto/photo_studio/ps_engines.dart' show ChannelSecureScreen; // viewonce
@@ -451,6 +463,9 @@ import 'fake_api.dart';
 import 'package:assisto/notiflisten/callmoney_screens.dart'; // callmoney
 import 'package:assisto/notiflisten/notif_listen_channel.dart'; // callmoney
 import 'callmoney_fake.dart'; // callmoney
+import 'package:assisto/notiflisten/ai_reply_notif.dart'; // ai-reply-notif
+import 'package:assisto/notiflisten/ai_reply_notif_screens.dart'; // ai-reply-notif
+import 'ai_reply_notif_fake.dart'; // ai-reply-notif
 import 'fake_kidswatch.dart'; // chipbuy2
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
@@ -982,6 +997,25 @@ Map<String, GallerySpec> gallerySpecs() {
     // filled), chat closed before departure, alarm "by minutes"
     'sjt_train_seat': (build: (_) { SharedPreferences.setMockInitialValues({'sjt_seat_701': '{"coach":"ঝ","seat":"32"}'}); return const TrainLiveScreen(no: '701', date: '2026-11-03'); }, mode: FakeMode.data, full: true),
     'sjt_alarm_minutes': (build: (_) { SharedPreferences.setMockInitialValues({'dest_alarm_by_min_v1': '{"by":true,"min":10}'}); return const DestAlarmScreen(); }, mode: FakeMode.data, full: true),
+    // train-app (Train Tracker V2): owner approval set — timeline live /
+    // timetable estimate / offline tower, rider toggle + sharing, check-in,
+    // "Are you on this train?", paste a 16318 reply, Share -> Assisto,
+    // alarm "help other passengers?"
+    'tr2_page_live': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.data, full: true),
+    'tr2_page_timetable': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.empty, full: true),
+    // the timeline itself (it sits below the fold on the page shots)
+    'tr2_timeline_live': (build: (_) => _tr2(const _Tr2Timeline(live: true)), mode: FakeMode.data, full: true),
+    'tr2_timeline_timetable': (build: (_) => _tr2(const _Tr2Timeline(live: false)), mode: FakeMode.data, full: true),
+    'tr2_offline_tower': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), offline: true), mode: FakeMode.fail, full: true),
+    'tr2_rider_consent': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainShareConsent(c)), mode: FakeMode.data, full: true),
+    'tr2_rider_sharing': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sharing: true), mode: FakeMode.data, full: true),
+    'tr2_ask_onboard': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainOnboardAsk(c, 'সুবর্ণ এক্সপ্রেস')), mode: FakeMode.data, full: true),
+    'tr2_checkin': (build: (l) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainStationSheet(c, l == 'bn' ? 'কসবা' : 'Kasba', alarm: true)), mode: FakeMode.data, full: true),
+    'tr2_alarm_ask': (build: (_) => _tr2(const DestAlarmScreen(), sheet: (c) => showTrainAlarmShareAsk(c)), mode: FakeMode.data, full: true),
+    'tr2_paste_16318': (build: (l) => _tr2(TrainPasteScreen(no: '701', date: '2026-11-03', stations: _tr2Stations,
+        initialText: l == 'bn' ? 'ট্রেন ৭০১ সুবর্ণ এক্সপ্রেস কুমিল্লা ছেড়েছে ১০:২৫, ১৮ মিনিট দেরি' : 'TR 701 SUBARNA EXPRESS departed from CUMILLA at 10:25 AM. Late: 0:18')), mode: FakeMode.data, full: true),
+    'tr2_share_in': (build: (l) => _tr2(TrainPasteScreen(initialText: l == 'bn' ? 'সুবর্ণ (৭০১) এইমাত্র ভৈরব বাজার পৌঁছাল, প্রায় ১৫ মিনিট দেরি' : 'Subarna (701) just reached Bhairab Bazar, about 15 min late'), offline: true), mode: FakeMode.data, full: true),
+    'tr2_list_offline': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),
     // sjlive (owner 3 Nov): Safe Journey three cards (Live Location default),
     // card 1's four buttons, Who is where now, real life; the four screens
     'sjl_hub': (build: (_) => const _SjFlags(child: SafeJourneyHubScreen(oem: _ShotOem())), mode: FakeMode.data, full: true),
@@ -1010,6 +1044,18 @@ Map<String, GallerySpec> gallerySpecs() {
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
+    // gap-kidswatch: a watch SOS in the last hour (red banner: call the watch
+    // + see where; the second watch says its SOS calls nobody) + Watch settings
+    'kids_watch_sos': (build: (_) => const _KwSosShot(), mode: FakeMode.data, full: true),
+    'kids_watch_settings': (
+      build: (l) => Scaffold(
+          body: SafeArea(
+              child: KwWatchSettingsSheet(watch: (((fakeKidsWatchGet('/kids-watch/watches',
+                      bn: l == 'bn', empty: false)!['watches']) as List)[1] as Map)
+                  .cast<String, dynamic>()))),
+      mode: FakeMode.data,
+      full: true
+    ),
     // chipbuy: add a tracker chip (bag / shoe) + "where to buy" link
     'chip_pair': (build: (_) => const Scaffold(body: ChipPairSheet()), mode: FakeMode.data, full: true),
     // chipbuy2: chip card — find now (acked), left-behind spot + safe place,
@@ -1157,6 +1203,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'incoming_call': (build: (_) => IncomingCallScreen(payload: PushPayload({'kind': 'call', 'call_id': '7', 'chat_id': '3', 'caller_name': 'Ayesha Rahman', 'video': 'true', 'title': 'Ayesha Rahman'})), mode: FakeMode.data, full: true),
     'finance': (build: (_) => const FinanceScreen(), mode: FakeMode.data, full: true),
     'watch_feed': (build: (_) => const WatchFeedScreen(), mode: FakeMode.data, full: true),
+    // ai-reply-core: My Circle chat ⋮ → AI reply (person: 4 modes, Busy on;
+    // group: Off / Suggest only) + the Suggest chips above the composer
+    'ai_reply_sheet': (build: (l) => Scaffold(body: SafeArea(child: AiReplySheet(api: AiReplyApi(FakeApi()), chatId: 7, group: false, name: l == 'bn' ? 'বিলাল' : 'Bilal', initial: AiReplyState.fromJson(const {'enabled': true, 'mode': 'busy', 'allowed_modes': ['off', 'suggest', 'busy', 'auto'], 'busy_until': '2026-11-17T15:30:00', 'label_on': true, 'credits_per_reply': 1, 'free_left': 12, 'unlock': 'ad'})))), mode: FakeMode.data, full: true),
+    'ai_reply_group': (build: (l) => Scaffold(body: SafeArea(child: AiReplySheet(api: AiReplyApi(FakeApi()), chatId: 9, group: true, name: l == 'bn' ? 'পরিবার' : 'Family', initial: AiReplyState.fromJson(const {'enabled': true, 'mode': 'suggest', 'allowed_modes': ['off', 'suggest'], 'is_group': true, 'credits_per_reply': 1, 'free_left': 12, 'unlock': 'premium'})))), mode: FakeMode.data, full: true),
+    'ai_reply_chips': (build: (l) => Scaffold(body: Align(alignment: Alignment.bottomCenter, child: Builder(builder: (ctx) => AiSuggestionStrip(suggestions: l == 'bn' ? const ['ভালো আছি, তুমি?', 'হ্যাঁ বলো', 'একটু পরে কথা বলি'] : const ['Good, and you?', 'Yes, tell me', 'Talk in a bit'], onTap: (s) => ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(s))), onClose: () => ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('-'))))))), mode: FakeMode.data, full: true),
     // adminsafe: Account status + appeal (blocked sign-in body / signed in)
     'acct_standing_suspended': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn')), mode: FakeMode.data, full: true),
     'acct_standing_banned': (build: (l) => AccountStandingScreen(blockedBody: fakeBlockedBody(bn: l == 'bn', banned: true)), mode: FakeMode.data, full: true),
@@ -1207,12 +1258,16 @@ Map<String, GallerySpec> gallerySpecs() {
     'quran_reader': (build: (_) { SharedPreferences.setMockInitialValues({'quran_bookmarks_v1': ['1:2']}); return QuranReaderScreen(data: realQuranData(), sura: 1); }, mode: FakeMode.data, full: true),
     'quran_reader_en': (build: (_) { SharedPreferences.setMockInitialValues({'quran_translation_v1': 'en'}); return QuranReaderScreen(data: realQuranData(), sura: 112); }, mode: FakeMode.data, full: true),
     'quran_about': (build: (_) => QuranAboutScreen(notice: realQuranData().arabicNotice), mode: FakeMode.data, full: true),
+    // gap-quranblood: para list + reader at the end of a sura (next sura)
+    'quran_juz': (build: (_) { preloadRealQuran(); return const QuranScreen(initialTab: 1); }, mode: FakeMode.data, full: true),
+    'quran_reader_end': (build: (_) => QuranReaderScreen(data: realQuranData(), sura: 112, aya: 3), mode: FakeMode.data, full: true),
+    // /gap-quranblood
     // quranread: learn to read Quran (real lessons + real Tanzil Uthmani text)
     'quran_learn': (build: (_) => QuranLearnScreen(progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_harakat': (build: (_) => QuranLessonScreen(stage: kQlStages[1], lesson: kQlStages[1].lessons[0], progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_ayat': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
-    'quran_learn_tajweed': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[8], lesson: kQlStages[8].lessons[2], progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
+    'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_harakat': (build: (_) => QuranLessonScreen(stage: kQlStages[1], lesson: kQlStages[1].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_ayat': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
+    'quran_learn_tajweed': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[8], lesson: kQlStages[8].lessons[2], progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
     // result state of "I read, check me": the text a phone engine returns when the last word is missed
     'quran_learn_check': (build: (_) { preloadRealUthmani(); return Scaffold(body: SafeArea(child: ReciteSheet(expected: realUthmani().text(kQlStages[7].lessons[1].items[0].ref!)!, initialHeard: '\u0642\u0644 \u0647\u0648 \u0627\u0644\u0644\u0647'))); }, mode: FakeMode.data, full: true),
     'quran_learn_about': (build: (_) { preloadRealUthmani(); return const QuranLearnAboutScreen(); }, mode: FakeMode.data, full: true),
@@ -1223,9 +1278,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'qv_tafsir_none': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 1, aya: 1))); }, mode: FakeMode.data, full: true),
     // quranshikhi: the owner-approved letter lesson (bn + en lines, four forms,
     // makhraj, under review, streak), joining letters, a new short sura.
-    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba'), mode: FakeMode.data, full: true),
-    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
+    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba', player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run
@@ -1420,6 +1475,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'cmn_review': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueue()); return const MoneyNotifReviewScreen(focusId: 1); }, mode: FakeMode.data, full: true),
     'cmn_review_empty': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const MoneyNotifReviewScreen(); }, mode: FakeMode.empty, full: true),
     'cmn_callnote': (build: (_) => const Scaffold(body: CallNoteSheet(launch: NotifLaunch(kind: 'callnote', mode: 'type', source: 'sim'), offline: true)), mode: FakeMode.data, full: true),
+    // ai-reply-notif: consent, per-app list (on / off / revoked + unlock), companion card preview
+    'arn_consent': (build: (_) => const AiReplyNotifConsentScreen(), mode: FakeMode.data, full: true),
+    'arn_settings': (build: (_) { SharedPreferences.setMockInitialValues({'arn_consent_v1': 'x', 'arn_on': true, 'arn_apps': ['mycircle', 'whatsapp']}); AiReplyNotifChannel.instance = FakeAiReplyBridge(st: const AiReplyNativeStatus(available: true, granted: true, on: true, apps: ['mycircle', 'whatsapp'], hasToken: true, noCreditCount: 2, installedPackages: {'com.whatsapp', 'com.facebook.orca', 'com.imo.android.imoim'})); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_settings_off': (build: (_) { SharedPreferences.setMockInitialValues({}); AiReplyNotifChannel.instance = FakeAiReplyBridge(); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_settings_revoked': (build: (_) { SharedPreferences.setMockInitialValues({'arn_consent_v1': 'x', 'arn_on': true, 'arn_apps': ['whatsapp']}); AiReplyNotifChannel.instance = FakeAiReplyBridge(st: const AiReplyNativeStatus(available: true, granted: false, apps: ['whatsapp'])); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_companion': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: const [AiReplyCompanionCard()])), mode: FakeMode.data, full: false),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
     'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
     'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),
@@ -1531,6 +1592,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in gapAichatShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // callsbar: weak-network video call, rating, honest group call, low data
     for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // group-calls: 8-tile grid, video on mobile data, Add person, Join bar
+    for (final e in groupCallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
@@ -1904,3 +1967,119 @@ class _LwFlagsState extends State<_LwFlags> {
 // viewonce: a real 1x1 PNG for the view-once viewer shot
 const _vo1Png =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+
+// ---------------------------------------------------------------- train-app
+const _tr2Stations = [
+  TrainSmsStation('o5', 'কুমিল্লা', 'Cumilla'),
+  TrainSmsStation('o9', 'ভৈরব বাজার', 'Bhairab Bazar'),
+];
+
+class _Tr2Native extends TrainNative {
+  @override
+  Future<TrainCell?> servingCell() async =>
+      const TrainCell(mcc: '470', mnc: '1', tac: 1234, cid: 56789, rat: 'lte');
+}
+
+/// train-app: gallery setup — flags on (owner-only until approved), no GPS,
+/// the offline pack on the "phone" when [offline], a running share when
+/// [sharing], and a sheet opened fully (no slide-in) when [sheet].
+Widget _tr2(Widget child,
+    {bool offline = false, bool sharing = false, Future<Object?> Function(BuildContext)? sheet}) {
+  TrainNative.disabledForTests = true;
+  TrainFgs.disabled = true;
+  trainSheetsInstant = true;
+  TrainNative.I = _Tr2Native();
+  TrainOfflineStore.I = TrainOfflineStore(dir: Directory.systemTemp);
+  if (offline) {
+    TrainOfflineStore.I.debugSet(TrainOfflinePack.fromJson(trainOfflinePackJson(), savedAt: DateTime.now()));
+  }
+  final c = TrainShareController(useService: false, persist: false, position: () async => null);
+  if (sharing) {
+    c.value = const TrainShareState(shareId: 41, trainNo: '701', status: 'active', accepted: 23, rejected: 1);
+  }
+  TrainShareController.I = c;
+  return _SjFlags(child: _Tr2Host(sheet: sheet, child: child));
+}
+
+class _Tr2Host extends StatefulWidget {
+  const _Tr2Host({required this.child, this.sheet});
+  final Widget child;
+  final Future<Object?> Function(BuildContext)? sheet;
+  @override
+  State<_Tr2Host> createState() => _Tr2HostState();
+}
+
+class _Tr2HostState extends State<_Tr2Host> {
+  final _key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    final open = widget.sheet;
+    if (open != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _key.currentContext;
+        if (ctx != null) open(ctx);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => KeyedSubtree(key: _key, child: widget.child);
+}
+
+/// train-app: the V2 timeline as on the train page (freshness chip + line),
+/// shown from the top so the owner sees every state on one shot.
+class _Tr2Timeline extends StatelessWidget {
+  const _Tr2Timeline({required this.live});
+  final bool live;
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final line = trainLine701(DateTime.now(), live: live);
+    return Scaffold(
+      appBar: AppBar(title: Text(t.sjtLineTitle)),
+      body: ListView(padding: const EdgeInsets.all(12), children: [
+        Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TrainFreshChip(fresh: TrainFresh(live ? 'live' : 'timetable'))),
+        const SizedBox(height: 12),
+        TrainLineView(
+            line: line,
+            live: live,
+            speedKmh: live ? 62 : null,
+            riders: live ? 3 : 0,
+            // as on the train page: a station tap opens the check-in sheet
+            onStation: (st) => showTrainStationSheet(
+                context, trainLineName(st, Localizations.localeOf(context).languageCode == 'bn'),
+                alarm: false)),
+      ]),
+    );
+  }
+}
+
+// gap-kidswatch: shows KidsWatchScreen with a live watch SOS, then turns the
+// fake back to normal (no other shot sees the SOS)
+class _KwSosShot extends StatefulWidget {
+  const _KwSosShot();
+  @override
+  State<_KwSosShot> createState() => _KwSosShotState();
+}
+
+class _KwSosShotState extends State<_KwSosShot> {
+  @override
+  void initState() {
+    fakeKwSosActive = true;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    fakeKwSosActive = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => const KidsWatchScreen();
+}

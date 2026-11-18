@@ -97,6 +97,11 @@ REGISTRY = (
     # until the owner's real-train two-phone test. Free, no ads.
     ('train_tracker', 'daily_life', 'Train tracker', 'ট্রেন ট্র্যাকার', False, ('train_tracker',)),
     ('dest_alarm', 'daily_life', 'Destination alarm', 'গন্তব্য অ্যালার্ম', False, ('dest_alarm',)),
+    # flag-itag (W7, owner approved the iTag purchase 17 Nov): Bluetooth iTag
+    # key finder — pair, ring, "left behind" while Assisto is open, tag button
+    # rings the phone, battery. All on the phone (no server data). OFF until
+    # the owner's real-tag test (owner_actions/ITAG_FIRST_TEST_BN.md).
+    ('itag_tags', 'daily_life', 'Bluetooth tag (iTag)', 'ব্লুটুথ ট্যাগ (iTag)', False, ('itag_tags',)),
     # sjalarm (owner Safe Journey order 3 Nov): OWNER-ONLY trip recorder —
     # real GPS traces for the destination-alarm CI replay. Keep OFF for all;
     # the owner / staff / allow-list see it as a preview. Owns no route.
@@ -286,6 +291,12 @@ REGISTRY = (
     # app re-reads it on open / resume and every 3 hours. A KILL switch: an
     # owner/staff "preview" of OFF counts as OFF in the app. Owns no route.
     ('money_notif_sms', 'my_account', 'Money from bank/wallet SMS notifications', 'ব্যাংক/ওয়ালেট SMS নোটিফিকেশন থেকে টাকার হিসাব', True, ()),
+    # ai-reply-core (owner 17 Nov): AI reply. ai_reply = My Circle per-person
+    # modes (Suggest / Busy / Full auto); ai_reply_notif = suggested replies
+    # on other apps' message notifications (lane 2). Both OFF until the owner
+    # turns them on. They own no route (a chat menu entry / a settings row).
+    ('ai_reply', 'circle', 'AI reply in My Circle (suggest / busy / full auto)', 'আমার সার্কেলে AI উত্তর (প্রস্তাব / ব্যস্ত / পুরো অটো)', False, ()),
+    ('ai_reply_notif', 'circle', 'AI reply suggestions on message notifications', 'মেসেজ নোটিফিকেশনে AI উত্তরের প্রস্তাব', False, ()),
 )
 
 SECTIONS = (

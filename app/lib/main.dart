@@ -2,6 +2,8 @@ import 'family_v3/family_entry.dart'; // fcscreen
 import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
+import 'screens/train/train_paste_screen.dart' show TrainPasteScreen; // train-app
+import 'train/train_v2_native.dart' show TrainNative; // train-app
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -84,6 +86,7 @@ import 'phonecam/phonecam_link.dart'; // cctvphone
 import 'carecall/carecall_screen.dart' show careCallResume; // carecall
 import 'carecall/carecall_ring_screen.dart'; // carecall
 import 'notiflisten/notif_listen_service.dart'; // callmoney
+import 'notiflisten/ai_reply_notif.dart' show AiReplyNotifService; // ai-reply-notif
 import 'bizai/my_shops_screen.dart' show ShopChatLink; // bizai
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
@@ -432,6 +435,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   /// allow-listed screen (the anti-theft "Turn off" button opens the
   /// protection screen, where the owner switches it off inside the app).
   Future<void> _maybeNotifOpen() async {
+    // train-app: the share target exists only while Train Tracker is on
+    unawaited(TrainNative.I.syncShareTarget(FeatureFlags.instance.isOn('train_tracker')));
     try {
       const ch = MethodChannel('com.assisto/device_admin');
       final v = await ch.invokeMethod<String>('notifOpen');
@@ -449,6 +454,16 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       if (v == 'family') {
         appNavigatorKey.currentState?.push(
             MaterialPageRoute<void>(builder: (_) => const FamilyEntry()));
+        return;
+      }
+      // train-app: Android "Share -> Assisto" (the 16318 reply or a group
+      // post the user chose to share) opens "Share a train update".
+      if (v == 'train_paste') {
+        final text = await TrainNative.I.takeSharedText();
+        if (text != null && mounted && FeatureFlags.instance.isOn('train_tracker')) {
+          appNavigatorKey.currentState?.push(MaterialPageRoute<void>(
+              builder: (_) => TrainPasteScreen(initialText: text)));
+        }
         return;
       }
       if (v != 'antitheft_off') return;
@@ -565,6 +580,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // Part 3: assist gesture / wake word while Assisto was in background.
       VaLaunch.maybeOpen(context);
       unawaited(NotifListenService.maybeOpen(context)); // callmoney
+      // ai-reply-notif: mirror the flag + refresh the scoped token (only if turned on)
+      try {
+        unawaited(AiReplyNotifService.onResume(
+            context.read<AppState>().api, AppLocalizations.of(context)));
+      } catch (_) {} // best-effort: no localizations above this context yet
       VaWake.maybeRestart(context);
     }
   }

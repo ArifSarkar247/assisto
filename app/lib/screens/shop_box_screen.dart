@@ -17,6 +17,7 @@ import 'credits_screen.dart';
 import '../plans_v2/buy_inside.dart';
 import 'watchman/cctv_recording_screen.dart';
 import 'plans_screen.dart';
+import '../billing/cctv_plan_screen.dart'; // gap-cctv
 import 'shop_box_mode_screen.dart';
 import 'shop_camera_settings.dart';
 import 'shop_eod_screen.dart';
@@ -72,6 +73,16 @@ class _ShopBoxScreenState extends State<ShopBoxScreen> {
       final slug = (p['plan'] ?? '').toString().toLowerCase();
       _isBusiness = slug == 'business';
       _planKnown = slug.isNotEmpty;
+      // gap-cctv: the same rule as the server (G15) — an active CCTV plan or
+      // its trial unlocks shops too (CCTV home's `can_shop`)
+      if (!_isBusiness) {
+        try {
+          final w = await api.getJson('/shop/watchman');
+          if (w['can_shop'] == true) _isBusiness = true;
+        } catch (_) {
+          // keep the plan answer; the lock below stays honest
+        }
+      }
     } catch (_) {
       // Unknown plan -> do NOT hard-block; degrade gracefully.
       _planKnown = false;
@@ -217,7 +228,7 @@ class _UpsellBody extends StatelessWidget {
               Icon(Icons.verified_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
-                child: Text(t.shopBoxUpsellPlanNote,
+                child: Text(t.gcvShopBoxPlanNote, // gap-cctv: CCTV or Business plan
                     style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
               ),
             ]),
@@ -227,6 +238,16 @@ class _UpsellBody extends StatelessWidget {
           onPressed: onSeePlans,
           icon: const Icon(Icons.workspace_premium_rounded),
           label: Text(t.shopBoxSeePlans),
+        ),
+        // gap-cctv: the CCTV plan unlocks Shop Box too
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          key: const Key('sb-cctv-plan'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen())),
+          icon: const Icon(Icons.videocam_rounded),
+          label: Text(t.cplEntryTitle),
         ),
       ],
     );
@@ -576,7 +597,7 @@ class _SitesTab extends StatelessWidget {
                               style: AType.bodyLarge.copyWith(
                                   color: scheme.ds.text, fontWeight: FontWeight.w700)),
                           Text(
-                            t.shopBoxSiteSubtitle(
+                            t.gcvPlSiteSubtitle(cameras, // gap-cctv: "1 camera"
                                 fmtInt(context, cameras),
                                 fmtInt(context, retention)),
                             style: AType.bodySmall.copyWith(color: scheme.ds.muted),

@@ -1,4 +1,5 @@
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
+import '../notiflisten/ai_reply_notif_screens.dart' show openAiReplyNotifSettings; // ai-reply-notif
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -279,6 +280,15 @@ class SettingsScreen extends StatelessWidget {
               subtitle: Text(t.clnSettingsTileSub),
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const CallMoneySettingsScreen())),
+            ),
+            // ai-reply-notif: suggested replies in chat notifications (consent first)
+            if (FeatureFlags.instance.isOn('ai_reply_notif'))
+            ListTile(
+              key: const ValueKey('arn_settings_tile'),
+              leading: const Icon(Icons.quickreply_rounded),
+              title: Text(t.arnTitle),
+              subtitle: Text(t.arnTileSub),
+              onTap: () => openAiReplyNotifSettings(context),
             ),
           ]),
           DsGroup(children: [

@@ -92,6 +92,9 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../messaging/chat_actions.dart'; // chat-actions
 import '../offline/offline_store.dart'; // offline1st
+import '../feature_flags.dart'; // ai-reply-core
+import '../messaging/ai_reply/ai_reply.dart'; // ai-reply-core
+import '../messaging/ai_reply/ai_reply_widgets.dart'; // ai-reply-core
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -185,6 +188,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   bool _polling = false;
 
   List<CircleMessage> _messages = [];
+  // ai-reply-core: this chat's AI reply mode + Suggest-mode chips
+  AiReplyState? _ai;
+  List<String> _aiChips = const [];
+  String _aiChipsFor = '';
+  bool _aiLoading = false;
+  String _aiNote = ''; // '' | blocked | no_credits
+  bool _aiHidden = false;
+  final Set<String> _aiAsked = {};
   bool _loading = true;
   bool _sending = false;
 
@@ -311,6 +322,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }, onError: (Object e) => KeyService.instance.log.add('md1 dir ${e.runtimeType}')));
     _scroll.addListener(_onScroll);
     _load().then((_) {
+      unawaited(_aiLoad()); // ai-reply-core
       if (widget.forwarding != null) _doForwardInto(widget.forwarding!);
       if (widget.autoSend && mounted && _input.text.trim().isNotEmpty) {
         unawaited(_send()); // wakeword
@@ -522,6 +534,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _rememberPreview();
       _foldControls(); // cde-chat
       unawaited(_trackDisappearing()); // e-gaps
+      _aiOnNew(raw, known); // ai-reply-core
     } catch (_) {
       // Silent: a failed poll just waits for the next tick.
     } finally {
@@ -1252,6 +1265,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       // viewonce: "Opened 10:42" for the sender; deleted unopened (14 days)
       viewOnceOpenedAt: DateTime.tryParse('${env['view_once_opened_at'] ?? ''}'),
       viewOnceExpired: env['view_once_expired'] == true,
+      aiLabel: env['ai_label'] == true, // ai-reply-core
     );
   }
 
@@ -1268,8 +1282,11 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   // -------------------------------------------------------------------------
   // Send (text), with reply + link-preview detection on the SENDER device.
   // -------------------------------------------------------------------------
-  Future<void> _send() async {
-    final plain = _input.text.trim();
+  Future<void> _send({String? textOverride, String? aiToken}) async {
+    // ai-reply-core: a tapped suggestion / an AI reply is sent as given
+    // (never touching what the user is typing); [aiToken] tags it.
+    final isOverride = textOverride != null;
+    final plain = (textOverride ?? _input.text).trim();
     // db1: Send on an empty box opens the keyboard instead of doing nothing.
     if (plain.isEmpty && !_sending) {
       _inputFocus.requestFocus();
@@ -1279,7 +1296,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
 
     // p3: "@Assisto …" is a command to Assisto, never sent to the peer.
-    final p3i = _editing == null ? parseAssisto(plain) : null;
+    final p3i = (_editing == null && !isOverride) ? parseAssisto(plain) : null;
     if (p3i != null) {
       setState(() => _input.clear());
       unawaited(_openAssisto(intent: p3i));
@@ -1287,7 +1304,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
 
     // Edit path: replace an existing message within the window.
-    if (_editing != null) {
+    if (_editing != null && !isOverride) {
       await _applyEdit(_editing!, plain);
       return;
     }
@@ -1304,8 +1321,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // the send; with no key yet the message waits in the persistent outbox
     // (clock icon) and goes out by itself once the peer's phone publishes.
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
-    final replyId = _replyTo?.id;
-    final replyPrev = _replyTo?.text;
+    final replyId = isOverride ? null : _replyTo?.id;
+    final replyPrev = isOverride ? null : _replyTo?.text;
     final sentAt = DateTime.now();
 
     // Link preview is built HERE (sender device). We detect the URL locally;
@@ -1328,14 +1345,18 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       pending: true,
       replyToId: replyId,
       replyPreview: (replyPrev ?? '').isEmpty ? null : replyPrev,
+      aiLabel: aiToken != null && (_ai?.labelOn ?? true), // ai-reply-core
     );
     setState(() {
       _sending = true;
       _messages = [..._messages, echo];
-      _input.clear();
-      _draftPreview = null; // circlea
-      _draftUrl = null;
-      _replyTo = null;
+      _aiChips = const []; // ai-reply-core: answered — chips go
+      if (!isOverride) {
+        _input.clear();
+        _draftPreview = null; // circlea
+        _draftUrl = null;
+        _replyTo = null;
+      }
       _unreadAtOpen = 0; // WhatsApp: replying clears the unread divider
       _firstUnreadId = null;
     });
@@ -1390,6 +1411,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
         if (replyId != null) 'reply_to': replyId,
         if (firstUrl != null) 'has_link': true,
         if (lpEnv != null) 'link_preview': lpEnv,
+        if (aiToken != null) 'ai_reply_token': aiToken, // ai-reply-core
         ...ct.toEnvelopeFields(),
       });
       // Mark echo confirmed (no longer pending). x2-ticks: re-key it to the
@@ -2178,6 +2200,151 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   /// A second tap while the call screen is opening never stacks a 2nd call.
   bool _callOpening = false;
 
+
+  // -------------------------------------------------------------------------
+  // ai-reply-core: My Circle AI reply (Suggest chips, Busy / Full auto)
+  // -------------------------------------------------------------------------
+  AiReplyApi get _aiApi => AiReplyApi(_api);
+
+  bool get _aiStripVisible =>
+      !_aiHidden &&
+      _ai != null &&
+      _ai!.enabled &&
+      _ai!.suggests &&
+      _editing == null &&
+      _input.text.trim().isEmpty &&
+      (_aiLoading || _aiChips.isNotEmpty || _aiNote.isNotEmpty);
+
+  Future<void> _aiLoad() async {
+    final id = _memberId;
+    if (id == null || !FeatureFlags.instance.isOn(kAiReplyFlag)) return;
+    try {
+      final s = await _aiApi.load(group: false, id: id);
+      if (!mounted) return;
+      setState(() => _ai = s);
+      if (s.styleConsent) unawaited(_aiLearn());
+      _aiOnNew(null, null);
+    } catch (_) {
+      // offline: the chat works as before; the menu row reloads it
+    }
+  }
+
+  Future<void> _aiOpenSheet() async {
+    final id = _memberId;
+    if (id == null) return;
+    await showAiReplySheet(context,
+        api: _aiApi, chatId: id, group: false, name: _memberName, initial: _ai);
+    if (!mounted) return;
+    setState(() {
+      _aiHidden = false;
+      _aiChipsFor = '';
+    });
+    await _aiLoad();
+  }
+
+  /// After a fetch: Suggest -> chips for the newest message from them;
+  /// Busy / Full auto -> ask the server about a NEW message from them
+  /// ([known] = ids before this fetch; null = no auto on a first load).
+  void _aiOnNew(List<Map<String, dynamic>>? raw, Set<String>? known) {
+    final s = _ai;
+    if (s == null || !s.enabled || _memberId == null) return;
+    final shown = _messages.where((m) => !m.pending && m.deleted.isEmpty).toList();
+    if (shown.isEmpty) return;
+    final last = shown.last;
+    final answerable = !last.mine &&
+        last.contentType == 'text' &&
+        !last.decryptFailed &&
+        last.text.trim().isNotEmpty &&
+        !last.aiLabel;
+    if (!answerable) {
+      if (_aiChips.isNotEmpty || _aiNote.isNotEmpty) {
+        setState(() {
+          _aiChips = const [];
+          _aiNote = '';
+        });
+      }
+      return;
+    }
+    if (s.suggests) {
+      if (_aiChipsFor != last.id) unawaited(_aiSuggest(last));
+      return;
+    }
+    if (s.autoReplies && known != null && !known.contains(last.id) && _aiAsked.add(last.id)) {
+      unawaited(_aiAuto(last));
+    }
+  }
+
+  List<Map<String, String>> _aiCtx(CircleMessage last) {
+    final i = _messages.indexOf(last);
+    if (i <= 0) return const [];
+    return [
+      for (final m in _messages.sublist((i - 4).clamp(0, i), i))
+        if (m.contentType == 'text' && !m.decryptFailed && m.text.trim().isNotEmpty)
+          {'from': m.mine ? 'me' : 'them', 'text': m.text.trim()},
+    ];
+  }
+
+  Future<void> _aiSuggest(CircleMessage last) async {
+    _aiChipsFor = last.id;
+    setState(() {
+      _aiLoading = true;
+      _aiChips = const [];
+      _aiNote = '';
+    });
+    final r = await _aiApi.suggest(text: last.text, context: _aiCtx(last), memberId: _memberId);
+    if (!mounted || _aiChipsFor != last.id) return;
+    setState(() {
+      _aiLoading = false;
+      _aiChips = r.suggestions;
+      _aiNote = r.needsYou ? 'blocked' : (r.noCredits ? 'no_credits' : '');
+    });
+  }
+
+  Future<void> _aiAuto(CircleMessage last) async {
+    try {
+      final r = await _aiApi.auto({
+        'member_id': _memberId,
+        'message_id': int.tryParse(last.id),
+        'text': last.text,
+        'context': _aiCtx(last),
+      });
+      if (!mounted) return;
+      final action = '${r['action'] ?? ''}';
+      if (action == 'send') {
+        final reply = '${r['reply'] ?? ''}'.trim();
+        if (reply.isNotEmpty) await _send(textOverride: reply, aiToken: '${r['token'] ?? ''}');
+      } else if (action == 'hold') {
+        await _aiLoad(); // the "AI held a message — it needs you" line
+      }
+    } catch (_) {
+      // a failed AI step never touches the chat
+    }
+  }
+
+  Future<void> _aiHeldSeen(int id) async {
+    try {
+      await _aiApi.heldSeen(id);
+    } catch (_) {}
+    await _aiLoad();
+  }
+
+  /// Style (consent on): MY OWN sent texts of this chat, once per open; the
+  /// server keeps only a compact profile.
+  bool _aiLearned = false;
+  Future<void> _aiLearn() async {
+    if (_aiLearned) return;
+    _aiLearned = true;
+    final mine = [
+      for (final m in _messages.reversed)
+        if (m.mine && m.contentType == 'text' && !m.decryptFailed && m.text.trim().isNotEmpty)
+          m.text.trim(),
+    ];
+    if (mine.length < 5) return;
+    try {
+      await _aiApi.learn(mine.take(200).toList());
+    } catch (_) {}
+  }
+
   // -------------------------------------------------------------------------
   // Chat ⋮ menu dispatch
   // -------------------------------------------------------------------------
@@ -2185,9 +2352,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     final action = await showChatMenu(context,
         isFavourite: _favourite,
         bubbleOn: _bubbleOn,
-        locked: ChatLockStore.instance.isLockedSync(_chatKey));
+        locked: ChatLockStore.instance.isLockedSync(_chatKey),
+        aiReply: FeatureFlags.instance.isOn(kAiReplyFlag)); // ai-reply-core
     if (action == null || !mounted) return;
     switch (action) {
+      case ChatMenuAction.aiReply: // ai-reply-core
+        await _aiOpenSheet();
+        break;
       case ChatMenuAction.bubble:
         await _toggleBubble();
         break;
@@ -2848,6 +3019,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                 kind: 'member',
                 chatId: int.parse('${widget.member['id']}')),
           if (pinned.isNotEmpty && !_searching) _pinnedStrip(pinned, scheme),
+          // ai-reply-core: "AI is replying for you" / "AI held a message"
+          if (!_searching && _ai != null && _ai!.enabled &&
+              (_ai!.autoReplies || _ai!.held.isNotEmpty))
+            AiModeStrip(
+              state: _ai!,
+              onChange: _aiOpenSheet,
+              onHeldSeen: _aiHeldSeen,
+            ),
           Expanded(
             child: Stack(children: [
             Positioned.fill(child: _themed(_loading
@@ -3500,6 +3679,17 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Widget _composer(ColorScheme scheme) => SafeArea(
         top: false,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // ai-reply-core: Suggest mode — reply chips (one tap sends)
+          if (_aiStripVisible)
+            AiSuggestionStrip(
+              suggestions: _aiChips,
+              loading: _aiLoading,
+              needsYou: _aiNote == 'blocked',
+              noCredits: _aiNote == 'no_credits',
+              onUnlock: _ai?.unlock == 'ad' ? _aiOpenSheet : null,
+              onTap: (s) => unawaited(_send(textOverride: s)),
+              onClose: () => setState(() => _aiHidden = true),
+            ),
           // circlea: the link preview that will go (encrypted) with the message
           if (_draftPreview != null)
             Padding(

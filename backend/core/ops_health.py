@@ -206,6 +206,7 @@ JOBS = (
     Job("carecall_tick", MIN, "* * * * *", via="minute_jobs"),
     Job("family_brain_tick", MIN, "* * * * *", via="minute_jobs"),  # fcbrain
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
+    Job("train_engine_tick", MIN, "* * * * *", via="minute_jobs"),   # train-engine
     # geminioff: idle = one indexed read; ONE Gemini request a day while off
     Job("gemini_probe", MIN, "* * * * *", via="minute_jobs"),
     # aimoney: ads per AI answer recomputed once a local day (idle = one read)
@@ -275,6 +276,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("email_bounces", {"tick": True, "quiet": True}),
                # livemon: idle = one stamp read; once a day 06:00 Dhaka
                ("live_monitor", {"tick": True}),
+               # train-engine: 24 h purge of rider points + live refresh;
+               # idle = two indexed reads
+               ("train_engine_tick", {"quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 

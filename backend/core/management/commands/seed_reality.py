@@ -43,6 +43,11 @@ USERS = {
     # Not in A's circle unless the drive includes the flagproof group.
     "d": {"name": "Reality Selim", "phone": "01700000004",
           "email": "selim@reality.test"},
+    # group-calls: E is the THIRD person of the 3-way group call proof (flow
+    # 18g): in A's and B's circle (accepted both ways). Its own user, so D
+    # (flagproof) stays out of A's circle in every other drive.
+    "e": {"name": "Reality Dipu", "phone": "01700000006",
+          "email": "dipu@reality.test"},
 }
 
 FLAGPROOF_KEYS = ("vault_e2e", "ps_secretary", "ai_daily_planner", "booking_bot",
@@ -202,6 +207,17 @@ class Command(BaseCommand):
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
 
+        # --- group-calls: E is in A's and B's circle (both ways, accepted)
+        for x, y in (("a", "e"), ("e", "a"), ("b", "e"), ("e", "b")):
+            CircleMember.objects.update_or_create(
+                user=users[x], peer_user=users[y],
+                defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
+                          "state": "accepted", "relation": "friend",
+                          "direction": "outgoing" if x in ("a", "b") else "incoming"})
+        self.steps.append({"step": "circle A<->E, B<->E (group call proof)",
+                           "method": "DB", "path": "circle", "status": 200,
+                           "ok": True})
+
         # --- m3-circle: A and C start NOT connected (the flow adds C)
         CircleMember.objects.filter(user=users["a"], peer_user=users["c"]).delete()
         CircleMember.objects.filter(user=users["c"], peer_user=users["a"]).delete()
@@ -226,7 +242,8 @@ class Command(BaseCommand):
         # for launch (owner 2 Nov) — allow-list ONLY demo user A on this
         # throw-away CI DB so the business reality flows can audit them.
         for key in ("accounting_v2", "marketing_engine", "invoice_designs",
-                    "assisto_market", "retention_auto"):
+                    "assisto_market", "retention_auto",
+                    "quran", "blood_donors"):  # gap-quranblood: reality qb1/qb2
             row = FeatureFlag.objects.filter(key=key).first()
             if row is not None and users["a"].id not in (row.allow_user_ids or []):
                 row.allow_user_ids = list(row.allow_user_ids or []) + [users["a"].id]
@@ -238,7 +255,8 @@ class Command(BaseCommand):
         # flagproof: + the hidden features whose reality flows prove them
         # (vault_e2e -> flow 21; ps_secretary / ai_daily_planner /
         # booking_bot / official_corners / blood_donors -> flows 31-36).
-        for key in ("dest_alarm", "train_tracker"):
+        # gap-kidswatch: + kids_watch (flow 18k pairs a simulated watch)
+        for key in ("dest_alarm", "train_tracker", "kids_watch"):
             ff = FeatureFlag.objects.filter(key=key).first()
             if ff is not None:
                 ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]
@@ -266,6 +284,30 @@ class Command(BaseCommand):
                            "path": "lp_items", "status": 200 if lp_ok else 500, "ok": True,
                            "note": "" if lp_ok else "lp_seed failed"})
         FF.invalidate()
+
+        # gap-cctv (lead, 17 Nov): user A runs a shop on the CCTV plan's free
+        # trial (a TEST purchase row on this throw-away CI DB, never Play) so
+        # flow 20 proves the real path past the plan screen: menu -> CCTV ->
+        # Shop tools -> Shop Box, then the old shop_box link.
+        try:
+            import hashlib
+            from core import cctv_plan_service as CPS
+            from core.logic import cctv_plan as CP
+            from core.models import PlayPurchase
+            tok = "reality-cctv-trial-%d" % users["a"].id
+            PlayPurchase.objects.update_or_create(
+                token_hash=hashlib.sha256(tok.encode()).hexdigest(),
+                defaults={"user": users["a"], "is_test": True, "purchase_token": tok,
+                          "kind": "sub", "product_id": CPS.cfg()["product_id"],
+                          "base_plan_id": CP.base_plan_id(2, "monthly"),
+                          "state": "SUBSCRIPTION_STATE_ACTIVE",
+                          "expires_at": now + timedelta(days=7),
+                          "raw": {"in_trial": True, "seed": "reality"}})
+            ok = CPS.plan_cameras(users["a"], now=now) > 0
+        except Exception:
+            ok = False
+        self.steps.append({"step": "CCTV plan trial for A (shop flows)", "method": "DB",
+                           "path": "play_purchases", "status": 200 if ok else 500, "ok": ok})
 
         # --- family + emergency card
         fam = []

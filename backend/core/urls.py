@@ -1231,6 +1231,19 @@ urlpatterns += [
     path("circle/calls/<int:call_id>", c2calls.CallStatusView.as_view()),
     path("circle/calls/<int:call_id>/quality", c2calls.CallQualityView.as_view()),  # callsbar
 ]
+# ---- group-calls ---- My Circle group calls (mesh, up to 8)
+from . import views_group_calls as gcalls  # noqa: E402
+urlpatterns += [
+    path("circle/group-calls", gcalls.GroupCallStartView.as_view()),
+    path("circle/group-calls/candidates", gcalls.GroupCallCandidatesView.as_view()),
+    path("circle/group-calls/<int:pk>", gcalls.GroupCallDetailView.as_view()),
+    path("circle/group-calls/<int:pk>/invite", gcalls.GroupCallInviteView.as_view()),
+    path("circle/group-calls/<int:pk>/join", gcalls.GroupCallJoinView.as_view()),
+    path("circle/group-calls/<int:pk>/leave", gcalls.GroupCallLeaveView.as_view()),
+    path("circle/group-calls/<int:pk>/media", gcalls.GroupCallMediaView.as_view()),
+    path("circle/group-calls/group/<int:gid>", gcalls.GroupLiveCallView.as_view()),
+# ---- /group-calls ----
+]
 # ---- /c2-calls ----
 # ---- b2-badges ---- bell / Reminders-tab badge watermark (opening clears
 # the badge; items stay unread until tapped; SOS/family alerts keep counting)
@@ -1736,8 +1749,23 @@ urlpatterns += [
 
 # ---- train ---- (owner priority C: Train Tracker; flag train_tracker, OFF)
 from . import train_views as trv  # noqa: E402
+from . import train_engine_views as tev  # noqa: E402  train-engine
 urlpatterns += [
     path("train/config", trv.ConfigView.as_view()),
+    # train-engine (Train Tracker V2): live engine API — core/train_engine_views.py
+    path("train/ping", tev.PingView.as_view()),
+    path("train/trip/stop", tev.TripStopView.as_view()),
+    path("train/text", tev.ShareTextView.as_view()),
+    path("train/share-text", tev.ShareTextView.as_view()),
+    path("train/sms16318", tev.ShareTextView.as_view()),
+    path("train/offline/meta", tev.OfflineMetaView.as_view()),
+    path("train/offline/pack", tev.OfflinePackView.as_view()),
+    path("train/points", tev.PointsView.as_view()),
+    path("train/<str:no>/trip", tev.TripOpenView.as_view()),
+    path("train/<str:no>/now", tev.NowView.as_view()),
+    path("train/<str:no>/checkin", tev.CheckinView.as_view()),
+    path("train/<str:no>/onboard", tev.OnboardView.as_view()),
+    # /train-engine
     path("train/search", trv.SearchView.as_view()),
     path("train/alarm/arrived", trv.AlarmArrivedView.as_view()),   # sjalarm
     path("train/trace", trv.TripTraceView.as_view()),              # sjalarm (owner-only)
@@ -2106,3 +2134,18 @@ urlpatterns += [
     path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
 ]
 # ---- /messv2 ----
+# ---- ai-reply-core (owner 17 Nov): AI reply (My Circle modes + lane-2 notification suggestions) ----
+from . import views_ai_reply as aireply  # noqa: E402
+
+urlpatterns += [
+    path("ai/reply/suggest", aireply.AiReplySuggestView.as_view()),
+    path("ai/reply/auto", aireply.AiReplyAutoView.as_view()),
+    path("ai/reply/notif-state", aireply.AiReplyNotifStateView.as_view()),
+    path("ai/reply/notif-token", aireply.AiReplyNotifTokenView.as_view()),
+    path("ai/reply/settings/<str:kind>/<int:pk>", aireply.AiReplySettingsView.as_view()),
+    path("ai/reply/style", aireply.AiReplyStyleView.as_view()),
+    path("ai/reply/style/learn", aireply.AiReplyStyleLearnView.as_view()),
+    path("ai/reply/held", aireply.AiReplyHeldView.as_view()),
+    path("ai/reply/held/<int:pk>/seen", aireply.AiReplyHeldSeenView.as_view()),
+]
+# ---- /ai-reply-core ----

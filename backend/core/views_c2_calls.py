@@ -179,6 +179,24 @@ def is_busy(user, exclude_id=None, now=None, exclude_peer=None):
         if CS.is_truly_active(r.state, now, sess.connected_at,
                               sess.caller_seen_at, sess.callee_seen_at):
             return True
+    # group-calls: a seat in a LIVE group call (joined, phone still polling)
+    # is busy too — even before any leg connected (a host waiting while the
+    # others ring). A ring into that same group call is not "another call".
+    try:
+        from .models import GroupCallMember
+        seats = GroupCallMember.objects.filter(user=user, state="joined",
+                                               room__state="live")
+        if exclude_id:
+            same = CallRecord.objects.filter(pk=exclude_id) \
+                .values_list("room_id", flat=True).first()
+            if same:
+                seats = seats.exclude(room_id=same)
+        if seats.exists():
+            p = RtPresence.objects.filter(user=user).first()
+            if p is not None and CS.is_presence_fresh(p.seen_at, now):
+                return True
+    except Exception:
+        log.exception("group-calls is_busy")
     return False
 
 
@@ -453,7 +471,7 @@ def _mark_seen(sess, side, now):
 
 def status_row(rec, side, lang="bn"):
     sess = session_of(rec)
-    return {
+    row = {
         "call_id": rec.id, "kind": rec.kind, "side": side,
         "state": rec.state,
         "phase": CS.phase(rec.state, sess.ringing_at,
@@ -470,6 +488,11 @@ def status_row(rec, side, lang="bn"):
         "connect_timeout_s": CS.CONNECT_TIMEOUT_S,
         "server_time": timezone.now().isoformat(),
     }
+    # group-calls: this call is (now) part of a group call -> the phone
+    # moves to the group call screen (only for room calls; 1:1 unchanged)
+    if getattr(rec, "room_id", None):
+        row["room_id"] = rec.room_id
+    return row
 
 
 # ---------------------------------------------------------------- real-time
@@ -769,6 +792,9 @@ def incoming_row(rec, me):
         "caller_photo": photo_of(rec.caller)[0],
         "caller_photo_v": photo_of(rec.caller)[1],
         "chat_id": edge.id if edge is not None else None,
+        # group-calls: a ring INTO a group call (the phone opens the group
+        # call screen when it answers)
+        "room_id": getattr(rec, "room_id", None),
         "phase": CS.phase(rec.state, session_of(rec).ringing_at,
                           getattr(session_of(rec), "delivered_at", None)),
     }
@@ -794,7 +820,7 @@ def _existing_body(request, rec, side, lang, **flags):
     return body
 
 
-def place_call(request, member, peer, kind, client_call_id=""):
+def place_call(request, member, peer, kind, client_call_id="", room=None):
     """Create the record + session for an allowed call and decide up front
     (x1-calls rules, A1-a/f):
 
@@ -853,7 +879,8 @@ def place_call(request, member, peer, kind, client_call_id=""):
         from .calls_free import calls_free   # dl1
         rec = CallRecord.objects.create(caller=me, callee=callee, circle=member,
                                         kind=kind, state="ringing",
-                                        free_testing=calls_free())
+                                        free_testing=calls_free(),
+                                        room=room)   # group-calls: a group ring
         sess = CallSession.objects.create(call=rec, caller_seen_at=now,
                                           client_call_id=key)
         outcome = ""

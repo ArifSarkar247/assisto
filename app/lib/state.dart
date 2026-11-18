@@ -1,4 +1,5 @@
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
+import 'notiflisten/ai_reply_notif.dart' show AiReplyNotifService; // ai-reply-notif
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart' show ThemeMode, Locale;
@@ -595,6 +596,7 @@ class AppState extends ChangeNotifier {
     await _step('logout.offline_me', CachedSession.clear());
     await _step('logout.offline', OfflineStore.instance.clearAccount(oldUid));
     await _step('logout.background', Background.stop());
+    await _step('logout.aireply', AiReplyNotifService.signOut()); // ai-reply-notif
     await _step('logout.db', db.clearAll());
     for (final r in _repos) {
       await _step('logout.repo', r.clear());

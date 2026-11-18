@@ -195,6 +195,9 @@ def add_fixes(share, points, now=None):
     for p in (points or [])[:MAX_POINTS]:
         if not isinstance(p, dict):
             continue
+        if p.get("mock"):              # train-engine: isFromMockProvider -> refused
+            pts.append(None)
+            continue
         at = _parse_at(p.get("at"), now)
         try:
             fix = {"lat": float(p["lat"]), "lng": float(p["lng"]),

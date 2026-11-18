@@ -145,22 +145,24 @@ void main() {
       await tester.tap(find.byKey(const Key('quran-sura-1')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('quran-reader')), findsOneWidget);
+      // gap-quranblood: verses now carry inline meaning lines (taller rows)
+      await tester.scrollUntilVisible(find.byKey(const Key('quran-bm-2')), 200,
+          scrollable: find.byType(Scrollable).last);
       await tester.tap(find.byKey(const Key('quran-bm-2')));
       await tester.pump(const Duration(milliseconds: 300));
       expect(await QuranPrefs.bookmarks(), [const AyaRef(1, 2)]);
     });
 
-    testWidgets('Bangla: honest awaiting-licence banner, one tap to English', (tester) async {
+    // gap-quranblood Q1: the old "awaiting licence" banner is gone — the
+    // licensed QuranEnc Bangla + English meanings now sit under every verse.
+    testWidgets('Bangla: verbatim Bangla + English meaning inline, no stale banner', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final d = realQuranData();
-      await _pump(tester, QuranReaderScreen(data: d, sura: 112), lang: 'bn');
-      expect(find.byKey(const Key('quran-bn-pending')), findsOneWidget);
-      expect(find.text(d.en(const AyaRef(112, 1))), findsNothing);
-      await tester.tap(find.byKey(const Key('quran-show-english')));
-      await tester.pump(const Duration(milliseconds: 200));
+      await _pump(tester, QuranReaderScreen(data: d, sura: 1), lang: 'bn');
       expect(find.byKey(const Key('quran-bn-pending')), findsNothing);
-      expect(find.text(d.en(const AyaRef(112, 1))), findsOneWidget);
-      expect(await QuranPrefs.translation(), QuranTrans.en);
+      expect(find.byKey(const Key('quran-bn-1')), findsOneWidget);
+      expect(find.byKey(const Key('quran-en-1')), findsOneWidget);
+      expect(find.byKey(const Key('quran-src-bn')), findsOneWidget);
     });
 
     testWidgets('jump to a verse + show earlier', (tester) async {

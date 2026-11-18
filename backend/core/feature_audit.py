@@ -191,6 +191,8 @@ _A = {
                       "ট্রেন ২ নভেম্বর: যাত্রীদের লোকেশনে লাইভ ট্রেন (সার্ভারে রেললাইন/গতি/দিক/সময়সূচি যাচাই + মিলন), 'আনুমানিক' সময়সূচি, ১৬৩১৮ SMS, ডাকনামের ট্রেন-চ্যাট (অনুরোধে My Circle, রিপোর্ট, ব্লক, যাত্রার পর মুছে যায়, বিপদ-শব্দে ৯৯৯/১৩১); সার্ভার ও অ্যাপ টেস্ট; সময়সূচি মালিকের যাচাই বাকি; আসল ট্রেনে দুই-ফোন পরীক্ষা বাকি।"),
     "dest_alarm": ("?PP?P??FF", "hide", "train 2 Nov: destination alarm — offline on-device geofence (bundled OSM stations or any map place), 1 km / 500 m / 300 m / 100 m / custom, alarm stream (loud on silent) + Bangla voice, adaptive GPS interval, location foreground service only while on; real-phone test on a train pending; Play location-FGS declaration text ready.",
                    "ট্রেন ২ নভেম্বর: গন্তব্য অ্যালার্ম — নেট ছাড়া ফোনেই দূরত্বের হিসাব (স্টেশন বা ম্যাপের যেকোনো জায়গা), ১ কিমি/৫০০/৩০০/১০০ মি/নিজের মতো, সাইলেন্টেও জোরে + বাংলা ভয়েস, দূরে ধীর-কাছে দ্রুত GPS, শুধু চালু থাকলে লোকেশন সার্ভিস; আসল ট্রেনে পরীক্ষা বাকি; Play ঘোষণা লেখা তৈরি।"),
+    "itag_tags": ("?F???P?FF", "hide", "flag-itag 17 Nov: Bluetooth iTag (open BLE: Immediate Alert 0x1802, Link Loss 0x1803, battery 0x180F, button FFE0/FFE1) — pair, ring, left-behind alert while Assisto is open (no FGS, no background location), tag button rings the phone, battery, unpair; last-seen place kept only on the phone. Native ItagChannel.kt + BLE-fake widget tests; no real iTag tested yet (owner bought one; ITAG_FIRST_TEST_BN.md).",
+                  "ব্লুটুথ iTag ১৭ নভে: যুক্ত করা, বাজানো, Assisto খোলা থাকলে \"ফেলে এলেন\" সতর্কতা (ব্যাকগ্রাউন্ড লোকেশন নেই), ট্যাগের বোতামে ফোন বাজা, ব্যাটারি, সরানো; শেষ জায়গা শুধু ফোনে। আসল iTag-এ এখনো পরীক্ষা হয়নি।"),
     "trip_recorder": ("?PP?P?PFF", "hide", "sjalarm 3 Nov: owner-only GPS trip recorder (JSON+GPX on the phone, share / private upload to backend/private/trip_traces); never for users.",
                       "sjalarm ৩ নভে: শুধু মালিকের GPS ট্রিপ রেকর্ডার (ফোনে JSON+GPX, শেয়ার / প্রাইভেট আপলোড); ব্যবহারকারীদের জন্য নয়।"),
     "train_schedule_verified": ("?PP?P?PFF", "hide", "sjalarm 3 Nov: owner switch — ON for all only after the timetable is checked against the official one.",
@@ -226,6 +228,11 @@ _A = {
                 "নতুন হোম (মালিকের ডিজাইন v6): উইজেট টেস্ট + বাংলা/ইংরেজি/লাইট/ডার্ক/২০০% স্ক্রিনশট; এক সপ্তাহ পুরনো হোম বন্ধ-সুইচের বিকল্প; আসল ২ GB ফোনে সময় ও মালিকের ১০ মিনিটের পরীক্ষা বাকি।"),
     "money_notif_sms": ("?P???PP?F", "show", "Turn OFF if a Play reviewer objects: phones then ignore SMS-app notifications from bank/wallet senders (never read, never sent) within minutes of the next app open (rechecked every 3 h); wallet-app notifications keep working.",
                         "Play রিভিউয়ার আপত্তি করলে বন্ধ করুন: পরের বার অ্যাপ খুললেই (প্রতি ৩ ঘণ্টায়ও দেখে) ফোন ব্যাংক/ওয়ালেট SMS-এর নোটিফিকেশন আর পড়বে না, পাঠাবেও না; ওয়ালেট অ্যাপের নোটিফিকেশন চালু থাকবে।"),
+    # ---- ai-reply-core (owner 17 Nov)
+    "ai_reply": ("?P???P??F", "show", "New (17 Nov): server modes, safety hold, loop guard, rate limits and credits tested in CI; two-phone test pending.",
+                 "নতুন (১৭ নভেম্বর): সার্ভারের মোড, নিরাপত্তা-হোল্ড, লুপ গার্ড, সীমা ও ক্রেডিট CI-তে পরীক্ষিত; দুই ফোনের পরীক্ষা বাকি।"),
+    "ai_reply_notif": ("?????P??F", "show", "New (17 Nov): server API ready; the Android notification part (lane 2) and its Play declaration are pending.",
+                       "নতুন (১৭ নভেম্বর): সার্ভার API তৈরি; Android নোটিফিকেশন অংশ (লেন ২) ও Play ঘোষণা বাকি।"),
 }
 
 AUDIT = {
