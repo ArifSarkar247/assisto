@@ -88,10 +88,11 @@ class BillingPanelTests(OwnerBase):
         html = r.content.decode()
         self.assertIn("+20 credits", html)
         self.assertNotIn("৳20.00", html)
+        self.assertNotIn("৳২০.০০", html)   # owneradmin: Bangla digits in bn
         self.assertIn("TEST", html)
         self.assertIn("Play test purchase", html)
         r = self.c.get("/owner/payments?lang=bn")
-        self.assertContains(r, "+20 ক্রেডিট")
+        self.assertContains(r, "+২০ ক্রেডিট")   # owneradmin: Bangla digits
         self.assertContains(r, "ক্রেডিট যোগ")
 
     def test_user_page_ledger_buckets_invariant_and_grants(self):

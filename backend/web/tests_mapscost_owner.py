@@ -17,8 +17,8 @@ class MapsUsagePageTests(OwnerBase):
         html = r.content.decode()
         self.assertIn("ম্যাপ খরচ", html)
         self.assertIn('id="maps-usage"', html)
-        self.assertIn("$1.0", html)                      # 200 over x $5/1000
-        self.assertIn("৳122.0", html)
+        self.assertIn("$১.০", html)                      # 200 over x $5/1000
+        self.assertIn("৳১২২.০", html)
         r = self.c.get("/owner/maps-usage?lang=en")
         self.assertContains(r, "Global daily cap")
 

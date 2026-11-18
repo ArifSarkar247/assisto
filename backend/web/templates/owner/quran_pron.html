@@ -23,7 +23,7 @@
 <td><p dir="rtl" lang="ar" class="qar">{{ r.ar }}</p>
 <p lang="bn" class="qbn"><b>{{ r.bn }}</b></p>
 <div class="small mut">{% for x in r.rules %}<span class="pill">{{ x }}</span> {% endfor %}</div>
-{% if r.history %}<details><summary class="small">{{ T.qpr_history }} ({{ r.history|length }})</summary>{% for h in r.history %}<div class="small">{{ h.created_at|date:"Y-m-d H:i" }} · #{{ h.user_id }} {{ h.user.name|default:"" }} · {{ h.data.action }} · v{{ h.data.engine }}{% if h.data.note %} — {{ h.data.note }}{% endif %}{% if h.data.suggestion %}<br>{{ T.qpr_suggestion }}: {{ h.data.suggestion }}{% endif %}</div>{% endfor %}</details>{% endif %}</td>
+{% if r.history %}<details><summary class="small">{{ T.qpr_history }} ({{ r.history|length }})</summary>{% for h in r.history %}<div class="small">{{ h.created_at|date:"Y-m-d H:i" }} · #{{ h.user_id }} <bdi translate="no">{{ h.user.name|default:"" }}</bdi> · {{ h.data.action }} · v{{ h.data.engine }}{% if h.data.note %} — {{ h.data.note }}{% endif %}{% if h.data.suggestion %}<br>{{ T.qpr_suggestion }}: {{ h.data.suggestion }}{% endif %}</div>{% endfor %}</details>{% endif %}</td>
 <td><span class="pill {% if r.status == 'approved' %}ok{% elif r.status != 'under_review' %}spons{% endif %}">{% if r.status == 'approved' %}{{ T.qpr_t_approved }}{% elif r.status == 'rejected' %}{{ T.qpr_t_rejected }}{% elif r.status == 'needs_fix' %}{{ T.qpr_t_fix }}{% else %}{{ T.qpr_t_review }}{% endif %}</span></td>
 <td><form method="post" action="/owner/quran-pron/act">{% include "owner/_csrf.html" %}
 <input type="hidden" name="surah" value="{{ surah }}"><input type="hidden" name="ayah" value="{{ r.ayah }}"><input type="hidden" name="status" value="{{ st }}">

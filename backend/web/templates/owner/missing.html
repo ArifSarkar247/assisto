@@ -15,7 +15,7 @@
 <td>{% if a.photo_link %}<a href="{{ a.photo_link }}" target="_blank" rel="noopener noreferrer">{{ T.mis_photo }}</a> · {% endif %}{{ a.name }}, {{ a.age }}{% if a.is_child %} · <b>{{ T.mis_child }}</b>{% endif %}<details><summary>{{ a.description|truncatechars:60 }}</summary><p class="pre">{{ a.description }}</p></details></td>
 <td>{{ a.area_text }} · {{ a.district }} · {{ a.radius_km }} km</td>
 <td>{{ a.basis|default:"—" }}{% if a.gd_number %}<br><span class="small">GD {{ a.gd_number }} · {{ a.gd_thana }} · {{ a.gd_date|date:"Y-m-d" }}</span><br><span class="small mut">{{ T.mis_gd_unverified }}</span>{% endif %}</td>
-<td><a href="/owner/users/{{ a.poster_id }}">#{{ a.poster_id }} {{ a.poster.name|default:"" }}</a></td>
+<td><a href="/owner/users/{{ a.poster_id }}">#{{ a.poster_id }} <bdi translate="no">{{ a.poster.name|default:"" }}</bdi></a></td>
 <td>{{ a.pushed }} / {{ a.listed }} · {{ T.mis_tips }} {{ a.n_tips }}</td>
 <td>{{ a.n_reports }}{% for r in a.report_rows %}<div class="small">{{ r.reason }} · #{{ r.reporter_id }}{% if not r.counted %} ({{ T.mis_not_counted }}){% endif %} · {{ r.status }}{% if r.note %} — {{ r.note }}{% endif %}</div>{% endfor %}</td>
 <td>

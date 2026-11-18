@@ -44,7 +44,7 @@ class TrackerPacketsPageTests(OwnerBase):
         self.assertIn("••••••4567", html)
         self.assertIn("refused_unknown", html)
         self.assertIn("unknown_protocol", html)
-        self.assertIn("23.75060", html)            # parsed latitude
+        self.assertIn("২৩.৭৫০৬০", html)            # parsed latitude
         self.assertNotIn("••••••0000", html)       # 73-hour-old row dropped
         self.assertEqual(len(rawlog.recent(50)), 4)
 

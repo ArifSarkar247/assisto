@@ -13,7 +13,7 @@
 {% if slips %}
 <div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.bld_donor }}</th><th>{{ T.bld_photo }}</th><th></th></tr></thead><tbody>
 {% for v in slips %}<tr><td>#{{ v.id }}</td><td>{{ v.created_at|date:"Y-m-d H:i" }}</td>
-<td><a href="/owner/users/{{ v.user_id }}">#{{ v.user_id }} {{ v.user.name|default:"" }}</a>{% if v.donor %} · {{ v.donor.blood_group }} · {{ v.donor.area_text }}{% endif %}</td>
+<td><a href="/owner/users/{{ v.user_id }}">#{{ v.user_id }} <bdi translate="no">{{ v.user.name|default:"" }}</bdi></a>{% if v.donor %} · {{ v.donor.blood_group }} · {{ v.donor.area_text }}{% endif %}</td>
 <td>{% if v.photo_link %}<a href="{{ v.photo_link }}" target="_blank" rel="noopener noreferrer">{{ T.bld_photo }}</a>{% else %}—{% endif %}</td>
 <td><form method="post" action="/owner/blood/slip/{{ v.id }}">{% include "owner/_csrf.html" %}
 <input name="note" maxlength="200" placeholder="{{ T.bld_note }}">
@@ -27,7 +27,7 @@
 <td><span class="pill {% if r.state == 'hidden' %}spons{% elif r.state == 'active' %}ok{% endif %}">{{ r.state }}</span></td>
 <td><b>{{ r.blood_group }}</b> × {{ r.units }} · {{ r.needed_by|date:"Y-m-d H:i" }}</td>
 <td>{{ r.hospital }}{% if r.area_text %} · {{ r.area_text }}{% endif %} · {{ r.district }} · {{ r.radius_km }} km{% if r.note %}<details><summary>{{ r.note|truncatechars:50 }}</summary><p class="pre">{{ r.note }}</p></details>{% endif %}</td>
-<td><a href="/owner/users/{{ r.requester_id }}">#{{ r.requester_id }} {{ r.requester.name|default:"" }}</a></td>
+<td><a href="/owner/users/{{ r.requester_id }}">#{{ r.requester_id }} <bdi translate="no">{{ r.requester.name|default:"" }}</bdi></a></td>
 <td>{{ r.pushed }} / {{ r.listed }} · {{ T.bld_can }} {{ r.n_can }}</td>
 <td>{{ r.n_reports }}{% for x in r.report_rows %}<div class="small">{{ x.reason }} · #{{ x.reporter_id }}{% if not x.counted %} ({{ T.bld_not_counted }}){% endif %} · {{ x.status }}{% if x.note %} — {{ x.note }}{% endif %}</div>{% endfor %}</td>
 <td><form method="post" action="/owner/blood/{{ r.id }}/act">{% include "owner/_csrf.html" %}<input type="hidden" name="status" value="{{ st }}">

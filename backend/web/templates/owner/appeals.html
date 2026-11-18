@@ -4,7 +4,7 @@
 <p class="mut">{{ T.as_appeals_note }}</p>
 <p><a class="btn {% if st == 'open' %}primary{% else %}ghost{% endif %} small" href="/owner/appeals">{{ T.as_open }} ({{ n_open }})</a> <a class="btn {% if st != 'open' %}primary{% else %}ghost{% endif %} small" href="/owner/appeals?status=done">{{ T.as_decided }}</a></p>
 {% if rows %}{% for ap in rows %}
-<section class="card"><div class="row-between"><h2><a href="/owner/users/{{ ap.user_id }}">#{{ ap.user_id }} {{ ap.user.name|default:"—" }}</a></h2><span class="pill{% if ap.state == 'lifted' %} ok{% elif ap.state == 'upheld' %} bad{% endif %}">{{ ap.get_state_display }}</span></div>
+<section class="card"><div class="row-between"><h2><a href="/owner/users/{{ ap.user_id }}">#{{ ap.user_id }} <bdi translate="no">{{ ap.user.name|default:"—" }}</bdi></a></h2><span class="pill{% if ap.state == 'lifted' %} ok{% elif ap.state == 'upheld' %} bad{% endif %}">{{ ap.get_state_display }}</span></div>
 <p class="mut small">{{ ap.created_at|date:"Y-m-d H:i" }}{% if ap.action %} · {{ T.as_against }}: <b>{{ ap.action.get_kind_display }}</b> ({{ ap.action.created_at|date:"Y-m-d" }}) — {{ ap.action.reason }}{% if ap.action.until %} · {{ T.until }} {{ ap.action.until|date:"Y-m-d" }}{% endif %}{% endif %}</p>
 <blockquote>{{ ap.text|linebreaksbr }}</blockquote>
 {% if ap.state == 'open' %}{% if can_decide %}<div class="cols">

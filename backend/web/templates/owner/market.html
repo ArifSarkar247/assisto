@@ -13,7 +13,7 @@
 {% if rows %}
 <div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.mkt_seller }}</th><th>{{ T.mkt_area }}</th><th>{{ T.mkt_categories }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
 {% for s in rows %}<tr><td>#{{ s.id }}</td>
-<td><b>{{ s.business.shop_name|default:"—" }}</b> · {{ s.user.name|default:"—" }} · <a href="/owner/users/{{ s.user_id }}">#{{ s.user_id }} ›</a><br><span class="mut small">{{ s.applied_at|date:"Y-m-d H:i" }}{% if s.rating_count %} · ★ {{ s.rating_sum }}/{{ s.rating_count }}{% endif %}</span></td>
+<td><b>{{ s.business.shop_name|default:"—" }}</b> · <bdi translate="no">{{ s.user.name|default:"—" }}</bdi> · <a href="/owner/users/{{ s.user_id }}">#{{ s.user_id }} ›</a><br><span class="mut small">{{ s.applied_at|date:"Y-m-d H:i" }}{% if s.rating_count %} · ★ {{ s.rating_sum }}/{{ s.rating_count }}{% endif %}</span></td>
 <td>{{ s.area_label }}</td><td>{{ s.cat_labels }}</td><td>{{ s.status }}{% if s.owner_note %}<br><span class="mut small">{{ s.owner_note }}</span>{% endif %}</td>
 <td><form method="post" action="/owner/market/sellers/{{ s.id }}/act" class="inline">{% include "owner/_csrf.html" %}<input name="note" placeholder="{{ T.note }}" maxlength="300">
 {% if s.status != 'approved' %}<button class="btn primary" name="decision" value="approved">{{ T.mkt_approve }}</button>{% endif %}

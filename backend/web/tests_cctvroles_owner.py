@@ -24,7 +24,7 @@ class CctvPartnersPageTests(OwnerBase):
         html = r.content.decode()
         self.assertIn('id="cctv-partners"', html)
         self.assertIn("Rana CCTV", html)
-        self.assertIn("OWNER-DECIDED", html)
+        self.assertIn('<span class="pill ok">মালিকের সিদ্ধান্ত</span>', html)   # owneradmin: Bangla pill
         self.assertNotIn("PROPOSAL", html)
         self.assertIn("মালিকের সিদ্ধান্ত", html)
         self.assertIn('id="cctv-ledger-sums"', html)

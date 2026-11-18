@@ -85,7 +85,7 @@
 
 <section class="card"><h2>{{ T.ff_log }}</h2>
 {% if log %}<div class="tbl"><table><thead><tr><th>{{ T.ff_when }}</th><th>{{ T.ff_who }}</th><th>{{ T.ff_feature }}</th><th>{{ T.ff_before }}</th><th>{{ T.ff_after }}</th></tr></thead><tbody>
-{% for e in log %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td>{{ e.actor.name|default:"—" }}</td><td><code>{{ e.target }}</code>{% if not e.ok %} <span class="pill bad">{{ T.ff_rejected }}</span>{% endif %}</td>
+{% for e in log %}<tr><td>{{ e.created_at|date:"Y-m-d H:i" }}</td><td><bdi translate="no">{{ e.actor.name|default:"—" }}</bdi></td><td><code>{{ e.target }}</code>{% if not e.ok %} <span class="pill bad">{{ T.ff_rejected }}</span>{% endif %}</td>
 <td><small><code>{% for k, v in e.before.items %}{{ k }} = {{ v }}<br>{% endfor %}</code></small></td>
 <td><small><code>{% for k, v in e.after.items %}{{ k }} = {{ v }}<br>{% endfor %}</code></small></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.ff_no_log }}</p>{% endif %}

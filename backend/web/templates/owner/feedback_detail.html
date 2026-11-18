@@ -5,7 +5,7 @@
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
 <div class="tiles">
   <div class="tile"><span>{{ T.fb_category }}</span><b class="sm">{% if r.category == 'bug' %}{{ T.fb_c_bug }}{% elif r.category == 'idea' %}{{ T.fb_c_idea }}{% else %}{{ T.fb_c_other }}{% endif %}</b><small>{{ r.created_at|date:"Y-m-d H:i" }}</small></div>
-  <div class="tile"><span>{{ T.fb_from }}</span><b class="sm"><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:r.user.username }}</a></b><small>{{ r.language }}</small></div>
+  <div class="tile"><span>{{ T.fb_from }}</span><b class="sm"><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} <bdi translate="no">{{ r.user.name|default:r.user.username }}</bdi></a></b><small>{{ r.language }}</small></div>
   <div class="tile"><span>{{ T.fb_app }}</span><b class="sm">{{ r.app_version|default:"—" }}{% if r.app_build %} ({{ r.app_build }}){% endif %}</b><small>{{ T.fb_screen }}: {{ r.route|default:"—" }}</small></div>
   <div class="tile"><span>{{ T.device }}</span><b class="sm">{{ r.device_model|default:"—" }}</b><small>{{ r.os_version|default:"" }}</small></div>
 </div>

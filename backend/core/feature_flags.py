@@ -312,7 +312,7 @@ DOD_CHECKS = (
     ("Runs on a 2 GB phone, every screen under 1 second",
      "২ GB ফোনে চলে, প্রতিটি স্ক্রিন ১ সেকেন্ডের কম"),
     ("Server limits, cost and abuse guards (rate limit, daily cap, credits / Profit Guard)",
-     "সার্ভারে সীমা, খরচ ও অপব্যবহার-রোধ (রেট লিমিট, দৈনিক সীমা, ক্রেডিট / Profit Guard)"),
+     "সার্ভারে সীমা, খরচ ও অপব্যবহার-রোধ (রেট লিমিট, দৈনিক সীমা, ক্রেডিট / প্রফিট গার্ড)"),
     ("Privacy, permissions and Play declarations ready",
      "গোপনীয়তা, অনুমতি ও Play-ঘোষণা তৈরি"),
     ("Automated tests + reality-audit flow pass",
