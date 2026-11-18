@@ -9,9 +9,9 @@
   <label>{{ T.type }}<select name="type">{% for t, tl in type_opts %}<option value="{{ t }}" {% if card and card.type == t or not card and data.type == t %}selected{% endif %}>{{ tl }}</option>{% endfor %}</select></label>
   <label class="check"><input type="checkbox" name="enabled" {% if card and card.enabled or not card and data.enabled %}checked{% endif %}> {{ T.enabled }}</label>
   <label>{{ T.title }} (বাংলা)<input name="title_bn" maxlength="80" value="{% if card %}{{ card.title_bn }}{% else %}{{ data.title_bn }}{% endif %}"></label>
-  <label>{{ T.title }} (English)<input name="title_en" maxlength="80" value="{% if card %}{{ card.title_en }}{% else %}{{ data.title_en }}{% endif %}"></label>
+  <label>{{ T.title }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<input name="title_en" maxlength="80" value="{% if card %}{{ card.title_en }}{% else %}{{ data.title_en }}{% endif %}"></label>
   <label>{{ T.description }} (বাংলা)<textarea name="desc_bn" maxlength="200">{% if card %}{{ card.desc_bn }}{% else %}{{ data.desc_bn }}{% endif %}</textarea></label>
-  <label>{{ T.description }} (English)<textarea name="desc_en" maxlength="200">{% if card %}{{ card.desc_en }}{% else %}{{ data.desc_en }}{% endif %}</textarea></label>
+  <label>{{ T.description }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<textarea name="desc_en" maxlength="200">{% if card %}{{ card.desc_en }}{% else %}{{ data.desc_en }}{% endif %}</textarea></label>
   <label>{{ T.icon }}<select name="icon"><option value="">—</option>{% for i in icons %}<option value="{{ i }}" {% if card and card.icon == i or not card and data.icon == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select></label>
   <label>{{ T.route }}<select name="route"><option value="">—</option>{% for r in routes %}<option value="{{ r }}" {% if card and card.route == r or not card and data.route == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></label>
   <label class="span2">URL (https)<input name="url" type="url" maxlength="300" value="{% if card %}{{ card.url }}{% else %}{{ data.url }}{% endif %}" placeholder="https://"></label>

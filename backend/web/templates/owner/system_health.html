@@ -35,7 +35,7 @@
 <td class="num">{{ j.rc|default_if_none:"—" }}</td>
 <td class="num">{% if j.duration_ms is not None %}{{ j.duration_ms }} ms{% else %}—{% endif %}</td>
 <td>{{ j.next_due|date:"m-d H:i"|default:"—" }}</td>
-<td class="num">{% if j.interval >= 86400 %}{% widthratio j.interval 86400 1 %} {{ T.days }}{% elif j.interval >= 3600 %}{% widthratio j.interval 3600 1 %} h{% else %}{% widthratio j.interval 60 1 %} min{% endif %}</td>
+<td class="num">{% if j.interval >= 86400 %}{% widthratio j.interval 86400 1 %} {{ T.days }}{% elif j.interval >= 3600 %}{% widthratio j.interval 3600 1 %} {% if lang == 'en' %}h{% else %}ঘণ্টা{% endif %}{% else %}{% widthratio j.interval 60 1 %} {% if lang == 'en' %}min{% else %}মিনিট{% endif %}{% endif %}</td>
 </tr>{% endfor %}
 </tbody></table></div></section>
 

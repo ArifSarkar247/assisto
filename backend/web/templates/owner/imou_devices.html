@@ -14,7 +14,7 @@
 </form>
 {% if rows %}
 <div class="card tbl"><table id="imou-devices"><thead><tr><th>{{ L.serial }}</th><th>{{ L.cams }}</th><th>{{ L.state }}</th><th>{{ L.lat }}</th><th></th></tr></thead><tbody>
-{% for r in rows %}<tr><td>{{ r.serial }}{% if r.test %} · <b>owner test</b>{% endif %}</td><td>{{ r.cameras }}</td><td>{{ r.status }}</td><td class="lat">{{ r.latency }}</td>
+{% for r in rows %}<tr><td>{{ r.serial }}{% if r.test %} · <b>{% if lang == 'en' %}owner test{% else %}মালিকের পরীক্ষা{% endif %}</b>{% endif %}</td><td>{{ r.cameras }}</td><td>{{ r.status }}</td><td class="lat">{{ r.latency }}</td>
 <td><form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="unlink"><input type="hidden" name="link" value="{{ r.link }}"><button class="btn ghost">{{ L.unlink }}</button></form></td></tr>{% endfor %}
 </tbody></table></div>
 {% else %}<p class="empty">{{ L.none }}</p>{% endif %}

@@ -35,7 +35,7 @@
     <td class="num {% if r.margin is not None and r.margin < 40 %}neg{% endif %}">{% if r.margin is not None %}{{ r.margin }}%{% else %}—{% endif %}</td>
     <td>{% for c in r.channels %}<form method="post" class="inline">{% include "owner/_csrf.html" %}
         <input type="hidden" name="action" value="channel"><input type="hidden" name="channel" value="{{ c.id }}">
-        <span class="pill {% if c.status == 'connected' and c.enabled %}ok{% elif c.status == 'error' %}bad{% else %}off{% endif %}">{{ c.kind }}{% if c.test_mode %} (test){% endif %}: {{ c.status }}{% if not c.enabled %} · {{ T.sl_disabled }}{% endif %}</span>
+        <span class="pill {% if c.status == 'connected' and c.enabled %}ok{% elif c.status == 'error' %}bad{% else %}off{% endif %}">{{ c.kind }}{% if c.test_mode %} ({% if lang == 'en' %}test{% else %}পরীক্ষা{% endif %}){% endif %}: {{ c.status }}{% if not c.enabled %} · {{ T.sl_disabled }}{% endif %}</span>
         {% if c.status_detail %}<small class="mut">{{ c.status_detail }}</small>{% endif %}
         {% if c.enabled %}<button class="btn small">{{ T.sl_disable }}</button>{% else %}<input type="hidden" name="enabled" value="on"><button class="btn small">{{ T.sl_enable }}</button>{% endif %}
       </form>{% empty %}<span class="mut">{{ T.sl_no_channels }}</span>{% endfor %}</td>
@@ -88,6 +88,6 @@
 <section class="card"><h2>{{ T.sl_webhooks }}</h2>
   <p class="small">{{ T.sl_webhooks_note }}</p>
   <p><code>{{ webhook_meta }}</code><br><code>{{ webhook_wa }}</code></p>
-  <p class="small"><a href="/owner/integrations#i-meta_app">{{ T.nav_integrations }} → Meta app</a></p>
+  <p class="small"><a href="/owner/integrations#i-meta_app">{{ T.nav_integrations }} → <span translate="no">Meta app</span></a></p>
 </section>
 {% endblock %}

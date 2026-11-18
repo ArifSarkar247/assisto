@@ -13,7 +13,7 @@ from web.owner import security as S
 from web.tests_owneradmin_crawl import seed_sample
 
 out = os.environ.get("CRAWL_OUT", "/tmp/crawl.json")
-owner = User.objects.get(phone="01700000001")
+owner = User.objects.filter(is_superuser=True).order_by("pk").first()
 people = seed_sample(owner)
 c = Client(SERVER_NAME="127.0.0.1")
 r = c.post("/owner/login", {"phone": "01700000001", "password": "shots-pass-123"})

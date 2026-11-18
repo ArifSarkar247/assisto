@@ -43,11 +43,11 @@
     {% for k in divisions %}<label class="check"><input type="checkbox" name="divisions" value="{{ k }}" {% if k in divs_on %}checked{% endif %}> {{ k }}</label>{% endfor %}
   </fieldset>
   <label>{{ T.title }} (বাংলা)<input name="title_bn" maxlength="80" value="{{ v.title_bn }}" required></label>
-  <label>{{ T.title }} (English)<input name="title_en" maxlength="80" value="{{ v.title_en }}" required></label>
+  <label>{{ T.title }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<input name="title_en" maxlength="80" value="{{ v.title_en }}" required></label>
   <label>{{ T.description }} (বাংলা)<textarea name="body_bn" maxlength="240">{{ v.body_bn }}</textarea></label>
-  <label>{{ T.description }} (English)<textarea name="body_en" maxlength="240">{{ v.body_en }}</textarea></label>
+  <label>{{ T.description }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<textarea name="body_en" maxlength="240">{{ v.body_en }}</textarea></label>
   <label>{{ T.p2_cta }} (বাংলা)<input name="cta_bn" maxlength="30" value="{{ v.cta_bn }}"></label>
-  <label>{{ T.p2_cta }} (English)<input name="cta_en" maxlength="30" value="{{ v.cta_en }}"></label>
+  <label>{{ T.p2_cta }} ({% if lang == 'en' %}English{% else %}ইংরেজি{% endif %})<input name="cta_en" maxlength="30" value="{{ v.cta_en }}"></label>
   <label class="span2">URL (https)<input name="link_url" type="url" maxlength="300" value="{{ v.link_url }}" placeholder="https://"></label>
   <label class="span2">{{ T.image }} (PNG/JPEG/WEBP ≤ 2 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
   {% if c and c.image %}<div class="span2 imgrow"><img src="{{ c.image.url }}" alt="" class="thumb"><label class="check"><input type="checkbox" name="remove_image"> {{ T.remove_image }}</label></div>{% endif %}

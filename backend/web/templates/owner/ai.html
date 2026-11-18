@@ -33,7 +33,7 @@
 
 <section class="card" id="jobs"><h2>{{ T.ai_jobs }}</h2>
   <div class="tbl"><table><thead><tr><th>{{ T.ai_job }}</th><th>1</th><th>2</th><th>3</th></tr></thead><tbody>
-  {% for j in jobs %}<tr><td>{{ j.label }}</td>{% for c in j.chain %}<td><b>{{ c.provider }}</b><br><code>{{ c.model }}</code>{% if c.effort %} <small class="mut">effort={{ c.effort }}</small>{% endif %}</td>{% endfor %}</tr>{% endfor %}
+  {% for j in jobs %}<tr><td>{{ j.label }}</td>{% for c in j.chain %}<td><b>{{ c.provider }}</b><br><code>{{ c.model }}</code>{% if c.effort %} <small class="mut"><code>effort={{ c.effort }}</code></small>{% endif %}</td>{% endfor %}</tr>{% endfor %}
   </tbody></table></div>
   <p class="small">{{ T.ai_jobs_note }}</p>
 </section>
@@ -70,7 +70,7 @@
   </div>
   <h3>{{ T.ai_prices }}</h3>
   {% if missing_price %}<div class="flash warn">{{ T.ai_missing_price }} {{ missing_price|join:", " }}</div>{% endif %}
-  <div class="tbl"><table><thead><tr><th>{{ T.ai_model }}</th><th>in</th><th>out</th><th>cache read</th><th>cache write</th></tr></thead><tbody>
+  <div class="tbl"><table><thead><tr><th>{{ T.ai_model }}</th><th>{% if lang == 'en' %}in{% else %}ইনপুট{% endif %}</th><th>{% if lang == 'en' %}out{% else %}আউটপুট{% endif %}</th><th>{% if lang == 'en' %}cache read{% else %}ক্যাশ পড়া{% endif %}</th><th>{% if lang == 'en' %}cache write{% else %}ক্যাশ লেখা{% endif %}</th></tr></thead><tbody>
   {% for r in prices %}<tr><td><code>{{ r.model }}</code>{% if r.used %} <span class="pill ok">{{ T.ai_in_use }}</span>{% endif %}</td>
     {% for k, v in r.vals %}<td><input name="p_{{ r.model }}_{{ k }}" value="{{ v }}" inputmode="decimal" size="7" aria-label="{{ r.model }} {{ k }}"></td>{% endfor %}</tr>{% endfor %}
   <tr><td><input name="new_model" placeholder="{{ T.ai_new_model }}" maxlength="60" spellcheck="false"></td>{% for k in price_keys %}<td><input name="new_{{ k }}" inputmode="decimal" size="7" aria-label="{{ k }}"></td>{% endfor %}</tr>

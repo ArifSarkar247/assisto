@@ -6,7 +6,7 @@
 <p><a class="btn primary" href="/owner/blog/new">{{ L.new }}</a></p>
 {% if rows %}
 <div class="card"><table class="tbl">
-<thead><tr><th>{{ L.title_bn }}</th><th>slug</th><th>{{ L.reviewed }}</th><th></th></tr></thead>
+<thead><tr><th>{{ L.title_bn }}</th><th>{% if lang == 'en' %}slug{% else %}লিংক নাম{% endif %}</th><th>{{ L.reviewed }}</th><th></th></tr></thead>
 <tbody>{% for r in rows %}<tr>
   <td><a href="/owner/blog/{{ r.p.id }}">{{ r.p.title_bn }}</a><br><small class="mut">{{ r.p.title_en }}</small></td>
   <td><code>/blog/{{ r.p.slug }}</code></td>

@@ -2,7 +2,7 @@
 {% block heading %}{{ L.title }}{% endblock %}
 {% block content %}
 <p class="mut small">{{ L.intro }}</p>
-<div class="card" id="cctv-partner-rules"><b>{{ L.rules }}</b>{% if not approved %} <span class="pill warn">PROPOSAL</span>{% else %} <span class="pill ok">OWNER-DECIDED</span>{% endif %}<p class="small">{{ rules_line }}</p></div>
+<div class="card" id="cctv-partner-rules"><b>{{ L.rules }}</b>{% if not approved %} <span class="pill warn">{% if lang == 'en' %}PROPOSAL{% else %}প্রস্তাব{% endif %}</span>{% else %} <span class="pill ok">{% if lang == 'en' %}OWNER-DECIDED{% else %}মালিকের সিদ্ধান্ত{% endif %}</span>{% endif %}<p class="small">{{ rules_line }}</p></div>
 <h3>{{ L.partners }}</h3>
 {% if rows %}
 <div class="card tbl"><table id="cctv-partners"><thead><tr><th>{{ L.name }}</th><th>{{ L.area }}</th><th>{{ L.status }}</th><th>{{ L.sites }}</th><th>{{ L.proposed }}</th><th></th></tr></thead><tbody>

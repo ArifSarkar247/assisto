@@ -31,7 +31,7 @@
 {% elif tab == 'live' %}
 {% if live %}<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.cty_what }}</th><th>{{ T.cty_count }}</th><th>{{ T.cty_ago }}</th><th></th></tr></thead><tbody>
 {% for r in live %}<tr><td>#{{ r.id }}</td><td>{{ r.city }} · {{ r.kind }}{% if r.route_id %} · {{ r.route_id }}{% endif %} · <a href="https://www.openstreetmap.org/?mlat={{ r.lat }}&mlon={{ r.lon }}#map=17/{{ r.lat }}/{{ r.lon }}" target="_blank" rel="noopener noreferrer">{{ r.lat|floatformat:4 }}, {{ r.lon|floatformat:4 }}</a>{% if r.hidden %} <span class="pill spons">{{ T.cty_hidden }}</span>{% endif %}</td>
-<td>{{ r.count }} · {{ T.cty_flags }} {{ r.flags }}</td><td>{{ r.ago }} min</td>
+<td>{{ r.count }} · {{ T.cty_flags }} {{ r.flags }}</td><td>{{ r.ago }} {% if lang == 'en' %}min{% else %}মিনিট{% endif %}</td>
 <td><form method="post" action="/owner/city/live/{{ r.id }}">{% include "owner/_csrf.html" %}{% if r.hidden %}<button class="btn ghost" name="action" value="show">{{ T.cty_show }}</button>{% else %}<button class="btn ghost" name="action" value="hide">{{ T.cty_hide }}</button>{% endif %}</form></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
 {% elif tab == 'data' %}
@@ -47,7 +47,7 @@
 {% for c in missing %}<div class="card"><h3>{{ c }}</h3><p class="mut">{{ T.cty_no_data }}</p></div>{% endfor %}
 {% elif tab == 'coverage' %}
 <p>{{ T.cty_cov_note }} {{ cells_empty }}/{{ cells_total }}</p>
-{% if cells %}<div class="card tbl"><table><thead><tr><th>lat, lon</th><th>{{ T.cty_area }}</th><th>{{ T.cty_stops }}</th><th>{{ T.cty_routes }}</th></tr></thead><tbody>
+{% if cells %}<div class="card tbl"><table><thead><tr><th>{% if lang == 'en' %}lat, lon{% else %}অক্ষাংশ, দ্রাঘিমা{% endif %}</th><th>{{ T.cty_area }}</th><th>{{ T.cty_stops }}</th><th>{{ T.cty_routes }}</th></tr></thead><tbody>
 {% for r in cells %}<tr><td><a href="https://www.openstreetmap.org/#map=15/{{ r.lat }}/{{ r.lon }}" target="_blank" rel="noopener noreferrer">{{ r.lat }}, {{ r.lon }}</a></td><td>{{ r.name|default:"—" }}</td><td>{% if r.stops %}{{ r.stops }}{% else %}<b>0</b>{% endif %}</td><td>{{ r.routes }}</td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.cty_no_data }}</p>{% endif %}
 {% elif tab == 'fares' %}
@@ -60,7 +60,7 @@
 {% if has_ds %}<form method="post" action="/owner/city/change" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="city" value="{{ city }}"><input type="hidden" name="action" value="complaint"><input type="hidden" name="back" value="/owner/city?tab=fares&city={{ city }}"><input name="number" value="{{ complaint.number }}" maxlength="20" size="10" aria-label="{{ T.cty_complaint }}"> <button class="btn primary">{{ T.cty_save }}</button></form>{% endif %}</div>
 {% elif tab == 'stops' %}
 <p class="small">{{ T.cty_stops_note }}</p>
-<p class="small"><a href="?tab=stops&city={{ city }}&st=reported">reported</a> · <a href="?tab=stops&city={{ city }}&st=confirmed">confirmed</a> · <a href="?tab=stops&city={{ city }}&st=rejected">rejected</a></p>
+<p class="small"><a href="?tab=stops&city={{ city }}&st=reported">{% if lang == 'en' %}reported{% else %}রিপোর্ট হয়েছে{% endif %}</a> · <a href="?tab=stops&city={{ city }}&st=confirmed">{% if lang == 'en' %}confirmed{% else %}নিশ্চিত{% endif %}</a> · <a href="?tab=stops&city={{ city }}&st=rejected">{% if lang == 'en' %}rejected{% else %}বাতিল{% endif %}</a></p>
 {% if ustops %}<div class="card tbl"><table><thead><tr><th>{{ T.cty_map }}</th><th>{{ T.cty_what }}</th><th>{{ T.cty_bus }}</th><th>{{ T.cty_people }}</th><th></th></tr></thead><tbody>
 {% for u in ustops %}<tr><td><a href="https://www.openstreetmap.org/?mlat={{ u.lat }}&mlon={{ u.lon }}#map=18/{{ u.lat }}/{{ u.lon }}" target="_blank" rel="noopener noreferrer">{{ u.lat|floatformat:5 }}, {{ u.lon|floatformat:5 }}</a></td>
 <td>{% if u.src == 'field' %}{{ T.cty_src_field }}{% else %}{{ T.cty_src_trips }}{% endif %}{% if u.stop %} · <code>{{ u.stop }}</code>{% endif %}<div class="small mut">{{ u.updated|date:"Y-m-d H:i" }}</div></td>
@@ -68,7 +68,7 @@
 <td><form method="post" action="/owner/city/learned/{{ u.id }}">{% include "owner/_csrf.html" %}<input type="hidden" name="back" value="/owner/city?tab=stops&city={{ city }}&st={{ st }}"><button class="btn ghost" name="action" value="confirm">{{ T.cty_accept }}</button><button class="btn ghost" name="action" value="reject">{{ T.cty_reject }}</button></form></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
 {% else %}
-<p class="small"><a href="?tab=learned&city={{ city }}&st=reported">reported</a> · <a href="?tab=learned&city={{ city }}&st=confirmed">confirmed</a> · <a href="?tab=learned&city={{ city }}&st=rejected">rejected</a> — {{ T.cty_learn_note }}</p>
+<p class="small"><a href="?tab=learned&city={{ city }}&st=reported">{% if lang == 'en' %}reported{% else %}রিপোর্ট হয়েছে{% endif %}</a> · <a href="?tab=learned&city={{ city }}&st=confirmed">{% if lang == 'en' %}confirmed{% else %}নিশ্চিত{% endif %}</a> · <a href="?tab=learned&city={{ city }}&st=rejected">{% if lang == 'en' %}rejected{% else %}বাতিল{% endif %}</a> — {{ T.cty_learn_note }}</p>
 {% if learned %}<div class="card tbl"><table><thead><tr><th>{{ T.cty_what }}</th><th>{{ T.cty_people }}</th><th>{{ T.cty_text }}</th><th></th></tr></thead><tbody>
 {% for l in learned %}<tr><td>{{ l.kind }} · <code>{{ l.key }}</code> · {{ l.status }}</td><td>{{ l.n }} / {{ l.trips }}</td><td class="small">{{ l.short }}</td>
 <td><form method="post" action="/owner/city/learned/{{ l.id }}">{% include "owner/_csrf.html" %}<button class="btn ghost" name="action" value="confirm">{{ T.cty_accept }}</button><button class="btn ghost" name="action" value="reject">{{ T.cty_reject }}</button></form></td></tr>{% endfor %}

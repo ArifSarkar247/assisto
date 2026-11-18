@@ -17,7 +17,7 @@
   <button class="btn ghost">{{ T.show }}</button> <span class="mut small">{{ total }}</span>
 </form>
 {% if rows %}
-<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.nby_country }} · {{ T.nby_cat }}</th><th>{{ T.nby_name }} / {{ T.nby_name_en }} / {{ T.nby_phone }} / lat, lon</th><th>{{ T.nby_source }} · {{ T.nby_refreshed }}</th><th></th></tr></thead><tbody>
+<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.nby_country }} · {{ T.nby_cat }}</th><th>{{ T.nby_name }} / {{ T.nby_name_en }} / {{ T.nby_phone }} / {% if lang == 'en' %}lat, lon{% else %}অক্ষাংশ, দ্রাঘিমা{% endif %}</th><th>{{ T.nby_source }} · {{ T.nby_refreshed }}</th><th></th></tr></thead><tbody>
 {% for p in rows %}<tr><td>#{{ p.id }}</td>
 <td>{{ p.country }} · {{ p.category }}{% if p.hidden %} <span class="pill spons">{{ T.nby_f_hidden }}</span>{% endif %}{% if p.gone_upstream %} <span class="pill">{{ T.nby_f_gone }}</span>{% endif %}{% if p.n_open %} <a class="pill spons" href="?tab=reports">{{ p.n_open }} {{ T.nby_report_kind }}</a>{% endif %}</td>
 <td><form method="post" action="/owner/nearby/{{ p.id }}">{% include "owner/_csrf.html" %}<input type="hidden" name="back" value="{{ path }}?tab=places&q={{ q|urlencode }}&cc={{ cc }}&cat={{ cat }}&f={{ f }}&page={{ page_no }}">
@@ -30,7 +30,7 @@
 {% if p.edited_at %}<button class="btn ghost" name="action" value="reset" data-confirm="{{ T.confirm_destructive }}">{{ T.nby_reset }}</button>{% endif %}
 {% if p.source == 'biz' and p.sponsored_until %}<button class="btn ghost" name="action" value="sponsor_off">{{ T.nby_sponsor_off }}</button>{% endif %}
 </form>{% if p.edited_at %}<div class="small mut">{{ T.nby_edited }} {{ p.edited_at|date:"Y-m-d H:i" }} · OSM: {{ p.name|default:"—" }} / {{ p.name_en|default:"—" }} / {{ p.phone|default:"—" }}</div>{% endif %}</td>
-<td>{{ p.source }}{% if p.src_id %} <a href="https://www.openstreetmap.org/{% if p.src_id.0 == 'n' %}node{% elif p.src_id.0 == 'w' %}way{% else %}relation{% endif %}/{{ p.src_id|slice:'1:' }}" target="_blank" rel="noopener noreferrer">{{ p.src_id }}</a>{% endif %}<div class="small">{{ p.refreshed_at|date:"Y-m-d" }}</div>{% if p.sponsored_until %}<div class="small">Sponsored → {{ p.sponsored_until|date:"Y-m-d" }}</div>{% endif %}</td>
+<td>{{ p.source }}{% if p.src_id %} <a href="https://www.openstreetmap.org/{% if p.src_id.0 == 'n' %}node{% elif p.src_id.0 == 'w' %}way{% else %}relation{% endif %}/{{ p.src_id|slice:'1:' }}" target="_blank" rel="noopener noreferrer">{{ p.src_id }}</a>{% endif %}<div class="small">{{ p.refreshed_at|date:"Y-m-d" }}</div>{% if p.sponsored_until %}<div class="small">{% if lang == 'en' %}Sponsored{% else %}স্পনসর{% endif %} → {{ p.sponsored_until|date:"Y-m-d" }}</div>{% endif %}</td>
 <td></td></tr>{% endfor %}
 </tbody></table></div>
 {% else %}<p class="empty">{{ T.nby_none }}</p>{% endif %}
@@ -74,7 +74,7 @@
 <b>{{ T.nby_world }}</b>: {% if world_on %}{{ T.nby_on }} <button class="btn ghost" name="on" value="0">{{ T.nby_turn_off }}</button>{% else %}{{ T.nby_off }} <button class="btn primary" name="on" value="1">{{ T.nby_turn_on }}</button>{% endif %}</form>
 {% if datasets %}
 <div class="card tbl"><table><thead><tr><th>{{ T.nby_country }}</th><th>{{ T.nby_records }}</th><th>{{ T.nby_version }}</th><th>{{ T.nby_refreshed }}</th><th>{{ T.nby_osm_time }}</th><th>{{ T.nby_size }}</th><th>{{ T.nby_error }}</th><th></th></tr></thead><tbody>
-{% for d in datasets %}<tr><td><b>{{ d.key }}</b>{% if not d.rollout %} <span class="mut small">world</span>{% endif %}</td><td>{{ d.records }} / {{ d.listed }}</td><td>{{ d.version }}</td>
+{% for d in datasets %}<tr><td><b>{{ d.key }}</b>{% if not d.rollout %} <span class="mut small">{% if lang == 'en' %}world{% else %}সারা বিশ্ব{% endif %}</span>{% endif %}</td><td>{{ d.records }} / {{ d.listed }}</td><td>{{ d.version }}</td>
 <td>{{ d.refreshed_at|date:"Y-m-d H:i"|default:"—" }}</td><td>{{ d.osm_timestamp|default:"—" }}</td><td>{{ d.bytes|filesizeformat }}</td><td class="small">{{ d.last_error|default:"" }}</td>
 <td><form method="post" action="/owner/nearby/dataset">{% include "owner/_csrf.html" %}<input type="hidden" name="key" value="{{ d.key }}">{% if d.enabled %}{{ T.nby_on }} <button class="btn ghost" name="on" value="0">{{ T.nby_turn_off }}</button>{% else %}{{ T.nby_off }} <button class="btn primary" name="on" value="1">{{ T.nby_turn_on }}</button>{% endif %}</form></td></tr>{% endfor %}
 </tbody></table></div>

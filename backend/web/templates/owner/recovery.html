@@ -9,12 +9,12 @@
   <span class="mut small">{{ total }}</span>
 </form>
 {% if rows %}
-<div class="card tbl"><table><thead><tr><th>Ref</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.rec_account }}</th><th>{{ T.rec_numbers }}</th><th>{{ T.rec_proof }}</th><th>{{ T.rec_family }}</th><th>{{ T.rec_hold }}</th><th></th></tr></thead><tbody>
+<div class="card tbl"><table><thead><tr><th>{% if lang == 'en' %}Ref{% else %}রেফ{% endif %}</th><th>{{ T.time }}</th><th>{{ T.status }}</th><th>{{ T.rec_account }}</th><th>{{ T.rec_numbers }}</th><th>{{ T.rec_proof }}</th><th>{{ T.rec_family }}</th><th>{{ T.rec_hold }}</th><th></th></tr></thead><tbody>
 {% for r in rows %}<tr><td>{{ r.ref }}</td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
 <td><span class="pill {% if r.state == 'approved' %}ok{% elif r.state == 'pending' %}spons{% endif %}">{{ r.state }}</span></td>
 <td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a> · {{ T.rec_age }} {{ r.p.account_age_days|default:"—" }}</td>
 <td>{{ T.rec_lost }} {{ r.acct_m }}<br>{{ T.rec_new }} {{ r.contact_m }} ({{ T.rec_sms_ok }})</td>
-<td><b>{{ r.score }}/100</b><div class="small">{{ T.rec_name }}: {{ r.p.name }} ("{{ r.typed_name }}") · {{ T.rec_signup }}: {{ r.p.signup }} · Circle: {{ r.p.circle }} · {{ T.rec_pw }}: {{ r.p.password }}</div></td>
+<td><b>{{ r.score }}/100</b><div class="small">{{ T.rec_name }}: {{ r.p.name }} ("{{ r.typed_name }}") · {{ T.rec_signup }}: {{ r.p.signup }} · {% if lang == 'en' %}Circle{% else %}সার্কেল{% endif %}: {{ r.p.circle }} · {{ T.rec_pw }}: {{ r.p.password }}</div></td>
 <td>{{ r.family_state }}{% if r.family_user_id %} · #{{ r.family_user_id }}{% endif %}{% if r.p.family_asked and not r.p.family_matched %}<div class="small">{{ T.rec_family_nomatch }}</div>{% endif %}</td>
 <td>{% if r.hold_left_h %}{{ r.hold_left_h }} h{% else %}{{ T.rec_hold_over }}{% endif %}</td>
 <td>{% if r.state == 'pending' %}

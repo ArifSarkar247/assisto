@@ -13,7 +13,7 @@
 <div>{{ T.b2_price }}: {{ x.o.price }} {{ x.o.currency }}</div>
 <div>{{ T.b2_granted }}: +{{ x.usage.credits_granted }} {{ T.b2_credits_word }} ({{ T.b2_planned }} {{ x.usage.credits_planned }}) · {{ T.b2_used }}: {{ x.usage.credits_used }}</div>
 <div>{{ T.b2_days_used }}: {{ x.usage.days_used }} / {{ x.usage.days_total }}</div>
-<div><b>{{ T.b2_suggested }}: {{ x.suggested }} {{ x.o.currency }}</b> <span class="mut small">= {{ T.b2_price }} × min({{ x.usage.credits_share }}, {{ x.usage.days_share }})</span></div>
+<div><b>{{ T.b2_suggested }}: {{ x.suggested }} {{ x.o.currency }}</b> <span class="mut small">= {{ T.b2_price }} × <code>min</code>({{ x.usage.credits_share }}, {{ x.usage.days_share }})</span></div>
 </div>{% endif %}
 <p>{{ T.b2_user_reason }}: {{ x.r.reason|default:"—" }}</p>
 {% if x.r.status == "pending" %}

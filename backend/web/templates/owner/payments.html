@@ -63,7 +63,7 @@
 </section>
 
 <section class="card"><h2>{{ T.pay_h_events }}</h2>
-{% if event_rows %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_kind }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_amount }}</th><th>Ref</th></tr></thead><tbody>
+{% if event_rows %}<div class="tbl"><table><thead><tr><th>{{ T.pay_when }}</th><th>{{ T.pay_kind }}</th><th>{{ T.pay_user }}</th><th>{{ T.pay_amount }}</th><th>{% if lang == 'en' %}Ref{% else %}রেফ{% endif %}</th></tr></thead><tbody>
 {% for x in event_rows %}<tr><td>{{ x.e.created_at|date:"Y-m-d H:i" }}</td><td>{{ x.label }}{% if x.test %} <span class="pill off">TEST</span>{% endif %}<br><span class="mut small">{{ x.e.kind }} {{ x.e.channel }}</span></td><td>{% if x.e.user_id %}#{{ x.e.user_id }}{% endif %}</td><td>{{ x.amount }}</td><td><code>{{ x.e.ref|truncatechars:28 }}</code></td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="empty">{{ T.pay_none }}</p>{% endif %}
 </section>

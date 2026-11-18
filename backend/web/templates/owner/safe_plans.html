@@ -9,14 +9,14 @@
 </tbody></table></div>
 </section>
 <section class="card" id="safe-products"><h2>{{ L.products }}</h2>
-<div class="tbl"><table><thead><tr><th>{{ L.type }}</th><th>Product ID</th><th>Base plan</th><th>{{ L.price }}</th><th>{{ L.name }}</th></tr></thead><tbody>
+<div class="tbl"><table><thead><tr><th>{{ L.type }}</th><th>{% if lang == 'en' %}Product ID{% else %}প্রোডাক্ট ID{% endif %}</th><th>{% if lang == 'en' %}Base plan{% else %}বেস প্ল্যান{% endif %}</th><th>{{ L.price }}</th><th>{{ L.name }}</th></tr></thead><tbody>
 {% for p in products %}<tr><td>{{ p.type }}</td><td><code>{{ p.product_id }}</code></td><td>{{ p.base_plan_id|default:"—" }}</td><td>{{ p.price_bdt }}</td><td>{% if lang == 'en' %}{{ p.name_en }}{% else %}{{ p.name_bn }}{% endif %}</td></tr>{% endfor %}
 </tbody></table></div>
 </section>
 <section class="card" id="safe-ads"><h2>{{ L.ads }}</h2>
 <p>{{ L.ads_rev }}: <b>{{ report.ads_verified }}</b> / <b>{{ report.ads_revenue_bdt }}</b></p>
 <p>{{ L.unlocks }}: <b>{{ report.unlocks_day }}</b> / <b>{{ report.unlocks_request }}</b> · {{ L.ucost }}: <b>{{ report.unlock_cost_bdt }}</b>{% if report.ads_profit_pct is not None %} · {{ L.pct }}: <b>{{ report.ads_profit_pct }}%</b>{% endif %}</p>
-<p>{{ L.subs }}: Child <b>{{ report.subs.child }}</b> · Safe Family <b>{{ report.subs.family }}</b> · {{ L.packs }}: <b>{{ report.packs_sold }}</b> (৳{{ report.packs_bdt }})</p>
+<p>{{ L.subs }}: {% if lang == 'en' %}Child{% else %}শিশু{% endif %} <b>{{ report.subs.child }}</b> · {% if lang == 'en' %}Safe Family{% else %}নিরাপদ পরিবার{% endif %} <b>{{ report.subs.family }}</b> · {{ L.packs }}: <b>{{ report.packs_sold }}</b> (৳{{ report.packs_bdt }})</p>
 </section>
 <section class="card" id="safe-edit"><h2>{{ L.fields }}</h2>
 <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="save">

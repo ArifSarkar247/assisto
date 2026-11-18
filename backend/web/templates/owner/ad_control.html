@@ -19,7 +19,7 @@
 
 <form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}
 {% for g in groups %}<div class="card tbl"><h3>{{ g.title }}</h3>
-<table><thead><tr><th>{{ T.adc_on }}</th><th>{{ T.adc_place }}</th><th>{{ T.adc_type }}</th><th>{{ T.adc_default }}</th><th>{{ T.adc_impr }} ({{ days }} {{ T.adc_days }})</th><th>eCPM</th><th>{{ T.adc_income }}</th></tr></thead><tbody>
+<table><thead><tr><th>{{ T.adc_on }}</th><th>{{ T.adc_place }}</th><th>{{ T.adc_type }}</th><th>{{ T.adc_default }}</th><th>{{ T.adc_impr }} ({{ days }} {{ T.adc_days }})</th><th><span translate="no">eCPM</span></th><th>{{ T.adc_income }}</th></tr></thead><tbody>
 {% for r in g.rows %}<tr><td><input type="hidden" name="seen_{{ r.key }}" value="1"><label><input type="checkbox" name="on_{{ r.key }}" value="1" {% if r.on %}checked{% endif %}> {% if r.on %}ON{% else %}OFF{% endif %}</label></td>
 <td>{% if r.safety %}<b style="color:#b00020">⚠ {{ T.adc_safety }}</b><br>{% endif %}<a href="/owner/ad-control/{{ r.key }}">{{ r.label }}</a><br><span class="mut small">{{ r.key }}{% if r.rule %} — {{ r.rule }}{% endif %}</span></td>
 <td>{% if r.allowed|length > 1 %}<select name="t_{{ r.key }}">{% for t in r.allowed %}<option value="{{ t }}" {% if t == r.type %}selected{% endif %}>{{ t }}</option>{% endfor %}</select>{% else %}{{ r.type }}<input type="hidden" name="t_{{ r.key }}" value="{{ r.type }}">{% endif %}</td>

@@ -14,7 +14,7 @@
 {% for r in rows %}<tr><td>#{{ r.id }}</td><td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
 <td><span class="pill {% if r.status == 'open' %}spons{% else %}ok{% endif %}">{% if r.status == 'open' %}{{ T.air_s_open }}{% else %}{{ T.air_s_resolved }}{% endif %}</span></td>
 <td>{% if r.reason == 'offensive' %}{{ T.air_r_offensive }}{% elif r.reason == 'harmful' %}{{ T.air_r_harmful }}{% elif r.reason == 'wrong' %}{{ T.air_r_wrong }}{% else %}{{ T.air_r_other }}{% endif %}</td>
-<td>{{ r.surface }}{% if r.message_id %} · msg {{ r.message_id }}{% endif %}{% if r.session_id_ref %} · s{{ r.session_id_ref }}{% endif %}</td>
+<td>{{ r.surface }}{% if r.message_id %} · {% if lang == 'en' %}msg{% else %}মেসেজ{% endif %} {{ r.message_id }}{% endif %}{% if r.session_id_ref %} · s{{ r.session_id_ref }}{% endif %}</td>
 <td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }} {{ r.user.name|default:"" }}</a></td>
 <td><details><summary>{{ r.answer_text|truncatechars:90 }}</summary><p class="pre">{{ r.answer_text|linebreaksbr }}</p></details></td>
 <td>{{ r.note|default:"—" }}</td>
