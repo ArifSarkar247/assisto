@@ -1011,6 +1011,18 @@ def case_alarm_made_while_open(A, Ah, Bu, B, tokens):
         if u is not None and u.pk == A.pk:
             fm = f
             break
+    if fm is None:
+        # the CI seed links A and B in My Circle only; B adds A to B's family
+        # list through that Circle link (what "Add from My Circle" saves) —
+        # throw-away CI database, seed accounts only
+        from core.models import CircleMember
+        edge = CircleMember.objects.filter(user=Bu, peer_user=A).first()
+        if edge is not None:
+            f = FamilyMember.objects.create(user=Bu, name="Reality A", relation="mother",
+                                            circle_member=edge)
+            u = FC.linked_user(f)
+            fm = f if (u is not None and u.pk == A.pk) else None
+            c.r["family_link"] = "created from the Circle link" if fm else "Circle link not accepted"
     tag = int(time.time()) % 100000
     t1, t2 = "notifproof family task %d" % tag, "notifproof web reminder %d" % tag
     due1 = _next_minute(170)
