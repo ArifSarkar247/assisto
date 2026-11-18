@@ -53258,5 +53258,41 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "adWhyTapLabel": "Why this ad?",
+  "@adWhyTapLabel": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyTitle": "Why am I seeing this ad?",
+  "@adWhyTitle": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyFree": "Ads keep Assisto free for everyone. Premium removes every ad.",
+  "@adWhyFree": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyGoogle": "Google chooses and shows this ad, not Assisto. Assisto is paid only when people see or tap ads.",
+  "@adWhyGoogle": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyNoShare": "Assisto never gives advertisers your name, phone number, contacts, messages, photos or your family's location.",
+  "@adWhyNoShare": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyPersonal": "This ad may be matched to your interests by Google using your phone's advertising ID. You can reset or delete that ID in your phone's Settings → Privacy → Ads.",
+  "@adWhyPersonal": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyNonPersonal": "This ad is not personalised: it is not based on your interests, only on general things like this page and your country.",
+  "@adWhyNonPersonal": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyNever": "You never see ads on SOS, calls, Safe Journey and other safety screens, children's screens, Quran, blood donor, payment, login or permission screens.",
+  "@adWhyNever": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
+  },
+  "adWhyRemove": "Remove ads with Premium",
+  "@adWhyRemove": {
+    "description": "ads-nine: 'Why this ad?' sheet / Ad label (TalkBack)."
   }
 }
