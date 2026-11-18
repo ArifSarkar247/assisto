@@ -54550,5 +54550,295 @@
   "kwgNoListen": "Assisto can never switch on the watch's microphone in secret. A call always rings and shows on the watch.",
   "@kwgNoListen": {
     "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "itgTitle": "Bluetooth tag",
+  "@itgTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonTitle": "Find your own tag",
+  "@itgReasonTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonNearby": "Assisto needs the \"Nearby devices\" permission to find and connect to YOUR Bluetooth tag (iTag). It is not used to find your location.",
+  "@itgReasonNearby": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonLegacy": "On this Android version, a Bluetooth search needs the location permission. Assisto uses it only to find YOUR Bluetooth tag (iTag) while this screen is open — never in the background.",
+  "@itgReasonLegacy": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonRing": "Ring the tag on your keys or bag to find it.",
+  "@itgReasonRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonLeft": "With \"Watch my bag\" on, the phone rings if the tag goes out of reach (while Assisto is open).",
+  "@itgReasonLeft": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonButton": "Press the tag's button to ring this phone.",
+  "@itgReasonButton": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgReasonPrivacy": "Your tag and the place where you last had it stay only on this phone. Nothing is sent to Assisto's server.",
+  "@itgReasonPrivacy": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPermBlocked": "Bluetooth permission is off for Assisto. Turn on \"Nearby devices\" in Settings.",
+  "@itgPermBlocked": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOpenSettings": "Settings",
+  "@itgOpenSettings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgBtOff": "Bluetooth is off. Turn it on to reach your tag.",
+  "@itgBtOff": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgTurnOn": "Turn on",
+  "@itgTurnOn": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLocationOff": "On this phone a Bluetooth search works only with Location (GPS) turned on. Turn it on in quick settings and try again.",
+  "@itgLocationOff": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnsupported": "This phone has no Bluetooth Low Energy, so it cannot use a tag.",
+  "@itgUnsupported": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNeedPermission": "Allow \"Nearby devices\" so Assisto can reach your tag.",
+  "@itgNeedPermission": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgAllow": "Allow",
+  "@itgAllow": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgDefaultName": "My bag",
+  "@itgDefaultName": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNameTitle": "Name this tag",
+  "@itgNameTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNameHint": "e.g. Keys, Bag, Bike",
+  "@itgNameHint": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPaired": "{name} is paired",
+  "@itgPaired": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgPairFailed": "Could not connect. Keep the tag next to the phone, press its button once and try again.",
+  "@itgPairFailed": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOutOfReachToast": "The tag is out of reach. Move closer and try again.",
+  "@itgOutOfReachToast": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnpairTitle": "Remove {name}?",
+  "@itgUnpairTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgUnpairBody": "Assisto will forget this tag and its last-seen place on this phone. You can pair it again any time.",
+  "@itgUnpairBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnpair": "Remove tag",
+  "@itgUnpair": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgRename": "Rename",
+  "@itgRename": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgMore": "More",
+  "@itgMore": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatchBanner": "Watching your bag. Keep Assisto open — if the tag goes out of reach, this phone rings.",
+  "@itgWatchBanner": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgEmptyTitle": "Never lose your keys or bag",
+  "@itgEmptyTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgEmptyBenefit": "Add a Bluetooth tag (iTag): ring it to find it, and get an alert if you leave it behind.",
+  "@itgEmptyBenefit": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgAddTag": "Add a tag",
+  "@itgAddTag": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow1": "Put a battery in the tag and keep it next to the phone.",
+  "@itgHow1": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow2": "Press the tag's button once so it wakes up.",
+  "@itgHow2": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHow3": "Tap \"Add a tag\" and choose it from the list.",
+  "@itgHow3": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSettings": "Tag settings",
+  "@itgSettings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatch": "Watch my bag",
+  "@itgWatch": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgWatchSub": "If a tag goes out of reach, this phone and the tag both ring. Works while Assisto is open.",
+  "@itgWatchSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgButtonRings": "Tag button rings this phone",
+  "@itgButtonRings": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgButtonRingsSub": "Can't find your phone? Press the tag's button. Press again to stop.",
+  "@itgButtonRingsSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSavePlace": "Remember where I left it",
+  "@itgSavePlace": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgSavePlaceSub": "Allow location so Assisto saves the phone's place when a tag goes out of reach (kept only on this phone).",
+  "@itgSavePlaceSub": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgHonest": "Works while Assisto is open. Bluetooth reach is about 10–30 m. Assisto does not track the tag through other people's phones.",
+  "@itgHonest": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNear": "Nearby — connected",
+  "@itgNear": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgConnecting": "Connecting…",
+  "@itgConnecting": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOutOfReach": "Out of reach",
+  "@itgOutOfReach": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgBattery": "Battery {pct}%",
+  "@itgBattery": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "itgBatteryUnknown": "Battery: not known yet",
+  "@itgBatteryUnknown": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLastSeen": "Last with you: {when}",
+  "@itgLastSeen": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "itgRing": "Ring tag",
+  "@itgRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgStopRing": "Stop ringing",
+  "@itgStopRing": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgCheckBattery": "Check battery",
+  "@itgCheckBattery": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOpenMap": "Open map",
+  "@itgOpenMap": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPairTitle": "Choose your tag",
+  "@itgPairTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgPairTip": "Keep the tag next to the phone and press its button once.",
+  "@itgPairTip": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgScanning": "Searching for tags nearby…",
+  "@itgScanning": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgNoneFound": "No tag found. Press the tag's button once, keep it next to the phone, then search again.",
+  "@itgNoneFound": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgUnnamed": "Unnamed device",
+  "@itgUnnamed": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLikelyTag": "Looks like an iTag",
+  "@itgLikelyTag": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgOtherDevice": "Other Bluetooth device",
+  "@itgOtherDevice": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgScanAgain": "Search again",
+  "@itgScanAgain": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgLeftTitle": "{name} left behind?",
+  "@itgLeftTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgLeftBody": "Your tag went out of reach. Go back and check. The alarm stops by itself when the tag is near again.",
+  "@itgLeftBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgFindTitle": "Here is your phone",
+  "@itgFindTitle": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
+  },
+  "itgFindBody": "You pressed the button on {name}.",
+  "@itgFindBody": {
+    "description": "flag-itag: Bluetooth iTag tag screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itgStopAlarm": "Stop",
+  "@itgStopAlarm": {
+    "description": "flag-itag: Bluetooth iTag tag screen"
   }
 }
