@@ -292,6 +292,8 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const ValueKey('sjl_where_error')), findsOneWidget);
       api.whereFails = false;
+      // safety-plan: the 5th Live Location tile moved the retry below the fold
+      await tester.scrollUntilVisible(find.text(en.sjlRetry), 200);
       await tester.tap(find.text(en.sjlRetry));
       await _settle(tester);
       // safety-plan: a 5th Live Location tile (Family safety plan) moved this down
