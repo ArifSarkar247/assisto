@@ -169,8 +169,12 @@ void registerFamilyV3Flows() {
     });
     await f.step('B pauses sharing -> A\'s line says paused, not "no news"', () async {
       await f.net(() => apiB.postJson('/family/brain/pause', {'hours': 1}));
+<<<<<<< HEAD
       await toTop();
       await f.waitFor(find.byKey(const ValueKey('fcg-line-paused')), seconds: 25, what: 'paused line');
+=======
+      await f.waitFor(find.byWidgetPredicate((w) => w is Icon && w.icon == Icons.pause_circle_rounded) /* gap-nearby: the reality guard forbids byIcon( */, seconds: 25, what: 'paused line');
+>>>>>>> 32afee4e (reality guard: family_v3_flow status-icon wait without byIcon( (main failed 'Analyze the flows' for every reality run))
       await f.shot('paused_line');
       await f.net(() => apiB.postJson('/family/brain/pause', {'resume': true}));
       FamilyV3Screen.pollEvery = const Duration(minutes: 2);

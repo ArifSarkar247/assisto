@@ -64,7 +64,7 @@ void registerAiReplyFlows() {
       await f.waitFor(find.text(Seed.nameB), what: 'B in the chat list');
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
       await f.waitFor(find.byType(CircleChatScreen), what: 'chat');
-      await f.tap(find.byIcon(Icons.more_vert_rounded));
+      await f.tap(find.byTooltip(f.t.msgrChatMore)); // chat ⋮ (the reality guard forbids byIcon()
       await f.tap(find.text(f.t.aiReplyMenu), settleSeconds: 2);
       await f.waitFor(find.byKey(const Key('aireply-sheet')), what: 'AI reply sheet');
       await f.shot('ai-sheet');
@@ -85,7 +85,7 @@ void registerAiReplyFlows() {
     });
 
     await f.step('A: Full auto → B writes → A\'s phone answers, tagged on B', () async {
-      await f.tap(find.byIcon(Icons.more_vert_rounded));
+      await f.tap(find.byTooltip(f.t.msgrChatMore)); // chat ⋮ (the reality guard forbids byIcon()
       await f.tap(find.text(f.t.aiReplyMenu), settleSeconds: 2);
       await f.tap(find.byKey(const Key('aireply-mode-auto')), settleSeconds: 2);
       await f.tap(find.byKey(const Key('aireply-done')), settleSeconds: 2);
