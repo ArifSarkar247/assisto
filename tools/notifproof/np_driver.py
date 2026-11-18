@@ -699,7 +699,10 @@ def case_carecall(A, B, Ah, tokens):
     shot("np5_fullscreen_ring")
     c.check("the ring screen shows the Care Call text exactly", ok, texts[:40])
     root = ui_dump()
-    btn = ui_find(root, "Done", pkg=PKG) or ui_find(root, "হয়ে গেছে", pkg=PKG)
+    # an ElementTree node with no children is FALSY — never `a or b` (run 44248259268)
+    btn = ui_find(root, "Done", pkg=PKG)
+    if btn is None:
+        btn = ui_find(root, "হয়ে গেছে", pkg=PKG)
     if not c.check("the big Done button is on the ring screen", btn is not None, ui_texts(root, pkg=PKG)[:40]):
         return c.done()
     tap_node(btn)
