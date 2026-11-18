@@ -53258,5 +53258,22 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "rnChAlarms": "Reminder alarms",
+  "@rnChAlarms": {
+    "description": "notif-nine: Android notification-channel name for reminders the phone itself rings (exact alarms)."
+  },
+  "rnChAlarmsDesc": "Your reminders, ringing on time even when Assisto is closed",
+  "@rnChAlarmsDesc": {
+    "description": "notif-nine: Android notification-channel description for reminder alarms."
+  },
+  "nnMsgSummary": "New messages in {count} chats",
+  "@nnMsgSummary": {
+    "description": "notif-nine: shade summary when several My Circle chats have unread messages.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   }
 }
