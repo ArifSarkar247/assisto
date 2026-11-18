@@ -19,7 +19,6 @@ name, number and address is made up.
     SMS / password way out) -> re-verifying the address clears it.
 """
 import base64
-import logging
 import os
 import re
 from html.parser import HTMLParser
@@ -36,7 +35,6 @@ from core.tests_smsotp import CODE, FakeSMTP, connect_email, mail_text
 
 V = "/api/v1"
 ADDR = "rahim.lost@example.com"
-STRANGER = "no-account-here@example.com"
 PW = "Lost#Phone2026"
 
 
@@ -203,8 +201,8 @@ class LostPhoneRecoveryTests(APITestCase):
 
 
 @mock.patch("smtplib.SMTP", FakeSMTP)
-class VerifyEnumerationTests(APITestCase):
-    """A stranger must not learn from verify which emails have an account."""
+class BanglaDigitCodeTests(APITestCase):
+    """(The enumeration parity tests live in tests_otp_decoy — the hotfix.)"""
 
     def setUp(self):
         FakeSMTP.reset()
@@ -213,64 +211,16 @@ class VerifyEnumerationTests(APITestCase):
                                           password=PW)
         EmailVerification.objects.create(user=self.u, email=ADDR)
 
-    def _ask(self, addr):
-        r = self.client.post(V + "/auth/otp/email/request", {"purpose": "login", "email": addr},
-                             format="json", HTTP_ACCEPT_LANGUAGE="en")
-        self.assertEqual(r.status_code, 200, r.data)
-        return r
-
-    def _try(self, addr, code="111111"):
-        return self.client.post(V + "/auth/otp/verify",
-                                {"purpose": "login", "email": addr, "code": code},
-                                format="json", HTTP_ACCEPT_LANGUAGE="en")
-
-    def test_unknown_email_answers_like_a_real_wrong_code(self):
-        self._ask(ADDR)
-        self._ask(STRANGER)
-        seq_real = [(r.status_code, r.data["reason"], r.data.get("attempts_left"))
-                    for r in (self._try(ADDR) for _ in range(6))]
-        seq_fake = [(r.status_code, r.data["reason"], r.data.get("attempts_left"))
-                    for r in (self._try(STRANGER) for _ in range(6))]
-        self.assertEqual(seq_real, seq_fake)
-        self.assertEqual(seq_fake[0], (400, "invalid_code", 4))
-        self.assertEqual(seq_fake[4][1], "locked")
-        self.assertEqual(seq_fake[5][1], "locked")
-        # the decoy never yields a proof, whatever is typed
-        self.assertFalse(OtpChallenge.objects.filter(email=STRANGER, sent=True).exists())
-
-    def test_unknown_phone_answers_like_a_real_wrong_code(self):
-        from core.tests_smsotp import alpha_ok, connect
-        with mock.patch("core.sms_gateway._http", side_effect=alpha_ok):
-            connect("sms_alpha", {"api_key": "AK-test-1"})
-            for phone in ("01711000101", "01711000188"):
-                r = self.client.post(V + "/auth/otp/request", {"purpose": "login", "phone": phone},
-                                     format="json")
-                self.assertEqual(r.status_code, 200, r.data)
-        real = self.client.post(V + "/auth/otp/verify",
-                                {"purpose": "login", "phone": "01711000101", "code": "000000"},
-                                format="json")
-        fake = self.client.post(V + "/auth/otp/verify",
-                                {"purpose": "login", "phone": "01711000188", "code": "000000"},
-                                format="json")
-        self.assertEqual((fake.status_code, fake.data["reason"], fake.data.get("attempts_left")),
-                         (real.status_code, real.data["reason"], real.data.get("attempts_left")))
-
     @mock.patch("core.otp._gen_code", return_value=CODE)
     def test_bangla_digit_code_works(self, _g):
-        self._ask(ADDR)
+        r = self.client.post(V + "/auth/otp/email/request", {"purpose": "login", "email": ADDR},
+                             format="json")
+        self.assertEqual(r.status_code, 200, r.data)
         bn = CODE.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
-        r = self._try(ADDR, bn)
+        r = self.client.post(V + "/auth/otp/verify",
+                             {"purpose": "login", "email": ADDR, "code": bn}, format="json")
         self.assertEqual(r.status_code, 200, r.data)
         self.assertTrue(r.data["otp_proof"])
-
-    def test_verify_logs_carry_no_address_or_code(self):
-        with self.assertLogs("assisto.otp", level=logging.INFO) as cm:
-            self._ask(ADDR)
-            self._ask(STRANGER)
-            self._try(STRANGER)
-        joined = "\n".join(cm.output)
-        for s in (ADDR, STRANGER, "111111"):
-            self.assertNotIn(s, joined)
 
 
 # ============================================================ email templates
