@@ -629,7 +629,8 @@ void registerVehicleSt906Flows() {
     await f.step('(c)(d)(e)(g) the alerts in the app notification centre', () async {
       pollAlerts = false;
       await f.openRoute('notifications');
-      await f.tap(find.textContaining(f.t.notifTabNotifications).first, settleSeconds: 3);
+      // the AppBar title is also "Notifications": tap the second TAB itself
+      await f.tap(find.byType(Tab).at(1), settleSeconds: 3);
       var n = 0;
       for (final k in ['tracker_silent', 'ignition_off', 'geofence_enter', 'overspeed', 'geofence_exit', 'ignition_on']) {
         final row = find.textContaining(titles[k]!);
