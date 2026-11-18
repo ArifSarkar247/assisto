@@ -21,6 +21,9 @@ on:
       mode:
         description: "stills (COCO person + motion), sheets (cctv-accuracy: labelling contact sheets of the licensed clips) or clips (cctv-accuracy: real-clip alert accuracy before/after)"
         default: "stills"
+      only:
+        description: "mode=sheets|clips: comma list of clip ids (empty = all)"
+        default: ""
       use_owner_clips:
         description: "Also score the owner's private clips (secret CCTV_OWNER_CLIPS_URL)"
         type: boolean
@@ -114,11 +117,17 @@ jobs:
         if: inputs.mode == 'clips'
         working-directory: edge/shopbox
         run: python -m shopbox.model_fetch models/yolox_nano.onnx
-      - name: Clips (Wikimedia Commons, SHA-1 verified)
-        run: python tools/cctvacc/fetch.py --out "$RUNNER_TEMP/clips"
+      - name: Clips (Wikimedia Commons, SHA-1 verified, re-encoded once to H.264)
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null
+          python tools/cctvacc/fetch.py --out "$RUNNER_TEMP/clips" --only "$ONLY"
       - name: Contact sheets (for human labels)
         if: inputs.mode == 'sheets'
-        run: python tools/cctvacc/sheets.py --clips "$RUNNER_TEMP/clips" --out sheets
+        env:
+          ONLY: ${{ inputs.only }}
+        run: python tools/cctvacc/sheets.py --clips "$RUNNER_TEMP/clips" --out sheets --only "$ONLY"
       - name: Alert accuracy, before / after
         if: inputs.mode == 'clips'
         run: |

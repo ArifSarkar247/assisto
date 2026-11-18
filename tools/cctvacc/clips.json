@@ -1,7 +1,7 @@
 [
  {
   "id": "c01",
-  "scene": "shop_counter",
+  "scene": "walkway_cctv",
   "title": "File:2007 Lima PUCP CCTV.webm",
   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/2007_Lima_PUCP_CCTV.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
   "sha1": "e0eabef88abf4f8cc3140ef6c4e150536f4708f8",
@@ -13,7 +13,16 @@
   "licence_url": null,
   "author": "PUCP CCTV",
   "page": "https://commons.wikimedia.org/wiki/File:2007_Lima_PUCP_CCTV.webm",
-  "labels": null
+  "camera": "fixed CCTV (dusk, sodium light; shakes ~12 s: 2007 earthquake)",
+  "labels": {
+   "person": [
+    [
+     0,
+     96
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c02",
@@ -29,7 +38,11 @@
   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "author": "AnRo0002",
   "page": "https://commons.wikimedia.org/wiki/File:20141103Regen.ogv",
-  "labels": null
+  "camera": "fixed (rain on water)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c03",
@@ -45,7 +58,25 @@
   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "author": "AnRo0002",
   "page": "https://commons.wikimedia.org/wiki/File:20160513Regen_Hockenheim.ogv",
-  "labels": null
+  "camera": "fixed (rain on a road)",
+  "labels": {
+   "person": [],
+   "night": false,
+   "vehicle": [
+    [
+     0,
+     1.5
+    ],
+    [
+     12,
+     14
+    ],
+    [
+     16.5,
+     18
+    ]
+   ]
+  }
  },
  {
   "id": "c04",
@@ -77,7 +108,11 @@
   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "author": "Umngeni",
   "page": "https://commons.wikimedia.org/wiki/File:Africanis_Dogs_Resting_In_Grass.ogv",
-  "labels": null
+  "camera": "hand-held, nearly still (two dogs)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c06",
@@ -93,7 +128,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Musicaline",
   "page": "https://commons.wikimedia.org/wiki/File:Averse_de_pluie.webm",
-  "labels": null
+  "camera": "montage of fixed shots (rain in trees), cuts every ~10 s",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c07",
@@ -109,6 +148,7 @@
   "licence_url": null,
   "author": "Supercircuits",
   "page": "https://commons.wikimedia.org/wiki/File:BLK-HDPTZ12_Security_Camera_Parking_Lot_Surveillance_Video.webm",
+  "dropped": "PTZ parking lot: people too small to label reliably from the contact sheets",
   "labels": null
  },
  {
@@ -141,6 +181,7 @@
   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "author": "Brian Dell Bdell555",
   "page": "https://commons.wikimedia.org/wiki/File:Berbera-cityscape-evening.ogv",
+  "dropped": "hand-held panning city view (not a fixed camera)",
   "labels": null
  },
  {
@@ -157,7 +198,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Lionel Allorge",
   "page": "https://commons.wikimedia.org/wiki/File:Blaireau_%C3%A0_Saint-R%C3%A9my-l%C3%A8s-Chevreuse_en_f%C3%A9vrier_2020.webm",
-  "labels": null
+  "camera": "IR trail camera (badger), 3 nights",
+  "labels": {
+   "person": [],
+   "night": true
+  }
  },
  {
   "id": "c11",
@@ -173,7 +218,16 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "OsvaldoGago",
   "page": "https://commons.wikimedia.org/wiki/File:Calle_Preciados_Madrid.ogv",
-  "labels": null
+  "camera": "fixed, busy pedestrian street",
+  "labels": {
+   "person": [
+    [
+     0,
+     44
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c12",
@@ -189,6 +243,7 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Maximilian Schönherr",
   "page": "https://commons.wikimedia.org/wiki/File:Cars_Passing_by_at_Night.webm",
+  "dropped": "hand-held night street following cars (not a fixed camera)",
   "labels": null
  },
  {
@@ -205,7 +260,11 @@
   "licence_url": null,
   "author": "Legendaryreel.pull1",
   "page": "https://commons.wikimedia.org/wiki/File:Cat_meowing_into_camera.webm",
-  "labels": null
+  "camera": "close-up kitten (pet in front of the lens)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c14",
@@ -221,7 +280,24 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "Rubi2011",
   "page": "https://commons.wikimedia.org/wiki/File:Dog_park.theora.ogv",
-  "labels": null
+  "camera": "hand-held dog-park montage (dogs; people in 3 parts)",
+  "labels": {
+   "person": [
+    [
+     27,
+     35
+    ],
+    [
+     43,
+     47
+    ],
+    [
+     113,
+     121
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c15",
@@ -237,7 +313,20 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "Sage Ross",
   "page": "https://commons.wikimedia.org/wiki/File:Dog_walking_in_the_Mission_in_San_Francisco.ogv",
-  "labels": null
+  "camera": "hand-held, person walking a big dog (6-10 s: dog only)",
+  "labels": {
+   "person": [
+    [
+     0,
+     5.5
+    ],
+    [
+     10.5,
+     17
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c16",
@@ -253,7 +342,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "Lionel Allorge",
   "page": "https://commons.wikimedia.org/wiki/File:Fouine_dans_un_grenier_de_Saint-Calais_le_10_d%C3%A9cembre_2020.webm",
-  "labels": null
+  "camera": "IR camera in an attic (marten)",
+  "labels": {
+   "person": [],
+   "night": true
+  }
  },
  {
   "id": "c17",
@@ -269,7 +362,11 @@
   "licence_url": null,
   "author": "USFWS Mountain-Prairie",
   "page": "https://commons.wikimedia.org/wiki/File:Fox_Squad_on_the_National_Elk_Refuge.webm",
-  "labels": null
+  "camera": "IR trail camera (foxes, close)",
+  "labels": {
+   "person": [],
+   "night": true
+  }
  },
  {
   "id": "c18",
@@ -301,7 +398,16 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
   "author": "Nick Nguyen",
   "page": "https://commons.wikimedia.org/wiki/File:Hanoi_traffic.ogv",
-  "labels": null
+  "camera": "hand-held night traffic + headlights (people on motorbikes and walking)",
+  "labels": {
+   "person": [
+    [
+     0,
+     41
+    ]
+   ],
+   "night": true
+  }
  },
  {
   "id": "c20",
@@ -317,6 +423,7 @@
   "licence_url": "https://creativecommons.org/licenses/by/4.0",
   "author": "Fumikas Sagisavas",
   "page": "https://commons.wikimedia.org/wiki/File:Heavy_rain_in_Nanshan_District,_Shenzhen_(20250424).webm",
+  "dropped": "hand-held night rain; a figure at 3-4 s too dark to label",
   "labels": null
  },
  {
@@ -333,7 +440,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Matti Blume",
   "page": "https://commons.wikimedia.org/wiki/File:Night,_Cape_Town_(00001).webm",
-  "labels": null
+  "camera": "fixed night city view (moving headlights far away)",
+  "labels": {
+   "person": [],
+   "night": true
+  }
  },
  {
   "id": "c22",
@@ -349,6 +460,7 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Iñaki LL",
   "page": "https://commons.wikimedia.org/wiki/File:Pouring_down_in_Wikimania_2017.webm",
+  "dropped": "hand-held rain montage; tiny people at a far bus shelter not labelable",
   "labels": null
  },
  {
@@ -365,7 +477,16 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
   "author": "Juan de Vojníkov",
   "page": "https://commons.wikimedia.org/wiki/File:Praha,_Fugnerovo_n%C3%A1m%C4%9Bst%C3%AD,_podchod_pod_Sokolskou.ogv",
-  "labels": null
+  "camera": "fixed, pedestrian underpass (gate-like)",
+  "labels": {
+   "person": [
+    [
+     0,
+     36
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c24",
@@ -381,7 +502,16 @@
   "licence_url": "https://creativecommons.org/licenses/by/2.0",
   "author": "Emran Kassim from Nagoya, Aichi, Japan",
   "page": "https://commons.wikimedia.org/wiki/File:Shibuya_Crossing.ogv",
-  "labels": null
+  "camera": "fixed, Shibuya crossing at dusk (cars + crowds)",
+  "labels": {
+   "person": [
+    [
+     0,
+     90
+    ]
+   ],
+   "night": false
+  }
  },
  {
   "id": "c25",
@@ -397,7 +527,11 @@
   "licence_url": null,
   "author": "WBNS 10TV",
   "page": "https://commons.wikimedia.org/wiki/File:Surveillance_camera_captures_bear_in_Franklin_County_for_first_time_in_nearly_20_years.webm",
-  "labels": null
+  "camera": "home surveillance camera at night (bear on a driveway; IR/colour switching)",
+  "labels": {
+   "person": [],
+   "night": true
+  }
  },
  {
   "id": "c26",
@@ -429,7 +563,11 @@
   "licence_url": null,
   "author": "USFWS Mountain-Prairie",
   "page": "https://commons.wikimedia.org/wiki/File:Trail_Camera.webm",
-  "labels": null
+  "camera": "trail camera, day (elk)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c28",
@@ -445,7 +583,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "דוד שי",
   "page": "https://commons.wikimedia.org/wiki/File:Trees_in_the_wind.webm",
-  "labels": null
+  "camera": "hand-held, tree moving in wind",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c29",
@@ -461,7 +603,11 @@
   "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
   "author": "Sillerkiil",
   "page": "https://commons.wikimedia.org/wiki/File:Tuuleheide_Viimsis_2020_.webm",
-  "labels": null
+  "camera": "fixed, tilted; tree and cage in wind",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c30",
@@ -477,7 +623,11 @@
   "licence_url": null,
   "author": "USFWS Mountain-Prairie",
   "page": "https://commons.wikimedia.org/wiki/File:Weasel_on_Trail_Camera.webm",
-  "labels": null
+  "camera": "trail camera, day (weasel)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c31",
@@ -493,7 +643,11 @@
   "licence_url": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Oakley413",
   "page": "https://commons.wikimedia.org/wiki/File:Wind_in_tree_AppletonFarms_Massachusetts_2024-10.webm",
-  "labels": null
+  "camera": "fixed, tree branches in wind",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  },
  {
   "id": "c32",
@@ -509,6 +663,10 @@
   "licence_url": null,
   "author": "USFWS Mountain-Prairie",
   "page": "https://commons.wikimedia.org/wiki/File:Wolf_on_Trail_Camera.webm",
-  "labels": null
+  "camera": "trail camera, day (wolf)",
+  "labels": {
+   "person": [],
+   "night": false
+  }
  }
 ]

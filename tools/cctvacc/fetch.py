@@ -1,6 +1,9 @@
 """cctv-accuracy: download the pinned, openly licensed clips (clips.json) from
 Wikimedia Commons into a cache dir and verify each file's SHA-1 (the hash
-Commons publishes for the original upload). Nothing downloaded is committed.
+Commons publishes for the original upload), then re-encode each one ONCE with
+the system ffmpeg to H.264 mp4 (<= 1280 px wide, same frame times) so every
+clip decodes the same way in OpenCV (some originals are VP9 4K / AV1 / Theora
+that the OpenCV wheel cannot read). Nothing downloaded is committed.
 
     python tools/cctvacc/fetch.py --out /tmp/clips [--only c01,c02]
 """
@@ -32,14 +35,38 @@ def sha1_file(p: str) -> str:
 
 
 def local_name(clip: dict) -> str:
-    ext = os.path.splitext(clip["url"])[1].lower() or ".webm"
-    return clip["id"] + ext
+    """The re-encoded clip every tool reads."""
+    return clip["id"] + ".mp4"
+
+
+def _orig_name(clip: dict) -> str:
+    ext = os.path.splitext(clip["url"].split("?", 1)[0])[1].lower() or ".webm"
+    return clip["id"] + ".orig" + ext
+
+
+def transcode(src: str, dst: str) -> None:
+    import subprocess
+
+    subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", src,
+                    "-vf", "scale='min(1280,iw)':-2", "-an", "-c:v", "libx264",
+                    "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+                    dst + ".part.mp4"], check=True, timeout=1800)
+    os.replace(dst + ".part.mp4", dst)
 
 
 def fetch(clip: dict, out: str, tries: int = 5) -> str:
-    dst = os.path.join(out, local_name(clip))
-    if os.path.exists(dst) and sha1_file(dst) == clip["sha1"]:
-        return dst
+    final = os.path.join(out, local_name(clip))
+    if os.path.exists(final):
+        return final
+    dst = os.path.join(out, _orig_name(clip))
+    if not (os.path.exists(dst) and sha1_file(dst) == clip["sha1"]):
+        _download(clip, dst, tries)
+    transcode(dst, final)
+    os.remove(dst)          # keep the runner's disk small
+    return final
+
+
+def _download(clip: dict, dst: str, tries: int) -> str:
     last = None
     for i in range(tries):
         try:
@@ -70,7 +97,7 @@ def main(argv=None) -> int:
     only = {x for x in a.only.split(",") if x}
     bad = 0
     for c in load_clips():
-        if only and c["id"] not in only:
+        if (only and c["id"] not in only) or c.get("dropped"):
             continue
         try:
             p = fetch(c, a.out)
