@@ -159,11 +159,7 @@ class _CctvPlaybackScreenState extends State<CctvPlaybackScreen> {
   String _hhmm(String lang, int h) => wmDigits(lang, '${h.toString().padLeft(2, '0')}:00');
 
   /// "HH:MM" of a record time ("2026-11-17 10:05:00" from the camera).
-  String _recTime(String lang, Object? v) {
-    final s = (v ?? '').toString();
-    final m = RegExp(r'(\d{2}):(\d{2})').firstMatch(s);
-    return m == null ? wmDigits(lang, s) : wmDigits(lang, '${m.group(1)}:${m.group(2)}');
-  }
+  String _recTime(String lang, Object? v) => wmDigits(lang, pbRecordLocalHhmm(v));
 
   String _dayLabel(AppLocalizations t, String lang, int back) {
     if (back == 0) return t.gcvReportToday;
@@ -349,4 +345,25 @@ class _ProblemCard extends StatelessWidget {
           ]),
         ),
       );
+}
+
+/// gap-cctv3: a recording time from the camera ("2026-11-18 07:05:00") is
+/// the camera's device time, Bangladesh time (UTC+6, no daylight saving —
+/// backend logic/cctv_connect/imou.py BD). Shown in the PHONE's local time,
+/// so it matches the hour the user tapped even when the phone is set to
+/// another zone (emulator in UTC, a Probashi relative abroad). Text that is
+/// not a time is shown as it came.
+String pbRecordLocalHhmm(Object? v) {
+  final s = (v ?? '').toString();
+  final m = RegExp(r'(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})').firstMatch(s);
+  if (m == null) {
+    final hm = RegExp(r'(\d{2}):(\d{2})').firstMatch(s);
+    return hm == null ? s : '${hm.group(1)}:${hm.group(2)}';
+  }
+  int g(int i) => int.parse(m.group(i)!);
+  final local = DateTime.utc(g(1), g(2), g(3), g(4), g(5))
+      .subtract(const Duration(hours: 6))
+      .toLocal();
+  String two(int x) => x.toString().padLeft(2, '0');
+  return '${two(local.hour)}:${two(local.minute)}';
 }
