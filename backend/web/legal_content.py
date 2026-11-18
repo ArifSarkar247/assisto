@@ -319,14 +319,17 @@ PERMISSIONS = [
     },
     {
         "id": "bluetooth",
-        "perm": "BLUETOOTH_CONNECT (Android 12+); BLUETOOTH, BLUETOOTH_ADMIN (Android 11 ও আগের / and older)",
-        "name": ("ব্লুটুথ (গাড়ির OBD)", "Bluetooth (car OBD)"),
-        "why": ("আপনার আগে থেকে পেয়ার করা ELM327 OBD-II ডঙ্গলের সাথে যুক্ত হয়ে গাড়ির রিডিং (যেমন ইঞ্জিন কোড) দেখানো। "
-                "আমরা আশেপাশের ডিভাইস স্ক্যান করি না, লোকেশনের জন্য ব্লুটুথ ব্যবহার করি না।",
+        "perm": "BLUETOOTH_CONNECT, BLUETOOTH_SCAN (Android 12+, neverForLocation); BLUETOOTH, BLUETOOTH_ADMIN (Android 11 ও আগের / and older)",
+        "name": ("ব্লুটুথ (গাড়ির OBD, নিজের ব্লুটুথ ট্যাগ)", "Bluetooth (car OBD, your own Bluetooth tag)"),
+        "why": ("আপনার আগে থেকে পেয়ার করা ELM327 OBD-II ডঙ্গলের সাথে যুক্ত হয়ে গাড়ির রিডিং (যেমন ইঞ্জিন কোড) দেখানো; "
+                "আর ব্লুটুথ ট্যাগ স্ক্রিনে আপনার নিজের ট্যাগ (iTag) খুঁজে যুক্ত করা, বাজানো ও ব্যাটারি দেখা। "
+                "স্ক্যান শুধু ওই স্ক্রিনে, আপনি চাইলে; কাছের ডিভাইসের তথ্য সংগ্রহ বা সার্ভারে পাঠানো হয় না; লোকেশনের জন্য ব্লুটুথ ব্যবহার করি না।",
                 "Connecting to an ELM327 OBD-II dongle you have already paired, to show your car's readings "
-                "(such as engine codes). We never scan for nearby devices and never use Bluetooth for location."),
-        "when": ("গাড়ির OBD স্ক্রিন খুলে \"Connect\" চাপলে।",
-                 "When you open the car OBD screen and tap Connect."),
+                "(such as engine codes); and, on the Bluetooth tag screen, finding and connecting to your own tag "
+                "(iTag) to ring it and read its battery. We scan only on that screen when you ask; nearby devices "
+                "are not collected or sent to our server, and Bluetooth is never used for location."),
+        "when": ("গাড়ির OBD স্ক্রিনে \"Connect\" চাপলে, বা ব্লুটুথ ট্যাগ স্ক্রিনে ট্যাগ যুক্ত করলে।",
+                 "When you tap Connect on the car OBD screen, or add a tag on the Bluetooth tag screen."),
         "revoke": _REVOKE_STD,
     },
     {

@@ -322,7 +322,12 @@ jobs:
               # 12+, requested lazily from the OBD screen; legacy pair <= 11.
               '\n    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>'
               '\n    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>'
-              '\n    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>\n'
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>'
+              # flag-itag (lead-approved 17 Nov): Bluetooth iTag tag screen scans
+              # for the user's OWN tag. neverForLocation = no location derived
+              # (Android 12+); 8-11 use the already-declared location permission
+              # for the scan, asked on the tag screen after its reason screen.
+              '\n    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:targetApi="s"/>\n'
           )
           if 'android.permission.INTERNET' not in s:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' + perms, s, count=1)

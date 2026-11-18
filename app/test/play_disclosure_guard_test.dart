@@ -25,7 +25,7 @@ import 'package:assisto/widgets/permission_reason.dart';
 
 /// A runtime-permission request (Android shows its own prompt).
 final _ask = RegExp(r'Geolocator\.requestPermission\(|'
-    r'Permission\.(location|locationWhenInUse|locationAlways|microphone|camera|contacts|phone|bluetoothConnect|sms)\.request\(\)|'
+    r'Permission\.(location|locationWhenInUse|locationAlways|microphone|camera|contacts|phone|bluetoothConnect|bluetoothScan|sms)\.request\(\)|'
     r'\]\.request\(\)|requestAuthorization\(|_source\.request\(\)|src\.request\(\)|\bp\.request\(\)|'
     // playaudit2: implicit asks — WebRTC getUserMedia and the camera plugin
     // prompt Android for mic/camera on their own; camera_screen's gate.
@@ -42,6 +42,7 @@ const _markers = [
   'mc2PermLocBody', // share-location sheet's own disclosure dialog
   'md1PermContinue', // chat media/mic disclosure dialog
   'arBtPermAllow', // audio route: Bluetooth disclosure sheet
+  'ItagReasonScreen.show(', // flag-itag: Bluetooth tag full-screen reason
 ];
 const _lookBack = 45; // lines
 
@@ -349,6 +350,28 @@ void main() {
       expect(s.indexOf('WakeDisclosureScreen.show'), greaterThan(0));
       expect(s.indexOf('WakeDisclosureScreen.show'),
           lessThan(s.indexOf('Permission.microphone.request()')));
+    });
+
+    // flag-itag (lead-approved 17 Nov): BLUETOOTH_SCAN is declared
+    // neverForLocation and asked ONLY on the Bluetooth tag screen.
+    test('BLUETOOTH_SCAN: neverForLocation + asked only from lib/screens/itag/', () {
+      final scan = RegExp(r'<uses-permission android:name="android\.permission\.BLUETOOTH_SCAN"[^>]*>')
+          .allMatches(ci)
+          .map((m) => m.group(0)!)
+          .toList();
+      expect(scan, hasLength(1));
+      expect(scan.single, contains('android:usesPermissionFlags="neverForLocation"'));
+      final askers = <String>[];
+      for (final f in _dartFiles('lib')) {
+        if (f.readAsStringSync().contains('Permission.bluetoothScan')) {
+          askers.add(f.path.replaceAll('\\', '/'));
+        }
+      }
+      expect(askers, ['lib/screens/itag/itag_permission.dart']);
+      final src = File('lib/screens/itag/itag_permission.dart').readAsStringSync();
+      expect(src.indexOf('ItagReasonScreen.show('), greaterThan(0));
+      expect(src.indexOf('ItagReasonScreen.show('),
+          lessThan(src.indexOf('Permission.bluetoothScan, Permission.bluetoothConnect].request()')));
     });
 
     test('the Play gate forbids every undeclared sensitive permission', () {
