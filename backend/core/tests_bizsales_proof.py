@@ -715,5 +715,10 @@ class F_PiiMasking(ProofBase):
         failed = Message.objects.filter(thread__business=self.a["biz"], status="failed")
         self.assertTrue(failed.exists())
         self.assertIn("190", failed.last().send_error)
-        self.assertTrue(self.logs.lines)          # the capture is live
+        # a message for a number no shop owns is dropped AND logged: the log
+        # line exists (the capture is live) and carries ids/kinds only
+        r = self.hook(WA_URL, wa_text("106540352299999", "wamid.F10",
+                                      "%s, %s, %s" % (CUST_NAME, CUST_PHONE, CUST_ADDR)))
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(any("inbound dropped" in ln for ln in self.logs.lines), self.logs.lines)
         # (tearDown) assert_logs_clean: no phone / name / email / address
