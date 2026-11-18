@@ -26563,5 +26563,19 @@
   "recovLostKeep": "না, অন্য ফোনগুলো ঠিক আছে",
   "recovLostDone": "হয়ে গেছে। সাইন-আউট হলো {count}টি ফোন।",
   "recovLostFailed": "এখন সাইন-আউট করা গেল না। সেটিংস → অ্যাকাউন্ট ও নিরাপত্তা থেকে আবার চেষ্টা করুন।",
-  "recovLostNext": "এরপর: সেটিংস → অ্যাকাউন্ট ও নিরাপত্তা থেকে পাসওয়ার্ড বদলান, যাতে হারানো ফোন দিয়ে আর কেউ ঢুকতে না পারে।"
+  "recovLostNext": "এরপর: সেটিংস → অ্যাকাউন্ট ও নিরাপত্তা থেকে পাসওয়ার্ড বদলান, যাতে হারানো ফোন দিয়ে আর কেউ ঢুকতে না পারে।",
+  "nearbyRefreshedNow": "তালিকা এইমাত্র হালনাগাদ হলো।",
+  "nearbyRefreshFailedSaved": "হালনাগাদ করা গেল না — ফোনে সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyOfflineSavedOn": "অফলাইন — {when}-এ সেভ করা তালিকা দেখানো হচ্ছে।",
+  "nearbyUnnamedPlace": "{kind} (ম্যাপে নাম নেই)",
+  "nearbyPhoneSrcOsm": "নম্বরের সূত্র: OpenStreetMap",
+  "nearbyPhoneSrcAdmin": "নম্বরটি Assisto যাচাই করেছে",
+  "nearbyNoPhoneListed": "এই জায়গার ফোন নম্বর তালিকায় নেই। জরুরি হলে ওপরের সরকারি নম্বরে কল করুন।",
+  "cityMetroPairTitle": "দুই স্টেশনের ভাড়া",
+  "cityMetroPairFrom": "যে স্টেশন থেকে",
+  "cityMetroPairTo": "যে স্টেশনে",
+  "cityMetroPairSame": "দুটি আলাদা স্টেশন বেছে নিন।",
+  "cityMetroPairUnknown": "এই দুই স্টেশনের ভাড়া এখনো আমাদের তথ্যে নেই।",
+  "cityMetroPairFromChart": "সরকারি স্টেশন-ভাড়ার চার্ট থেকে।",
+  "cityMetroPairFromRate": "লাইন ধরে {km} কিমির সরকারি হারে।"
 }

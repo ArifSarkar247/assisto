@@ -55164,5 +55164,76 @@
   "recovLostNext": "Next: change your password in Settings → Account & security, so a lost phone can't sign in again.",
   "@recovLostNext": {
     "description": "Next-step hint under the buttons."
+  },
+  "nearbyRefreshedNow": "List updated just now.",
+  "@nearbyRefreshedNow": {
+    "description": "gap-nearby"
+  },
+  "nearbyRefreshFailedSaved": "Couldn't update — showing the list saved on this phone.",
+  "@nearbyRefreshFailedSaved": {
+    "description": "gap-nearby"
+  },
+  "nearbyOfflineSavedOn": "Offline — showing the list saved on {when}.",
+  "@nearbyOfflineSavedOn": {
+    "description": "gap-nearby",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "nearbyUnnamedPlace": "{kind} (no name on the map)",
+  "@nearbyUnnamedPlace": {
+    "description": "gap-nearby",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "nearbyPhoneSrcOsm": "Number source: OpenStreetMap",
+  "@nearbyPhoneSrcOsm": {
+    "description": "gap-nearby"
+  },
+  "nearbyPhoneSrcAdmin": "Number checked by Assisto",
+  "@nearbyPhoneSrcAdmin": {
+    "description": "gap-nearby"
+  },
+  "nearbyNoPhoneListed": "No phone number is listed for this place. In an emergency, call the official numbers at the top.",
+  "@nearbyNoPhoneListed": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairTitle": "Fare between two stations",
+  "@cityMetroPairTitle": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairFrom": "From station",
+  "@cityMetroPairFrom": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairTo": "To station",
+  "@cityMetroPairTo": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairSame": "Pick two different stations.",
+  "@cityMetroPairSame": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairUnknown": "The fare for these two stations is not in our data yet.",
+  "@cityMetroPairUnknown": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairFromChart": "From the official station fare chart.",
+  "@cityMetroPairFromChart": {
+    "description": "gap-nearby"
+  },
+  "cityMetroPairFromRate": "Official rate for {km} km along the line.",
+  "@cityMetroPairFromRate": {
+    "description": "gap-nearby",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
   }
 }
