@@ -53,9 +53,9 @@ MODEL_SLOTS = {
 }
 
 SLOT_LABELS = {
-    "anthropic_strong": ("Anthropic — এজেন্ট/জটিল কাজ (strong)", "Anthropic — agent / complex (strong)"),
-    "anthropic_medium": ("Anthropic — সাধারণ চ্যাট/সহকারী (medium)", "Anthropic — normal chat / assistant (medium)"),
-    "anthropic_cheap": ("Anthropic — সস্তা কাজের শেষ ব্যাকআপ (cheap)", "Anthropic — cheap-task last backup (cheap)"),
+    "anthropic_strong": ("Anthropic — এজেন্ট/জটিল কাজ (শক্তিশালী)", "Anthropic — agent / complex (strong)"),
+    "anthropic_medium": ("Anthropic — সাধারণ চ্যাট/সহকারী (মাঝারি)", "Anthropic — normal chat / assistant (medium)"),
+    "anthropic_cheap": ("Anthropic — সস্তা কাজের শেষ ব্যাকআপ (সস্তা)", "Anthropic — cheap-task last backup (cheap)"),
     "openai_main": ("OpenAI — মূল কাজের ব্যাকআপ", "OpenAI — main-task backup"),
     "openai_cheap": ("OpenAI — সস্তা কাজের ব্যাকআপ", "OpenAI — cheap-task backup"),
     "gemini_main": ("Gemini — মূল কাজের শেষ ব্যাকআপ", "Gemini — main-task last backup"),

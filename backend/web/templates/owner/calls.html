@@ -102,7 +102,7 @@
   <p class="small">{{ T.t9_thresholds_note }}</p>
   <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="thresholds">
     <div class="cols">{% for k, v, custom in thresholds %}<label><code>{{ k }}</code>{% if custom %} <span class="pos small">✓</span>{% endif %}<input name="{{ k }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
-    <p class="mut small">{{ T.t9_limits }}: total-quota {{ lim.total_quota }} · bps-capacity {{ lim.bps_capacity }} B/s · max-bps {{ lim.max_bps }} B/s → {{ T.t9_eff_limit }} {{ lim.alloc_limit }}</p>
+    <p class="mut small">{{ T.t9_limits }}: <code>total-quota</code> {{ lim.total_quota }} · <code>bps-capacity</code> {{ lim.bps_capacity }} B/s · <code>max-bps</code> {{ lim.max_bps }} B/s → {{ T.t9_eff_limit }} {{ lim.alloc_limit }}</p>
     <button class="btn primary">{{ T.save }}</button>
   </form>
 </section>

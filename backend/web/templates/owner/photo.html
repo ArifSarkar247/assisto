@@ -11,7 +11,7 @@
     <div class="tile"><span>{{ T.ph_ad_rev }}</span><b>৳{{ guard.ad_bdt }}</b></div>
     <div class="tile"><span>{{ T.ph_net }}</span><b class="{% if guard.net_bdt < 0 %}neg{% else %}pos{% endif %}">৳{{ guard.net_bdt }}</b><small>{{ T.ph_losing }} {{ guard.losing_users }}</small></div>
   </div>
-  {% if guard.worst %}<div class="tbl"><table><thead><tr><th>user</th><th>{{ T.ph_ai_cost }}</th><th>{{ T.ph_ad_rev }}</th><th>jobs</th><th>{{ T.ph_gifts }}</th></tr></thead><tbody>
+  {% if guard.worst %}<div class="tbl"><table><thead><tr><th>{% if lang == 'en' %}user{% else %}ইউজার{% endif %}</th><th>{{ T.ph_ai_cost }}</th><th>{{ T.ph_ad_rev }}</th><th>{% if lang == 'en' %}jobs{% else %}কাজ{% endif %}</th><th>{{ T.ph_gifts }}</th></tr></thead><tbody>
   {% for r in guard.worst %}<tr><td><a href="/owner/users/{{ r.user_id }}">#{{ r.user_id }}</a></td><td class="num">৳{{ r.cost_bdt }}</td><td class="num">৳{{ r.ad_bdt }}</td><td class="num">{{ r.jobs }}</td><td class="num">{{ r.gifts }}</td></tr>{% endfor %}
   </tbody></table></div>{% endif %}
   <p class="mut small">{{ T.ph_pricing_link }} <a href="/owner/pricing">{{ T.nav_pricing }}</a></p>
@@ -43,7 +43,7 @@
 </section>
 
 <section class="card" id="reports"><h2>{{ T.ph_reports_title }}</h2>
-  {% if reports %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>job</th><th>{{ T.ph_reason }}</th><th>{{ T.ph_note }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+  {% if reports %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{% if lang == 'en' %}job{% else %}কাজ{% endif %}</th><th>{{ T.ph_reason }}</th><th>{{ T.ph_note }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
   {% for r in reports %}<tr><td>{{ r.created_at|date:"m-d H:i" }}</td><td>{% if r.job %}#{{ r.job.pk }} {{ r.job.feature }}{% else %}—{% endif %}</td><td>{{ r.reason }}</td><td>{{ r.note }}</td><td>{{ r.status }}</td>
   <td>{% if r.status == "open" %}<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="close_report"><input type="hidden" name="rid" value="{{ r.pk }}"><button class="btn">{{ T.ph_close }}</button></form>{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>{% else %}<p class="empty">{{ T.ph_reports_empty }}</p>{% endif %}
@@ -51,16 +51,16 @@
 
 <section class="card"><h2>{{ T.ph_queue_title }}</h2>
   <p>{% if worker_on %}<span class="pill ok">{{ T.ph_worker_on }}</span>{% else %}<span class="pill off">{{ T.ph_worker_off }}</span>{% endif %}</p>
-  <p class="small">queued {{ queue.queued }} · running {{ queue.running }} · done 24h {{ queue.done_24h }} · failed 24h {{ queue.failed_24h }}{% if queue.waiting_budget %} · {{ T.ph_waiting_budget }} {{ queue.waiting_budget }}{% endif %}</p>
+  <p class="small">{% if lang == 'en' %}queued{% else %}লাইনে{% endif %} {{ queue.queued }} · {% if lang == 'en' %}running{% else %}চলছে{% endif %} {{ queue.running }} · {% if lang == 'en' %}done 24h{% else %}২৪ ঘণ্টায় শেষ{% endif %} {{ queue.done_24h }} · {% if lang == 'en' %}failed 24h{% else %}২৪ ঘণ্টায় ব্যর্থ{% endif %} {{ queue.failed_24h }}{% if queue.waiting_budget %} · {{ T.ph_waiting_budget }} {{ queue.waiting_budget }}{% endif %}</p>
 </section>
 
 <section class="card" id="providers"><h2>{{ T.ph_prov_title }}</h2>
-  <p class="small">{{ T.ph_prov_spent }}: ${{ spend.today|floatformat:4 }} / ${{ spend.cap|floatformat:2 }} · {{ T.ph_prov_connected }}: {% if spend.connected %}{{ spend.connected|join:", " }}{% else %}—{% endif %} · Ultra HD: {% if spend.ultra %}{{ T.ph_worker_on }}{% else %}—{% endif %}</p>
+  <p class="small">{{ T.ph_prov_spent }}: ${{ spend.today|floatformat:4 }} / ${{ spend.cap|floatformat:2 }} · {{ T.ph_prov_connected }}: {% if spend.connected %}{{ spend.connected|join:", " }}{% else %}—{% endif %} · {% if lang == 'en' %}Ultra HD{% else %}আল্ট্রা HD{% endif %}: {% if spend.ultra %}{{ T.ph_worker_on }}{% else %}—{% endif %}</p>
   <p class="small">{{ T.ph_realesrgan }}: {% if spend.realesrgan %}{{ T.ph_on }}{% else %}{{ T.ph_off_clean }}{% endif %} · {{ T.ph_face_model }}: {% if spend.face_model %}{{ spend.face_model }}{% else %}{{ T.ph_face_none }}{% endif %}</p>
-  {% if prov_summary %}<div class="tbl"><table><thead><tr><th>provider</th><th>{{ T.ph_prov_runs }}</th><th>USD</th><th>{{ T.ph_prov_avg }}</th><th>cache</th><th>{{ T.ph_prov_failed }}</th></tr></thead><tbody>
+  {% if prov_summary %}<div class="tbl"><table><thead><tr><th>{% if lang == 'en' %}provider{% else %}প্রোভাইডার{% endif %}</th><th>{{ T.ph_prov_runs }}</th><th>USD</th><th>{{ T.ph_prov_avg }}</th><th>{% if lang == 'en' %}cache{% else %}ক্যাশ{% endif %}</th><th>{{ T.ph_prov_failed }}</th></tr></thead><tbody>
   {% for s in prov_summary %}<tr><td>{{ s.provider }}</td><td>{{ s.runs }}</td><td>{{ s.cost_usd }}</td><td>{{ s.avg_s }}</td><td>{{ s.cache_hits }}</td><td>{{ s.failed }}</td></tr>{% endfor %}
   </tbody></table></div>{% endif %}
-  {% if prov_log %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>job</th><th>provider</th><th>model</th><th>preset</th><th>USD</th><th>s</th><th>cache</th><th>{{ T.status }}</th></tr></thead><tbody>
+  {% if prov_log %}<div class="tbl"><table><thead><tr><th>{{ T.time }}</th><th>{% if lang == 'en' %}job{% else %}কাজ{% endif %}</th><th>{% if lang == 'en' %}provider{% else %}প্রোভাইডার{% endif %}</th><th>{% if lang == 'en' %}model{% else %}মডেল{% endif %}</th><th>{% if lang == 'en' %}preset{% else %}প্রিসেট{% endif %}</th><th>USD</th><th>s</th><th>{% if lang == 'en' %}cache{% else %}ক্যাশ{% endif %}</th><th>{{ T.status }}</th></tr></thead><tbody>
   {% for r in prov_log %}<tr><td>{{ r.created_at|date:"m-d H:i" }}</td><td>{% if r.job_id %}#{{ r.job_id }}{% else %}—{% endif %} {{ r.feature }}</td><td>{{ r.provider }}{% if r.fallback_from %} ({{ T.ph_prov_fallback }} {{ r.fallback_from }}){% endif %}</td><td>{{ r.model_version }}</td><td>{{ r.preset }}</td><td>{{ r.cost_usd|floatformat:4 }}</td><td>{{ r.seconds }}</td><td>{% if r.cache_hit %}✓{% endif %}</td><td>{% if r.ok %}ok{% else %}{{ r.error }}{% endif %}</td></tr>{% endfor %}
   </tbody></table></div>{% else %}<p class="empty">{{ T.ph_prov_empty }}</p>{% endif %}
 </section>

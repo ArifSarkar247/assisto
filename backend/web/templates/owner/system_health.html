@@ -10,7 +10,7 @@
 <p class="mut small">{{ T.ops_note }}</p>
 
 {% if alerts %}<section class="card warn"><h3>{{ T.ops_open_alerts }}</h3><ul>
-{% for a in alerts %}<li><b>{{ a.key }}</b> — {{ a.detail }} <span class="mut small">({{ T.ops_since }} {{ a.since|date:"m-d H:i" }})</span></li>{% endfor %}
+{% for a in alerts %}<li><b><code>{{ a.key }}</code></b> — <code>{{ a.detail }}</code> <span class="mut small">({{ T.ops_since }} {{ a.since|date:"m-d H:i" }})</span></li>{% endfor %}
 </ul></section>{% endif %}
 
 {% if missing %}<section class="card warn"><h3>{{ T.ops_missing }}</h3>
@@ -20,15 +20,15 @@
 
 <section class="card"><h3>{{ T.ops_services }}</h3>
 <div class="tbl"><table><thead><tr><th>{{ T.ops_service }}</th><th>{{ T.ops_status }}</th><th>{{ T.ops_state }}</th></tr></thead><tbody>
-{% for s in services %}<tr><td>{{ s.unit }}</td>
+{% for s in services %}<tr><td><code>{{ s.unit }}</code></td>
 <td>{% if s.status == "ok" %}<span class="pill ok">{{ T.ops_up }}</span>{% elif s.status == "down" %}<span class="pill bad">{{ T.ops_down }}</span>{% elif s.status == "absent" %}<span class="pill off">{{ T.ops_absent }}</span>{% else %}<span class="pill off">?</span>{% endif %}</td>
-<td class="small mut">{{ s.active }} / {{ s.sub }}</td></tr>{% endfor %}
+<td class="small mut"><code>{{ s.active }} / {{ s.sub }}</code></td></tr>{% endfor %}
 </tbody></table></div></section>
 
 <section class="card"><h3>{{ T.ops_jobs }}</h3>
 <div class="tbl"><table><thead><tr><th>{{ T.ops_job }}</th><th>{{ T.ops_status }}</th><th>{{ T.ops_last_run }}</th><th>{{ T.ops_last_ok }}</th><th>rc</th><th>{{ T.ops_duration }}</th><th>{{ T.ops_next_due }}</th><th>{{ T.ops_every }}</th></tr></thead><tbody>
 {% for j in jobs %}<tr>
-<td><b>{{ j.name }}</b>{% if j.detail %}<br><small class="mut">{{ j.detail }}</small>{% endif %}</td>
+<td><b><code>{{ j.name }}</code></b>{% if j.detail %}<br><small class="mut"><code>{{ j.detail }}</code></small>{% endif %}</td>
 <td>{% if j.status == "ok" %}<span class="pill ok">{{ T.ops_ok }}</span>{% elif j.status == "waiting" %}<span class="pill off">{{ T.ops_waiting }}</span>{% elif j.status == "not_scheduled" %}<span class="pill bad">{{ T.ops_not_scheduled }}</span>{% elif j.status == "late" %}<span class="pill bad">{{ T.ops_late }}</span>{% elif j.status == "stuck" %}<span class="pill bad">{{ T.ops_stuck }}</span>{% else %}<span class="pill bad">{{ T.ops_failing }}</span>{% endif %}</td>
 <td>{{ j.last_run|date:"m-d H:i"|default:"—" }}</td>
 <td>{{ j.last_ok|date:"m-d H:i"|default:"—" }}</td>

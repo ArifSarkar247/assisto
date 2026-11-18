@@ -21,7 +21,7 @@
   <p class="small">{{ T.w_sources_note }}</p>
   <div class="tbl"><table><thead><tr><th>{{ T.w_source }}</th><th>{{ T.w_kind }}</th><th>{{ T.status }}</th><th>{{ T.w_last_ok }}</th><th>{{ T.w_last_err }}</th><th>{{ T.w_items }}</th><th>{{ T.w_calls }}</th><th>{{ T.w_cost }}</th><th></th></tr></thead><tbody>
   {% for f in feeds %}<tr>
-    <td>{{ f.name }}</td><td>{{ f.kind }}</td>
+    <td translate="no">{{ f.name }}</td><td>{{ f.kind }}</td>
     <td>{% if f.enabled %}<span class="pill ok">{{ T.w_on }}</span>{% else %}<span class="pill off">{{ T.w_off }}</span>{% endif %}</td>
     <td>{% if f.last_ok_at %}{{ f.last_ok_at|date:"m-d H:i" }}{% else %}<span class="mut">{{ T.w_never }}</span>{% endif %}</td>
     <td>{% if f.last_error %}<span class="neg">{{ f.last_error|truncatechars:80 }}</span> <small class="mut">{{ f.last_error_at|date:"m-d H:i" }}</small> ({{ f.error_count }}){% else %}—{% endif %}</td>

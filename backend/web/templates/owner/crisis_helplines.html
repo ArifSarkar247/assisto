@@ -7,7 +7,7 @@
 {% for h in rows %}<tr>
   <td><b>{{ h.number|default:"—" }}</b><br><small class="mut"><code>{{ h.key }}</code></small></td>
   <td>{% if lang == 'en' %}{{ h.en }}{% else %}{{ h.bn }}{% endif %}<br><small class="mut">{{ h.categories|join:", " }}</small></td>
-  <td>{% if h.locked %}<span class="pill ok">{{ T.crh_locked }}</span>{% elif h.verified %}<span class="pill ok">{{ T.crh_verified }}</span>{% else %}<span class="pill spons">{{ T.crh_unverified }}</span>{% endif %}<br><small class="mut">{{ h.source }}</small></td>
+  <td>{% if h.locked %}<span class="pill ok">{{ T.crh_locked }}</span>{% elif h.verified %}<span class="pill ok">{{ T.crh_verified }}</span>{% else %}<span class="pill spons">{{ T.crh_unverified }}</span>{% endif %}<br><small class="mut">{% if unverified_note in h.source %}{% if lang == 'en' %}{{ h.source }}{% else %}যাচাই হয়নি — মালিককে নিশ্চিত করতে হবে{% if 'not filled' in h.source %} (নম্বর এখনো লেখা হয়নি){% endif %}{% endif %}{% else %}<span translate="no">{{ h.source }}</span>{% endif %}</small></td>
   <td>{% if h.locked %}<small class="mut">{{ T.crh_locked_note }}</small>{% else %}
     <details><summary class="small">{{ T.crh_edit }}</summary>
     <form method="post" action="/owner/crisis-helplines/{{ h.key }}">{% include "owner/_csrf.html" %}

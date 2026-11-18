@@ -142,3 +142,4 @@ img{max-width:100%;height:auto}
   .btn{white-space:normal;min-height:40px}
 }
 meter.rdmeter{width:120px;height:10px}a.on-b{font-weight:700}pre.prewrap{white-space:pre-wrap;max-height:22em;overflow:auto}.qar{font-size:1.4em;line-height:2}.qbn{font-size:1.15em;line-height:1.8}
+.content pre{max-width:100%;overflow-x:auto}

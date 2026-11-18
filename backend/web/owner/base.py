@@ -194,6 +194,9 @@ ENUM_BN = {
     "agent": "এজেন্ট", "budget": "বাজেট", "photo": "ছবি", "worker": "ওয়ার্কার",
     "backup": "ব্যাকআপ", "tracker": "ট্র্যাকার", "eval": "পরীক্ষা", "total": "মোট",
     "family": "পরিবার", "email": "ইমেইল", "security": "নিরাপত্তা", "safety": "নিরাপত্তা",
+    "dating": "ডেটিং", "gambling": "জুয়া", "alcohol": "মদ", "politics": "রাজনীতি",
+    "adult": "প্রাপ্তবয়স্ক", "self_harm": "আত্মহানি", "starter": "স্টার্টার", "ivr": "IVR",
+    "read-only": "শুধু দেখা", "news": "খবর", "weather": "আবহাওয়া", "currency": "মুদ্রা",
     "login": "লগইন", "logout": "লগআউট", "result": "ফল", "model": "মডেল", "provider": "প্রোভাইডার",
 }
 _ENUM_SPLIT = re.compile(r"\s*,\s*")
@@ -201,7 +204,7 @@ _ENUM_SPLIT = re.compile(r"\s*,\s*")
 
 def _enum_bn(t):
     core = t.strip()
-    if not core or len(core) > 120 or not re.fullmatch(r"[A-Za-z_ ,]+", core):
+    if not core or len(core) > 120 or not re.fullmatch(r"[A-Za-z_ ,-]+", core):
         return None
     parts = _ENUM_SPLIT.split(core)
     if all(p.lower() in ENUM_BN for p in parts):
@@ -211,11 +214,19 @@ def _enum_bn(t):
     return None
 
 
+_MONTHS = {"Jan": "জানুয়ারি", "Feb": "ফেব্রুয়ারি", "Mar": "মার্চ", "Apr": "এপ্রিল", "May": "মে",
+           "Jun": "জুন", "Jul": "জুলাই", "Aug": "আগস্ট", "Sep": "সেপ্টেম্বর", "Oct": "অক্টোবর",
+           "Nov": "নভেম্বর", "Dec": "ডিসেম্বর"}
+_MONTH_RE = re.compile(r"([০-৯]) (%s)\b" % "|".join(_MONTHS))
+
+
 def _bn_text(t):
     e = _enum_bn(t)
     if e is not None:
         return e
-    return "".join(x if x.startswith("&") else _bn_words(x) for x in _ENT.split(t))
+    out = "".join(x if x.startswith("&") else _bn_words(x) for x in _ENT.split(t))
+    # "২৬ Oct" -> "২৬ অক্টোবর" (dates written in notes and board files)
+    return _MONTH_RE.sub(lambda m: m.group(1) + " " + _MONTHS[m.group(2)], out)
 
 
 def bn_html(html):

@@ -3,7 +3,7 @@
 {% block content %}
 <p class="mut small">{{ L.intro }}</p>
 <section class="card" id="money-n"><h2>{{ L.n }}: <b id="money-ads-per-answer">{{ t.ads_per_answer }}</b></h2>
-<p class="small">{{ L.how }}: {{ L.cost }} ৳{{ t.today.real_cost_bdt|default:L.none }} ({{ t.today.cost_source }}, {{ t.today.cost_samples }}) ·
+<p class="small">{{ L.how }}: {{ L.cost }} ৳{{ t.today.real_cost_bdt|default:L.none }} (<code>{{ t.today.cost_source }}</code>, {{ t.today.cost_samples }}) ·
 {{ L.income }} ৳{{ t.today.income_bdt }} ({{ t.today.income_source }}, {{ t.today.ad_events }}) ·
 {{ L.worst }} ৳{{ t.today.worst_bdt }} · {{ L.profit }} {{ t.today.profit_pct }}%</p></section>
 <div class="card tbl"><table id="money-table"><thead><tr><th>{{ L.date }}</th><th>{{ L.ads }}</th><th>{{ L.free_ai }}</th><th>{{ L.pnl }}</th><th>{{ L.per_answer }}</th><th>{{ L.packs }}</th><th>{{ L.plans }}</th></tr></thead><tbody>

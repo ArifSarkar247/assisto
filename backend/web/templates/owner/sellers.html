@@ -71,15 +71,15 @@
   </tbody></table></div>
   <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="config">
     <div class="cols">{% for pid, p in sa.plans.items %}
-      <label>{{ pid }} — {{ T.price }} (৳)<input name="price_{{ pid }}" value="{{ p.price }}" inputmode="numeric"></label>
-      <label>{{ pid }} — {{ T.sl_replies }}<input name="replies_{{ pid }}" value="{{ p.replies }}" inputmode="numeric"></label>
+      <label><code>{{ pid }}</code> — {{ T.price }} (৳)<input name="price_{{ pid }}" value="{{ p.price }}" inputmode="numeric"></label>
+      <label><code>{{ pid }}</code> — {{ T.sl_replies }}<input name="replies_{{ pid }}" value="{{ p.replies }}" inputmode="numeric"></label>
     {% endfor %}
       <label>{{ T.sl_trial_days }}<input name="trial_days" value="{{ sa.trial_days }}" inputmode="numeric"></label>
       <label>{{ T.sl_trial_replies }}<input name="trial_replies" value="{{ sa.trial_replies }}" inputmode="numeric"></label>
       <label>{{ T.sl_low_stock }}<input name="low_stock_default" value="{{ sa.low_stock_default }}" inputmode="numeric"></label>
     </div>
     <h3>{{ T.sl_wa_cost }}</h3><p class="small">{{ T.sl_wa_cost_note }}</p>
-    <div class="cols">{% for c, v in wa_rows %}<label>{{ c }} (৳)<input name="wa_{{ c }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
+    <div class="cols">{% for c, v in wa_rows %}<label><span translate="no">{{ c }}</span> (৳)<input name="wa_{{ c }}" value="{{ v }}" inputmode="decimal"></label>{% endfor %}</div>
     <label class="check"><input type="checkbox" name="public_comment_reply" {% if sa.public_comment_reply %}checked{% endif %}> {{ T.sl_public_reply }}</label>
     {% include "owner/_reason.html" %}
   </form>

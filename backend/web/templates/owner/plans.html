@@ -42,11 +42,11 @@
 <form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="plans">
 <div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.price }}</th><th>{{ L.year }}</th>{% if not v2 %}<th>{{ L.credits }}</th>{% endif %}<th>{{ L.family }}</th><th>{{ L.ads }}</th></tr></thead><tbody>
 {% for r in plans %}<tr><td><code>{{ r.id }}</code></td>
-<td><input name="{{ r.id }}.price" value="{{ r.price }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.price }}"></td>
-<td><input name="{{ r.id }}.annual_price" value="" placeholder="{{ r.year }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.year }}"></td>
-{% if not v2 %}<td><input name="{{ r.id }}.credits" value="{{ r.credits }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.credits }}"></td>{% endif %}
-<td><input name="{{ r.id }}.family" value="{{ r.family }}" inputmode="numeric" size="4" aria-label="{{ r.id }} {{ L.family }}"></td>
-<td><input type="checkbox" name="{{ r.id }}.ads" {% if r.ads %}checked{% endif %} aria-label="{{ r.id }} {{ L.ads }}"></td></tr>{% endfor %}
+<td><input name="{{ r.id }}.price" value="{{ r.price }}" inputmode="numeric" size="6" aria-label="{{ L.price }} · plans.{{ r.id }}"></td>
+<td><input name="{{ r.id }}.annual_price" value="" placeholder="{{ r.year }}" inputmode="numeric" size="6" aria-label="{{ L.year }} · plans.{{ r.id }}"></td>
+{% if not v2 %}<td><input name="{{ r.id }}.credits" value="{{ r.credits }}" inputmode="numeric" size="6" aria-label="{{ L.credits }} · plans.{{ r.id }}"></td>{% endif %}
+<td><input name="{{ r.id }}.family" value="{{ r.family }}" inputmode="numeric" size="4" aria-label="{{ L.family }} · plans.{{ r.id }}"></td>
+<td><input type="checkbox" name="{{ r.id }}.ads" {% if r.ads %}checked{% endif %} aria-label="{{ L.ads }} · plans.{{ r.id }}"></td></tr>{% endfor %}
 </tbody></table></div>
 <label>{{ L.reason }} <input name="reason" maxlength="200" required></label> <button class="btn">{{ L.save }}</button>
 </form>

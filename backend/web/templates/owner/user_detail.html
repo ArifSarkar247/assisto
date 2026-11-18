@@ -4,7 +4,7 @@
 <p><a href="/owner/users">← {{ T.nav_users }}</a></p>
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
 <div class="tiles">
-  <div class="tile"><span>{{ T.plan }}</span><b>{{ state.effective }}</b><small>{{ T.stored_plan }}: {{ u.plan }}{% if u.plan_until %} · {{ T.until }} {{ u.plan_until|date:"Y-m-d" }}{% endif %}{% if u.trial_until %} · {{ T.trial_until }} {{ u.trial_until|date:"Y-m-d" }}{% endif %}</small></div>
+  <div class="tile"><span>{{ T.plan }}</span><b>{{ state.effective }}</b><small>{{ T.stored_plan }}: <span>{{ u.plan }}</span>{% if u.plan_until %} · {{ T.until }} {{ u.plan_until|date:"Y-m-d" }}{% endif %}{% if u.trial_until %} · {{ T.trial_until }} {{ u.trial_until|date:"Y-m-d" }}{% endif %}</small></div>
   <div class="tile"><span>{{ T.credits }}</span><b>{{ state.ai_credits }}</b><small>{{ T.ad_wallet }}: {{ state.ad_wallet }}</small></div>
   <div class="tile"><span>{{ T.status }}</span><b class="{% if blocked %}neg{% else %}pos{% endif %}">{{ u.account_status }}</b><small>{{ T.joined }} {{ u.date_joined|date:"Y-m-d" }}</small></div>
   <div class="tile"><span>{{ T.phone }}</span><b class="sm">{{ as_phone }}</b><small>{{ as_email }}{% if not as_pii %} · {{ T.as_masked }}{% endif %}</small></div>

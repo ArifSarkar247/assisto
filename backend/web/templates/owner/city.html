@@ -1,7 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_city }}{% endblock %}
 {% block content %}
-<p class="mut small">{{ T.cty_intro }} <span class="mut">{{ attribution }}</span></p>
+<p class="mut small">{{ T.cty_intro }} <span class="mut" lang="en">{{ attribution }}</span></p>
 <div class="tiles">{% for k, n in tiles %}<a class="tile" href="?tab={{ k }}"><span>{% if k == 'fixes' %}{{ T.cty_t_fixes }}{% elif k == 'live' %}{{ T.cty_t_live }}{% elif k == 'data' %}{{ T.cty_t_data }}{% elif k == 'stops' %}{{ T.cty_t_stops }}{% else %}{{ T.cty_t_learned }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
 <div class="row">
   <a class="btn {% if tab == 'fixes' %}primary{% else %}ghost{% endif %}" href="?tab=fixes">{{ T.cty_tab_fixes }}</a>
@@ -22,7 +22,7 @@
 <td>{% if c.status == 'open' %}<form method="post" action="/owner/city/fix/{{ c.id }}">{% include "owner/_csrf.html" %}
 <select name="action" aria-label="{{ T.cty_change }}"><option value="">{{ T.cty_no_change }}</option>{% for a in actions %}<option value="{{ a }}">{{ a }}</option>{% endfor %}</select>
 <input name="id" value="{{ c.target_id }}" size="12" aria-label="id"><input name="name" size="12" placeholder="{{ T.cty_name }}"><input name="name_bn" size="12" placeholder="{{ T.cty_name_bn }}">
-<input name="lat" size="8" placeholder="lat" value="{{ c.lat|default_if_none:'' }}"><input name="lon" size="8" placeholder="lon" value="{{ c.lon|default_if_none:'' }}">
+<input name="lat" size="8" placeholder="{% if lang == 'en' %}lat{% else %}অক্ষাংশ{% endif %}" value="{{ c.lat|default_if_none:'' }}"><input name="lon" size="8" placeholder="{% if lang == 'en' %}lon{% else %}দ্রাঘিমা{% endif %}" value="{{ c.lon|default_if_none:'' }}">
 <button class="btn primary" name="decision" value="accept">{{ T.cty_accept }}</button>
 <button class="btn ghost" name="decision" value="reject">{{ T.cty_reject }}</button></form>{% endif %}</td></tr>{% endfor %}
 </tbody></table></div>

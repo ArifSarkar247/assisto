@@ -9,14 +9,14 @@ from . import security as S
 from .base import done, owner_view, page
 
 L = {
-    "bn": {"title": "ব্লগ", "new": "নতুন লেখা", "edit": "লেখা সম্পাদনা", "slug": "ঠিকানা (slug, ইংরেজি ছোট হাতের, ড্যাশ)",
-           "title_bn": "শিরোনাম (বাংলা)", "title_en": "শিরোনাম (English)",
-           "summary_bn": "সারসংক্ষেপ / meta description (বাংলা, ≤২০০)", "summary_en": "Summary / meta description (English, ≤200)",
-           "body_bn": "লেখা (বাংলা, Markdown)", "body_en": "Body (English, Markdown)",
+    "bn": {"title": "ব্লগ", "new": "নতুন লেখা", "edit": "লেখা সম্পাদনা", "slug": "ঠিকানা (ইংরেজি ছোট হাতের অক্ষর ও ড্যাশ)",
+           "title_bn": "শিরোনাম (বাংলা)", "title_en": "শিরোনাম (ইংরেজি)",
+           "summary_bn": "সারসংক্ষেপ / সার্চের বর্ণনা (বাংলা, ≤২০০)", "summary_en": "সারসংক্ষেপ / সার্চের বর্ণনা (ইংরেজি, ≤২০০)",
+           "body_bn": "লেখা (বাংলা, Markdown)", "body_en": "লেখা (ইংরেজি, Markdown)",
            "feature": "কোন ফিচার পাতায় লিংক যাবে", "keywords": "লক্ষ্য কীওয়ার্ড (শুধু আপনার নোট, পাতায় দেখায় না)",
            "cover": "কভার ছবি (PNG/JPEG/WEBP ≤ ২ MB, ১২০০×৬৩০ ভালো)", "cover_alt_bn": "ছবির বর্ণনা (বাংলা)",
-           "cover_alt_en": "Image description (English)", "remove_cover": "কভার ছবি সরান",
-           "published": "প্রকাশিত (চালু করলে সবাই দেখবে, sitemap-এ যাবে)", "last_reviewed": "সর্বশেষ যাচাইয়ের তারিখ",
+           "cover_alt_en": "ছবির বর্ণনা (ইংরেজি)", "remove_cover": "কভার ছবি সরান",
+           "published": "প্রকাশিত (চালু করলে সবাই দেখবে, সাইটম্যাপে যাবে)", "last_reviewed": "সর্বশেষ যাচাইয়ের তারিখ",
            "order": "ক্রম (ছোট সংখ্যা আগে)", "save": "সেভ", "publish": "প্রকাশ করুন", "unpublish": "প্রকাশ বন্ধ",
            "delete": "মুছে ফেলুন", "confirm": "হ্যাঁ, এই লেখাটি মুছে ফেলুন", "view": "পাতা দেখুন",
            "state_on": "প্রকাশিত", "state_off": "খসড়া (প্রকাশিত নয়)", "none": "এখনো কোনো লেখা নেই। সার্ভারে একবার `python manage.py seed_blog` চালালে ১০টি খসড়া লেখা আসবে।",

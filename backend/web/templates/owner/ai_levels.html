@@ -12,7 +12,7 @@
 <p class="small">{{ L.caps }}: {% for k, v in caps.items %}<code>{{ k }}</code> ${{ v }} {% endfor %} · <a href="/owner/ai">/owner/ai</a></p>
 </section>
 <section class="card" id="ail-exam"><h2>{{ L.exam }}</h2>
-<p>{{ exam.cases }} {% if lang == 'en' %}cases{% else %}প্রশ্ন{% endif %} · {% if exam.last.day %}{{ exam.last.day }}: {% if lang == 'en' %}pass{% else %}পাস{% endif %} <b>{{ exam.last.pass_rate }}</b> · win/tie <b>{{ exam.last.win_rate|default:"—" }}</b> · ${{ exam.last.cost_usd }} · {{ exam.last.graded }}/{{ exam.last.total }}{% else %}—{% endif %} · {% if lang == 'en' %}gate{% else %}গেট{% endif %}: {% if exam.gate_ok %}<span class="pill ok">OK</span>{% else %}<span class="pill off">{{ exam.gate_why }}</span>{% endif %}</p>
+<p>{{ exam.cases }} {% if lang == 'en' %}cases{% else %}প্রশ্ন{% endif %} · {% if exam.last.day %}{{ exam.last.day }}: {% if lang == 'en' %}pass{% else %}পাস{% endif %} <b>{{ exam.last.pass_rate }}</b> · win/tie <b>{{ exam.last.win_rate|default:"—" }}</b> · ${{ exam.last.cost_usd }} · {{ exam.last.graded }}/{{ exam.last.total }}{% else %}—{% endif %} · {% if lang == 'en' %}gate{% else %}গেট{% endif %}: {% if exam.gate_ok %}<span class="pill ok">OK</span>{% else %}<span class="pill off">{% if exam.gate_why == 'no exam result yet' and lang != 'en' %}এখনো পরীক্ষার ফল নেই{% else %}<code>{{ exam.gate_why }}</code>{% endif %}</span>{% endif %}</p>
 {% if exam.last.day %}<p class="small">{% if exam.last.stopped %}{% if lang == 'en' %}stopped{% else %}থেমেছে{% endif %}: <b>{{ exam.last.stopped }}</b> · {% endif %}{% if lang == 'en' %}judged{% else %}বিচার হয়েছে{% endif %} {{ exam.last.judged|default:"0" }} · {% if lang == 'en' %}web{% else %}ওয়েব{% endif %} {{ exam.last.web_runs|default:"0" }} · {% if lang == 'en' %}cut→Continue{% else %}কাটা→চালিয়ে যান{% endif %} {{ exam.last.cuts|default:"0" }}{% for k, v in exam.last.models.items %} · <code>{{ k }}</code> {{ v }}{% endfor %}</p>{% endif %}
 {% if exam.last.by_level %}<p class="small">{% for k, v in exam.last.by_level.items %}<b>{{ k }}</b> {{ v.ok }}/{{ v.n }} · {% endfor %}</p>{% endif %}
 {% if exam.last.reasons %}<p class="small">{% for k, v in exam.last.reasons.items %}<code>{{ k }}</code> ×{{ v }} · {% endfor %}</p>{% endif %}
@@ -26,19 +26,19 @@
 <p><label>{{ L.ad_n }} <input name="ad_answers_per_ad" value="{{ c.ad_answers_per_ad }}" size="3" inputmode="numeric"></label> · {{ L.ad_profit }}: {% if ad.profit_pct < 40 %}<span class="pill off">{{ ad.profit_pct }}%</span>{% else %}<span class="pill ok">{{ ad.profit_pct }}%</span>{% endif %} (৳{{ ad.ad_value_bdt }} / ad)</p>
 <p><label><input type="checkbox" name="actions_on" {% if c.actions_on %}checked{% endif %}> {{ L.actions }}</label></p>
 <p class="small mut">{{ L.per_day }}</p>
-<p><label><input type="checkbox" name="exam_on" {% if c.exam_on %}checked{% endif %}> {{ L.exam_on }}</label> · $<input name="exam_budget_usd" value="{{ c.exam_budget_usd }}" size="4" inputmode="decimal" aria-label="exam budget usd"> · {% if lang == 'en' %}pass{% else %}পাস{% endif %} ≥ <input name="exam_min_pass" value="{{ c.exam_min_pass }}" size="4" inputmode="decimal" aria-label="exam min pass"> · {% if lang == 'en' %}win{% else %}জয়{% endif %} ≥ <input name="exam_min_win" value="{{ c.exam_min_win }}" size="4" inputmode="decimal" aria-label="exam min win"></p>
+<p><label><input type="checkbox" name="exam_on" {% if c.exam_on %}checked{% endif %}> {{ L.exam_on }}</label> · $<input name="exam_budget_usd" value="{{ c.exam_budget_usd }}" size="4" inputmode="decimal" aria-label="exam.budget_usd"> · {% if lang == 'en' %}pass{% else %}পাস{% endif %} ≥ <input name="exam_min_pass" value="{{ c.exam_min_pass }}" size="4" inputmode="decimal" aria-label="exam.min_pass"> · {% if lang == 'en' %}win{% else %}জয়{% endif %} ≥ <input name="exam_min_win" value="{{ c.exam_min_win }}" size="4" inputmode="decimal" aria-label="exam.min_win"></p>
 <p>{{ L.free }}: {% for i in ids %}<label><input type="checkbox" name="free_{{ i }}" {% if i in c.free_credit_levels %}checked{% endif %}> {{ i }}</label> {% endfor %}</p>
 <div class="tbl"><table><thead><tr><th>{{ L.level }}</th><th>{{ L.provider }}</th><th>{{ L.model }}</th>{% for k in int_keys %}<th><code>{{ k }}</code></th>{% endfor %}</tr></thead><tbody>
 {% for r in t.rows %}<tr><td><b>{{ r.id }}</b></td>
-<td><select name="{{ r.id }}_provider" aria-label="{{ r.id }} provider">{% for p in providers %}<option value="{{ p }}" {% if r.provider == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></td>
-<td><input name="{{ r.id }}_model" value="{{ r.model }}" size="20" aria-label="{{ r.id }} model"></td>
-<td><input name="{{ r.id }}_in_cap" value="{{ r.in_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }} in_cap"></td>
-<td><input name="{{ r.id }}_out_cap" value="{{ r.out_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }} out_cap"></td>
-<td><input name="{{ r.id }}_max_chars" value="{{ r.max_chars }}" size="6" inputmode="numeric" aria-label="{{ r.id }} max_chars"></td>
-<td><input name="{{ r.id }}_history_turns" value="{{ r.history_turns }}" size="4" inputmode="numeric" aria-label="{{ r.id }} history_turns"></td>
-<td><input name="{{ r.id }}_credits" value="{{ r.credits }}" size="4" inputmode="numeric" aria-label="{{ r.id }} credits"></td></tr>{% endfor %}
+<td><select name="{{ r.id }}_provider" aria-label="{{ r.id }}.provider">{% for p in providers %}<option value="{{ p }}" {% if r.provider == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></td>
+<td><input name="{{ r.id }}_model" value="{{ r.model }}" size="20" aria-label="{{ r.id }}.model"></td>
+<td><input name="{{ r.id }}_in_cap" value="{{ r.in_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }}.in_cap"></td>
+<td><input name="{{ r.id }}_out_cap" value="{{ r.out_cap }}" size="6" inputmode="numeric" aria-label="{{ r.id }}.out_cap"></td>
+<td><input name="{{ r.id }}_max_chars" value="{{ r.max_chars }}" size="6" inputmode="numeric" aria-label="{{ r.id }}.max_chars"></td>
+<td><input name="{{ r.id }}_history_turns" value="{{ r.history_turns }}" size="4" inputmode="numeric" aria-label="{{ r.id }}.history_turns"></td>
+<td><input name="{{ r.id }}_credits" value="{{ r.credits }}" size="4" inputmode="numeric" aria-label="{{ r.id }}.credits"></td></tr>{% endfor %}
 </tbody></table></div>
-<p id="ail-gemini">{{ L.gemini }}: {% for k, v in gemini_kinds %}<label><code>{{ k }}</code> <input name="gemini_{{ k }}" value="{{ v }}" size="20" aria-label="gemini {{ k }} model"></label> {% endfor %}</p>
+<p id="ail-gemini">{{ L.gemini }}: {% for k, v in gemini_kinds %}<label><code>{{ k }}</code> <input name="gemini_{{ k }}" value="{{ v }}" size="20" aria-label="gemini.{{ k }}.model"></label> {% endfor %}</p>
 <label>{{ L.reason }} <input name="reason" maxlength="200"></label> <button class="btn">{{ L.save }}</button>
 </form>
 </section>

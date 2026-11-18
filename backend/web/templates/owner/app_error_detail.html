@@ -1,9 +1,9 @@
 {% extends "owner/base.html" %}
-{% block heading %}{{ T.ae_title }}: {{ head.error_type }}{% endblock %}
+{% block heading %}{{ T.ae_title }}: <code>{{ head.error_type }}</code>{% endblock %}
 {% block content %}
 <p class="small"><a href="/owner/reports/errors">← {{ T.ae_title }}</a></p>
 <section class="card">
-  <p><b>{{ head.error_type }}</b>{% if head.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% else %} <span class="pill">{{ T.ae_nonfatal }}</span>{% endif %} · {{ T.ae_count }} {{ total }} · <span class="mut">{{ fp }}</span></p>
+  <p><b><code>{{ head.error_type }}</code></b>{% if head.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% else %} <span class="pill">{{ T.ae_nonfatal }}</span>{% endif %} · {{ T.ae_count }} {{ total }} · <span class="mut">{{ fp }}</span></p>
   <p>{{ head.message|default:"—" }}</p>
   {% if head.frames %}<h2>{{ T.ae_frames }}</h2><pre class="small">{% for fr in head.frames %}{{ fr }}
 {% endfor %}</pre>{% endif %}

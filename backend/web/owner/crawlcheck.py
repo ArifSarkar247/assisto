@@ -50,7 +50,7 @@ Ranger Amiri Pickthall SeTracker Asalify Prothom Alo Jazeera ExchangeRate
 Twilio Infobip Tuya Tavily AppLovin BulkSMSBD BotFather RedX Steadfast ekPay DoLynk
 NAFNet GoPro AcuSense Hik Clarity Markdown Agentforce AnyDesk Calendly Coursera Canva
 Duolingo Bdjobs Badhan Dropbox Alexa AirTag Apple MapLibre Raspberry Zoom Breeze Muse
-Prochar ODbL Real-ESRGAN ESRGAN Real Market Cloud
+Prochar ODbL Real-ESRGAN ESRGAN Real Market Cloud Circle
 """.split()}
 
 DESTRUCTIVE = re.compile(
@@ -150,7 +150,7 @@ class _Page(HTMLParser):
             self.text.append(data)
 
 
-QUOTED = re.compile(r"“[^”]*”")    # “Create Key”: the exact label of an English-only outside screen
+QUOTED = re.compile(r"“[^”]*”|`[^`]*`")    # “Create Key”: the exact label of an English-only outside screen
 
 
 def english_words(chunks):
@@ -191,7 +191,7 @@ def analyse(html, lang):
                     c = " ".join(chunk.split())[:70]
                     if c not in ctx:
                         ctx.append(c)
-            f["english_where"] = ctx[:15]
+            f["english_where"] = ctx[:40]
         dg = ascii_digits(p.text)
         if dg:
             f["ascii_digits_in_bn"] = dg[:8]

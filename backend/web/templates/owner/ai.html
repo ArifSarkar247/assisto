@@ -72,8 +72,8 @@
   {% if missing_price %}<div class="flash warn">{{ T.ai_missing_price }} {{ missing_price|join:", " }}</div>{% endif %}
   <div class="tbl"><table><thead><tr><th>{{ T.ai_model }}</th><th>{% if lang == 'en' %}in{% else %}ইনপুট{% endif %}</th><th>{% if lang == 'en' %}out{% else %}আউটপুট{% endif %}</th><th>{% if lang == 'en' %}cache read{% else %}ক্যাশ পড়া{% endif %}</th><th>{% if lang == 'en' %}cache write{% else %}ক্যাশ লেখা{% endif %}</th></tr></thead><tbody>
   {% for r in prices %}<tr><td><code>{{ r.model }}</code>{% if r.used %} <span class="pill ok">{{ T.ai_in_use }}</span>{% endif %}</td>
-    {% for k, v in r.vals %}<td><input name="p_{{ r.model }}_{{ k }}" value="{{ v }}" inputmode="decimal" size="7" aria-label="{{ r.model }} {{ k }}"></td>{% endfor %}</tr>{% endfor %}
-  <tr><td><input name="new_model" placeholder="{{ T.ai_new_model }}" maxlength="60" spellcheck="false"></td>{% for k in price_keys %}<td><input name="new_{{ k }}" inputmode="decimal" size="7" aria-label="{{ k }}"></td>{% endfor %}</tr>
+    {% for k, v in r.vals %}<td><input name="p_{{ r.model }}_{{ k }}" value="{{ v }}" inputmode="decimal" size="7" aria-label="{{ r.model }}.{{ k }}"></td>{% endfor %}</tr>{% endfor %}
+  <tr><td><input name="new_model" placeholder="{{ T.ai_new_model }}" maxlength="60" spellcheck="false"></td>{% for k in price_keys %}<td><input name="new_{{ k }}" inputmode="decimal" size="7" aria-label="cfg.{{ k }}"></td>{% endfor %}</tr>
   </tbody></table></div>
   <p class="small">{{ T.ai_prices_note }}</p>
   <button class="btn primary">{{ T.save }}</button>

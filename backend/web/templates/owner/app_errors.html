@@ -18,7 +18,7 @@
 {% if groups %}
 <div class="card tbl"><table><thead><tr><th>{{ T.ae_error }}</th><th>{{ T.ae_models }}</th><th>Android</th><th>ROM</th><th>{{ T.ae_count }}</th><th>{{ T.ae_phones }}</th><th>{{ T.ae_first }}</th><th>{{ T.ae_last }}</th><th>{{ T.ae_builds }}</th></tr></thead><tbody>
 {% for g in groups %}<tr>
-  <td><a href="/owner/reports/errors/{{ g.fingerprint }}"><b>{{ g.type }}</b></a>{% if g.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% endif %}<br><small class="mut">{{ g.message|truncatechars:110 }}</small></td>
+  <td><a href="/owner/reports/errors/{{ g.fingerprint }}"><b><code>{{ g.type }}</code></b></a>{% if g.fatal %} <span class="pill bad">{{ T.ae_fatal }}</span>{% endif %}<br><small class="mut">{{ g.message|truncatechars:110 }}</small></td>
   <td>{{ g.models|join:", " }}{% if g.more_models %} …{% endif %}</td>
   <td>{{ g.androids|join:", " }}</td>
   <td>{{ g.roms|join:", "|default:"—" }}</td>

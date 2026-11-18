@@ -126,7 +126,7 @@ def ad_control(request):
             rows.append({"key": p["key"], "label": p["bn"] if lang == "bn" else p["en"],
                          "rule": _rule(p, lang), "safety": p["safety"], "on": st["on"],
                          "type": st["type"], "allowed": p["allowed"],
-                         "default": "%s / %s" % ("ON" if p["on"] else "OFF", p["type"]),
+                         "default": _default_label(p, lang),
                          "rep": r})
         groups.append({"id": gid, "title": gbn if lang == "bn" else gen, "rows": rows})
     n_on = sum(1 for v in eff["placements"].values() if v["on"])
@@ -142,7 +142,7 @@ def ad_control(request):
 RULE_BN = {
     "discover_native": "মালিকের ডিসকভার / ব্র্যান্ড কার্ড সবার জন্য থাকে",
     "app_open": "শুধু আগে থেকে লোড থাকলে; অ্যাপ খুলতে কখনো দেরি করায় না; প্রথমবার খোলা, লগইনের পরে বা নোটিফিকেশন থেকে খুললে কখনো না",
-    "after_call_review": "SOS, জরুরি বা Care Call কলের পরে, ১০ সেকেন্ডের কম কল বা মিসড কলের পরে কখনো না",
+    "after_call_review": "SOS, জরুরি বা “Care Call” কলের পরে, ১০ সেকেন্ডের কম কল বা মিসড কলের পরে কখনো না",
     "ai_chat_unlock": "প্রতি উত্তরে বিজ্ঞাপন = ডাইনামিক (AI টাকার হিসাব); খোলা চ্যাটের ভেতরে কখনো বিজ্ঞাপন নেই",
     "exam_after_submit": "পরীক্ষা জমা দেওয়ার পরে ফল খোলার সময় একবার; সময়ের পরীক্ষা, শোনা অডিও বা বলা রেকর্ডিংয়ের সময় কখনো না, সার্টিফিকেটে কখনো না",
     "reminders_list": "অ্যালার্ম বাজার মুহূর্তে কখনো না",
@@ -152,6 +152,13 @@ RULE_BN = {
     "security_unlock": "চুরি-রোধ, ফোনের নিরাপত্তা, প্রতারণা-রোধ, ফোন বিক্রি; বিজ্ঞাপন না চললেও কখনো আটকায় না",
     "security_scan": "কখনো আটকায় না: বিজ্ঞাপন না থাকলেও যাচাই চলে",
 }
+
+
+def _default_label(p, lang):
+    if lang != "bn":
+        return "%s / %s" % ("ON" if p["on"] else "OFF", p["type"])
+    from .base import ENUM_BN
+    return "%s / %s" % ("চালু" if p["on"] else "বন্ধ", ENUM_BN.get(p["type"], p["type"]))
 
 
 def _rule(p, lang):
