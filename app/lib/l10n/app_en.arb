@@ -53258,5 +53258,104 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "acnForYou": "For you",
+  "@acnForYou": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnNothing": "Nothing needs you right now. I will tell you here before a bill or loan is due, with one tap to set a reminder.",
+  "@acnNothing": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnWhy": "Why you see this: {why}",
+  "@acnWhy": {
+    "description": "agentcore: Agent Core proactive cards / activity",
+    "placeholders": {
+      "why": {
+        "type": "String"
+      }
+    }
+  },
+  "acnChecked": "Numbers checked with your records just now",
+  "@acnChecked": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnApprove": "Approve",
+  "@acnApprove": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnNotNow": "Not now",
+  "@acnNotNow": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnExpiresIn": "Waits for your OK for {hours} more hours; after that nothing is done.",
+  "@acnExpiresIn": {
+    "description": "agentcore: Agent Core proactive cards / activity",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "acnExpiresSoon": "Waits for your OK for less than an hour; after that nothing is done.",
+  "@acnExpiresSoon": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnDone": "Done.",
+  "@acnDone": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnRejected": "You said not now — nothing was done.",
+  "@acnRejected": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnExpired": "The time passed — nothing was done.",
+  "@acnExpired": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnStale": "Your records changed — nothing was done.",
+  "@acnStale": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnHide": "Hide this card",
+  "@acnHide": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnLoadError": "Could not load this. Check the internet and try again.",
+  "@acnLoadError": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnFailed": "Could not send your answer. Please try again.",
+  "@acnFailed": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnWorking": "Working on it…",
+  "@acnWorking": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnActivity": "What the agent did",
+  "@acnActivity": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnActivityEmpty": "Every step the agent takes for you is listed here — what, when, and the credits used.",
+  "@acnActivityEmpty": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnActivityHow": "Give the agent a task, or approve a card under “For you”, then come back here.",
+  "@acnActivityHow": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnActivityStart": "Give the agent a task",
+  "@acnActivityStart": {
+    "description": "agentcore: Agent Core proactive cards / activity"
+  },
+  "acnCredits": "{n} credits",
+  "@acnCredits": {
+    "description": "agentcore: Agent Core proactive cards / activity",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
   }
 }
