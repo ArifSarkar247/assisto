@@ -11,16 +11,24 @@
 //   -> Friend -> Send -> success                       (A, UI)
 //   C sees the request, adds A back typing "880-1700-000001" (= accept)
 //   A <-> C real E2E messages both ways
-//   voice + video call screens open and hang up (call records via the relay)
+//   voice + video calls to the NEW contact: C answers with its own WebRTC
+//   peer -> both connected -> media flows (C hears A; on video C decodes A's
+//   camera) -> A hangs up                             (circle17)
 //
-// Screenshot at every step. Real audio/video media is NOT provable here (no
-// second device with mic/camera, TURN optional) — the flow notes that.
+// Screenshot at every step. TURN relay + FCM ring with the app closed need
+// two real phones: owner checklist (does not lower the grade, owner order).
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/api.dart';
+import 'package:assisto/calls/api_call_signaling.dart';
+import 'package:assisto/calls/call_controller.dart';
+import 'package:assisto/calls/call_runtime.dart';
+import 'package:assisto/calls/webrtc_media.dart';
+import 'package:assisto/realtime/realtime_transport.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
@@ -37,6 +45,23 @@ List<Map<String, dynamic>> _rows(Map<String, dynamic> r) =>
         .whereType<Map>()
         .map((e) => e.cast<String, dynamic>())
         .toList();
+
+class _QuietSounds implements CallSounds {
+  @override
+  Future<void> startRingback() async {}
+  @override
+  Future<void> stopRingback() async {}
+  @override
+  Future<void> playBusy() async {}
+  @override
+  Future<void> playDeclined() async {}
+  @override
+  Future<void> playEnded() async {}
+  @override
+  Future<void> stopAll() async {}
+  @override
+  Future<void> setProximity(bool on) async {}
+}
 
 void registerMyCircleAddFlows() {
   realityFlow('17_circle_add_whatsapp', 'My Circle',
@@ -197,31 +222,89 @@ void registerMyCircleAddFlows() {
       await f.shot('reply-received');
     });
 
+    // circle17: C keeps its real-time channel open and ANSWERS like a phone.
+    late PollRealtimeTransport rtC;
+    final incomingC = <Map<String, dynamic>>[];
+    StreamSubscription<RealtimeEvent>? subC;
+    await f.step('C opens its real-time channel (the new contact can be called)', () async {
+      rtC = PollRealtimeTransport.forApi(apiC);
+      subC = rtC.events.listen((e) {
+        if (e.topic == 'call.incoming') incomingC.add(e.payload);
+      });
+      await f.net(() => rtC.connect());
+      rtC.setFast(true);
+    });
+
     for (final (kind, tip) in [('voice', f.t.circleVoiceCall), ('video', f.t.circleVideo)]) {
-      await f.step('$kind call: screen opens, call placed, hang up', () async {
+      await f.step('$kind call to the new contact: C answers -> connected -> media flows -> hang up',
+          () async {
         final mark = f.httpMark;
-        await f.tap(find.byTooltip(tip), settleSeconds: 5);
+        final before = incomingC.length;
+        await f.tap(find.byTooltip(tip), settleSeconds: 3);
         await f.waitFor(find.byType(CircleCallScreen), what: '$kind call screen');
-        await f.shot('$kind-call');
         f.expectHttp('GET', '/rtc/turn', since: mark);
-        // The call screen has no AppBar back button. Live/ringing shows the
-        // red hang-up; a call that already ended (no answer on the emulator)
-        // shows Close instead — tap whichever the user would see.
-        final hang = find.byKey(const Key('call-hangup'));
-        final close = find.byKey(const Key('call-close'));
-        if (hang.evaluate().isNotEmpty) {
-          await f.tap(hang, settleSeconds: 3);
-        } else if (close.evaluate().isNotEmpty) {
-          await f.tap(close, settleSeconds: 3);
-        } else {
-          throw TestFailure('$kind call screen shows neither hang-up nor Close');
+        await f.eventually('C\'s phone gets the call', () async => incomingC.length > before,
+            seconds: 20);
+        final callId = (incomingC.last['call_id'] as num).toInt();
+        await f.shot('$kind-call');
+        await f.net(() => apiC.postJson('/circle/calls/$callId/event', {'event': 'ringing'}));
+        CallController? callC;
+        await f.net(() async {
+          final c = CallController(
+            // one emulator camera (A's): C joins with its camera blocked —
+            // the app's own camera-unavailable path
+            media: WebRtcCallMedia(cameraBlocked: true),
+            signaling: ApiCallSignaling(apiC, rtC),
+            sounds: _QuietSounds(),
+            video: kind == 'video',
+            outgoing: false,
+            callId: callId,
+          );
+          callC = c;
+          unawaited(c.start());
+        });
+        await f.eventually('C reached ICE connected',
+            () async => callC!.phase == CallPhase.connected, seconds: 40);
+        await f.eventually('A is live', () async => CallRuntime.instance.currentCall?.isLive == true,
+            seconds: 20);
+        // media, not just signalling: C's inbound audio (and on video A's
+        // decoded camera frames) must grow over 6 s
+        final s1 = await f.net(() => callC!.media.stats());
+        await f.pumpFor(const Duration(seconds: 6));
+        final s2 = await f.net(() => callC!.media.stats());
+        final p1 = s1.audioPacketsIn ?? 0, p2 = s2.audioPacketsIn ?? 0;
+        if (p2 <= p1) throw TestFailure('$kind: C heard nothing from A over 6 s (packets $p1->$p2)');
+        var line = '$kind: C audio in +${p2 - p1} pkts';
+        final a = CallRuntime.instance.currentCall!;
+        if (kind == 'video') {
+          if (a.media.cameraUnavailable) {
+            line += '; A has no camera on this emulator (video frames not measurable)';
+          } else {
+            final v1 = s1.videoFramesDecoded ?? 0, v2 = s2.videoFramesDecoded ?? 0;
+            if (v2 <= 0 || v2 <= v1) {
+              throw TestFailure('video: C decoded no frames from A\'s camera ($v1->$v2)');
+            }
+            line += ', C video decoded $v1->$v2';
+          }
         }
+        f.note(line);
+        await f.shot('$kind-connected');
+        await f.tap(find.byKey(const Key('call-hangup')), settleSeconds: 3);
+        await f.eventually('C saw the end', () async => callC!.isEnded, seconds: 15);
+        callC?.dispose();
         await f.shot('$kind-hung-up');
-        expect(find.byType(CircleCallScreen), findsNothing);
+        // the ended screen (talk time) closes by itself; Close if it is still up
+        final close = find.byKey(const Key('call-close'));
+        if (close.evaluate().isNotEmpty) await f.tap(close, settleSeconds: 2);
+        await f.eventually('back in the chat', () async =>
+            find.byType(CircleCallScreen).evaluate().isEmpty, seconds: 20);
       });
     }
-    f.note('real audio/video media needs two physical phones (flutter_webrtc media '
-        'seam + TURN); CI proves the call records, ring payload (backend test) and screens');
-    f.needsKey('TURN_STATIC_SECRET (coturn) + FCM on two real phones for a connected call');
+    await subC?.cancel();
+    await rtC.close();
+    // owner order (17 Nov): what only two REAL phones show is the owner's
+    // checklist — it does not lower the grade
+    f.ownerCheck('New contact call over TURN (Wi-Fi on one phone, mobile data on the other)');
+    f.ownerCheck('New contact call with Assisto CLOSED on the other phone: it rings (FCM)');
   }, timeout: const Duration(minutes: 6));
 }
