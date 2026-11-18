@@ -201,7 +201,9 @@ class LanGridScreenState extends State<LanGridScreen> with WidgetsBindingObserve
   List<LanTileFeed> _feeds = const [];
   final _graces = <OffGrace>[];
   int _cols = 2;
-  bool _active = true; // app in front, no camera opened big
+  bool _front = true; // the app is in front
+  bool _big = false; // one camera is opened big (its own main stream)
+  bool get _active => _front && !_big;
   final _scroll = ScrollController();
   double _viewH = 0, _viewW = 0;
   Timer? _tick, _statsTimer;
@@ -227,7 +229,9 @@ class LanGridScreenState extends State<LanGridScreen> with WidgetsBindingObserve
 
   Future<void> _init() async {
     if (widget.cams != null) {
+      _loading = false;
       _start(widget.cams!);
+      return;
     } else {
       final c = await _store.load();
       if (!mounted) return;
@@ -292,8 +296,8 @@ class LanGridScreenState extends State<LanGridScreen> with WidgetsBindingObserve
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final front = state == AppLifecycleState.resumed;
-    if (front == _active) return;
-    _active = front;
+    if (front == _front) return;
+    _front = front;
     _apply();
   }
 
@@ -354,13 +358,13 @@ class LanGridScreenState extends State<LanGridScreen> with WidgetsBindingObserve
   }
 
   Future<void> _openBig(LanTileFeed f) async {
-    _active = false;
+    _big = true;
     _apply();
     await Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => LanBigView(
             feed: LanTileFeed(f.cam, 'gridF', decoderFor: _dec, opener: widget.opener))));
     if (!mounted) return;
-    _active = true;
+    _big = false;
     _apply();
   }
 

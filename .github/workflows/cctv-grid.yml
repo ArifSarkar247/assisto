@@ -123,5 +123,6 @@ jobs:
             /tmp/assisto-grid-e2e/*.txt
             /tmp/assisto-grid-e2e/*.tsv
             /tmp/assisto-grid-e2e/*.log
+            /tmp/assisto-grid-e2e/*.png
           retention-days: 3
           if-no-files-found: warn

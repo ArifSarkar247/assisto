@@ -40,6 +40,10 @@ while :; do
     avail=$(T=10 A shell cat /proc/meminfo 2>/dev/null | awk '/MemAvailable/{print $2}')
     printf '%s\t%s\t%s\t%s\n' "$now" "${pss:-}" "${rss:-}" "${avail:-}" >> "$OUT/mem.tsv"
   fi
+  # a screenshot every ~2.5 min (2x2, 3x3, scrolled, big) for the owner doc
+  if [ -n "$pid" ] && [ $(( now / 30 % 5 )) -eq 4 ]; then
+    timeout 20 adb exec-out screencap -p > "$OUT/shot_${now}s.png" 2>/dev/null || true
+  fi
   grep -q "GRID_E2E_DONE" "$OUT/logcat.txt" 2>/dev/null && { say "done"; break; }
   [ "$now" -ge "$MAX" ] && { say "TIMEOUT"; break; }
   sleep 30
