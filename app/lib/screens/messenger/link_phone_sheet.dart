@@ -209,11 +209,13 @@ class _LinkPhoneSheetState extends State<LinkPhoneSheet> {
                   padding: const EdgeInsets.all(Gap.md),
                   // a QR must stay dark-on-white to scan, in dark mode too
                   color: Colors.white,
-                  child: QrImageView(
-                    data: '${s['qr']}',
-                    size: 220,
-                    backgroundColor: Colors.white,
-                    semanticsLabel: t.dlkSheetTitle,
+                  child: Semantics(
+                    label: t.dlkSheetTitle,
+                    child: QrImageView(
+                      data: '${s['qr']}',
+                      size: 220,
+                      backgroundColor: Colors.white,
+                    ),
                   ),
                 ),
         ),

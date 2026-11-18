@@ -34,6 +34,7 @@ import 'package:assisto/crypto/device_link.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/crypto/identity_vault.dart';
 import 'package:assisto/crypto/key_backup.dart';
+import 'package:assisto/crypto/key_wiring.dart';
 import 'package:assisto/messaging/media/media_api.dart';
 import 'package:assisto/messaging/media/media_crypto.dart';
 import 'package:assisto/messaging/media/media_descriptor.dart';
@@ -423,6 +424,9 @@ void registerCircleExtrasFlows() {
         await apiB.postJson('/circle/${edgeB['id']}/messages',
             {...ct.toEnvelopeFields(), 'content_type': 'text', 'client_msg_id': 'cx4-$_tag'});
       });
+      // the real app wires the key backup to its ApiClient right after the
+      // first frame (main.dart); the harness boots AssistoApp directly
+      KeyWiring.instance.installRecoveryHooks(f.h.app!);
       await f.pushScreen(const SecurityScreen(), settleSeconds: 4);
       await f.scrollToBuilt(find.byKey(const Key('e2r-backup-tile')), what: 'backup tile');
       await f.tap(find.byKey(const Key('e2r-backup-tile')), settleSeconds: 2);
