@@ -81,7 +81,7 @@ RESULT = {"cases": [], "setup": {}, "not_proven": [
     "(Firebase Test Lab + the owner's two-phone test)",
     "a FORCE-STOPPED app (Settings > Force stop) gets no push on Android at "
     "all, for every app — by design, not testable as a pass",
-    # proof-notif (np5-np7)
+    # proof-notif (np6-np8)
     "the alarm cases run the DEBUG APK: the reboot reschedule in the R8-shrunk "
     "release build is guarded by android.yml's R8 keep-rule gate, not run here",
     "Android 14+: exact alarms are OFF for new installs until the user allows "
@@ -612,15 +612,68 @@ def case_family(A, B, tokens):
     return c.done()
 
 
+# ------------------------------------------------------------------- main
+def setup():
+    import django
+    django.setup()
+    from core.models import CircleMember, Device, User
+    from core import e2_keys
+    from core.phone import find_user
+    A, Bu = find_user(PHONE_A), find_user(PHONE_B)
+    s = RESULT["setup"]
+    log("root:", adb("root").strip())
+    time.sleep(3)
+    adb("wait-for-device", timeout=120)
+    apk = os.environ["NP_APK"]
+    s["install"] = adb("install", "-r", "-g", apk, timeout=300).strip()[-200:]
+    sh("appops set %s USE_FULL_SCREEN_INTENT allow" % PKG)
+    sh("cmd notification set_dnd off")
+    sh("svc power stayon false")
+    sh("settings put system screen_off_timeout 600000")
+    wake_unlocked()
+    adb("logcat", "-c")
+    t0 = time.time()
+    sh("am start -W -n %s/.MainActivity" % PKG, timeout=120)
+    tok, key = None, None
+    end = time.time() + 240
+    while time.time() < end:
+        from django.db import close_old_connections
+        close_old_connections()
+        tok = Device.objects.filter(user=A).exclude(push_token="").order_by("-last_seen", "-id").first()
+        key = e2_keys.key_row(A)
+        if tok is not None and key is not None:
+            break
+        time.sleep(5)
+    s["sign_in_s"] = round(time.time() - t0, 1)
+    shot("np0_home")
+    lc = adb("logcat", "-d", "-s", "flutter:I", timeout=60)
+    s["login_log"] = [ln for ln in lc.splitlines() if "NOTIFPROOF_LOGIN" in ln][-2:]
+    s["e2e_key_published"] = key is not None
+    if tok is None:
+        # honest fallback: the app got no FCM token (Play services on the
+        # runner could not register). The proof still runs the SAME delivery,
+        # addressed to a synthetic token, and says so.
+        Device.objects.get_or_create(user=A, push_token="notifproof-synthetic-token")
+        s["fcm_token"] = "synthetic (the emulator's Play services returned no FCM token)"
+    else:
+        s["fcm_token"] = "real FCM registration token from the app (%d chars%s)" % (
+            len(tok.push_token), ", APA91 format" if ":APA91" in tok.push_token else "")
+        s["app_version"] = tok.app_version
+    tokens = a_tokens(A)
+    eb = CircleMember.objects.filter(user=Bu, peer_user=A).first()
+    log("setup:", json.dumps(s))
+    return A, Bu, tokens, eb.id if eb else None
+
+
 # ------------------------------------------------------- local reminder alarms
 # proof-notif (board rows 13 + 6): the phone's OWN reminder alarm (no push at
 # all — the server reminder job never runs here) with the app process KILLED:
-#   np5  rings at the set minute (exact alarm); Snooze + Done buttons work
+#   np6  rings at the set minute (exact alarm); Snooze + Done buttons work
 #        from the shade with the app closed (background isolate); the next
 #        app start applies them (server: Done = done, Snooze = +10 min)
-#   np6  Doze (screen off, unplugged, `deviceidle force-idle`): the snoozed
+#   np7  Doze (screen off, unplugged, `deviceidle force-idle`): the snoozed
 #        reminder still rings while the phone stays in deep idle
-#   np7  emulator REBOOT: a future reminder is put back by the boot receiver
+#   np8  emulator REBOOT: a future reminder is put back by the boot receiver
 #        and rings without the app ever being opened after the reboot
 REM_CH = "assisto_reminders"
 BTN_DONE = ("Done", "হয়ে গেছে")
@@ -757,7 +810,7 @@ def tap_action(title, labels, timeout=25):
 
 
 def case_alarm_ring_actions(A, Ah):
-    c = Case("np5_alarm_closed_actions", [13, 6],
+    c = Case("np6_alarm_closed_actions", [13, 6],
              "the phone's own reminder alarm rings at the set minute with the app killed; Snooze / Done from the shade")
     tag = int(time.time()) % 100000
     t1, t2 = "notifproof pill %d" % tag, "notifproof water %d" % tag
@@ -771,7 +824,7 @@ def case_alarm_ring_actions(A, Ah):
     r1, r2 = j1.get("id"), j2.get("id")
     open_app(25)
     a1, (_, adump) = wait_alarm_at(due1, timeout=90)
-    save("np5_alarm_dump_before.txt", adump)
+    save("np6_alarm_dump_before.txt", adump)
     c.check("the app set a phone alarm for reminder 1 at its exact minute", a1 is not None,
             alarm_entries()[0][:6])
     c.r["alarm1"] = a1
@@ -783,7 +836,7 @@ def case_alarm_ring_actions(A, Ah):
     wake_unlocked()
     # ---- reminder 1 rings with the app killed
     seen, rec, _ = wait_ring(t1, due1)
-    shot("np5_ring1")
+    shot("np6_ring1")
     c.r["ring1_late_s"] = None if seen is None else round(seen - due1, 1)
     c.check("reminder 1 RANG (posted on the reminders channel) with the app killed", rec is not None,
             [(r["channel"], r["title"]) for r in notif_records()[0]])
@@ -793,26 +846,26 @@ def case_alarm_ring_actions(A, Ah):
     # ---- Snooze 10 min from the shade (app stays closed)
     lb, ok, root = tap_action(t1, BTN_SNOOZE)
     t_snz = time.time()
-    shot("np5_after_snooze")
+    shot("np6_after_snooze")
     c.check("the shade shows a 'Snooze 10 min' button and it was tapped", ok,
             ui_texts(root, pkg="com.android.systemui")[:30])
     time.sleep(6)
     sh("cmd statusbar collapse")
     c.check("Snooze dismissed the reminder", _rem_rec(t1) is None, "")
     snz, (_, sdump) = wait_alarm_at(t_snz + 600, timeout=40, tol_s=20)
-    save("np5_alarm_dump_snooze.txt", sdump)
+    save("np6_alarm_dump_snooze.txt", sdump)
     c.r["snooze_alarm"] = snz
     c.check("Snooze set a new phone alarm 10 minutes later (app still closed)", snz is not None,
             alarm_entries()[0][:6])
     c.check("Snooze did NOT open the app", PKG not in resumed_activity(), resumed_activity())
     # ---- reminder 2 rings; Done from the shade
     seen2, rec2, _ = wait_ring(t2, due2)
-    shot("np5_ring2")
+    shot("np6_ring2")
     c.r["ring2_late_s"] = None if seen2 is None else round(seen2 - due2, 1)
     c.check("reminder 2 rang at its minute too", rec2 is not None and -2 <= seen2 - due2 <= 60, c.r["ring2_late_s"])
     if rec2 is not None:
         lb, ok, root = tap_action(t2, BTN_DONE)
-        shot("np5_after_done")
+        shot("np6_after_done")
         c.check("the shade shows a 'Done' button and it was tapped", ok,
                 ui_texts(root, pkg="com.android.systemui")[:30])
         time.sleep(6)
@@ -838,7 +891,7 @@ def case_alarm_ring_actions(A, Ah):
     time.sleep(8)
     snz_at = d1.due_at.timestamp() if d1 is not None and d1.due_at else t_snz + 600
     a_after, (_, adump2) = wait_alarm_at(snz_at, timeout=40, tol_s=60)
-    save("np5_alarm_dump_after_open.txt", adump2)
+    save("np6_alarm_dump_after_open.txt", adump2)
     c.check("after the app applied Snooze, reminder 1 still has its phone alarm (+10 min)",
             a_after is not None, alarm_entries()[0][:6])
     c.done()
@@ -846,9 +899,9 @@ def case_alarm_ring_actions(A, Ah):
 
 
 def case_alarm_doze(snoozed):
-    c = Case("np6_alarm_doze", [13, 6], "the snoozed reminder rings while the phone is in Doze (deep idle), app killed")
+    c = Case("np7_alarm_doze", [13, 6], "the snoozed reminder rings while the phone is in Doze (deep idle), app killed")
     if not snoozed:
-        c.check("needs the snoozed reminder from np5", False, "np5 did not leave a snoozed alarm")
+        c.check("needs the snoozed reminder from np6", False, "np6 did not leave a snoozed alarm")
         return c.done()
     title, at = snoozed
     closed_precheck(c)
@@ -875,7 +928,7 @@ def case_alarm_doze(snoozed):
     sh("dumpsys deviceidle unforce")
     sh("dumpsys battery reset")
     wake_unlocked()
-    shot("np6_after_doze")
+    shot("np7_after_doze")
     if rec is not None:
         sh("cmd notification snooze --for 36000000 %s" % q(rec["key"]))
     return c.done()
@@ -892,7 +945,7 @@ def _wait_boot(timeout=420):
 
 
 def case_alarm_reboot(A, Ah):
-    c = Case("np7_alarm_after_reboot", [13], "a future reminder still rings after the phone restarts (app never opened)")
+    c = Case("np8_alarm_after_reboot", [13], "a future reminder still rings after the phone restarts (app never opened)")
     title = "notifproof after reboot %d" % (int(time.time()) % 100000)
     due = _next_minute(420)
     st, j = make_reminder(Ah, title, due)
@@ -916,7 +969,7 @@ def case_alarm_reboot(A, Ah):
     c.r["uptime_s"] = up[0] if up else "?"
     time.sleep(20)  # BOOT_COMPLETED -> ScheduledNotificationBootReceiver
     a2, (_, dump) = wait_alarm_at(due, timeout=120)
-    save("np7_alarm_dump_after_boot.txt", dump)
+    save("np8_alarm_dump_after_boot.txt", dump)
     c.r["alarm_after_boot"] = a2
     c.check("the boot receiver put the alarm back after the restart (app not opened)", a2 is not None,
             alarm_entries()[0][:6])
@@ -926,66 +979,13 @@ def case_alarm_reboot(A, Ah):
             c.r["resumed_before_ring"])
     wake_unlocked()
     seen, rec, _ = wait_ring(title, due)
-    shot("np7_ring_after_reboot")
+    shot("np8_ring_after_reboot")
     c.r["late_s"] = None if seen is None else round(seen - due, 1)
     c.check("the reminder RANG after the restart", rec is not None,
             [(r["channel"], r["title"]) for r in notif_records()[0]])
     if rec is not None:
         c.check("at its minute (0-60 s)", -2 <= seen - due <= 60, c.r["late_s"])
     return c.done()
-
-
-# ------------------------------------------------------------------- main
-def setup():
-    import django
-    django.setup()
-    from core.models import CircleMember, Device, User
-    from core import e2_keys
-    from core.phone import find_user
-    A, Bu = find_user(PHONE_A), find_user(PHONE_B)
-    s = RESULT["setup"]
-    log("root:", adb("root").strip())
-    time.sleep(3)
-    adb("wait-for-device", timeout=120)
-    apk = os.environ["NP_APK"]
-    s["install"] = adb("install", "-r", "-g", apk, timeout=300).strip()[-200:]
-    sh("appops set %s USE_FULL_SCREEN_INTENT allow" % PKG)
-    sh("cmd notification set_dnd off")
-    sh("svc power stayon false")
-    sh("settings put system screen_off_timeout 600000")
-    wake_unlocked()
-    adb("logcat", "-c")
-    t0 = time.time()
-    sh("am start -W -n %s/.MainActivity" % PKG, timeout=120)
-    tok, key = None, None
-    end = time.time() + 240
-    while time.time() < end:
-        from django.db import close_old_connections
-        close_old_connections()
-        tok = Device.objects.filter(user=A).exclude(push_token="").order_by("-last_seen", "-id").first()
-        key = e2_keys.key_row(A)
-        if tok is not None and key is not None:
-            break
-        time.sleep(5)
-    s["sign_in_s"] = round(time.time() - t0, 1)
-    shot("np0_home")
-    lc = adb("logcat", "-d", "-s", "flutter:I", timeout=60)
-    s["login_log"] = [ln for ln in lc.splitlines() if "NOTIFPROOF_LOGIN" in ln][-2:]
-    s["e2e_key_published"] = key is not None
-    if tok is None:
-        # honest fallback: the app got no FCM token (Play services on the
-        # runner could not register). The proof still runs the SAME delivery,
-        # addressed to a synthetic token, and says so.
-        Device.objects.get_or_create(user=A, push_token="notifproof-synthetic-token")
-        s["fcm_token"] = "synthetic (the emulator's Play services returned no FCM token)"
-    else:
-        s["fcm_token"] = "real FCM registration token from the app (%d chars%s)" % (
-            len(tok.push_token), ", APA91 format" if ":APA91" in tok.push_token else "")
-        s["app_version"] = tok.app_version
-    tokens = a_tokens(A)
-    eb = CircleMember.objects.filter(user=Bu, peer_user=A).first()
-    log("setup:", json.dumps(s))
-    return A, Bu, tokens, eb.id if eb else None
 
 
 def report():
@@ -1021,6 +1021,19 @@ def _alarm_pair(A, Ah):
     case_alarm_doze(snoozed)
 
 
+def _run_alarm_cases(A, Ah, only):
+    for name, fn in (("alarm", lambda: _alarm_pair(A, Ah)),
+                     ("reboot", lambda: case_alarm_reboot(A, Ah))):
+        if only and name not in only:
+            continue
+        try:
+            fn()
+        except Exception as e:
+            RESULT["cases"].append({"id": name, "board_rows": [13], "status": "fail",
+                                    "checks": [{"check": "case crashed", "ok": False, "detail": repr(e)[:400]}]})
+            log("case", name, "crashed:", repr(e))
+
+
 def main():
     try:
         A, Bu, tokens, edge_b = setup()
@@ -1034,10 +1047,7 @@ def main():
         for name, fn in (("message", lambda: case_message(A, B, tokens, edge_b)),
                          ("reminder", lambda: case_reminder(A, Ah, tokens)),
                          ("sos", lambda: case_sos(A, B, tokens)),
-                         ("family", lambda: case_family(A, B, tokens)),
-                         # proof-notif: the phone's own alarms (rows 13 + 6)
-                         ("alarm", lambda: _alarm_pair(A, Ah)),
-                         ("reboot", lambda: case_alarm_reboot(A, Ah))):
+                         ("family", lambda: case_family(A, B, tokens))):
             if only and name not in only:
                 continue
             try:
@@ -1046,6 +1056,9 @@ def main():
                 RESULT["cases"].append({"id": name, "board_rows": [], "status": "fail",
                                         "checks": [{"check": "case crashed", "ok": False, "detail": repr(e)[:400]}]})
                 log("case", name, "crashed:", repr(e))
+        # proof-notif: the phone's OWN reminder alarms (rows 13 + 6), after
+        # the push cases; reboot last (it restarts the emulator)
+        _run_alarm_cases(A, Ah, only)
     except Exception as e:
         RESULT["setup"]["error"] = repr(e)[:400]
         log("setup failed:", repr(e))
