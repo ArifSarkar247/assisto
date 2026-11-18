@@ -45,7 +45,9 @@ void registerQuranBloodFlows() {
       await f.tap(find.byKey(const Key('quran-jump')), settleSeconds: 3);
       await f.scrollTo(find.byKey(const Key('quran-next-sura')));
       await f.tap(find.byKey(const Key('quran-next-sura')), settleSeconds: 3);
-      await f.waitFor(find.byKey(const Key('quran-ayah-5')), what: 'Al-Falaq verse 5');
+      // the list is lazy and verses are tall now (inline meaning): verse 1 of
+      // the next sura proves the jump (run 44210304008 waited for verse 5)
+      await f.waitFor(find.byKey(const Key('quran-ayah-1')), what: 'Al-Falaq verse 1');
       await f.shot('next-sura');
     });
   });
