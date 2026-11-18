@@ -558,7 +558,12 @@ class _VoiceAssistantScreenState extends State<VoiceAssistantScreen>
           IconButton(
             tooltip: t.vaTypeInstead,
             iconSize: 26,
-            onPressed: () => setState(() => _typing = !_typing),
+            onPressed: () {
+              // voice-proof: typing instead = stop listening (the mic never
+              // keeps recording behind the keyboard)
+              if (!_typing && (_voice?.listening ?? false)) _stopListening();
+              setState(() => _typing = !_typing);
+            },
             icon: Icon(_typing ? Icons.keyboard_hide_rounded : Icons.keyboard_rounded,
                 color: scheme.ds.muted),
           ),

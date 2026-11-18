@@ -574,8 +574,10 @@ class VoiceDictation extends ChangeNotifier {
     final sub = _ampSub;
     _ampSub = null;
     unawaited(sub?.cancel());
-    final heard = _vad?.heardSpeech ?? true;
-    final quietEnd = _vad?.ended == true && !heard;
+    // a clip with no voice in it (ended by itself, or the user tapped stop /
+    // switched to typing) is never sent: Whisper-like engines "hear" words
+    // in pure room noise
+    final quietEnd = !(_vad?.heardSpeech ?? true);
     _vad = null;
     _mic.stop();
     String? path;
