@@ -93,6 +93,7 @@ void main() {
       await _settle(tester);
       final first = lang == 'bn' ? 'সংক্ষেপে: আজই শুরু করা যায়।' : 'In short: you can start today.';
       final rest = lang == 'bn' ? '\n১. জায়গা বাছাই করুন।' : '\n1. Pick the spot.';
+      final restBody = lang == 'bn' ? 'জায়গা বাছাই করুন।' : 'Pick the spot.'; // list marker renders apart
       final note = lang == 'bn' ? 'টাকার অঙ্কগুলো সাধারণ ধারণা।' : 'The amounts are estimates.';
       await tester.enterText(find.byType(TextField), 'plan');
       await tester.pump();
@@ -101,10 +102,10 @@ void main() {
       api.ctl.add(ApiClient.chatSseRecord('token', jsonEncode({'chunk': first})));
       await _settle(tester, 3);
       expect(_sees(first), findsWidgets);                 // first words while streaming
-      expect(_sees(rest.trim()), findsNothing);
+      expect(_sees(restBody), findsNothing);
       api.ctl.add(ApiClient.chatSseRecord('token', jsonEncode({'chunk': rest})));
       await _settle(tester, 3);
-      expect(_sees(rest.trim()), findsWidgets);
+      expect(_sees(restBody), findsWidgets);
       // the saved answer differs from the preview (a note the server added
       // after the model finished): the done text wins
       api.ctl.add(ApiClient.chatSseRecord('done', jsonEncode({
