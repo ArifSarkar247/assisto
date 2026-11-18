@@ -26,9 +26,9 @@ on:
         type: boolean
         default: false
       group:
-        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof); start+atproof = anti-theft proof (antitheft-e2e)"
+        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof); start+atproof = anti-theft proof (antitheft-e2e); start+carecall = Care Call main path (gap-carecall)"
         type: choice
-        options: [e2e, offline, start+sjproof, start+atproof]
+        options: [e2e, offline, start+sjproof, start+atproof, start+carecall]
         default: e2e
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)

@@ -6,7 +6,8 @@ import '../push/push_payload.dart' show PushPayload;
 /// (no Flutter, no plugins, no I/O; unit-tested in test/carecall_test.dart),
 /// mirrored 1:1 from the server (backend/core/carecall.py) so the phone's
 /// own alarm and the server's ring land on the SAME slot:
-///  * times are Bangladesh wall time (UTC+6, no DST) — the server's clock;
+///  * times are the RECEIVER's wall time (CcItem.tzOffsetMin; Dhaka UTC+6
+///    by default) — the clock the server rings on (gap-carecall);
 ///  * slot = 'YYYYMMDDHHMM' of the scheduled time (before quiet-hour shift);
 ///  * ring #1 at the slot (moved to the end of the receiver's quiet window
 ///    when inside it), ring #2 ten minutes later (same rule);
@@ -17,6 +18,7 @@ const int kCcSnoozeMin = 10;
 const int kCcLookAhead = 2; // the next 2 slots of every schedule
 const int kCcMaxLocalAlarms = 24;
 const Duration _bd = Duration(hours: 6);
+const int kCcDhakaOffsetMin = 360; // gap-carecall
 
 /// One Care Call schedule as the server sends it (GET /carecall).
 class CcItem {
@@ -38,6 +40,7 @@ class CcItem {
     this.link = 'none',
     this.quietStart = '',
     this.quietEnd = '',
+    this.tzOffsetMin = kCcDhakaOffsetMin,
   });
 
   final int id;
@@ -57,6 +60,10 @@ class CcItem {
   final String link;
   final String quietStart;
   final String quietEnd;
+
+  /// gap-carecall: the RECEIVER's clock (UTC offset, minutes) — the server
+  /// rings on it, so this phone's own alarms must too (Dhaka = 360).
+  final int tzOffsetMin;
 
   static int _i(Object? v) => v is num ? v.toInt() : int.tryParse('${v ?? ''}') ?? 0;
 
@@ -78,6 +85,9 @@ class CcItem {
         link: '${j['link'] ?? 'none'}',
         quietStart: '${j['quiet_start'] ?? ''}',
         quietEnd: '${j['quiet_end'] ?? ''}',
+        tzOffsetMin: j['receiver_offset_min'] is num
+            ? (j['receiver_offset_min'] as num).toInt()
+            : kCcDhakaOffsetMin,
       );
 
   Map<String, dynamic> toJson() => {
@@ -87,6 +97,7 @@ class CcItem {
         'receiver_id': receiverId, 'other_name': otherName,
         'other_initial': otherInitial, 'link': link,
         'quiet_start': quietStart, 'quiet_end': quietEnd,
+        'receiver_offset_min': tzOffsetMin,
       };
 }
 
@@ -109,21 +120,54 @@ DateTime ccBdWall(DateTime instant) => instant.toUtc().add(_bd);
 DateTime ccBdInstant(int y, int mo, int d, int h, int mi) =>
     DateTime.utc(y, mo, d, h, mi).subtract(_bd);
 
+/// gap-carecall: the wall clock of an instant on a clock [offsetMin] minutes
+/// ahead of UTC (a UTC DateTime whose fields are that clock's).
+DateTime ccWall(DateTime instant, int offsetMin) =>
+    instant.toUtc().add(Duration(minutes: offsetMin));
+
+/// The instant of a wall time on the clock [offsetMin] minutes ahead of UTC.
+DateTime ccInstant(int y, int mo, int d, int h, int mi, int offsetMin) =>
+    DateTime.utc(y, mo, d, h, mi).subtract(Duration(minutes: offsetMin));
+
+/// gap-carecall: the date (YYYY-MM-DD, on the receiver's clock) of the NEXT
+/// time [hhmm] comes there after [now] — today when still ahead, else
+/// tomorrow. The server reads a once-call date on the receiver's calendar.
+String ccOnceNextDate(DateTime now, int hhmm, {int offsetMin = kCcDhakaOffsetMin}) {
+  final w = ccWall(now, offsetMin);
+  var day = DateTime.utc(w.year, w.month, w.day);
+  final at = ccInstant(day.year, day.month, day.day, hhmm ~/ 60, hhmm % 60, offsetMin);
+  if (!at.isAfter(now)) day = day.add(const Duration(days: 1));
+  return '${day.year}-${_p2(day.month)}-${_p2(day.day)}';
+}
+
+/// The receiver's "today" (00:00 of their calendar day, as a plain date).
+DateTime ccToday(DateTime now, {int offsetMin = kCcDhakaOffsetMin}) {
+  final w = ccWall(now, offsetMin);
+  return DateTime(w.year, w.month, w.day);
+}
+
+/// True when a once-call's date + time is already past on the receiver's clock.
+bool ccOncePast(String ymd, int hhmm, DateTime now, {int offsetMin = kCcDhakaOffsetMin}) {
+  final d = DateTime.tryParse(ymd);
+  if (d == null) return false;
+  return !ccInstant(d.year, d.month, d.day, hhmm ~/ 60, hhmm % 60, offsetMin).isAfter(now);
+}
+
 /// Same as the server's in_quiet (overnight wrap; empty / equal = never).
-bool ccInQuiet(DateTime instant, String qs, String qe) {
+bool ccInQuiet(DateTime instant, String qs, String qe, {int offsetMin = kCcDhakaOffsetMin}) {
   final a = ccMinutes(qs), b = ccMinutes(qe);
   if (a == null || b == null || a == b) return false;
-  final w = ccBdWall(instant);
+  final w = ccWall(instant, offsetMin);
   final t = w.hour * 60 + w.minute;
   return a < b ? (t >= a && t < b) : (t >= a || t < b);
 }
 
 /// [instant] moved to the end of the quiet window when inside it.
-DateTime ccAfterQuiet(DateTime instant, String qs, String qe) {
-  if (!ccInQuiet(instant, qs, qe)) return instant;
+DateTime ccAfterQuiet(DateTime instant, String qs, String qe, {int offsetMin = kCcDhakaOffsetMin}) {
+  if (!ccInQuiet(instant, qs, qe, offsetMin: offsetMin)) return instant;
   final e = ccMinutes(qe)!;
-  final w = ccBdWall(instant);
-  var end = ccBdInstant(w.year, w.month, w.day, e ~/ 60, e % 60);
+  final w = ccWall(instant, offsetMin);
+  var end = ccInstant(w.year, w.month, w.day, e ~/ 60, e % 60, offsetMin);
   if (!end.isAfter(instant)) end = end.add(const Duration(days: 1));
   return end;
 }
@@ -132,18 +176,19 @@ DateTime ccAfterQuiet(DateTime instant, String qs, String qe) {
 DateTime? ccNextSlot(CcItem it, DateTime after) {
   final m = ccMinutes(it.time);
   if (m == null) return null;
-  final w = ccBdWall(after);
+  final off = it.tzOffsetMin; // gap-carecall: the receiver's clock, as the server
+  final w = ccWall(after, off);
   if (it.repeat == 'once') {
     final d = DateTime.tryParse(it.date);
     if (d == null) return null;
-    final at = ccBdInstant(d.year, d.month, d.day, m ~/ 60, m % 60);
+    final at = ccInstant(d.year, d.month, d.day, m ~/ 60, m % 60, off);
     return at.isAfter(after) ? at : null;
   }
   final wanted = it.repeat == 'daily' ? null : it.days.where((d) => d >= 0 && d <= 6).toSet();
   if (wanted != null && wanted.isEmpty) return null;
   for (var i = 0; i < 8; i++) {
     final day = DateTime.utc(w.year, w.month, w.day).add(Duration(days: i));
-    final at = ccBdInstant(day.year, day.month, day.day, m ~/ 60, m % 60);
+    final at = ccInstant(day.year, day.month, day.day, m ~/ 60, m % 60, off);
     if (!at.isAfter(after)) continue;
     if (wanted == null || wanted.contains(day.weekday - 1)) return at;
   }
@@ -199,8 +244,10 @@ List<CcLocalRing> ccPlanLocal(List<CcItem> received, DateTime now,
       after = s;
       final slot = ccSlotOf(s);
       if (handled.contains('${it.id}-$slot')) continue;
-      final r1 = ccAfterQuiet(s, it.quietStart, it.quietEnd);
-      final r2 = ccAfterQuiet(r1.add(const Duration(minutes: kCcRetryMin)), it.quietStart, it.quietEnd);
+      final off = it.tzOffsetMin;
+      final r1 = ccAfterQuiet(s, it.quietStart, it.quietEnd, offsetMin: off);
+      final r2 = ccAfterQuiet(r1.add(const Duration(minutes: kCcRetryMin)), it.quietStart, it.quietEnd,
+          offsetMin: off);
       if (r1.isAfter(now)) out.add(CcLocalRing(it, slot, 1, r1));
       if (r2.isAfter(now)) out.add(CcLocalRing(it, slot, 2, r2));
     }

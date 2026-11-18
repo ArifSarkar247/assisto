@@ -12,6 +12,7 @@ import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/city_flow.dart'; // gap-city
+import 'flows/carecall_proof_flow.dart'; // gap-carecall
 import 'flows/business_flow.dart';
 import 'flows/camflows_flow.dart'; // camflows
 import 'flows/cctv_alert_flow.dart'; // flag-cctv-e2e
@@ -109,6 +110,8 @@ void main() {
   // calls-2emu: needs the SECOND emulator running the call peer + the control
   // channel (calls2emu.yml / tools/calls2emu/run.sh) -> opt-in only
   if (only.split(',').contains('calls2emu')) registerCallsTwoEmuFlows();
+  // gap-carecall: Care Call main path (needs settings_e2eproof's tick + outbox) -> opt-in (e2e.yml start+carecall)
+  if (only.split(',').contains('carecall')) registerCareCallProofFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the
   // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
   // proof-ledger: offline khata / cashbox / mess across a REAL app kill +

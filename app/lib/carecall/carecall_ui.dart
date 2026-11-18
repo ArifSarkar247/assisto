@@ -41,14 +41,15 @@ String ccDayShort(AppLocalizations t, int d) => switch (d) {
       _ => t.ccDaySun,
     };
 
-String ccRepeatText(BuildContext context, String repeat, List<int> days, String date) {
+String ccRepeatText(BuildContext context, String repeat, List<int> days, String date,
+    {int offsetMin = kCcDhakaOffsetMin, DateTime? now}) {
   final t = AppLocalizations.of(context);
   switch (repeat) {
     case 'once':
       final d = DateTime.tryParse(date);
       if (d == null) return t.ccRepeatOnce;
-      final today = ccBdWall(DateTime.now());
-      final t0 = DateTime(today.year, today.month, today.day);
+      // gap-carecall: "today / tomorrow" on the RECEIVER's calendar
+      final t0 = ccToday(now ?? DateTime.now(), offsetMin: offsetMin);
       final diff = DateTime(d.year, d.month, d.day).difference(t0).inDays;
       if (diff == 0) return '${t.ccRepeatOnce} · ${t.ccOnceToday}';
       if (diff == 1) return '${t.ccRepeatOnce} · ${t.ccOnceTomorrow}';

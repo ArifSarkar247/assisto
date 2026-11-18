@@ -43,6 +43,7 @@ BOARD = {
     "at03_snatch_are_you_ok_family_alerted": [11],
     "at04_secure_unlock_cancels": [11], "at05_sensitivity_levels": [11],
     "at06_sim_change_alert": [11], "at07_lost_mode_screen": [11],
+    "cc1_once_rings_on_time": [21],   # gap-carecall (e2e.yml group=start+carecall)
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -61,6 +62,10 @@ def expected():
         # antitheft-e2e: the anti-theft proof run (e2e.yml group=start+atproof)
         files = ["app/integration_test/flows/antitheft_e2e_flow.dart"]
         pat = r"realityFlow\(\s*'(at\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "carecall" in os.environ.get("REALITY_ONLY", ""):
+        # gap-carecall: the Care Call main path (e2e.yml input group=start+carecall)
+        files = ["app/integration_test/flows/carecall_proof_flow.dart"]
+        pat = r"realityFlow\(\s*'(cc\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f
