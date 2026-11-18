@@ -50,6 +50,14 @@ def normalize_digits(s):
     return (s or "").translate(_BN2EN)
 
 
+import re as _re
+
+# proof-ledger: currency words / sign and the "/-" "/=" endings (no word
+# boundary: "Tk500" and "500tk" too). The Bangla word is written as code
+# points.
+_MONEY_WORDS = _re.compile("(?i)(bdt|taka|tk)\\.?|\u099F\u09BE\u0995\u09BE|\u09F3|/[-=]\\s*$")
+
+
 def to_poisha(v):
     """Coerce an amount to **integer poisha**.
 
@@ -72,6 +80,11 @@ def to_poisha(v):
     # string: strip currency markers / separators, allow Bangla digits
     import re
     t = normalize_digits(str(v))
+    # proof-ledger: "Tk. 500" lost its "Tk" but kept the dot -> ".500" = 50
+    # poisha (the app's bug fixed in b326, still here on the server), and
+    # "500/-" became "500-" -> 0. Currency words and the everyday "/-" "/="
+    # endings go first, as in the app's num_input.
+    t = _MONEY_WORDS.sub("", t)
     # gap-money: "1e3" used to lose its "e" and become ৳13 — an exponent is
     # never how a shop writes money; refuse it instead of guessing.
     if re.search(r"\d\s*[eE]\s*[+\-]?\d", t):
@@ -605,6 +618,9 @@ def cashbox_close_view(opening, entries, auto=None, counted=None,
         amt = to_poisha(e.get("amount"))
         rows.append({"id": e.get("id"), "kind": e.get("kind"),
                      "note": e.get("note") or "", "ref": e.get("ref") or "",
+                     # proof-ledger: the offline row's id, so a phone can
+                     # match what it already sent
+                     "client_id": e.get("client_id") or "",
                      "at": e.get("at"), "amount": amt,
                      "amount_display": fmt_amount(amt)})
     out = {
