@@ -9,6 +9,10 @@
 //               answered 403 / 404 / 410 (the signed link expired / removed)
 // The picture is decoded at card width (cacheWidth) — less memory on 2 GB
 // phones.
+// cctv-preview: with [AlertSnapshot.previewUrl] (the server's <= 20 KB
+// version of the same signed photo) the small picture shows FIRST and the
+// full photo replaces it when it arrives — on 2G the alert is readable in
+// seconds; a full photo that fails keeps the preview + a small Try again.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18,8 +22,16 @@ import '../../l10n/app_localizations.dart';
 class AlertSnapshot extends StatefulWidget {
   final String url;
 
+  /// cctv-preview: the small (<= 20 KB) version, shown first.
+  final String? previewUrl;
+
   /// Tests: a fake image instead of the network.
   final ImageProvider? debugImage;
+  final ImageProvider? debugPreview;
+
+  /// cctv-preview: the emulator flow times the phases ('preview', 'full',
+  /// 'failed') to the millisecond. Never set in the shipped app.
+  static void Function(String phase)? debugOnPhase;
 
   /// Automatic retries after a network error (seconds after each failure).
   static List<int> retryAfterS = const [5, 15, 30];
@@ -27,7 +39,8 @@ class AlertSnapshot extends StatefulWidget {
   /// How long before "slow network" shows under the progress bar.
   static Duration slowAfter = const Duration(seconds: 3);
 
-  const AlertSnapshot({super.key, required this.url, this.debugImage});
+  const AlertSnapshot(
+      {super.key, required this.url, this.previewUrl, this.debugImage, this.debugPreview});
 
   @override
   State<AlertSnapshot> createState() => _AlertSnapshotState();
@@ -43,6 +56,10 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
   Timer? _retryTimer;
   _SnapState _state = _SnapState.loading;
   ImageProvider? _last; // the exact (resized) provider on screen
+  bool _previewShown = false;
+
+  bool get _hasPreview =>
+      widget.debugPreview != null || (widget.previewUrl ?? '').isNotEmpty;
 
   @override
   void initState() {
@@ -95,7 +112,10 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final want = gone ? _SnapState.gone : _SnapState.failed;
-      if (_state != want) setState(() => _state = want);
+      if (_state != want) {
+        AlertSnapshot.debugOnPhase?.call('failed');
+        setState(() => _state = want);
+      }
       if (!gone && _autoTries < AlertSnapshot.retryAfterS.length && _retryTimer == null) {
         final wait = AlertSnapshot.retryAfterS[_autoTries++];
         _retryTimer = Timer(Duration(seconds: wait), () {
@@ -113,10 +133,7 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
     final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
     return LayoutBuilder(builder: (context, box) {
       final w = box.maxWidth.isFinite ? (box.maxWidth * dpr).round().clamp(320, 1280).toInt() : 960;
-      return Semantics(
-        label: t.wmSnapshotLabel,
-        image: true,
-        child: Image(
+      final full = Image(
           key: ValueKey('wm-snap-img-$_attempt'),
           image: _last = ResizeImage.resizeIfNeeded(w, null, _provider()),
           fit: BoxFit.cover,
@@ -127,6 +144,7 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted && _state != _SnapState.shown) {
                   _slowTimer?.cancel();
+                  AlertSnapshot.debugOnPhase?.call('full');
                   setState(() => _state = _SnapState.shown);
                 }
               });
@@ -146,12 +164,50 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
             if (code == 403 || code == 404 || code == 410) return _gone(t, cs);
             return _failed(t, cs);
           },
-        ),
+        );
+      return Semantics(
+        label: t.wmSnapshotLabel,
+        image: true,
+        child: !_hasPreview
+            ? full
+            : Stack(fit: StackFit.expand, children: [
+                if (_state != _SnapState.shown) _preview(),
+                full,
+              ]),
       );
     });
   }
 
-  Widget _loading(AppLocalizations t, ColorScheme cs, double? value) => Container(
+  /// cctv-preview: the small photo under the full one (transparent until it
+  /// has a frame; a failed preview just stays out of the way).
+  Widget _preview() => Image(
+        key: const ValueKey('wm-snap-preview-img'),
+        image: widget.debugPreview ?? NetworkImage(widget.previewUrl!),
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        frameBuilder: (context, child, frame, sync) {
+          if (frame == null) return const SizedBox.expand();
+          if (!_previewShown) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && !_previewShown) {
+                AlertSnapshot.debugOnPhase?.call('preview');
+                setState(() => _previewShown = true);
+              }
+            });
+          }
+          return KeyedSubtree(key: const ValueKey('wm-snap-preview'), child: child);
+        },
+        errorBuilder: (context, error, _) => const SizedBox.expand(),
+      );
+
+  Widget _loading(AppLocalizations t, ColorScheme cs, double? value) => _previewShown
+      // the preview is readable: only a thin bar says the full photo comes
+      ? Align(
+          key: const ValueKey('wm-snap-loading-full'),
+          alignment: Alignment.bottomCenter,
+          child: LinearProgressIndicator(value: value, minHeight: 3),
+        )
+      : Container(
         key: const ValueKey('wm-snap-loading'),
         color: cs.surfaceContainerHighest,
         alignment: Alignment.center,
@@ -168,7 +224,23 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
         ]),
       );
 
-  Widget _failed(AppLocalizations t, ColorScheme cs) => Container(
+  Widget _failed(AppLocalizations t, ColorScheme cs) => _previewShown
+      // keep the preview; a small retry for the sharp photo
+      ? Align(
+          key: const ValueKey('wm-snap-error'),
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: FilledButton.tonalIcon(
+              key: const ValueKey('wm-snap-retry'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(t.wmRetry),
+              onPressed: () => _retry(auto: false),
+            ),
+          ),
+        )
+      : Container(
         key: const ValueKey('wm-snap-error'),
         color: cs.surfaceContainerHighest,
         alignment: Alignment.center,

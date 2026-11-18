@@ -168,7 +168,10 @@ class PushNotifier {
   static Future<Uint8List?> cctvPhoto(Map<String, dynamic> data,
       {Duration timeout = const Duration(seconds: 4), http.Client? client}) async {
     try {
-      final u = data['snapshot_url'];
+      // cctv-preview: the <= 20 KB version first (a 2G phone shows the
+      // alert with its photo in seconds), the full photo as the fallback
+      final small = data['snapshot_thumb_url'];
+      final u = cctvPhotoUrlOk(small) ? small : data['snapshot_url'];
       if (!cctvPhotoUrlOk(u)) return null;
       final c = client ?? http.Client();
       try {

@@ -7,6 +7,7 @@
 //  * one notification per CCTV alert (a resend replaces it), and the photo is
 //    only fetched from our own server
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -164,6 +165,31 @@ void main() {
         await tester.pumpWidget(const SizedBox());
       }
     });
+  });
+
+  // cctv-preview: the small photo shows first; the full one only adds a thin bar
+  testWidgets('2G: the <= 20 KB preview shows first, the full photo keeps loading', (tester) async {
+    final png = MemoryImage(base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='));
+    final phases = <String>[];
+    AlertSnapshot.debugOnPhase = phases.add;
+    addTearDown(() => AlertSnapshot.debugOnPhase = null);
+    await tester.pumpWidget(_app(Scaffold(
+        body: SizedBox(
+            width: 360,
+            height: 203,
+            child: AlertSnapshot(url: 'x', debugImage: const _SlowImage(), debugPreview: png)))));
+    await tester.runAsync(() async {
+      await precacheImage(png, tester.element(find.byType(AlertSnapshot)));
+    });
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const ValueKey('wm-snap-preview')), findsOneWidget);
+    expect(find.byKey(const ValueKey('wm-snap-loading-full')), findsOneWidget);
+    expect(find.byKey(const ValueKey('wm-snap-loading')), findsNothing);
+    expect(phases, contains('preview'));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 5));
   });
 
   testWidgets('alerts list: offline error, then loads BY ITSELF (no tap)', (tester) async {

@@ -119,6 +119,7 @@ net_mode() {  # $1 = off|on
     timeout 10 adb shell svc data enable >/dev/null 2>&1 || true
     timeout 10 adb emu network speed full >/dev/null 2>&1 || true  # flag-cctv-e2e
     sudo -n iptables -D INPUT -i lo -p tcp --dport 8700 -j REJECT --reject-with tcp-reset >/dev/null 2>&1 || true  # flag-cctv-e2e
+    sudo -n tc qdisc del dev lo root >/dev/null 2>&1 || true  # cctv-preview: never leave 2G on
   fi
 }
 ( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
@@ -139,7 +140,8 @@ net_mode() {  # $1 = off|on
     | while read -r cmd arg f; do
         case "$cmd:$arg" in
           REALITY_NETSPEED:full) timeout 10 adb emu network speed full >/dev/null 2>&1 || true
-                                 timeout 10 adb emu network delay none >/dev/null 2>&1 || true ;;
+                                 timeout 10 adb emu network delay none >/dev/null 2>&1 || true
+                                 sudo -n tc qdisc del dev lo root >/dev/null 2>&1 || true ;;
           # block = the phone cannot reach the test backend at all. Done on
           # the RUNNER (the emulator's 10.0.2.2:8700 is the host's loopback
           # :8700): airplane mode and an in-device iptables (no su on this
@@ -147,8 +149,21 @@ net_mode() {  # $1 = off|on
           # Real TCP resets; unblock removes the rule.
           REALITY_NETSPEED:block)   sudo -n iptables -I INPUT -i lo -p tcp --dport 8700 -j REJECT --reject-with tcp-reset >> "$OUT/net.log" 2>&1 || echo "block failed" >> "$OUT/net.log" ;;
           REALITY_NETSPEED:unblock) for _ in 1 2 3; do sudo -n iptables -D INPUT -i lo -p tcp --dport 8700 -j REJECT --reject-with tcp-reset >/dev/null 2>&1 || break; done ;;
+          # cctv-preview: `adb emu network speed` did NOT slow the app's
+          # traffic to 10.0.2.2 (run 44247913973: /shop/events in 78 ms on
+          # "gprs"). The real limit is on the runner: everything the backend
+          # (:8700) sends to the phone goes through netem (rate + delay);
+          # adb, the emulator console and the shot watcher are untouched.
+          # 2g = 64 kbit/s down, 300 ms each way (a busy 2G / weak EDGE cell).
           REALITY_NETSPEED:*)    timeout 10 adb emu network speed "$arg" >/dev/null 2>&1 || true
-                                 timeout 10 adb emu network delay gprs >/dev/null 2>&1 || true ;;
+                                 timeout 10 adb emu network delay gprs >/dev/null 2>&1 || true
+                                 case "$arg" in edge) rate=200kbit ;; *) rate=64kbit ;; esac
+                                 sudo -n tc qdisc del dev lo root >/dev/null 2>&1 || true
+                                 { sudo -n tc qdisc add dev lo root handle 1: prio bands 3 &&
+                                   sudo -n tc qdisc add dev lo parent 1:3 handle 30: netem delay 300ms rate "$rate" &&
+                                   sudo -n tc filter add dev lo protocol ip parent 1:0 prio 1 u32 match ip sport 8700 0xffff flowid 1:3 &&
+                                   sudo -n tc filter add dev lo protocol ip parent 1:0 prio 1 u32 match ip dport 8700 0xffff flowid 1:3 ; } >> "$OUT/net.log" 2>&1 \
+                                   || echo "tc netem failed" >> "$OUT/net.log" ;;
           REALITY_SHADE:open)    timeout 10 adb shell cmd statusbar expand-notifications >/dev/null 2>&1 || true ;;
           REALITY_SHADE:close)   timeout 10 adb shell cmd statusbar collapse >/dev/null 2>&1 || true ;;
         esac

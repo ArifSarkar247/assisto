@@ -40,6 +40,7 @@ import 'package:assisto/push/push_payload.dart';
 import 'package:assisto/push/push_service.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart' show police999Launch;
 import 'package:assisto/screens/watchman/cctvx_actions.dart' show evidenceShareOverride;
+import 'package:assisto/screens/watchman/alert_snapshot.dart';
 import 'package:assisto/screens/watchman/watchman_alerts.dart';
 import 'package:assisto/screens/watchman/watchman_source.dart';
 
@@ -237,6 +238,10 @@ Future<void> _flow(RFlow f) async {
       if (rows.isEmpty) throw TestFailure('no push to the owner within 20 s');
       push1 = _fcmData(rows.first);
       eventId = int.parse('${push1['event_id']}');
+      // cctv-preview: the push carries the small photo for the notification
+      if (!'${push1['snapshot_thumb_url'] ?? ''}'.contains('w=320')) {
+        throw TestFailure('the push has no small photo link: ${push1.keys}');
+      }
       final n0 = shown.length;
       PushService.instance.debugDeliverForeground(push1);
       await f.eventually('the notification is drawn', () async => shown.length > n0, seconds: 20);
@@ -381,17 +386,41 @@ Future<void> _flow(RFlow f) async {
       await f.back();
     });
 
-    await f.step('2G: the alert photo shows its loading state, then loads', () async {
+    await f.step('2G: notification + card show the small photo in < 5 s, the full one follows', () async {
+      // cctv-preview: real 2G on the runner (64 kbit/s, 300 ms; tc netem on
+      // everything the backend sends) — see tools/reality/run_flows.sh
       await _host(f, 'NETSPEED', 'gprs');
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.clearLiveImages();
-      final t0 = DateTime.now();
-      await f.pushScreen(WatchmanAlertsScreen(source: ApiWatchmanSource(f.app.api), siteId: site, owner: true),
-          settleSeconds: 0.5);
-      if (await f.appears(_k('wm-snap-loading'), seconds: 20)) await f.shot('2g-loading');
-      await f.waitFor(_k('wm-snap-ok'), seconds: 90, what: 'the photo on 2G');
-      _metric(f, 'snapshot_2g_ms=${DateTime.now().difference(t0).inMilliseconds} (screen open -> photo shown, GPRS profile)');
-      await f.shot('2g-loaded');
+      // the notification on 2G: drawn WITH the small photo
+      final n0 = shown.length;
+      final tn = DateTime.now();
+      PushService.instance.debugDeliverForeground(push1);
+      await f.eventually('the notification is drawn on 2G', () async => shown.length > n0, seconds: 30);
+      final nMs = shown.last.at.difference(tn).inMilliseconds;
+      _metric(f, 'notification_2g_ms=$nMs picture=${shown.last.picture} (push -> drawn, small photo fetched on 2G)');
+      if (!shown.last.picture) throw TestFailure('no photo in the notification on 2G');
+      await f.net(() => FlutterLocalNotificationsPlugin().cancel(PushPayload.fromData(push1).notificationId));
+      // the card on 2G
+      final phases = <String, int>{};
+      final sw = Stopwatch()..start();
+      AlertSnapshot.debugOnPhase = (p) => phases.putIfAbsent(p, () => sw.elapsedMilliseconds);
+      try {
+        await f.pushScreen(WatchmanAlertsScreen(source: ApiWatchmanSource(f.app.api), siteId: site, owner: true),
+            settleSeconds: 0.3);
+        await f.shot('2g-loading'); // what a 2G user sees first
+        await f.eventually('the small photo on 2G',
+            () async => phases.containsKey('preview') || phases.containsKey('full'), seconds: 30);
+        await f.shot('2g-preview');
+        await f.eventually('the full photo on 2G', () async => phases.containsKey('full'), seconds: 120);
+        await f.shot('2g-full');
+      } finally {
+        AlertSnapshot.debugOnPhase = null;
+      }
+      final pv = phases['preview'] ?? phases['full']!;
+      _metric(f, 'snapshot_2g_preview_ms=$pv snapshot_2g_full_ms=${phases['full']} '
+          '(screen open -> photo drawn; 64 kbit/s + 300 ms)');
+      if (pv > 5000) throw TestFailure('the small photo took $pv ms on 2G (target < 5000)');
       await _host(f, 'NETSPEED', 'full');
       await f.back();
     });
@@ -410,5 +439,5 @@ void registerCctvAlertFlows() {
           'Live (vendor HLS, MB per live minute), Call 999 (dialer only), evidence pack -> 2nd alarm '
           'merged, vendor re-push ignored -> family viewer B alerted -> offline auto-retry -> photo on 2G',
       _flow,
-      timeout: const Duration(minutes: 12));
+      timeout: const Duration(minutes: 15));
 }
