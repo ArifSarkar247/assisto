@@ -19,7 +19,11 @@ import '../widgets/voice_input.dart' show VoiceDictation, VoiceMicButton;
 class QuickAddBar extends StatefulWidget {
   final Future<void> Function(
       ParsedReminder parsed, String title, Map<String, dynamic>? link) onCommit;
-  const QuickAddBar({super.key, required this.onCommit});
+  /// bizassist: outer margin (default = the Reminders screen's); the PS brief
+  /// sits it inside its own padded list.
+  final EdgeInsetsGeometry margin;
+  const QuickAddBar({super.key, required this.onCommit,
+      this.margin = const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0)});
 
   @override
   State<QuickAddBar> createState() => _QuickAddBarState();
@@ -82,7 +86,7 @@ class _QuickAddBarState extends State<QuickAddBar> {
     final p = _preview;
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
+      margin: widget.margin,
       padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,

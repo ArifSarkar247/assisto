@@ -216,7 +216,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
           Text(t.psecDictateLabel,
               style: AType.bodyMedium.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
-          QuickAddBar(onCommit: _addTask),
+          QuickAddBar(onCommit: _addTask, margin: const EdgeInsets.only(top: Gap.sm)),
         ]),
       );
 
