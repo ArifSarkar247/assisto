@@ -767,7 +767,11 @@ def wait_ring(title, due_ts, late_s=75, idle_probe=False):
     return None, None, ""
 
 
-def open_app(wait_s=30):
+def open_app(wait_s=30, cold=False):
+    # cold: the reminder list syncs on app START / resume — a reminder made
+    # on the server while the app sits in front is not fetched until then
+    if cold:
+        kill_app()
     wake_unlocked()
     sh("am start -W -n %s/.MainActivity" % PKG, timeout=120)
     time.sleep(wait_s)
@@ -814,7 +818,7 @@ def case_alarm_ring_actions(A, Ah):
              "the phone's own reminder alarm rings at the set minute with the app killed; Snooze / Done from the shade")
     tag = int(time.time()) % 100000
     t1, t2 = "notifproof pill %d" % tag, "notifproof water %d" % tag
-    due1 = _next_minute(100)
+    due1 = _next_minute(150)
     due2 = due1 + 60
     c.r["exact_alarm_appop"] = sh("appops get %s SCHEDULE_EXACT_ALARM" % PKG).strip()[:200]
     st1, j1 = make_reminder(Ah, t1, due1)
@@ -822,7 +826,7 @@ def case_alarm_ring_actions(A, Ah):
     c.check("two reminders saved on the server (no server job runs: only the phone can ring)",
             st1 in (200, 201) and st2 in (200, 201), (st1, j1, st2, j2))
     r1, r2 = j1.get("id"), j2.get("id")
-    open_app(25)
+    open_app(25, cold=True)
     a1, (_, adump) = wait_alarm_at(due1, timeout=90)
     save("np6_alarm_dump_before.txt", adump)
     c.check("the app set a phone alarm for reminder 1 at its exact minute", a1 is not None,
@@ -950,7 +954,7 @@ def case_alarm_reboot(A, Ah):
     due = _next_minute(420)
     st, j = make_reminder(Ah, title, due)
     c.check("reminder saved on the server", st in (200, 201), (st, j))
-    open_app(25)
+    open_app(25, cold=True)
     a, _ = wait_alarm_at(due, timeout=90)
     c.check("phone alarm set before the restart", a is not None, alarm_entries()[0][:6])
     closed_precheck(c)
