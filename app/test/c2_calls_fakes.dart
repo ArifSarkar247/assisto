@@ -79,6 +79,12 @@ class FakeCallMedia implements CallMedia {
   @override
   bool cameraUnavailable = false;
 
+  /// calls-camfast: startVideo landed on a pre-negotiated send slot
+  /// (replaceTrack) — the controller must then skip the renegotiation.
+  @override
+  bool videoSendReady = false;
+  bool sendSlotOnStart = false;
+
   /// set to make startVideo() fail like a refused / busy camera.
   MediaOpenException? cameraError;
   List<AudioRoute> routeList = const [AudioRoute.earpiece, AudioRoute.speaker];
@@ -89,6 +95,7 @@ class FakeCallMedia implements CallMedia {
     final e = cameraError;
     if (e != null) throw e;
     cameraUnavailable = false;
+    videoSendReady = sendSlotOnStart; // calls-camfast
   }
 
   @override

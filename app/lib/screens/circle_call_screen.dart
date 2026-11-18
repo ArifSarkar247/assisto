@@ -2156,6 +2156,8 @@ class _BrokenMedia implements CallMedia {
   @override
   bool get cameraUnavailable => true;
   @override
+  bool get videoSendReady => false; // calls-camfast
+  @override
   Future<void> startVideo() async =>
       throw MediaOpenException(false, 'webrtc unavailable');
   @override
