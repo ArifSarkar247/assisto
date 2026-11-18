@@ -223,14 +223,18 @@ push_skips() {  # keep the skip list on the device while the drive installs
 # process; drive 2 is a NEW process that starts offline (ldg2: rows still on
 # the phone -> online -> synced once; ldg3 mess month close; ldg4 invoices).
 if [ "$GROUPS_RUN" = "start+ledger" ]; then
-  printf '%s\n' ldg2_after_kill_sync ldg3_mess_month_close ldg4_invoice_papers > "$SKIP_LOCAL"
-  push_skips
+  # drive 1: NO skip push before the app's first run — adb would create the
+  # evidence dir as the shell user and the app could not write results.json
+  # (run 44244818882: "Permission denied"). The app registers only ldg1
+  # until the host's marker file exists.
+  : > "$SKIP_LOCAL"
   run_group "start+ledger" " (ledger drive 1)"
   echo "== ledger: killing the app for real (am force-stop $PKG); airplane mode stays as drive 1 left it" | tee -a "$OUT/drive.log"
   T=20 A shell am force-stop "$PKG" >/dev/null 2>&1 || true
   sleep 3
   echo "pidof after force-stop: '$(T=10 A shell pidof "$PKG" 2>/dev/null | tr -d '\r')'" | tee -a "$OUT/drive.log"
-  printf '%s\n' 01_language 02_login 03_onboarding ldg1_offline_entries > "$SKIP_LOCAL"
+  T=10 A shell "echo after-kill > $DEV/ledger_phase2" >/dev/null 2>&1 || true
+  printf '%s\n' 01_language 02_login 03_onboarding > "$SKIP_LOCAL"
   push_skips
   LEDGER_KEEP_NET=1 run_group "start+ledger" " (ledger drive 2, after the kill)"
   net_mode on

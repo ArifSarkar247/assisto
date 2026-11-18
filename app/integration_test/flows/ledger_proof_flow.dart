@@ -140,7 +140,29 @@ Future<void> _typeSave(RFlow f, String key, String text, String save,
 
 int _pngWidth(Uint8List b) => (b[16] << 24) | (b[17] << 16) | (b[18] << 8) | b[19];
 
+/// The host writes this file after `am force-stop` (run_flows.sh): drive 1
+/// registers only ldg1, drive 2 (the new process) only ldg2-4.
+bool _afterKill() {
+  for (final d in const [
+    '/storage/emulated/0/Android/data/com.assisto.assisto/files/reality',
+    '/sdcard/Android/data/com.assisto.assisto/files/reality',
+  ]) {
+    try {
+      if (File('$d/ledger_phase2').existsSync()) return true;
+    } catch (_) {}
+  }
+  return false;
+}
+
+/// An 11-digit test phone unique to this run (the server treats the same
+/// phone in the same book as the same customer).
+String _phone(int n) => '017${(n * 100000 + _tag).toString().padLeft(8, '0')}';
+
 void registerLedgerProofFlows() {
+  if (_afterKill()) {
+    _registerAfterKill();
+    return;
+  }
   // ------------------------------------------------------------ drive 1
   realityFlow('ldg1_offline_entries', 'Business ledger proof',
       'Offline (real airplane mode): khata due/payment/new customer, cashbox sales, mess bazar + meals typed in the UI -> kept on the phone',
@@ -159,7 +181,7 @@ void registerLedgerProofFlows() {
       biz = await _biz(f, api);
       bid = (biz['id'] as num).toInt();
       final p = await f.net(() => api.postJson('/business/khata/parties',
-          {'business': bid, 'book': 'customer', 'name': p1Name, 'phone': '01700000051'}));
+          {'business': bid, 'book': 'customer', 'name': p1Name, 'phone': _phone(51)}));
       p1 = (p['id'] as num).toInt();
       await f.net(() => api.postJson('/mess/v2', {'name': 'Proof Mess $_tag'}));
       final list = await f.net(() => api.getJson('/mess/v2'));
@@ -195,7 +217,7 @@ void registerLedgerProofFlows() {
       await f.back();
       await f.tap(find.byTooltip(f.t.khataAddCustomer));
       await f.enter(p2Name, label: f.t.name);
-      await f.enter('01700000052', label: f.t.phone);
+      await f.enter(_phone(52), label: f.t.phone);
       await f.tapSave(settleSeconds: 4);
       // bizbar: straight to the new customer's page
       await f.tap(find.text(f.t.entryAddCredit).last, settleSeconds: 1.5);
@@ -275,7 +297,9 @@ void registerLedgerProofFlows() {
       f.note('drive 1 pid $pid: 4 khata + 3 cashbox + 3 mess rows on the phone; network left OFF for the kill');
     });
   }, timeout: const Duration(minutes: 8));
+}
 
+void _registerAfterKill() {
   // ------------------------------------------------------------ drive 2
   realityFlow('ldg2_after_kill_sync', 'Business ledger proof',
       'After a REAL app kill (new process, still offline): rows still on the phone -> online -> synced by the app itself, each EXACTLY once, exact poisha; replays answered duplicate',
@@ -413,6 +437,9 @@ void registerLedgerProofFlows() {
       'Mess month close in the UI: per-meal rate = bazar ÷ meals to the poisha (৳900 ÷ 4.5 = ৳200), the member owes ৳900',
       (f) async {
     final sf = await _file(f, _stateFile);
+    if (await f.net(() => sf.exists()) != true) {
+      throw TestFailure('no $_stateFile: drive 1 (ldg1_offline_entries) did not finish');
+    }
     final st = (jsonDecode(await f.net(() => sf.readAsString())) as Map).cast<String, dynamic>();
     final api = await f.h.backend();
     final mid = (st['mess'] as num).toInt();
