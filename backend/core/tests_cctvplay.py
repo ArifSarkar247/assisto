@@ -7,9 +7,6 @@ import base64
 import importlib.util
 import json
 import os
-import shutil
-import tempfile
-import atexit
 from datetime import timedelta
 from unittest import mock
 
@@ -22,11 +19,10 @@ from core.logic import cash_guard as CG
 from core.logic import cctv_traffic as T
 from core.logic import phonecam_clips as P
 from core.models import User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 VECTOR = os.path.join(ROOT, "tools", "cashguard", "clip_vector.json")
-_MEDIA = tempfile.mkdtemp(prefix="cctvplay-media-")
-atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 def _edge_clip():
@@ -117,8 +113,7 @@ class PureTests(SimpleTestCase):
 
 
 # ============================================================ API
-@override_settings(MEDIA_ROOT=_MEDIA)
-class _Base(APITestCase):
+class _Base(TempDirMixin, APITestCase):
     def setUp(self):
         from core.models import ShopSite, ShopSiteViewer, ShopCamera, UserPublicKey
         p = mock.patch("core.credits._base_allowance", return_value=0)

@@ -25,19 +25,15 @@ edge, runserver, mock FCM) is tools/e2e/cctv_e2e.sh.
 import io
 import json
 import os
-import shutil
 import sys
-import atexit
-import tempfile
 from unittest import mock
 
 from django.test import override_settings
 from rest_framework.test import APIClient, APITestCase
 
 from core.models import User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_MEDIA = tempfile.mkdtemp(prefix="e2e-cctv-media-")
-atexit.register(shutil.rmtree, _MEDIA, True)
 FF_KEY = "home_watchman"
 
 
@@ -63,13 +59,7 @@ class _Resp:
         self.raw = _Raw(body)
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class _Base(APITestCase):
-    @classmethod
-    def tearDownClass(cls):
-        # never wipe the shared _MEDIA per class: --parallel workers share it
-        # after fork (flaky deletes, 28 Oct); removed once at process exit
-        super().tearDownClass()
+class _Base(TempDirMixin, APITestCase):
 
     def setUp(self):
         self.owner = User.objects.create_user(name="Rahim", phone="01710003001",

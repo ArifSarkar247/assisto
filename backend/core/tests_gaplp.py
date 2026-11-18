@@ -13,7 +13,8 @@ from core import ai
 from core import lp_service as LS
 from core import lp_views as LV
 from core.models import LpAttempt, LpItem
-from core.tests_lpcore import _MEDIA, _bundle, _client, _user, sample_mock
+from core.tests_lpcore import _bundle, _client, _user, sample_mock
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 V = "/api/v1"
 
@@ -23,9 +24,8 @@ def _att(u, kind, sec, band, **data):
                                     band=band, data=data)
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 @mock.patch("core.lp_service.flag_on", return_value=True)
-class VerifiedResultTests(TestCase):
+class VerifiedResultTests(TempDirMixin, TestCase):
     def setUp(self):
         LS.import_bundle(_bundle([sample_mock()]))
         self.u = _user(61)

@@ -10,9 +10,6 @@ camera secret never stored, and the feature flag gate.
 import io
 import json
 import os
-import shutil
-import atexit
-import tempfile
 from datetime import datetime, timedelta
 from unittest import mock
 
@@ -23,9 +20,8 @@ from rest_framework.test import APIClient, APITestCase
 
 from core.logic import watchman as WM
 from core.models import User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_MEDIA = tempfile.mkdtemp(prefix="wm-media-")
-atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 def _jpeg(w=800, h=450):
@@ -107,13 +103,7 @@ class ZonesPureTests(SimpleTestCase):
 FF_KEY = "home_watchman"
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class _Base(APITestCase):
-    @classmethod
-    def tearDownClass(cls):
-        # never wipe the shared _MEDIA per class: --parallel workers share it
-        # after fork (flaky deletes, 28 Oct); removed once at process exit
-        super().tearDownClass()
+class _Base(TempDirMixin, APITestCase):
 
     def setUp(self):
         # gap-cctv: the CCTV plan camera count is cached 60 s per user id, and
@@ -584,7 +574,6 @@ class AlertPipelineTests(_Base):
 
 
 # ============================================================ no video, ever
-@override_settings(MEDIA_ROOT=_MEDIA)
 class NoVideoTests(_Base):
     def setUp(self):
         super().setUp()
@@ -647,7 +636,7 @@ class NoVideoTests(_Base):
                              "type": "person_detected", "result": "{}"},
                        format="multipart")
         from core.shop_views import looks_like_video, VIDEO_EXTS
-        for root, _d, files in os.walk(_MEDIA):
+        for root, _d, files in os.walk(self.tmp_dir):
             for f in files:
                 self.assertFalse(f.lower().endswith(VIDEO_EXTS), f)
                 with open(os.path.join(root, f), "rb") as fh:

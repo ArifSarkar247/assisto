@@ -22,8 +22,9 @@ from core import bizagent_service as S
 from core import vision_providers as VP
 from core.logic import bizagent as BZ
 from core.models import BizAuditLog, ChatThread, Message, Order, SellerChannel
-from core.tests_g1_bizagent import G1Base, TPAGE, _png, data_url, mimage, _MEDIA
+from core.tests_g1_bizagent import G1Base, TPAGE, _png, data_url, mimage
 from core.tests_p1_bizagent import mpayload, wapayload
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 LLM_Q = "Panjabi ta ki cotton?"
 
@@ -169,8 +170,7 @@ class WindowTests(G1Base):
         self.assertEqual(len(self.fake.calls), n)               # nothing hit Graph
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class ImageOrderTests(G1Base):
+class ImageOrderTests(TempDirMixin, G1Base):
     def setUp(self):
         super().setUp()
         from django.core.files.uploadedfile import SimpleUploadedFile

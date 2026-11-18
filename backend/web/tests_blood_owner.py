@@ -4,8 +4,6 @@ photo; bn/en; owner only)."""
 import base64
 import io
 import os
-import shutil
-import tempfile
 from datetime import timedelta
 
 from django.test import override_settings
@@ -15,8 +13,8 @@ from core import blood_panel as BP
 from core.models import (BloodDonor, BloodEvent, BloodReport, BloodRequest, BloodVerification,
                          OwnerAudit, User)
 from web.tests_o2_owner_admin import OwnerBase, SClient
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_TMP = tempfile.mkdtemp(prefix="blood-owner-media-")
 
 
 def _jpeg_b64():
@@ -26,12 +24,7 @@ def _jpeg_b64():
     return base64.b64encode(out.getvalue()).decode()
 
 
-@override_settings(MEDIA_ROOT=_TMP)
-class BloodOwnerTests(OwnerBase):
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(_TMP, ignore_errors=True)
+class BloodOwnerTests(TempDirMixin, OwnerBase):
 
     def setUp(self):
         super().setUp()

@@ -19,7 +19,6 @@ from django.utils import timezone
 from core.logic import cctv_deter as CD
 from core.logic import cctv_extras as CX
 from core.logic import cash_guard as CG
-from core.tests_cashguard import _MEDIA
 from core.tests_cctvx import _X
 
 
@@ -169,7 +168,6 @@ class ImouVendorTests(SimpleTestCase):
 
 
 # ============================================================ API
-@override_settings(MEDIA_ROOT=_MEDIA)
 class AlarmCallTests(_X):
     def _calls(self):
         return [(a[0].pk, k["data"]) for a, k in self.pushes if a[1] == "call"]
@@ -242,7 +240,6 @@ class AlarmCallTests(_X):
         self.assertEqual(d["emergency"], "999")
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 class DeterTests(_X):
     def _cam(self, vendor, ref):
         from core.models import ShopCamera

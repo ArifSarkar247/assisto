@@ -18,7 +18,7 @@ from rest_framework.test import APIClient
 from core.logic import cctv_store as S
 from core.logic import cctv_video_addon as VA
 from core.models import User
-from core.tests_cashguard import _Base, _MEDIA, _jpeg
+from core.tests_cashguard import _Base, _jpeg
 
 HLS = "https://hls01open.ys7.com/openlive/abc.m3u8"
 
@@ -188,7 +188,6 @@ class HlsTests(SimpleTestCase):
 
 
 # ============================================================ API / DB
-@override_settings(MEDIA_ROOT=_MEDIA)
 class _E(_Base):
     def setUp(self):
         super().setUp()
@@ -220,7 +219,7 @@ class SealedStorageTests(_E):
         ev = self.event()
         jpg = _jpeg()
         ev.snapshot.save("a.jpg", ContentFile(jpg), save=True)
-        with open(os.path.join(_MEDIA, ev.snapshot.name), "rb") as f:
+        with open(os.path.join(self.tmp_dir, ev.snapshot.name), "rb") as f:
             raw = f.read()
         self.assertTrue(raw.startswith(S.MAGIC))
         self.assertNotIn(jpg[:64], raw)                    # no plain JPEG on disk
@@ -236,8 +235,8 @@ class SealedStorageTests(_E):
     def test_legacy_plain_file_is_sealed_on_first_access(self):
         ev = self.event()
         jpg = _jpeg(320, 200)
-        os.makedirs(os.path.join(_MEDIA, "shop"), exist_ok=True)
-        with open(os.path.join(_MEDIA, "shop", "legacy1.jpg"), "wb") as f:
+        os.makedirs(os.path.join(self.tmp_dir, "shop"), exist_ok=True)
+        with open(os.path.join(self.tmp_dir, "shop", "legacy1.jpg"), "wb") as f:
             f.write(jpg)
         ev.snapshot.name = "shop/legacy1.jpg"
         ev.save(update_fields=["snapshot"])
@@ -250,8 +249,8 @@ class SealedStorageTests(_E):
     def test_migrate_command_dry_run_then_real(self):
         from io import StringIO
         ev = self.event()
-        os.makedirs(os.path.join(_MEDIA, "shop"), exist_ok=True)
-        with open(os.path.join(_MEDIA, "shop", "legacy2.jpg"), "wb") as f:
+        os.makedirs(os.path.join(self.tmp_dir, "shop"), exist_ok=True)
+        with open(os.path.join(self.tmp_dir, "shop", "legacy2.jpg"), "wb") as f:
             f.write(b"\xff\xd8plain-jpeg" * 20)
         ev.snapshot.name = "shop/legacy2.jpg"
         ev.save(update_fields=["snapshot"])
@@ -286,7 +285,7 @@ class SealedStorageTests(_E):
             name = ev.snapshot.name
             self.assertIn(name, store)
             self.assertTrue(store[name].startswith(S.MAGIC))
-            self.assertFalse(os.path.exists(os.path.join(_MEDIA, name)))   # not on server disk
+            self.assertFalse(os.path.exists(os.path.join(self.tmp_dir, name)))   # not on server disk
             r = APIClient().get(ev.snapshot.url)
             self.assertEqual(r.content, b"jpegbytes" * 30)
             ev.snapshot.delete(save=True)
@@ -360,7 +359,7 @@ class SdClipTests(_E):
         self.assertEqual(ez.calls[0][:2], ("ABC123", "1"))
         self.assertEqual(clip.size, 3 * 4096)
         self.assertAlmostEqual((clip.expires_at - timezone.now()).days, 7, delta=1)
-        with open(os.path.join(_MEDIA, clip.name), "rb") as f:
+        with open(os.path.join(self.tmp_dir, clip.name), "rb") as f:
             self.assertTrue(f.read().startswith(S.MAGIC))
         r = self.client.get("/api/v1/shop/events/%d/sd-clip" % ev.id)
         self.assertEqual(r.status_code, 200, r.data)

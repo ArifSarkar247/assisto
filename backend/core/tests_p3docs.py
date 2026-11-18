@@ -3,12 +3,9 @@ ciphertext. Sealed uploads, key wraps (recovery code / trusted person),
 trusted-person recovery with the 24-hour wait, time-limited encrypted share
 links (/d/<token>), and famcare refusing sealed documents.
 """
-import atexit
 import base64
 import json
 import os
-import shutil
-import tempfile
 from datetime import timedelta
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -19,13 +16,8 @@ from rest_framework.test import APIClient
 from core import e2_keys, feature_flags as FF, vault_e2e as VE
 from core.models import (AuditLog, CircleMember, Document, FeatureFlag,
                          User, VaultHelpRequest, VaultKeyWrap, VaultShareLink)
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_MEDIA = tempfile.mkdtemp(prefix="p3docs-")
-# Removed once at process exit, never in a tearDownClass: --parallel forks
-# the workers AFTER this import, so every worker shares this one dir and
-# one class's rmtree deleted another worker's live files (p3docs share
-# link -> 410 flake, same class of bug as tests_blood).
-atexit.register(shutil.rmtree, _MEDIA, True)
 V = "/api/v1"
 SECRET_TITLE = "PASSPORT A01234567 RAHIM"   # lives only inside the sealed box
 PIN = "482173"
@@ -93,8 +85,7 @@ def post_sealed(c, file_bytes=None, **over):
     return c.post(V + "/documents/", data, format="multipart")
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class SealedDocumentTests(TestCase):
+class SealedDocumentTests(TempDirMixin, TestCase):
     def setUp(self):
         flag(True)
         self.u = mk()
@@ -301,8 +292,7 @@ class HelperTests(TestCase):
         self.assertEqual(codes, [201, 201, 201, 429])
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class ShareLinkTests(TestCase):
+class ShareLinkTests(TempDirMixin, TestCase):
     def setUp(self):
         flag(True)
         self.u = mk()

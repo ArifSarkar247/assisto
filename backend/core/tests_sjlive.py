@@ -6,7 +6,6 @@ replay, Who is where now, Child School from the child's phone (holidays,
 fixes drive the plan, CCTV gate snapshot only through the camera seam).
 
 Patches return plain values only (no bare MagicMock gets JSON-encoded)."""
-import tempfile
 from datetime import timedelta
 from unittest import mock
 
@@ -23,9 +22,9 @@ from core.tests_journey100 import HOME, V, Base, edge
 from core.tests_kidswatch import CFG, L, SCHOOL, pair_circle
 from core.tests_kidswatch import HOME as K_HOME
 from core.tests_kidswatch import mk as kmk
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 U = "%s/journey/requests" % V
-_MEDIA = tempfile.mkdtemp(prefix="sjlive-test-")
 
 
 class ShareForAWhileTests(Base):
@@ -230,8 +229,7 @@ class WhereNowTests(Base):
         self.assertEqual(self.cb.get("%s/journey/where-now" % V).json()["people"], [])
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
-class ChildSchoolTests(Base):
+class ChildSchoolTests(TempDirMixin, Base):
     def setUp(self):
         super().setUp()
         self.dad = kmk("01711300001", "Abba")

@@ -10,16 +10,15 @@
     lp_nonce) is accepted, size-capped, text-only, never plaintext.
 
 Test rows below are TEST fixtures only (the product ships no entries)."""
-import atexit
 import io
 import os
-import shutil
 import tempfile
 from datetime import timedelta
 from unittest import mock
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -28,14 +27,8 @@ from core import blood_banks as BB
 from core import blood_panel as BP
 from core.logic import circle_groups as G
 from core.models import BloodDonor, BloodEvent, User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
-_TMP = tempfile.mkdtemp(prefix="finish1-banks-")
-# Removed once at process exit, never in a tearDownClass: --parallel forks
-# the workers AFTER this import, so every worker shares this one dir and
-# one class's rmtree deleted another worker's live files (p3docs share
-# link -> 410 flake, same class of bug as tests_blood).
-atexit.register(shutil.rmtree, _TMP, True)
-STORE = os.path.join(_TMP, "blood_banks.json")
 
 CSV_OK = (
     "name,district,phone,address,area,kind,hours,lat,lng\n"
@@ -57,14 +50,15 @@ SRC = dict(source_name="Test official list", source_url="https://example.gov.bd/
 
 
 def _write(text):
-    fd, p = tempfile.mkstemp(dir=_TMP, suffix=".csv")
+    fd, p = tempfile.mkstemp(dir=os.path.dirname(settings.BLOOD_BANKS_FILE), suffix=".csv")
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(text)
     return p
 
 
-@override_settings(BLOOD_BANKS_FILE=STORE)
-class BankImport(TestCase):
+class BankImport(TempDirMixin, TestCase):
+    tmp_settings = {"BLOOD_BANKS_FILE": "blood_banks.json"}
+
     def setUp(self):
         BB.clear()
         p = mock.patch.object(BP, "flag_on", lambda u: True)
@@ -96,7 +90,7 @@ class BankImport(TestCase):
         with self.assertRaises(CommandError):
             call_command("import_blood_banks", _write(CSV_BAD), stdout=io.StringIO(),
                          stderr=io.StringIO(), **SRC)
-        self.assertFalse(os.path.exists(STORE))
+        self.assertFalse(os.path.exists(settings.BLOOD_BANKS_FILE))
         self.assertTrue(self.banks()["source_pending"])
         _r, errs = BB.parse_csv("title,place\nx,y\n")
         self.assertIn("missing column", errs[0])
@@ -107,13 +101,13 @@ class BankImport(TestCase):
             with self.assertRaises(CommandError):
                 call_command("import_blood_banks", _write(CSV_OK), stdout=io.StringIO(),
                              stderr=io.StringIO(), **bad)
-        self.assertFalse(os.path.exists(STORE))
+        self.assertFalse(os.path.exists(settings.BLOOD_BANKS_FILE))
 
     def test_dry_run_then_import_then_clear(self):
         out = io.StringIO()
         call_command("import_blood_banks", _write(CSV_OK), dry_run=True, stdout=out, **SRC)
         self.assertIn("3 banks in 3 districts", out.getvalue())
-        self.assertFalse(os.path.exists(STORE))
+        self.assertFalse(os.path.exists(settings.BLOOD_BANKS_FILE))
         call_command("import_blood_banks", _write(CSV_OK), stdout=io.StringIO(), **SRC)
         r = self.banks()
         self.assertFalse(r["source_pending"])
@@ -134,7 +128,7 @@ class BankImport(TestCase):
         self.assertEqual(self.banks()["banks"], [])
 
     def test_unsourced_file_is_never_shown(self):
-        with open(STORE, "w", encoding="utf-8") as f:
+        with open(settings.BLOOD_BANKS_FILE, "w", encoding="utf-8") as f:
             f.write('{"source": null, "banks": [{"name": "X", "district": "dhaka"}]}')
         BB._CACHE.clear()
         r = self.banks()

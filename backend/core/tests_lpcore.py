@@ -5,11 +5,9 @@ scoring with a MOCKED Claude (charge only on success, refund on fail / cut /
 unreadable), the >= 40 % worst-case profit proof, prompts < 90K tokens, the
 Cambridge companion (user's own answers + key only), the practice
 certificate, and the owner-account guard. Sample data only."""
-import atexit
 import json
 import os
 import re
-import shutil
 import tempfile
 from pathlib import Path
 from unittest import mock
@@ -24,14 +22,9 @@ from core.logic import lp_checks as CK
 from core.logic import lp_score as SC
 from core.logic import plan_book as PB
 from core.models import LpAttempt, LpItem, LpReviewLog, User
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 V = "/api/v1"
-_MEDIA = tempfile.mkdtemp(prefix="lpcore-media-")
-# Removed once at process exit, never in a tearDownClass: --parallel forks
-# the workers AFTER this import, so every worker shares this one dir and
-# one class's rmtree deleted another worker's live files (p3docs share
-# link -> 410 flake, same class of bug as tests_blood).
-atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 # ------------------------------------------------------------ sample content
@@ -180,8 +173,7 @@ class ContentCheckTests(SimpleTestCase):
 
 
 # --------------------------------------------------------- import + review
-@override_settings(MEDIA_ROOT=_MEDIA)
-class ImportReviewTests(TestCase):
+class ImportReviewTests(TempDirMixin, TestCase):
     def test_import_splits_sections_checks_and_versions(self):
         d = _bundle([sample_mock()])
         out = LS.import_bundle(d)
@@ -245,9 +237,8 @@ class ImportReviewTests(TestCase):
 
 
 # ----------------------------------------------------------------- the API
-@override_settings(MEDIA_ROOT=_MEDIA)
 @mock.patch("core.lp_service.flag_on", return_value=True)
-class ApiTests(TestCase):
+class ApiTests(TempDirMixin, TestCase):
     def setUp(self):
         LS.import_bundle(_bundle([sample_mock(), sample_mock("ielts-gt-t01", "GT 1") | {
             "track": "ielts_gt"}]))
@@ -547,9 +538,8 @@ def _verified_ticket(user, placement, n=1):
                                      source="ssv", verified_at=timezone.now())
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 @mock.patch("core.lp_service.flag_on", return_value=True)
-class AdUnlockTests(TestCase):
+class AdUnlockTests(TempDirMixin, TestCase):
     """Rewarded ads (Google-verified only) unlock an extra section / a Normal
     score for free users; the unlock keeps >= 40 % worst-case profit."""
 
@@ -674,9 +664,8 @@ def sample_track_items():
     return [test, lesson, syl]
 
 
-@override_settings(MEDIA_ROOT=_MEDIA)
 @mock.patch("core.lp_service.flag_on", return_value=True)
-class Stage2TrackTests(TestCase):
+class Stage2TrackTests(TempDirMixin, TestCase):
     def setUp(self):
         out = LS.import_bundle(_bundle(sample_track_items(), audio=False))
         self.assertEqual(out["errors"], [])

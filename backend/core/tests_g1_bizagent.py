@@ -13,12 +13,9 @@ notes (no key = honest fallback; key = transcript → rules) · website widget
 (key, origin, rate limit, same pipeline) · comment-to-DM with post→product ·
 follow-ups (once, 24 h window, opt-out) · quiet hours + morning summary ·
 agent report · Owner Admin rules-vs-AI stats."""
-import atexit
 import base64
 import io
 import json
-import shutil
-import tempfile
 from datetime import timedelta
 from decimal import Decimal
 from unittest import mock
@@ -38,13 +35,12 @@ from core.logic import bizagent_rules as R
 from core.models import (BizFaq, BizPostLink, ChatThread, CreditLedger, Message, Order,
                          Product, SellerChannel)
 from core.tests_p1_bizagent import Base, PAGE, mpayload, wapayload
+from core.testing_tmp import TempDirMixin  # a temp dir per class, never at import
 
 TPAGE = "990000000000111"
-_MEDIA = tempfile.mkdtemp(prefix="g1media")
 # Removed once at the very end, not in tearDownModule: `manage.py test --parallel`
 # imports this module BEFORE forking, so every worker shares this one folder and a
 # worker finishing first deleted the photos another worker was still reading.
-atexit.register(shutil.rmtree, _MEDIA, True)
 
 
 def _png(color, shape="circle", size=400, white_bars=False):
@@ -417,8 +413,7 @@ class TakeoverTests(G1Base):
 
 
 # ======================================================================= orders
-@override_settings(MEDIA_ROOT=_MEDIA)
-class AutonomousOrderTests(G1Base):
+class AutonomousOrderTests(TempDirMixin, G1Base):
     def test_summary_confirm_order_stock_invoice_upsell_bundle_mock_courier(self):
         ch = self.tch()
         Product.objects.create(user=self.user, business=self.biz, name="Pajama",
@@ -485,8 +480,7 @@ class AutonomousOrderTests(G1Base):
 
 
 # ======================================================================= photos
-@override_settings(MEDIA_ROOT=_MEDIA)
-class PhotoTests(G1Base):
+class PhotoTests(TempDirMixin, G1Base):
     def setUp(self):
         super().setUp()
         self.p.photo = SimpleUploadedFile("panjabi.png", _png((200, 30, 30)), "image/png")
