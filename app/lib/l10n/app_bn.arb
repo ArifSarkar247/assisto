@@ -26539,5 +26539,10 @@
   "gcvPlPosLinked": "{count, plural, other{যুক্ত: {pos} · {n}টি ঘটনা এসেছে}}",
   "gcvPlAutoLinked": "{count, plural, other{Smart Life যুক্ত · {n}টি ডিভাইস}}",
   "gcvPlPeople": "{count, plural, other{{n} জন}}",
-  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}"
+  "gcvPlClipsLine": "{count, plural, other{{n}টি ক্লিপ · {cap} MB-এর মধ্যে {mb} MB}}",
+  "gbzStopByLink": "{date} তারিখে আপনার SMS-এর বন্ধ-লিংকে চেপেছেন।",
+  "gbzStopByChat": "{date} তারিখে WhatsApp / Messenger চ্যাটে STOP লিখেছেন।",
+  "gbzStopByApp": "{date} তারিখে Assisto অ্যাপে বন্ধ চেপেছেন।",
+  "gbzStopByOwner": "{date} তারিখে আপনি STOP হিসেবে চিহ্নিত করেছেন।",
+  "gbzStopUndo": "শুধু গ্রাহক নিজে আবার চালু করতে পারেন: আপনাকে START লিখে, বা আপনার SMS-এর লিংকে আবার চেপে।"
 }
