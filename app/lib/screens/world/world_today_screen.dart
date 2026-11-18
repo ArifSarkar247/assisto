@@ -21,8 +21,11 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// that are on but have no real data are listed under "Not connected yet" with the
 /// honest reason; prayer times for a week so an offline phone stays right.
 class WorldTodayScreen extends StatefulWidget {
-  const WorldTodayScreen({super.key, this.api});
+  const WorldTodayScreen({super.key, this.api, this.debugSavedCopy});
   final WorldApi? api;
+
+  /// Gallery / tests only: the saved copy instead of the phone's cache.
+  final Map<String, dynamic>? debugSavedCopy;
 
   @override
   State<WorldTodayScreen> createState() => _WorldTodayScreenState();
@@ -49,6 +52,8 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
   bool _loading = true;
   bool _fromCache = false;
   bool _error = false;
+  // homefeed: the last refresh failed while a saved copy is on screen
+  bool _offline = false;
 
   @override
   void initState() {
@@ -58,33 +63,54 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     });
   }
 
-  Future<void> _load() async {
+  /// homefeed: cache FIRST (the saved copy paints at once, dated), then the
+  /// server in the background. A failed refresh keeps the copy on screen with
+  /// "offline — copy saved X ago"; never a blank page while a copy exists.
+  Future<void> _load({bool byUser = false}) async {
     final lang = uwLang(context);
+    final t = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (_data == null) {
+      final c = widget.debugSavedCopy ?? await WorldCache.read('today', lang);
+      if (!mounted) return;
+      if (c != null && _data == null) {
+        setState(() {
+          _data = c;
+          _fromCache = true;
+          _loading = false;
+        });
+      }
+    }
     setState(() {
       _loading = _data == null;
       _error = false;
     });
     try {
       final r = await Future.wait([api.today(), api.config()])
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 15));
       if (!mounted) return;
       if (worldStatus(r[0]) != 200) throw StateError('status');
       await WorldCache.save('today', lang, r[0]);
+      if (!mounted) return;
       setState(() {
         _data = r[0];
         _config = worldStatus(r[1]) == 200 ? r[1] : _config;
         _fromCache = false;
+        _offline = false;
         _loading = false;
       });
     } catch (_) {
-      final c = await WorldCache.read('today', lang);
       if (!mounted) return;
       setState(() {
-        _data ??= c;
-        _fromCache = c != null;
+        _offline = _data != null;
         _error = _data == null;
         _loading = false;
       });
+      if (byUser && _data != null) {
+        messenger?.showSnackBar(SnackBar(
+            content: Text(t.uwOfflineCopyAgo(
+                uwAgo(context, '${_data?['generated_at'] ?? ''}')))));
+      }
     }
   }
 
@@ -116,34 +142,125 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
 
   /// p3feed: a cached copy from an earlier day carries the next 7 days of
   /// prayer times — show today's (pure calculation, valid offline).
-  Map<String, dynamic> _prayerForToday(Map<String, dynamic> c) {
-    final now = DateTime.now();
+  /// homefeed: null when the copy has no times for today (older than a
+  /// week) — never another day's times shown as today's.
+  Map<String, dynamic>? _prayerForToday(Map<String, dynamic> c) {
+    // the times are Bangladesh clock times for a Bangladesh city: judge
+    // "today" and "next" on Bangladesh time (UTC+6, no DST) — right for an
+    // expat phone on another clock too
+    final now = DateTime.now().toUtc().add(const Duration(hours: 6));
     final today =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    for (final d in worldList(c['days'])) {
-      if ('${d['date']}' == today) {
-        final times = worldMap(d['times']);
-        final hhmm =
-            '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-        var next = 'fajr';
-        for (final k in const ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']) {
-          final v = times[k];
-          if (v != null && '$v'.compareTo(hhmm) > 0) {
-            next = k;
-            break;
-          }
+    final hhmm =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    Map<String, dynamic> pick(Map<String, dynamic> times) {
+      var next = 'fajr';
+      for (final k in const ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']) {
+        final v = times[k];
+        if (v != null && '$v'.compareTo(hhmm) > 0) {
+          next = k;
+          break;
         }
-        return {...c, 'times': times, 'next': next};
       }
+      return {...c, 'times': times, 'next': next, 'date': today};
     }
-    return c;
+
+    if ('${c['date'] ?? ''}' == today) return pick(worldMap(c['times']));
+    for (final d in worldList(c['days'])) {
+      if ('${d['date']}' == today) return pick(worldMap(d['times']));
+    }
+    // an old copy without a date (before homefeed) is trusted only if it is
+    // from today, judged by when it was made
+    final made = DateTime.tryParse('${_data?['generated_at'] ?? ''}')
+        ?.toUtc()
+        .add(const Duration(hours: 6));
+    if (c['date'] == null &&
+        made != null &&
+        made.year == now.year &&
+        made.month == now.month &&
+        made.day == now.day) {
+      return pick(worldMap(c['times']));
+    }
+    return null;
   }
 
-  String _hiddenReason(AppLocalizations t, String why) => switch (why) {
+  // homefeed: the server's freshness limits (minutes), applied again on the
+  // phone because a saved copy keeps ageing after it was saved.
+  static const _freshMin = {
+    'weather': 180,
+    'currency': 36 * 60,
+    'news_bd': 360,
+    'news_world': 360,
+    'cricket': 30,
+    'football': 30,
+  };
+  static const _dropMin = {'weather': 24 * 60, 'cricket': 360, 'football': 360};
+
+  bool _isStale(String id, Map<String, dynamic> c) {
+    if (c['stale'] == true) return true;
+    final age = uwAgeMin('${c['fetched_at'] ?? ''}');
+    final lim = _freshMin[id];
+    return age != null && lim != null && age > lim;
+  }
+
+  /// The cards / "not connected" lists as they are true NOW (a saved copy
+  /// is re-judged: too-old weather or scores and other-day prayer times
+  /// move to "not connected" with the honest reason).
+  (Map<String, dynamic>, Map<String, dynamic>, Map<String, dynamic>)
+      _effective(Map<String, dynamic> d) {
+    final cards = Map<String, dynamic>.from(worldMap(d['cards']));
+    final hidden = Map<String, dynamic>.from(worldMap(d['hidden']));
+    final since = Map<String, dynamic>.from(worldMap(d['hidden_since']));
+    // a fresh server copy is today's by definition; a saved one is re-judged
+    if (cards['prayer'] != null && (_fromCache || _offline)) {
+      final p = _prayerForToday(worldMap(cards['prayer']));
+      if (p == null) {
+        cards.remove('prayer');
+        hidden['prayer'] = 'old_copy';
+      } else {
+        cards['prayer'] = p;
+      }
+    }
+    for (final e in _dropMin.entries) {
+      final c = worldMap(cards[e.key]);
+      final at = '${c['fetched_at'] ?? ''}';
+      final age = uwAgeMin(at);
+      if (age != null && age > e.value) {
+        cards.remove(e.key);
+        hidden[e.key] = 'stale';
+        since[e.key] = at;
+      }
+    }
+    return (cards, hidden, since);
+  }
+
+  String _hiddenReason(AppLocalizations t, String why, String since) =>
+      switch (why) {
         'needs_key' => t.uwNoLicensedSource,
         'not_entered' => t.uwOfficialNotEntered,
+        'old_copy' => t.uwSavedCopyTooOld,
+        'stale' when uwAgo(context, since).isNotEmpty =>
+          t.uwSourceDownSince(uwAgo(context, since)),
         _ => t.uwSourceDownNow,
       };
+
+  /// "The source isn't responding — last updated X ago" (red), shown only
+  /// when the card's last good fetch is older than its limit.
+  Widget _staleLine(AppLocalizations t, ColorScheme scheme, String id,
+      Map<String, dynamic> c) {
+    if (!_isStale(id, c)) return const SizedBox.shrink();
+    final ago = uwAgo(context, '${c['fetched_at'] ?? ''}');
+    return Padding(
+      key: ValueKey('uw_stale_$id'),
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Text(
+          ago.isEmpty ? t.uwSourceDownNow : t.uwSourceStaleAgo(ago),
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
+    );
+  }
 
   Future<void> _customize() async {
     final t = AppLocalizations.of(context);
@@ -260,24 +377,38 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   message: t.uwOffline,
                   action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
                 )
-              : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
+              : RefreshIndicator(
+                  onRefresh: () => _load(byUser: true), child: _body(t, scheme)),
     );
   }
 
   Widget _body(AppLocalizations t, ColorScheme scheme) {
     final d = _data!;
-    final cards = worldMap(d['cards']);
+    final (cards, hidden, since) = _effective(d);
     final city = worldMap(d['city']);
     final shown = _order.where(cards.containsKey).toList();
-    final hidden = worldMap(d['hidden']);
+    final savedAgo = uwAgo(context, '${d['generated_at'] ?? ''}');
     final soon = _order
         .where((id) => hidden.containsKey(id) && !cards.containsKey(id))
         .toList();
     return ListView(
+      // homefeed: pull to refresh works even when the cards fit the screen
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
       children: [
-        if (_fromCache) ...[
-          UwNote(icon: Icons.offline_bolt_rounded, text: t.uwCachedCopy),
+        if (_fromCache || _offline) ...[
+          KeyedSubtree(
+            key: ValueKey(_offline ? 'uw_offline_copy' : 'uw_saved_copy'),
+            child: UwNote(
+                icon: _offline
+                    ? Icons.offline_bolt_rounded
+                    : Icons.history_rounded,
+                text: savedAgo.isEmpty
+                    ? t.uwCachedCopy
+                    : _offline
+                        ? t.uwOfflineCopyAgo(savedAgo)
+                        : t.uwSavedCopyRefreshing(savedAgo)),
+          ),
           const SizedBox(height: Gap.sm),
         ],
         if ('${city['name'] ?? ''}'.isNotEmpty)
@@ -301,6 +432,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           ),
         for (final id in shown)
           Padding(
+            key: ValueKey('uw_card_$id'),
             padding: const EdgeInsets.only(bottom: Gap.md),
             child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
               padding: const EdgeInsets.all(Gap.lg),
@@ -358,7 +490,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                               const SizedBox(width: Gap.sm),
                               Expanded(
                                   child: Text(
-                                      '${_cardTitle(t, id)} — ${_hiddenReason(t, '${hidden[id]}')}',
+                                      '${_cardTitle(t, id)} — ${_hiddenReason(t, '${hidden[id]}', '${since[id] ?? ''}')}',
                                       style: AType.bodyMedium.copyWith(
                                           color: scheme.ds.muted,
                                           height: 1.35))),
@@ -386,7 +518,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
     final dg = (Object v) => uwDigits(context, v);
     switch (id) {
       case 'prayer':
-        final pc = _fromCache ? _prayerForToday(c) : c;
+        final pc = c; // already today's (see _effective)
         final times = worldMap(pc['times']);
         final next = '${pc['next'] ?? ''}';
         final names = {
@@ -402,6 +534,12 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             if (times[k] != null)
               _row(names[k]!, dg(times[k]), strong: k == next),
           const SizedBox(height: Gap.xs),
+          if ('${pc['date'] ?? ''}'.isNotEmpty)
+            Text(
+                t.uwPrayerForDate(
+                    uwWhen(context, '${pc['date']}', time: false)),
+                key: const ValueKey('uw_prayer_date'),
+                style: Theme.of(context).textTheme.bodySmall),
           Text('${pc['note'] ?? ''}',
               style: Theme.of(context)
                   .textTheme
@@ -434,7 +572,9 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           UwSourceLine(
               source: '${c['source']}',
               url: '${c['source_url'] ?? ''}',
-              updated: '${c['updated'] ?? ''}'),
+              // homefeed: when OUR server last got it (the as-of a user needs)
+              updated: '${c['fetched_at'] ?? c['updated'] ?? ''}'),
+          _staleLine(t, scheme, id, c),
         ]);
       case 'currency':
         final off = worldMap(c['official']);
@@ -490,6 +630,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                 source: '${c['source']}',
                 url: '${c['source_url'] ?? ''}',
                 updated: '${c['updated'] ?? ''}'),
+            _staleLine(t, scheme, id, c),
           ],
         ]);
       case 'notices':
@@ -540,6 +681,18 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   .textTheme
                   .bodySmall
                   ?.copyWith(color: scheme.ds.muted)),
+          if (c['stale'] == true ||
+              (uwAgeMin('${c['updated'] ?? ''}') ?? 0) >
+                  (id == 'gold' ? 7 : 35) * 24 * 60 + 24 * 60)
+            Padding(
+              key: ValueKey('uw_stale_$id'),
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(
+                  t.uwPriceMayHaveChanged(
+                      uwAgo(context, '${c['updated'] ?? ''}')),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.error, fontWeight: FontWeight.w600)),
+            ),
           UwSourceLine(
               source: '${c['source']}', url: '${c['source_url'] ?? ''}'),
         ]);
@@ -585,6 +738,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   .textTheme
                   .bodySmall
                   ?.copyWith(color: scheme.ds.muted)),
+          _staleLine(t, scheme, id, c),
         ]);
       default:
         final m = worldList(c['matches']);
@@ -600,6 +754,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
             ),
           UwSourceLine(
               source: '${c['source']}', updated: '${c['updated'] ?? ''}'),
+          _staleLine(t, scheme, id, c),
         ]);
     }
   }

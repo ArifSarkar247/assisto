@@ -330,6 +330,16 @@ class Command(BaseCommand):
         except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
             self.steps.append({"step": "city sample (gap-city): %s" % e, "method": "DB",
                                "path": "city_dataset", "status": 500, "ok": False})
+        # --- homefeed: Today feed sample from RECORDED provider responses
+        # (weather outage 5 h, fresh currency, 20-day-old gold) — CI DB only
+        try:
+            from core.world_sample import load as load_world_sample
+            got = load_world_sample()
+            self.steps.append({"step": "world sample (homefeed)", "method": "DB", "path": "world_feed",
+                               "status": 200, "ok": bool(got.get("weather_ok_at"))})
+        except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
+            self.steps.append({"step": "world sample (homefeed): %s" % e, "method": "DB",
+                               "path": "world_feed", "status": 500, "ok": False})
         # --- flagproof: hidden features proven by reality flows 21 + 31-36
         self._flagproof(users, tokens, now)
 

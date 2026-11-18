@@ -134,30 +134,36 @@ def refresh_news(force=False, now=None):
 def _news_card(group, lang, now):
     from .models import WorldFeed
     rows = WorldFeed.objects.filter(kind="news", enabled=True)
-    pairs = []
+    pairs, last = [], None
+    cutoff = now - timedelta(hours=WF.NEWS_MAX_AGE_H)
     for r in rows:
         meta = WF.NEWS_BY_SLUG.get(r.slug)
-        if not meta:
+        if not meta or meta["group"] != group:
             continue
         name = meta["name_bn"] if lang == "bn" else meta["name_en"]
-        items = [dict(it, source=name) for it in (r.payload or {}).get("items") or []]
+        dead = r.last_ok_at is None or r.last_ok_at < cutoff
+        # homefeed: an undated headline is only "fresh" while its feed works
+        items = [dict(it, source=name) for it in (r.payload or {}).get("items") or []
+                 if not (dead and WF.parse_date(it.get("published")) is None)]
         pairs.append((r.slug, items))
+        if items and r.last_ok_at and (last is None or r.last_ok_at > last):
+            last = r.last_ok_at
     items = WF.news_card(pairs, group, now)
-    return {"items": items} if items else None
+    return dict({"items": items}, **WF.freshness(last, now, "news")) if items else None
 
 
 # ------------------------------------------------------------------ currency
 FX_URL = "https://open.er-api.com/v6/latest/USD"
 
 
-def refresh_fx(force=False, now=None):
+def refresh_fx(force=False, now=None, timeout=TIMEOUT_S):
     now = now or timezone.now()
     row = _feed("fx_usd", "fx")
     if not row.enabled or (not force and not _due(row, 360, now)):
         return None
     _count_call(row, 0.0, now)
     try:
-        st, raw = _fetch("GET", FX_URL, {"Accept": "application/json"})
+        st, raw = _fetch("GET", FX_URL, {"Accept": "application/json"}, timeout=timeout)
         if st != 200:
             raise WF.FeedError("HTTP %s" % st)
         _ok(row, WF.parse_fx(_json(raw)), now)
@@ -173,7 +179,7 @@ def _met_url(c):
             % (c[3], c[4]))
 
 
-def refresh_weather(city_slug, force=False, now=None):
+def refresh_weather(city_slug, force=False, now=None, timeout=TIMEOUT_S):
     now = now or timezone.now()
     c = WF.city(city_slug)
     row = _feed("weather_" + c[0], "weather")
@@ -181,7 +187,7 @@ def refresh_weather(city_slug, force=False, now=None):
         return None
     _count_call(row, 0.0, now)
     try:
-        st, raw = _fetch("GET", _met_url(c), {"Accept": "application/json"})
+        st, raw = _fetch("GET", _met_url(c), {"Accept": "application/json"}, timeout=timeout)
         if st != 200:
             raise WF.FeedError("HTTP %s" % st)
         _ok(row, WF.parse_met(_json(raw)), now)
@@ -215,7 +221,7 @@ def _cost_per_call(cfg):
         return 0.0
 
 
-def refresh_sports(kind, force=False, now=None):
+def refresh_sports(kind, force=False, now=None, timeout=TIMEOUT_S):
     """One shared call per interval, capped per day (admin-editable)."""
     from . import integrations as I
     now = now or timezone.now()
@@ -233,7 +239,8 @@ def refresh_sports(kind, force=False, now=None):
     url = meta["url"] % key if "%s" in meta["url"] else meta["url"]
     _count_call(row, _cost_per_call(cfg), now)
     try:
-        st, raw = _fetch("GET", url, dict(meta["headers"](key), Accept="application/json"))
+        st, raw = _fetch("GET", url, dict(meta["headers"](key), Accept="application/json"),
+                         timeout=timeout)
         if st != 200:
             raise WF.FeedError("HTTP %s" % st)
         _ok(row, {"matches": meta["parse"](_json(raw))}, now)
@@ -357,6 +364,22 @@ def config(user, lang):
 
 
 # ------------------------------------------------------------------ Today
+# homefeed: the Today request never waits on a slow source once a copy exists
+# (the world_refresh cron keeps every row fresh); only a never-fetched row is
+# fetched inline, with a short timeout, so a first open is not blank.
+INLINE_TIMEOUT_S = 5
+
+
+COLD_RETRY_MIN = 10
+
+
+def _cold(row, now):
+    """Never fetched OK yet (and not tried in the last COLD_RETRY_MIN, so a
+    dead source is not re-asked on every open)."""
+    return (row.enabled and not row.payload and row.last_ok_at is None
+            and (row.fetched_at is None or now - row.fetched_at >= timedelta(minutes=COLD_RETRY_MIN)))
+
+
 def today(user, lang, now=None):
     """Assemble every ON card that has real data. Absent data = absent card
     (with `hidden` listing why, so the app can say 'not available yet')."""
@@ -373,6 +396,7 @@ def today(user, lang, now=None):
                                      asr=ramadan.ASR_HANAFI)
         cards["prayer"] = WF.prayer_card(times, local.strftime("%H:%M"))
         cards["prayer"]["method"] = "Karachi angles, Hanafi Asr"
+        cards["prayer"]["date"] = local.date().isoformat()   # homefeed: as-of
         # p3feed: a week ahead, so a phone offline tomorrow still shows the
         # right day's times from its cached copy (pure calculation, no key)
         cards["prayer"]["days"] = [
@@ -381,19 +405,34 @@ def today(user, lang, now=None):
                  local.date() + timedelta(days=i), c[3], c[4], tz_offset_hours=6.0,
                  asr=ramadan.ASR_HANAFI), "00:00")["times"]}
             for i in range(1, 8)]
+    since = {}
     if on["weather"]:
-        refresh_weather(c[0], now=now)
         row = _feed("weather_" + c[0], "weather")
-        w = WF.weather_public(row.payload, lang) if row.enabled else None
-        if w:
+        if _cold(row, now):
+            refresh_weather(c[0], now=now, timeout=INLINE_TIMEOUT_S)
+            row.refresh_from_db()
+        w = WF.weather_public(row.payload, lang, now) if row.enabled else None
+        if w and WF.too_old(row.last_ok_at, now, "weather"):
+            hidden["weather"] = "stale"          # an old "now" is not today's weather
+            since["weather"] = row.last_ok_at.isoformat()
+        elif w:
+            w.update(WF.freshness(row.last_ok_at, now, "weather"))
             cards["weather"] = w
         else:
             hidden["weather"] = "unavailable"
     rows = admin_rows()
     if on["currency"]:
-        refresh_fx(now=now)
         row = _feed("fx_usd", "fx")
+        if _cold(row, now):
+            refresh_fx(now=now, timeout=INLINE_TIMEOUT_S)
+            row.refresh_from_db()
         fx = WF.fx_public(row.payload, lang) if row.enabled else None
+        if fx:
+            fx.update(WF.freshness(row.last_ok_at, now, "fx"))
+            # the provider itself stopped updating (rates older than 2 days)
+            upd = WF.parse_date(fx.get("updated"))
+            if upd and now - upd > timedelta(hours=48):
+                fx["stale"] = True
         # p3feed: Bangladesh Bank's official USD rate (owner-entered) leads
         official = WF.fx_official(rows, lang, timezone.localdate(now))
         if fx:
@@ -411,6 +450,7 @@ def today(user, lang, now=None):
         if on[g]:
             card = WF.admin_card(g, rows, lang)
             if card:
+                card["stale"] = WF.admin_stale(card, g, timezone.localdate(now))
                 cards[g] = card
             else:
                 hidden[g] = "not_entered"
@@ -427,12 +467,18 @@ def today(user, lang, now=None):
         if not sports_ready(kind):
             hidden[kind] = "needs_key"
             continue
-        refresh_sports(kind, now=now)
         row = _feed(SPORTS[kind]["slug"], "sports")
+        if _cold(row, now):
+            refresh_sports(kind, now=now, timeout=INLINE_TIMEOUT_S)
+            row.refresh_from_db()
         m = (row.payload or {}).get("matches")
-        if m is not None and row.enabled:
-            cards[kind] = {"matches": m, "updated": row.last_ok_at.isoformat() if row.last_ok_at else "",
-                           "source": "API-Football" if kind == "football" else "CricketData.org"}
+        if m is not None and row.enabled and WF.too_old(row.last_ok_at, now, "sports"):
+            hidden[kind] = "stale"               # old "live" scores are not live
+            since[kind] = row.last_ok_at.isoformat()
+        elif m is not None and row.enabled:
+            cards[kind] = dict({"matches": m, "updated": row.last_ok_at.isoformat() if row.last_ok_at else "",
+                                "source": "API-Football" if kind == "football" else "CricketData.org"},
+                               **WF.freshness(row.last_ok_at, now, "sports"))
         else:
             hidden[kind] = "unavailable"
     if on.get("notices"):
@@ -441,7 +487,7 @@ def today(user, lang, now=None):
         note = cards["prayer"].pop("note_bn"), cards["prayer"].pop("note_en")
         cards["prayer"]["note"] = note[0] if lang == "bn" else note[1]
     return {"city": {"id": c[0], "name": c[1] if lang == "bn" else c[2]},
-            "cards": cards, "hidden": hidden, "on": on,
+            "cards": cards, "hidden": hidden, "hidden_since": since, "on": on,
             "generated_at": now.isoformat()}
 
 
