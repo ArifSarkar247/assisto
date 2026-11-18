@@ -9,6 +9,7 @@
 // Push ringing a locked phone still needs two real phones
 // (owner_actions/FAMILY_SAFETY_100_BN.md, SAFE_JOURNEY_100_BN.md).
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbsorbPointer;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/screens/nearby_screen.dart';
@@ -22,14 +23,34 @@ import '../support/harness.dart';
 
 /// Press and HOLD the big SOS button like a person does (a plain tap only
 /// shows "hold to send").
+// sosfam-crm-proof: the countdown dialog opens while the finger is still on
+// SOS. The Navigator then cancels that pointer and blocks taps until the
+// cancel arrives. On a phone the engine delivers it; under the integration
+// test binding a device-made cancel is never dispatched, so every later tap
+// on the page was dead (runs 44213469898..44250231295: "I'm safe now" and
+// "Who is on the way" both ignored, button enabled + hit-testable). The
+// finger therefore uses a known pointer id, and [releaseSosFinger] ends it
+// the way the engine would.
+const _sosPointer = 7357;
+
 Future<void> holdSos(RFlow f) async {
   final btn = find.byKey(const ValueKey('sosat-sos-hold'));
   await f.waitFor(btn, what: 'SOS hold button');
   await f.tester.ensureVisible(btn);
-  final g = await f.tester.startGesture(f.tester.getCenter(btn));
+  final g = await f.tester.createGesture(pointer: _sosPointer);
+  await g.down(f.tester.getCenter(btn));
   await f.pumpFor(const Duration(milliseconds: EmergencySosPanel.holdMs + 600));
   await g.up();
   await f.pumpFor(const Duration(milliseconds: 500));
+}
+
+/// End the SOS finger for the Navigator (see [holdSos]) — a touch on the
+/// status-bar strip, where nothing reacts.
+Future<void> releaseSosFinger(RFlow f) async {
+  final g = await f.tester.createGesture(pointer: _sosPointer);
+  await g.down(const Offset(4, 4));
+  await g.up();
+  await f.pumpFor(const Duration(milliseconds: 300));
 }
 
 /// Leave [screen] like the system back key (its app bar has its own arrow,
@@ -85,10 +106,13 @@ void registerSosJourneyFlows() {
         await f.tester.drag(sc.first, const Offset(0, 250), warnIfMissed: false);
       }
       await f.pumpFor(const Duration(milliseconds: 1500));
+      await releaseSosFinger(f);
       final m2 = f.httpMark;
       // which pointer blocker sits above the button, and is it on?
       for (final e in find.ancestor(of: safe.first, matching: find.byType(AbsorbPointer)).evaluate()) {
         final w = e.widget as AbsorbPointer;
+        final ro = e.renderObject;
+        if (ro is RenderAbsorbPointer) f.note('render absorbing=${ro.absorbing}');
         String owner = '?';
         e.visitAncestorElements((a) {
           if (a.widget is Navigator || a.widget is Overlay || a.widget is Scaffold) {
