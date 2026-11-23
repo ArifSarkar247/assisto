@@ -13,7 +13,7 @@
 <td><a href="/owner/halaladz-support/{{ r.id }}">{{ r.id }}</a></td>
 <td><a href="/owner/halaladz-support/{{ r.id }}">{{ r.user_name|default:"—" }}</a> <span class="small mut">#{{ r.user_id }}</span></td>
 <td>{{ r.linked_name|default:"—" }}</td>
-<td class="small">{% if r.preview == 'photo' %}{{ L.photo }}{% elif r.preview == 'voice' %}{{ L.voice }}{% else %}{{ r.preview }}{% endif %}<div class="mut">{{ r.last_at|slice:":16" }}</div></td>
+<td class="small">{% if r.last_text == 'photo' %}{{ L.photo }}{% elif r.last_text == 'voice' %}{{ L.voice }}{% else %}{{ r.last_text }}{% endif %}<div class="mut">{{ r.last_at|slice:":16" }}</div></td>
 <td>{% if r.unread_owner %}<span class="pill spons">{{ r.unread_owner }}</span>{% else %}0{% endif %}</td>
 <td>{% if r.resolved %}<span class="pill ok">{{ L.resolved }}</span>{% else %}{{ L.open }}{% endif %}</td>
 </tr>{% endfor %}
