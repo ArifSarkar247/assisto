@@ -259,7 +259,7 @@ class _HalalAdzScreenState extends State<HalalAdzScreen> {
                     const SizedBox(height: 8),
                     Text(t.hzDeepLinkNote,
                         key: const Key('hz-deeplink-note'),
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.primary)),
                   ],
                   const SizedBox(height: 12),

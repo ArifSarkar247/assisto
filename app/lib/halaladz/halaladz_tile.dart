@@ -34,7 +34,7 @@ class _HalalAdzSettingsTileState extends State<HalalAdzSettingsTile> {
       final api = widget.api ?? context.read<AppState>().api;
       final j = await api.hzStatus();
       if (mounted) setState(() => _st = j);
-    } catch (_) {/* offline / old server: no tile */}
+    } catch (_) {} // best-effort: offline / old server -> no tile (never a dead button)
   }
 
   @override

@@ -320,7 +320,7 @@ def ticket_dict(t, with_user=False):
         last = t.messages.order_by("-id").first()
         d.update({"user_id": t.user_id,
                   "user_name": (getattr(t.user, "name", "") or "").strip(),
-                  "preview": (last.text[:120] if last and last.text else
+                  "last_text": (last.text[:120] if last and last.text else
                               (last.attachment_kind if last else "")),
                   "linked_name": getattr(getattr(t.user, "halaladz_link", None),
                                          "display_name", "") if _has_link(t.user) else ""})

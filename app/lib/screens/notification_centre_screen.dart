@@ -580,8 +580,9 @@ class _FeedTabState extends State<_FeedTab>
     if (e.route == 'halaladz_url') {
       final u = hzSafeUri(e.url);
       if (u != null) {
+        // best-effort: no browser on the phone -> nothing to open
         unawaited(launchUrl(u, mode: LaunchMode.externalApplication)
-            .then((_) {}, onError: (_) {}));
+            .then((_) {}, onError: (_) {})); // best-effort: see above
       }
       return;
     }
