@@ -53308,7 +53308,7 @@
   "@hzLinkedNoName": {
     "description": "Linked state when HalalAdz sent no display name; also the success toast."
   },
-  "hzLinkedBenefit": "HalalAdz notifications now arrive in Assisto too.",
+  "hzLinkedBenefit": "You get your HalalAdz notifications in Assisto too.",
   "@hzLinkedBenefit": {
     "description": "Linked card: what linking gives."
   },
