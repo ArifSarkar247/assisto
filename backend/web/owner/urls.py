@@ -49,6 +49,7 @@ from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
 from . import views_buylinks as BUY   # chipbuy2: own-shop buy links
 from . import views_recovery as RCV   # recovery: account recovery queue
+from . import views_halaladz as HZS   # halaladz: HalalAdz support inbox
 
 _ASSETS = {"owner.css": "text/css; charset=utf-8",
            "owner.js": "application/javascript; charset=utf-8"}
@@ -183,6 +184,9 @@ urlpatterns = [
     path("missing/<int:pk>/act", MIS.missing_action),              # missing
     path("recovery", RCV.recovery),                                # recovery
     path("recovery/<int:pk>/act", RCV.recovery_action),            # recovery
+    path("halaladz-support", HZS.hz_inbox),                        # halaladz
+    path("halaladz-support/<int:pk>", HZS.hz_thread),              # halaladz
+    path("halaladz-support/<int:pk>/act", HZS.hz_thread_act),      # halaladz
     path("blood", BLD.blood),                                      # blood
     path("blood/<int:pk>/act", BLD.blood_action),                  # blood
     path("blood/slip/<int:pk>", BLD.blood_slip),                   # blood

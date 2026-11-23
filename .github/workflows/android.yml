@@ -786,6 +786,24 @@ jobs:
               if j != -1:
                   s = s[:j] + elderlink + s[j:]
           # ---- /fcelder ----
+          # ---- halaladz ---- assisto://link-halaladz?code=CODE (from the
+          # HalalAdz app / site) opens "Link HalalAdz account" with the code
+          # filled in (the person still taps Link). Custom scheme: no
+          # autoVerify, no permission.
+          hzlink = (
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.VIEW"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <category android:name="android.intent.category.BROWSABLE"/>'
+              '\n                <data android:scheme="assisto" android:host="link-halaladz"/>'
+              '\n            </intent-filter>\n        '
+          )
+          if 'android:host="link-halaladz"' not in s:
+              i = s.find('android:name=".MainActivity"')
+              j = s.find('</activity>', i) if i != -1 else -1
+              if j != -1:
+                  s = s[:j] + hzlink + s[j:]
+          # ---- /halaladz ----
           # ---- c3-msg ---- chat bubbles (Android 11+ Bubbles API): the bubble
           # expands this activity, so it must be embeddable + resizeable and
           # launch as its own document (several bubbles at once). Not

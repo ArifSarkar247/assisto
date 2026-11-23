@@ -62,3 +62,8 @@ AGENT_RATE_PER_MIN = 0
 AGENT_RATE_PER_HOUR = 0
 
 SHOPBOX_RELEASE_FETCH = False   # cctvtoday: tests never fetch the GitHub release manifest
+
+# halaladz: tests never inherit a real shared secret (each test sets its own
+# with override_settings) and never reach the real HalalAdz API.
+HALALADZ_SHARED_SECRET = ""
+HALALADZ_API_BASE = "https://hz.invalid"

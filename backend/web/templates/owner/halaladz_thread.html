@@ -1,0 +1,24 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }} · {{ t.user_name|default:"—" }}{% endblock %}
+{% block content %}
+<p><a href="/owner/halaladz-support">{{ L.back }}</a> · <span class="small mut">#{{ t.user_id }}{% if t.linked_name %} · {{ L.linked }}: {{ t.linked_name }}{% endif %}</span>
+{% if t.resolved %} · <span class="pill ok">{{ L.resolved }}</span>{% endif %}</p>
+<div class="card">
+{% for m in msgs %}<div class="hzmsg{% if m.sender == 'owner' %} own{% endif %}">
+<div class="small mut">{% if m.sender == 'owner' %}{{ L.you }}{% else %}{{ t.user_name|default:"—" }}{% endif %} · {{ m.at|slice:":16" }}</div>
+{% if m.kind == 'photo' and m.media_url %}<a href="{{ m.media_url }}" target="_blank" rel="noopener"><img class="hzimg" src="{{ m.media_url }}" alt="{{ L.photo }}"></a>{% endif %}
+{% if m.kind == 'voice' and m.media_url %}<audio controls preload="none" src="{{ m.media_url }}"></audio>{% endif %}
+{% if m.text %}<div class="txt">{{ m.text }}</div>{% endif %}
+</div>{% empty %}<p class="empty">{{ L.none }}</p>{% endfor %}
+</div>
+<div class="card">
+<b>{{ L.quick }}</b>
+<div class="row">{% for q in quick %}<form class="hzq" method="post" action="/owner/halaladz-support/{{ t.id }}/act">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reply"><input type="hidden" name="text" value="{{ q }}"><button class="btn ghost">{{ q }}</button></form>{% endfor %}</div>
+<form method="post" action="/owner/halaladz-support/{{ t.id }}/act">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="reply">
+<textarea class="hzta" name="text" rows="3" maxlength="4000" placeholder="{{ L.placeholder }}"></textarea>
+<button class="btn primary">{{ L.reply }}</button></form>
+<form method="post" action="/owner/halaladz-support/{{ t.id }}/act">{% include "owner/_csrf.html" %}
+{% if t.resolved %}<button class="btn ghost" name="action" value="reopen">{{ L.reopen }}</button>{% else %}<button class="btn" name="action" value="resolve">{{ L.resolve }}</button>{% endif %}
+</form>
+</div>
+{% endblock %}

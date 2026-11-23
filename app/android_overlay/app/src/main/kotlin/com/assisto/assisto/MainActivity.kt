@@ -127,6 +127,17 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun onNewIntent(intent: Intent) {
+        // halaladz: assisto://link-halaladz?code=X has no path and Flutter's
+        // WARM route keeps only path + query ("/?code=X") — give it the path
+        // /link-halaladz first so Dart sees "/link-halaladz?code=X".
+        try {
+            val d = intent.data
+            if (d != null && d.scheme == "assisto" && d.host == "link-halaladz" &&
+                d.path.isNullOrEmpty()) {
+                intent.data = d.buildUpon().path("/link-halaladz").build()
+            }
+        } catch (e: Throwable) {
+        }
         super.onNewIntent(intent)
         setIntent(intent)
         markAdLaunchSource(intent)

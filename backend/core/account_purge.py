@@ -47,6 +47,14 @@ def _delete_user_files(user):
     except Exception:
         pass
 
+    # halaladz: photos / voice notes the user sent in a support chat thread
+    try:
+        for t in user.tickets.all():
+            for m in t.messages.all():
+                _wipe(getattr(m, "attachment", None))
+    except Exception:
+        pass
+
     # Generic reverse-relation file fields (vault, support, …).
     for accessor, attrs in _FILE_FIELDS:
         try:

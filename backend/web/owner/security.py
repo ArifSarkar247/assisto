@@ -359,7 +359,7 @@ def audit(request, actor, action, target="", before=None, after=None, ok=True):
 
 # ----------------------------------------------------------------- headers
 CSP = ("default-src 'none'; script-src 'self'; style-src 'self'; "
-       "img-src 'self' data:; font-src 'self'; connect-src 'self'; "
+       "img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; "
        "form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
 
 

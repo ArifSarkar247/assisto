@@ -73,6 +73,8 @@ import 'perf/low_data.dart' show LowDataMode; // faststart
 import 'perf/circle_warm.dart'; // faststart
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
+import 'halaladz/halaladz_link.dart'; // halaladz
+import 'halaladz/halaladz_screen.dart'; // halaladz
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
@@ -349,6 +351,8 @@ class AssistoApp extends StatelessWidget {
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
               ShopChatLink.route(s) ?? // bizai: /shop/<code> shop chat
+              HalalAdzDeepLink.route( // halaladz: assisto://link-halaladz?code=
+                  s, (code) => HalalAdzScreen(initialCode: code)) ??
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -415,6 +419,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           context,
           PlatformDispatcher.instance.defaultRouteName,
           (l) => SpaceLinkScreen(link: l));
+      // halaladz: cold-start assisto://link-halaladz?code=CODE
+      HalalAdzDeepLink.maybeOpenColdStart(
+          context,
+          PlatformDispatcher.instance.defaultRouteName,
+          (code) => HalalAdzScreen(initialCode: code),
+          loggedIn: context.read<AppState>().loggedIn);
     });
   }
 
@@ -734,6 +744,18 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         try {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => SpaceLinkScreen(link: spaceLink)));
+        } catch (_) {}
+      });
+    }
+    // halaladz: a HalalAdz link code that arrived signed out.
+    final hzCode = HalalAdzDeepLink.pending;
+    if (hzCode != null) {
+      HalalAdzDeepLink.pending = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => HalalAdzScreen(initialCode: hzCode)));
         } catch (_) {}
       });
     }
