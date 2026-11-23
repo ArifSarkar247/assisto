@@ -1,6 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -15,6 +18,8 @@ import '../widgets/notif_models.dart';
 import '../widgets/notif_reminder_card.dart';
 import '../widgets/notif_feed_card.dart';
 import '../push/push_payload.dart' show PushRouting;
+import '../halaladz/halaladz_api.dart' show hzSafeUri; // halaladz
+import '../halaladz/halaladz_support_screen.dart'; // halaladz
 
 /// NOTIFICATION CENTRE — the bell screen (per owner).
 ///
@@ -569,6 +574,24 @@ class _FeedTabState extends State<_FeedTab>
           await _api.notifSeen(e.id);
         } catch (_) {/* best-effort: keep optimistic state */}
       }
+    }
+    // halaladz: a HalalAdz notice opens its safe https page; a support
+    // reply opens the HalalAdz support chat.
+    if (e.route == 'halaladz_url') {
+      final u = hzSafeUri(e.url);
+      if (u != null) {
+        // best-effort: no browser on the phone -> nothing to open
+        unawaited(launchUrl(u, mode: LaunchMode.externalApplication)
+            .then((_) {}, onError: (_) {})); // best-effort: see above
+      }
+      return;
+    }
+    if (e.route == 'halaladz_support') {
+      if (mounted) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const HalalAdzSupportScreen()));
+      }
+      return;
     }
     // dl1: backend routes (e.g. account/delete) map to ChatNav keys.
     if (mounted) {

@@ -2106,3 +2106,20 @@ urlpatterns += [
     path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
 ]
 # ---- /messv2 ----
+
+# ---- halaladz ---- HalalAdz link / support (core/views_halaladz.py). The
+# HalalAdz -> Assisto notify webhook is mounted at the ROOT path
+# /api/integrations/halaladz/notify (assisto_backend/urls.py), not under v1.
+from . import views_halaladz as hzv  # noqa: E402
+urlpatterns += [
+    path("halaladz/status", hzv.HalalAdzStatusView.as_view()),
+    path("halaladz/link", hzv.HalalAdzLinkView.as_view()),
+    path("halaladz/unlink", hzv.HalalAdzUnlinkView.as_view()),
+    path("halaladz/support", hzv.HalalAdzSupportView.as_view()),
+    path("halaladz/owner/inbox", hzv.HalalAdzOwnerInboxView.as_view()),
+    path("halaladz/owner/thread/<int:pk>", hzv.HalalAdzOwnerThreadView.as_view()),
+    path("halaladz/owner/thread/<int:pk>/reply", hzv.HalalAdzOwnerReplyView.as_view()),
+    path("halaladz/owner/thread/<int:pk>/resolve",
+         hzv.HalalAdzOwnerResolveView.as_view()),
+]
+# ---- /halaladz ----

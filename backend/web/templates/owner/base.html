@@ -57,6 +57,7 @@
     <a href="/owner/crisis-helplines" class="{% if nav == 'crisis' %}on{% endif %}">{{ T.nav_crisis }}</a>
     <a href="/owner/missing" class="{% if nav == 'missing' %}on{% endif %}">{{ T.nav_missing }}</a>
     <a href="/owner/recovery" class="{% if nav == 'recovery' %}on{% endif %}">{{ T.nav_recovery }}</a>
+    <a href="/owner/halaladz-support" class="{% if nav == 'halaladz' %}on{% endif %}">{% if lang == 'en' %}HalalAdz support{% else %}HalalAdz সাপোর্ট{% endif %}</a>
     <a href="/owner/blood" class="{% if nav == 'blood' %}on{% endif %}">{{ T.nav_blood }}</a>
     <a href="/owner/quran-pron" class="{% if nav == 'quran_pron' %}on{% endif %}">{{ T.nav_quran_pron }}</a>
     <a href="/owner/nearby" class="{% if nav == 'nearby' %}on{% endif %}">{{ T.nav_nearby }}</a>
@@ -76,6 +77,7 @@
     {# adminsafe: a staff role sees only the pages it holds #}
     {% if can.users %}<a href="/owner/users" class="{% if nav == 'users' %}on{% endif %}">{{ T.nav_users }}</a>{% endif %}
     {% if can.act_support %}<a href="/owner/recovery" class="{% if nav == 'recovery' %}on{% endif %}">{{ T.nav_recovery }}</a>{% endif %}
+    {% if can.act_support %}<a href="/owner/halaladz-support" class="{% if nav == 'halaladz' %}on{% endif %}">{% if lang == 'en' %}HalalAdz support{% else %}HalalAdz সাপোর্ট{% endif %}</a>{% endif %}
     {% if can.appeals %}<a href="/owner/appeals" class="{% if nav == 'appeals' %}on{% endif %}">{{ T.nav_appeals }}</a>{% endif %}
     {% if can.reports %}<a href="/owner/channel-reports" class="{% if nav == 'channel_reports' %}on{% endif %}">{{ T.nav_channel_reports }}</a>
     <a href="/owner/ai-reports" class="{% if nav == 'ai_reports' %}on{% endif %}">{{ T.nav_ai_reports }}</a>{% endif %}

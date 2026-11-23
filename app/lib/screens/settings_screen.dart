@@ -53,6 +53,7 @@ import '../widgets/offline_strings.dart';
 // Section-21 support surfaces: in-app update check (#180) + support center (#181).
 import 'app_update_screen.dart';
 import 'support_center_screen.dart';
+import '../halaladz/halaladz_tile.dart'; // halaladz
 // Section-20 advanced: accessibility mode (#200) + digital security check-up (#198).
 import 'accessibility_mode_screen.dart';
 import 'trust_page_screen.dart';
@@ -487,6 +488,8 @@ class SettingsScreen extends StatelessWidget {
               subtitle: Text(t.fbTileSub),
               onTap: () => FeedbackSheet.open(context, route: 'settings'),
             ),
+            // halaladz: Link HalalAdz account (drawn only when the server has it on)
+            const HalalAdzSettingsTile(),
             ListTile(
               leading: const Icon(Icons.support_agent_rounded),
               title: Text(AppLocalizations.of(context).supportReportTile),

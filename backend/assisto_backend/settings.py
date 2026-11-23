@@ -120,6 +120,13 @@ MAP_TILE_ATTRIBUTION = os.getenv("MAP_TILE_ATTRIBUTION",
                                  "© MapTiler © OpenStreetMap contributors")
 MAP_TILE_MAX_ZOOM = int(os.getenv("MAP_TILE_MAX_ZOOM", "19"))
 
+# ---- halaladz ---- HalalAdz partner integration (core/halaladz.py). The shared
+# HMAC secret lives ONLY in the server's secrets env file (never in git). Empty
+# = the whole HalalAdz link + notify + support feature is OFF (503/disabled).
+HALALADZ_SHARED_SECRET = os.getenv("HALALADZ_SHARED_SECRET", "")
+HALALADZ_API_BASE = os.getenv("HALALADZ_API_BASE", "https://api.halaladz.com")
+# ---- /halaladz ----
+
 # Relay bandwidth budget the bandwidth alert compares against (bytes/s;
 # 31250000 = 250 Mbit/s = half the t3.large 512 Mbit/s network baseline).
 TURN_RELAY_BUDGET_BYTES_S = int(os.getenv("TURN_RELAY_BUDGET_BYTES_S", "31250000"))

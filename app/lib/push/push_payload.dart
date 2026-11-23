@@ -45,6 +45,7 @@ class PushChannels {
     'channel_post': messages, // channels: a new post in a followed channel
     'community_join': messages, // channels: join request / approved
     'market': alerts, // amarket: new need / new offer / accepted deal
+    'halaladz': alerts, // halaladz: a HalalAdz notice / support-chat reply
     // carecall: the Care Call ring (full-screen, call channel), the consent
     // request and the setter's confirmed / did-not-answer update
     'carecall': calls,

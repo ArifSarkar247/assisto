@@ -44,6 +44,8 @@ import 'push_bridge.dart';
 import 'push_notifier.dart';
 import '../ads/app_open_gate.dart' show AppEntry;
 import 'push_payload.dart';
+import '../halaladz/halaladz_api.dart' show hzSafeUri; // halaladz
+import '../halaladz/halaladz_support_screen.dart'; // halaladz
 import '../messaging/badges_bus.dart';
 import '../messaging/c3_api.dart';
 import '../messaging/chat_opener.dart';
@@ -678,6 +680,15 @@ class PushService {
           .then((_) {}, onError: (_) {}));
       return;
     }
+    // halaladz: a HalalAdz notice opens its (safe, https) page outside the app
+    if (p.kind == 'halaladz') {
+      final hu = hzSafeUri(p.data['url']);
+      if (hu != null) {
+        unawaited(launchUrl(hu, mode: LaunchMode.externalApplication)
+            .then((_) {}, onError: (_) {}));
+        return;
+      }
+    }
     // carecall: a Care Call ring tapped / full-screen -> SCREEN 2 at once
     // (once per slot; the cold-start route may already show it)
     if (p.kind == 'carecall' && action == null &&
@@ -712,6 +723,12 @@ class PushService {
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) {
       _pending = (payload: p, action: action);
+      return;
+    }
+    // halaladz: a reply in the HalalAdz support chat opens that chat.
+    if (p.kind == 'halaladz' && p.route == 'halaladz_support') {
+      _nav?.currentState?.push(MaterialPageRoute(
+          builder: (_) => const HalalAdzSupportScreen()));
       return;
     }
     // callsbar: the missed-call notification's "Call back" / "Message".

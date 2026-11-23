@@ -275,6 +275,10 @@ class NotifEvent {
   final bool admin;
   bool seen;
 
+  /// halaladz: the page a HalalAdz notice opens (meta.url; checked again
+  /// with hzSafeUri before anything is opened). '' = none.
+  final String url;
+
   NotifEvent({
     required this.id,
     required this.type,
@@ -284,6 +288,7 @@ class NotifEvent {
     this.route,
     this.admin = false,
     this.seen = false,
+    this.url = '',
   });
 
   factory NotifEvent.fromJson(Map m) => NotifEvent(
@@ -295,7 +300,14 @@ class NotifEvent {
         route: m['route'] as String?,
         admin: m['type'] == 'admin' || m['admin'] == true,
         seen: m['seen'] == true,
+        url: _metaUrl(m),
       );
+
+  static String _metaUrl(Map m) {
+    final meta = m['meta'];
+    if (meta is Map && meta['source'] == 'halaladz') return '${meta['url'] ?? ''}';
+    return '${m['url'] ?? ''}';
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -306,6 +318,7 @@ class NotifEvent {
         'time': timeIso,
         'route': route,
         'seen': seen,
+        if (url.isNotEmpty) 'url': url,
       };
 }
 

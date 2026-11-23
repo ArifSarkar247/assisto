@@ -657,6 +657,12 @@ class SupportTicket(models.Model):
     resolved = models.BooleanField(default=False)
     reply = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # halaladz: a support THREAD (SupportMessage rows) for a topic ("" = the
+    # classic one-shot ticket; "halaladz" = the HalalAdz support chat).
+    topic = models.CharField(max_length=16, blank=True, default="", db_index=True)
+    unread_owner = models.IntegerField(default=0)
+    unread_user = models.IntegerField(default=0)
+    last_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -9298,3 +9304,60 @@ class BlogPost(models.Model):
     class Meta:
         ordering = ["order", "-published_at", "id"]
 # ---- /seoblog ----
+
+
+# ---- halaladz ---- HalalAdz partner integration (core/halaladz.py). Off when
+# settings.HALALADZ_SHARED_SECRET is empty. The support chat REUSES
+# SupportTicket (topic="halaladz"): one ticket per user is the thread; each
+# message is a SupportMessage (attachments use the signed-media storage).
+class HalalAdzLink(models.Model):
+    """An Assisto account linked to ONE HalalAdz account (and vice versa)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="halaladz_link")
+    hz_account_id = models.CharField(max_length=64, unique=True)
+    display_name = models.CharField(max_length=120, blank=True, default="")
+    linked_at = models.DateTimeField(auto_now_add=True)
+
+
+class HalalAdzEvent(models.Model):
+    """A notify event from HalalAdz, kept once per event_id (idempotency)."""
+    event_id = models.CharField(max_length=80, unique=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="halaladz_events")
+    kind = models.CharField(max_length=40, blank=True, default="")
+    url = models.CharField(max_length=500, blank=True, default="")
+    received_at = models.DateTimeField(auto_now_add=True)
+
+
+class HalalAdzOfficial(models.Model):
+    """Singleton (pk=1) written by `manage.py halaladz_community`: the official
+    HalalAdz channel + community (existing Channel / Community engines)."""
+    owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    channel = models.ForeignKey("Channel", null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="+")
+    community = models.ForeignKey("Community", null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name="+")
+    group = models.ForeignKey("CommunityGroup", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="+")
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SupportMessage(models.Model):
+    """One message in a support thread (SupportTicket). sender user|owner."""
+    SENDERS = [("user", "user"), ("owner", "owner")]
+    KINDS = [("", "text"), ("photo", "photo"), ("voice", "voice")]
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE,
+                               related_name="messages")
+    sender = models.CharField(max_length=8, choices=SENDERS, default="user")
+    author = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    text = models.TextField(blank=True, default="")
+    attachment = models.FileField(upload_to="support/msg/%Y/%m/", null=True, blank=True)
+    attachment_kind = models.CharField(max_length=8, choices=KINDS, blank=True, default="")
+    duration_ms = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+# ---- /halaladz ----

@@ -125,7 +125,10 @@ KINDS = ("message", "call", "call_cancel", "reminder", "family_alert", "sos",
          # call-style notification); "carecall_invite" = "X wants to send you
          # Care Calls" (receiver consent); "carecall_status" = the setter's
          # confirmed / did-not-answer card. Opens Care Call.
-         "carecall", "carecall_invite", "carecall_status")
+         "carecall", "carecall_invite", "carecall_status",
+         # halaladz: a HalalAdz notice (opens a safe https url) or a reply in
+         # the HalalAdz support chat. A NOTIFICATION push (alerts channel).
+         "halaladz")
 # Kinds that must ALWAYS be data-only + high priority (app draws the UI).
 # c3-msg: "message" is data-only too, so the DEVICE draws the WhatsApp-style
 # MessagingStyle notification (decrypted on device), acks delivery and offers
@@ -151,7 +154,8 @@ TTL_S = {"call": 30, "call_cancel": 60, "sos": 600, "message": 86400,
          "budget_alert": 12 * 3600, "channel_post": 86400,
          "community_join": 86400, "market": 86400,
          # carecall: a ring older than 10 min is replaced by the retry
-         "carecall": 600, "carecall_invite": 86400, "carecall_status": 86400}
+         "carecall": 600, "carecall_invite": 86400, "carecall_status": 86400,
+         "halaladz": 86400}
 # Android notification channel ids the app must create.
 CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "reminder": "reminders", "family_alert": "alerts", "sos": "sos",
@@ -165,7 +169,7 @@ CHANNELS = {"message": "messages", "call": "calls", "call_cancel": "calls",
             "budget_alert": "alerts", "channel_post": "messages",
             "community_join": "messages", "market": "alerts",
             "carecall": "calls", "carecall_invite": "alerts",
-            "carecall_status": "alerts"}
+            "carecall_status": "alerts", "halaladz": "alerts"}
 # qcircle: build 302 (circlebub) replaced the phone-side 'messages' channel
 # with 'chat_msg_v2' (Assisto pop, user's mute/vibrate carried over) and
 # DELETED 'messages'. A NOTIFICATION push (message_request, channel_post,
