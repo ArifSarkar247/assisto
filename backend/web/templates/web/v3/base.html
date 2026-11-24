@@ -36,6 +36,7 @@
 <meta name="twitter:image" content="{{ og_image }}">
 <script type="application/ld+json">{{ jsonld|safe }}</script>
 {% include "web/v3/_css.html" %}
+{% block hz_ads %}{% include "web/_halaladz_ads.html" %}{% endblock %}
 </head>
 <body>
 <a class="skip" href="#main">{{ C.skip }}</a>

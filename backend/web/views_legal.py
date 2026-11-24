@@ -153,6 +153,17 @@ def app_ads_extra_lines():
     return out[:20]
 
 
+# owner 24 Nov: HalalAdz on the public website. lifeassisto.com/ads.txt had no
+# other lines (404 before), so this is the whole file.
+ADS_TXT_LINES = ("halaladz.com, pub-12, DIRECT",)
+
+
+def ads_txt(request):
+    resp = HttpResponse("\n".join(ADS_TXT_LINES) + "\n", content_type="text/plain; charset=utf-8")
+    resp["Cache-Control"] = "public, max-age=600"
+    return resp
+
+
 def app_ads_txt(request):
     """lifeassisto.com/app-ads.txt (nginx proxies every path to Django).
     text/plain, short cache. No publisher id stored -> 404 (not an empty

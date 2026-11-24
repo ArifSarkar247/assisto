@@ -85,6 +85,7 @@ urlpatterns = [
     path("refund-policy", views_legal.refund_policy),   # billing-v2
     path("delete-account", views_legal.delete_account),
     path("app-ads.txt", views_legal.app_ads_txt),
+    path("ads.txt", views_legal.ads_txt),   # owner 24 Nov: HalalAdz
     path("sitemap.xml", views_legal.sitemap_xml),
     # ---- /l1-launch ----
 

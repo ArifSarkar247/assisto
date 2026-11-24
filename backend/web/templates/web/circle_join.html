@@ -1,4 +1,5 @@
 {% extends "web/base.html" %}
+{% block hz_ads %}{% endblock %}
 {% block title %}{% if lang == 'en' %}Join My Circle on Assisto{% else %}Assisto — আমার সার্কেলে যোগ দিন{% endif %}{% endblock %}
 {% block og %}
 <meta property="og:title" content="{% if lang == 'en' %}{% if name %}{{ name }} invited you to My Circle{% else %}You're invited to My Circle{% endif %}{% else %}{% if name %}{{ name }} আপনাকে আমার সার্কেলে ডেকেছেন{% else %}আপনাকে আমার সার্কেলে ডাকা হয়েছে{% endif %}{% endif %}">

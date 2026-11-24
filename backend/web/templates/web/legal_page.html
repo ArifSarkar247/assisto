@@ -1,4 +1,5 @@
 {% extends "web/base.html" %}
+{% block hz_ads %}{% if page_key != "deletion" %}{{ block.super }}{% endif %}{% endblock %}
 {% block title %}{{ page_title }} — Assisto{% endblock %}
 {% block og %}
 <meta property="og:title" content="{{ page_title }} — Assisto">
